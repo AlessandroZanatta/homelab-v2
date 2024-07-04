@@ -1,0 +1,120 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: media
+  name: jellyfin
+  labels:
+    kalexlab.xyz/app: media
+    kalexlab.xyz/component: jellyfin
+spec:
+  type: ClusterIP
+  ports:
+    - name: jellyfin
+      port: 8096
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: media
+    kalexlab.xyz/component: jellyfin
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: media
+  name: jellyfin
+  labels:
+    kalexlab.xyz/app: media
+    kalexlab.xyz/component: jellyfin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: media
+      kalexlab.xyz/component: jellyfin
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: media
+        kalexlab.xyz/component: jellyfin
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: app
+          image: linuxserver/jellyfin:latest
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 8096
+              protocol: TCP
+
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "UTC"
+
+          resources:
+            requests:
+              memory: 150Mi
+              cpu: 20m
+            limits:
+              memory: 500Mi
+              cpu: 1000m
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8096
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8096
+            failureThreshold: 3
+            periodSeconds: 30
+
+          securityContext:
+            # uses a LOT of directories
+            # readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+
+          volumeMounts:
+            - mountPath: /data/media
+              name: media-data-pvc
+              subPath: media
+            - mountPath: /config
+              name: jellyfin-conf-pvc
+            - mountPath: /cache
+              name: jellyfin-cache
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        # Will run with lower privileges after startup anyway
+        # runAsNonRoot: true
+        # runAsUser: 1000
+        # runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+
+      volumes:
+        - name: media-data-pvc
+          persistentVolumeClaim:
+            claimName: media-data-pvc
+        - name: jellyfin-cache
+          emptyDir:
+
+  volumeClaimTemplates:
+    - metadata:
+        name: jellyfin-conf-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 1Gi

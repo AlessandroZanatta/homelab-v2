@@ -1,0 +1,176 @@
+---
+# haproxy bind address
+k8s_haproxy_frontend_bind_address: "127.0.0.1"
+k8s_haproxy_frontend_port: "16443"
+k8s_haproxy_k8s_api_endpoint_port: "6443"
+k8s_controllers_group: "controllers"
+k8s_etcd_group: "etcd"
+k8s_interface: "eth0"
+
+k8s_output_path: "./build"
+delegate_to_host: "ansible-controller"
+
+k8s_encryption_key_name: "encryption-key"
+# If left empty throws error on kube-apiserver
+# https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/
+k8s_encryption_key_secret: ""
+
+k8s_version: "1.29.4"
+k8s_binaries_path: "/usr/local/bin"
+k8s_binaries_amd64:
+  - dest: kube-apiserver
+    url: "https://dl.k8s.io/v{{ k8s_version }}/bin/linux/amd64/kube-apiserver"
+  - dest: kube-controller-manager
+    url: "https://dl.k8s.io/v{{ k8s_version }}/bin/linux/amd64/kube-controller-manager"
+  - dest: kube-scheduler
+    url: "https://dl.k8s.io/v{{ k8s_version }}/bin/linux/amd64/kube-scheduler"
+  - dest: kubectl
+    url: "https://dl.k8s.io/v{{ k8s_version }}/bin/linux/amd64/kubectl"
+
+k8s_binaries_arm64:
+  - dest: kube-apiserver
+    url: "https://dl.k8s.io/v{{ k8s_version }}/bin/linux/arm64/kube-apiserver"
+  - dest: kube-controller-manager
+    url: "https://dl.k8s.io/v{{ k8s_version }}/bin/linux/arm64/kube-controller-manager"
+  - dest: kube-scheduler
+    url: "https://dl.k8s.io/v{{ k8s_version }}/bin/linux/arm64/kube-scheduler"
+  - dest: kubectl
+    url: "https://dl.k8s.io/v{{ k8s_version }}/bin/linux/arm64/kubectl"
+
+# Kubernetes configuration
+k8s_control_plane_user: k8s
+k8s_control_plane_group: k8s
+k8s_control_plane_system_user: true
+k8s_control_plane_user_shell: "/bin/false"
+
+k8s_etcd_interface: "{{ k8s_interface }}"
+k8s_etcd_client_port: "2379"
+
+k8s_kube_apiserver_endpoint_host: "{% set controller_host = groups[k8s_controllers_group][0] %}{{ hostvars[controller_host]['ansible_' + k8s_interface].ipv4.address }}"
+k8s_kube_apiserver_endpoint_port: "6443"
+k8s_config_path: "/etc/kubernetes/controller"
+k8s_config_path_mode: "0740"
+k8s_keys_path: "{{ k8s_config_path }}/keys"
+k8s_keys_path_mode: "0740"
+
+k8s_kube_apiserver_path: "{{ k8s_config_path }}/kube-apiserver"
+k8s_kube_controller_manager_path: "{{ k8s_config_path }}/kube-controller-manager"
+k8s_kube_scheduler_path: "{{ k8s_config_path }}/kube-scheduler"
+k8s_kube_admin_path: "{{ k8s_config_path }}/kube-admin"
+
+k8s_pki_path: "./build"
+k8s_keys_mode: "0400"
+k8s_required_keys:
+  - ca-apiserver.pem
+  - ca-apiserver-key.pem
+  - ca-etcd.pem
+  - etcd-client-apiserver.pem
+  - etcd-client-apiserver-key.pem
+  - apiserver-service-account.pem
+  - apiserver-service-account-key.pem
+  - apiserver-controller-manager.pem
+  - apiserver-controller-manager-key.pem
+  - apiserver-scheduler.pem
+  - apiserver-scheduler-key.pem
+  - apiserver-admin.pem
+  - apiserver-admin-key.pem
+  - apiserver-proxy-client.pem
+  - apiserver-proxy-client-key.pem
+  - apiserver.pem
+  - apiserver-key.pem
+
+k8s_log_base_path: "/var/log/kubernetes"
+k8s_log_base_mode: "0770"
+k8s_apiserver_audit_path: "{{ k8s_log_base_path }}/kube-apiserver"
+
+k8s_apiserver_settings:
+  advertise-address: "{{ hostvars[inventory_hostname]['ansible_' + k8s_interface].ipv4.address }}"
+  bind-address: "{{ hostvars[inventory_hostname]['ansible_' + k8s_interface].ipv4.address }}"
+  secure-port: "6443"
+  enable-admission-plugins: "NodeRestriction,NamespaceLifecycle,LimitRanger,ServiceAccount,TaintNodesByCondition,Priority,DefaultTolerationSeconds,DefaultStorageClass,PersistentVolumeClaimResize,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,PodSecurity,Priority,StorageObjectInUseProtection,RuntimeClass,CertificateApproval,CertificateSigning,ClusterTrustBundleAttest,CertificateSubjectRestriction,DefaultIngressClass"
+  allow-privileged: "true"
+  authorization-mode: "Node,RBAC"
+  audit-log-maxage: "30"
+  audit-log-maxbackup: "3"
+  audit-log-maxsize: "100"
+  audit-log-path: "{{ k8s_apiserver_audit_path }}"
+  event-ttl: "1h"
+  kubelet-preferred-address-types: "InternalIP,Hostname,ExternalIP"
+  runtime-config: "api/all=true"
+  service-cluster-ip-range: "10.32.0.0/16"
+  service-node-port-range: "30000-32767"
+  client-ca-file: "{{ k8s_keys_path }}/ca-apiserver.pem"
+  etcd-cafile: "{{ k8s_keys_path }}/ca-etcd.pem"
+  etcd-certfile: "{{ k8s_keys_path }}/etcd-client-apiserver.pem"
+  etcd-keyfile: "{{ k8s_keys_path }}/etcd-client-apiserver-key.pem"
+  encryption-provider-config: "{{ k8s_kube_apiserver_path }}/encryption-config.yaml"
+  encryption-provider-config-automatic-reload: "true"
+  kubelet-certificate-authority: "{{ k8s_keys_path }}/ca-apiserver.pem"
+  kubelet-client-certificate: "{{ k8s_keys_path }}/apiserver.pem"
+  kubelet-client-key: "{{ k8s_keys_path }}/apiserver-key.pem"
+  service-account-key-file: "{{ k8s_keys_path }}/apiserver-service-account.pem"
+  service-account-signing-key-file: "{{ k8s_keys_path }}/apiserver-service-account-key.pem"
+  service-account-issuer: "https://{{ groups[k8s_controllers_group] | first }}:6443"
+  requestheader-client-ca-file: "{{ k8s_keys_path }}/ca-apiserver.pem"
+  proxy-client-cert-file: "{{ k8s_keys_path }}/apiserver-proxy-client.pem"
+  proxy-client-key-file: "{{ k8s_keys_path }}/apiserver-proxy-client-key.pem"
+  requestheader-allowed-names: ""
+  tls-cert-file: "{{ k8s_keys_path }}/apiserver.pem"
+  tls-private-key-file: "{{ k8s_keys_path }}/apiserver-key.pem"
+
+k8s_controller_manager_settings:
+  bind-address: "{{ hostvars[inventory_hostname]['ansible_' + k8s_interface].ipv4.address }}"
+  secure-port: "10257"
+  cluster-cidr: "10.200.0.0/16"
+  allocate-node-cidrs: "true"
+  cluster-name: "kubernetes"
+  authentication-kubeconfig: "{{ k8s_kube_controller_manager_path }}/kubeconfig"
+  authorization-kubeconfig: "{{ k8s_kube_controller_manager_path }}/kubeconfig"
+  kubeconfig: "{{ k8s_kube_controller_manager_path }}/kubeconfig"
+  leader-elect: "true"
+  service-cluster-ip-range: "10.32.0.0/16"
+  cluster-signing-cert-file: "{{ k8s_keys_path }}/apiserver.pem"
+  cluster-signing-key-file: "{{ k8s_keys_path }}/apiserver-key.pem"
+  root-ca-file: "{{ k8s_keys_path }}/ca-apiserver.pem"
+  requestheader-client-ca-file: "{{ k8s_keys_path }}/ca-apiserver.pem"
+  service-account-private-key-file: "{{ k8s_keys_path }}/apiserver-service-account-key.pem"
+  use-service-account-credentials: "true"
+
+k8s_scheduler_settings:
+  bind-address: "{{ hostvars[inventory_hostname]['ansible_' + k8s_interface].ipv4.address }}"
+  config: "{{ k8s_kube_scheduler_path }}/kube-scheduler.yaml"
+  authentication-kubeconfig: "{{ k8s_kube_scheduler_path }}/kubeconfig"
+  authorization-kubeconfig: "{{ k8s_kube_scheduler_path }}/kubeconfig"
+  requestheader-client-ca-file: "{{ k8s_keys_path }}/ca-apiserver.pem"
+
+k8s_service_options:
+  - User={{ k8s_control_plane_user }}
+  - Group={{ k8s_control_plane_group }}
+  - Restart=on-failure
+  - RestartSec=5
+  - NoNewPrivileges=true
+  - ProtectHome=true
+  - PrivateTmp=true
+  - PrivateUsers=true
+  - ProtectSystem=full
+  - ProtectClock=true
+  - ProtectKernelModules=true
+  - ProtectKernelTunables=true
+  - ProtectKernelLogs=true
+  - ProtectControlGroups=true
+  - ProtectHostname=true
+  - ProtectControlGroups=true
+  - RestrictNamespaces=true
+  - RestrictRealtime=true
+  - RestrictSUIDSGID=true
+  - CapabilityBoundingSet=~CAP_SYS_PTRACE
+  - CapabilityBoundingSet=~CAP_KILL
+  - CapabilityBoundingSet=~CAP_MKNOD
+  - CapabilityBoundingSet=~CAP_SYS_CHROOT
+  - CapabilityBoundingSet=~CAP_SYS_ADMIN
+  - CapabilityBoundingSet=~CAP_SETUID
+  - CapabilityBoundingSet=~CAP_SETGID
+  - CapabilityBoundingSet=~CAP_SETPCAP
+  - CapabilityBoundingSet=~CAP_CHOWN
+  - SystemCallFilter=@system-service
+  - ReadWritePaths=-/usr/libexec/kubernetes

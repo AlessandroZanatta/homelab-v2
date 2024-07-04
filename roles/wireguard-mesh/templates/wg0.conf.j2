@@ -1,0 +1,37 @@
+[Interface]
+PrivateKey = {{ wireguard_private_key }} 
+Address = {{ wireguard_address }}
+ListenPort = {{ wireguard_port }}
+{% if wireguard_postup %}
+PostUp = {{ wireguard_postup }}
+{% endif %}
+{% if wireguard_postdown %}
+PostDown = {{ wireguard_postdown }} 
+{% endif %}
+
+{% for peer in groups[wireguard_vpn_group] %}
+{%   if peer != inventory_hostname %}
+# {{ peer }}
+[Peer]
+PublicKey = {{ hostvars[peer].wireguard_public_key }} 
+AllowedIPs = {{ hostvars[peer].wireguard_address }}
+{%     if wireguard_use_external_endpoint %}
+Endpoint = {{ hostvars[peer].wireguard_external_endpoint }}:{{ hostvars[peer].wireguard_port }}
+{%     else %}
+Endpoint = {{ hostvars[peer].wireguard_endpoint }}:{{ hostvars[peer].wireguard_port }}
+{%     endif %}
+PersistentKeepalive = 30
+
+{%   endif %}
+{% endfor %}
+
+{% if inventory_hostname != wireguard_unmanaged_configurator and wireguard_unmanaged_configurator in hostvars and "wireguard_unmanaged_hosts" in hostvars[wireguard_unmanaged_configurator] %}
+# External peers not managed by Ansible
+{%   for peer in hostvars[wireguard_unmanaged_configurator].wireguard_unmanaged_hosts %}
+# {{ peer }} - External peer
+[Peer]
+PublicKey = {{ hostvars[wireguard_unmanaged_configurator].wireguard_unmanaged_hosts[peer].public_key }}
+AllowedIPs = {{ hostvars[wireguard_unmanaged_configurator].wireguard_unmanaged_hosts[peer].address }}
+PersistentKeepalive = 30
+{%   endfor %}
+{% endif %}

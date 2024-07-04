@@ -1,0 +1,19 @@
+# Ignore everything in roles dir
+/*
+
+# Except:
+# the .gitignore file
+!.gitignore
+# the requirements file
+!requirements.yaml
+!wireguard-mesh
+!ufw
+!restic
+!hardening
+!k8s
+!k8s-pki
+!k8s-etcd
+!k8s-haproxy
+!k8s-control-plane
+!k8s-worker
+!k8s-helm

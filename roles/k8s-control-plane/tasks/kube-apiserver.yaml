@@ -1,0 +1,49 @@
+---
+- name: Create kube-apiserver config directory
+  file:
+    path: "{{ k8s_kube_apiserver_path }}"
+    state: directory
+    mode: "0750"
+    owner: "root"
+    group: "{{ k8s_control_plane_group }}"
+
+- name: Create encryption configuration
+  template:
+    src: encryption-config.yaml.j2
+    dest: "{{ k8s_kube_apiserver_path }}/encryption-config.yaml"
+    mode: 0660
+    owner: "root"
+    group: "{{ k8s_control_plane_group }}"
+
+- name: Gather information for etcd nodes
+  setup:
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups[k8s_etcd_group] }}"
+
+- name: Create etcd-servers list
+  set_fact:
+    etcd_servers: "{% for host in groups[k8s_etcd_group] %}https://{{ hostvars[host]['ansible_' + k8s_interface].ipv4.address }}:{{ k8s_etcd_client_port }}{% if not loop.last %},{% endif %}{% endfor %}"
+
+- name: Merge etcd-servers into k8s_apiserver_settings
+  set_fact:
+    k8s_apiserver_settings: "{{ k8s_apiserver_settings|combine({'etcd-servers': etcd_servers}) }}"
+
+- name: Create systemd unit
+  template:
+    src: kube-apiserver.service.j2
+    dest: /etc/systemd/system/kube-apiserver.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - reload systemd
+    - restart kube-apiserver
+
+- name: Flush handlers
+  meta: flush_handlers
+
+- name: Enable kube-apiserver
+  service:
+    name: kube-apiserver
+    enabled: true

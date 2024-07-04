@@ -1,0 +1,19 @@
+[Unit]
+Description=etcd
+Documentation=https://github.com/etcd-io/etcd/
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+{% for setting in etcd_service_options %}
+{{ setting }}
+{% endfor %}
+ExecStart=/usr/bin/etcd \
+{% for setting in etcd_settings|sort %}
+  --{{ setting }}="{{ etcd_settings[setting] }}" {% if not loop.last %}\{% endif %}
+
+{% endfor %}
+
+
+[Install]
+WantedBy=multi-user.target

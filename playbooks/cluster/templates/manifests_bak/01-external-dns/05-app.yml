@@ -1,0 +1,74 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: external-dns
+  namespace: external-dns
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: external-dns
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: external-dns
+    spec:
+      serviceAccountName: external-dns
+      containers:
+        # adguard sidecar
+        - name: adguard-webhook
+          image: ghcr.io/muhlba91/external-dns-provider-adguard:v5.1.0
+          ports:
+            - containerPort: 8888
+              name: http
+
+          env:
+            - name: LOG_LEVEL
+              value: debug
+            - name: ADGUARD_URL
+              valueFrom:
+                secretKeyRef:
+                  name: adguard-configuration
+                  key: url
+            - name: ADGUARD_USER
+              valueFrom:
+                secretKeyRef:
+                  name: adguard-configuration
+                  key: user
+            - name: ADGUARD_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: adguard-configuration
+                  key: password
+            - name: SERVER_HOST
+              value: "0.0.0.0"
+            - name: DRY_RUN
+              value: "false"
+
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+
+        - name: external-dns
+          image: registry.k8s.io/external-dns/external-dns:v0.14.2
+          args:
+            - "--source=ingress"
+            - "--source=crd"
+            - "--source=traefik-proxy"
+            - "--traefik-disable-legacy"
+            - "--source=service"
+            - "--provider=webhook"
+            - "--webhook-provider-url=http://localhost:8888"
+            - "--resolve-service-load-balancer-hostname"
+            - "--log-level=debug" # debug only

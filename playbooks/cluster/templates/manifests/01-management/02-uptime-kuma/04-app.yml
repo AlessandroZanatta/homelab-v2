@@ -1,0 +1,125 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: uptime-kuma
+  name: uptime-kuma
+  labels:
+    kalexlab.xyz/app: uptime-kuma
+spec:
+  type: ClusterIP
+  ports:
+    - name: uptime-kuma
+      port: 3001
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: uptime-kuma
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: uptime-kuma
+  name: uptime-kuma
+  labels:
+    kalexlab.xyz/app: uptime-kuma
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: uptime-kuma
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: uptime-kuma
+    spec:
+      restartPolicy: Always
+      containers:
+        # TODO: move to postgres when possible
+        # TODO: move to stable v2 image when released
+        - name: app
+          image: docker.io/louislam/uptime-kuma:nightly2-rootless
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 3001
+              protocol: TCP
+
+          env:
+            - name: UPTIME_KUMA_HOST
+              value: "0.0.0.0"
+            # - name: UPTIME_KUMA_ENABLE_EMBEDDED_MARIADB
+            #   value: "false"
+            # - name: UPTIME_KUMA_DB_TYPE
+            #   value: "mariadb"
+            # - name: UPTIME_KUMA_DB_HOSTNAME
+            #   value: "database"
+            # - name: UPTIME_KUMA_DB_PORT
+            #   value: "3306"
+            # - name: UPTIME_KUMA_DB_NAME
+            #   value: "kuma"
+            # - name: UPTIME_KUMA_DB_USERNAME
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: uptime-kuma-db-secrets
+            #       key: MARIADB_USER
+            # - name: UPTIME_KUMA_DB_PASSWORD
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: uptime-kuma-db-secrets
+            #       key: MARIADB_PASSWORD
+
+          # TODO
+          # resources:
+          #   requests:
+          #     memory: 150Mi
+          #     cpu: 20m
+          #   limits:
+          #     memory: 500Mi
+          #     cpu: 200m
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3001
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3001
+            failureThreshold: 3
+            periodSeconds: 30
+
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+
+          volumeMounts:
+            - mountPath: /app/data
+              name: uptime-data
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      volumes:
+        - name: uptime-data
+          emptyDir:
+            sizeLimit: 1Gi
+
+  # volumeClaimTemplates:
+  #   - metadata:
+  #       name: uptime-kuma-pvc
+  #     spec:
+  #       accessModes:
+  #         - ReadWriteOnce
+  #       storageClassName: longhorn
+  #       resources:
+  #         requests:
+  #           storage: 5Gi

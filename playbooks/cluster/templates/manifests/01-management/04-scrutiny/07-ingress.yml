@@ -1,0 +1,60 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: scrutiny
+  name: scrutiny-influxdb-ingress
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: "{{ clusterissuer }}"
+
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+  labels:
+    kalexlab.xyz/app: scrutiny
+spec:
+  tls:
+    - hosts:
+        - "influxdb.scrutiny.kalexlab.xyz"
+      secretName: letsencrypt-tls-scrutiny-influxdb
+  rules:
+    - host: influxdb.scrutiny.kalexlab.xyz
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: influxdb
+                port:
+                  number: 8086
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: scrutiny
+  name: scrutiny-web-ingress
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: "{{ clusterissuer }}"
+
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+  labels:
+    kalexlab.xyz/app: scrutiny
+spec:
+  tls:
+    - hosts:
+        - "scrutiny.kalexlab.xyz"
+      secretName: letsencrypt-tls-scrutiny-web
+  rules:
+    - host: scrutiny.kalexlab.xyz
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web
+                port:
+                  number: 8080

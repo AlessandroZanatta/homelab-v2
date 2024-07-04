@@ -1,0 +1,35 @@
+---
+# Path used for configuration and keys
+wireguard_path: /etc/wireguard
+wireguard_vpn_group: vpn
+wireguard_use_external_endpoint: false
+
+# Clients path
+wireguard_clients_path: clients
+
+# Wireguard listening port
+wireguard_port: 51820
+# Wireguard interface name
+wireguard_interface: wg0
+# Wireguard address for "server" peer
+wireguard_address: 10.8.0.1/24
+# Wireguard DNS for peers
+wireguard_dns: 10.8.0.1
+# Wireguard subnet
+wireguard_peer_allowed_ips: 10.8.0.0/24
+# Wireguard endpoint for peers
+wireguard_public_endpoint: 192.168.56.3:51820
+
+# Wireguard PostUp and PostDown commands
+wireguard_postup: iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+wireguard_postdown: iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+
+# Hosts managed by Ansible
+wireguard_hosts: []
+
+# Hosts not managed by Ansible directly, such as an external workstation
+wireguard_unmanaged_hosts: []
+
+# Unmanaged configuration variables
+wireguard_unmanaged_configurator: "127.0.0.1"
+wireguard_unmanaged_path: "./build"

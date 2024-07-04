@@ -1,0 +1,275 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: anime
+  name: app
+  labels:
+    kalexlab.xyz/app: anime
+    kalexlab.xyz/component: app
+spec:
+  type: ClusterIP
+  ports:
+    - name: anime
+      port: 9000
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: anime
+    kalexlab.xyz/component: app
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: anime
+  name: app
+  labels:
+    kalexlab.xyz/app: anime
+    kalexlab.xyz/component: app
+spec:
+  replicas: 1
+  # Do not update in place with zero downtime
+  # Gluetun issues?
+  updateStrategy:
+    type: RollingUpdate
+    # rollingUpdate:
+    #   maxUnavailable: 1
+    #   maxSurge: 0
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: anime
+      kalexlab.xyz/component: app
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: anime
+        kalexlab.xyz/component: app
+    spec:
+      restartPolicy: Always
+
+      # Jinja2 commented to not break yamllint
+      # {% if ansible_environment == 'prod' %}
+
+      initContainers:
+        # - name: copy-nginx
+        #   image: registry.kalexlab.xyz/anime/frontend:latest
+        #   imagePullPolicy: Always
+        #   command: [
+        #       "sh",
+        #       "-c",
+        #       "cp -r /etc/nginx/* /mnt/nginx && \
+        #       cp -r /usr/share/nginx/html/* /mnt/nginx-html",
+        #     ]
+        #   volumeMounts:
+        #     - mountPath: /mnt/nginx
+        #       name: nginx
+        #     - mountPath: /mnt/nginx-html
+        #       name: nginx-html
+        - name: gluetun
+          image: qmcgaw/gluetun:latest
+          # native sidecar (https://kubernetes.io/blog/2023/08/25/native-sidecar-containers/)
+          restartPolicy: Always
+
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+
+          env:
+            - name: DNS_KEEP_NAMESERVER
+              value: "on"
+            - name: BLOCK_MALICIOUS
+              value: "off"
+            - name: BLOCK_SURVEILLANCE
+              value: "off"
+            - name: BLOCK_ADS
+              value: "off"
+            # - name: FIREWALL
+            #   value: "off"
+            - name: FIREWALL_INPUT_PORTS
+              value: "8080,9000"
+            # Bypass tun0 interface for:
+            #  - Cluster VPN subnet
+            #  - Pods subnet
+            #  - Services subnet
+            #  - Local subnet
+            - name: FIREWALL_OUTBOUND_SUBNETS
+              value: "10.8.0.0/16,10.0.0.0/16,10.32.0.0/16,192.168.0.0/16"
+            - name: VPN_SERVICE_PROVIDER
+              value: "mullvad"
+            - name: VPN_TYPE
+              value: "wireguard"
+            - name: WIREGUARD_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun-secrets
+                  key: WIREGUARD_PRIVATE_KEY
+            - name: WIREGUARD_ADDRESSES
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun-secrets
+                  key: WIREGUARD_ADDRESSES
+            - name: SERVER_COUNTRIES
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun-secrets
+                  key: SERVER_COUNTRIES
+            - name: SERVER_CITIES
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun-secrets
+                  key: SERVER_CITIES
+            - name: SERVER_HOSTNAMES
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun-secrets
+                  key: SERVER_HOSTNAMES
+      # {% endif %}
+
+      imagePullSecrets:
+        - name: anime-registry-secrets
+
+      containers:
+        - name: anime-backend
+          image: registry.kalexlab.xyz/anime/backend:latest
+          imagePullPolicy: Always
+
+          # securityContext:
+          #   readOnlyRootFilesystem: true
+          #   runAsNonRoot: true
+          #   runAsUser: 1000
+          #   runAsGroup: 1000
+          #   allowPrivilegeEscalation: false
+
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+
+          # TODO
+          # resources:
+          #   requests:
+          #     memory: 150Mi
+          #     cpu: 20m
+          #   limits:
+          #     memory: 500Mi
+          #     cpu: 1000m
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            failureThreshold: 3
+            periodSeconds: 30
+
+          securityContext:
+            # Running python and an headless in a readonly fs is too painful
+            # readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+
+          volumeMounts:
+            - mountPath: /app/config.yml
+              name: anime-conf
+              subPath: config.yml
+            - mountPath: /data/anime
+              name: anime-data-pvc
+            - mountPath: /data/cache
+              name: anime-cache-pvc
+            - mountPath: /etc/secrets/db/dsn
+              name: anime-db-secrets
+              subPath: dsn
+
+        - name: anime-frontend
+          image: registry.kalexlab.xyz/anime/frontend:latest
+          imagePullPolicy: Always
+          # command: ["sleep"]
+          # args: ["infinity"]
+
+          ports:
+            - containerPort: 9000
+              protocol: TCP
+
+          # TODO
+          # resources:
+          #   requests:
+          #     memory: 150Mi
+          #     cpu: 20m
+          #   limits:
+          #     memory: 500Mi
+          #     cpu: 1000m
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 9000
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 9000
+            failureThreshold: 3
+            periodSeconds: 30
+
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+
+          volumeMounts:
+            - mountPath: /etc/nginx/nginx.conf
+              name: anime-conf
+              subPath: nginx.conf
+            - mountPath: /var/cache/nginx
+              name: nginx-cache
+            - mountPath: /var/run
+              name: run
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: run
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: nginx-cache
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: anime-conf
+          configMap:
+            name: anime-conf
+        - name: anime-db-secrets
+          secret:
+            secretName: anime-db-secrets
+
+  volumeClaimTemplates:
+    - metadata:
+        name: anime-data-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 400Gi
+    - metadata:
+        name: anime-cache-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 500Mi

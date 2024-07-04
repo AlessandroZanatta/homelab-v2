@@ -1,0 +1,6 @@
+---
+- name: Setup
+  hosts: cluster
+  roles:
+    - k8s-haproxy
+  become: true

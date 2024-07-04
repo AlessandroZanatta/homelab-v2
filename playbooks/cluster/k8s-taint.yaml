@@ -1,0 +1,34 @@
+---
+- name: Taint Kubernetes Controller nodes
+  hosts: ansible_controller
+  environment:
+    KUBECONFIG: "../../outputs/{{ ansible_environment }}/control-plane/admin.kubeconfig"
+  pre_tasks:
+    - name: Check cluster connection
+      shell: "ping -c1 -W1 10.8.2.1"
+      register: ping_cluster
+      changed_when: false
+      failed_when: false
+
+    - name: Join mesh network if needed
+      shell: "wg-quick down ../../outputs/{{ ansible_environment }}/wg/apollo/wg0.conf; wg-quick up ../../outputs/{{ ansible_environment }}/wg/apollo/wg0.conf"
+      changed_when: false
+      when: "ping_cluster.rc != 0"
+      become: true
+
+  tasks:
+    - name: Gather info about control plane nodes
+      setup:
+      delegate_to: "{{ item }}"
+      delegate_facts: true
+      loop: "{{ groups['controllers'] }}"
+
+    - name: Taint Kubernetes control plane nodes
+      kubernetes.core.k8s_taint:
+        state: present
+        name: "{{ hostvars[item].ansible_hostname }}"
+        taints:
+          - effect: NoSchedule
+            key: "node-role.kubernetes.io/control-plane"
+      with_inventory_hostnames:
+        - controllers

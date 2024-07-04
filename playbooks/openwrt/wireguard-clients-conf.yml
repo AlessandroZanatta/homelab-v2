@@ -1,0 +1,39 @@
+---
+- name: Create client directory
+  file:
+    path: "{{ wireguard_path }}/clients/{{ item.key }}"
+    state: directory
+
+- name: Generate keypairs
+  shell: "umask 377; wg genkey | tee privatekey | wg pubkey | tee publickey"
+  args:
+    creates: "privatekey"
+    chdir: "{{ wireguard_path }}/clients/{{ item.key }}"
+
+- name: Register private key
+  shell: "cat privatekey"
+  register: wireguard_private_key_shell
+  changed_when: false
+  args:
+    chdir: "{{ wireguard_path }}/clients/{{ item.key }}"
+- name: Register private key fact
+  set_fact:
+    private_key: "{{ wireguard_private_key_shell.stdout }}"
+- name: Register public key
+  shell: "cat publickey"
+  register: wireguard_public_key_shell
+  changed_when: false
+  args:
+    chdir: "{{ wireguard_path }}/clients/{{ item.key }}"
+- name: Register public key fact
+  set_fact:
+    public_key: "{{ wireguard_public_key_shell.stdout }}"
+
+- name: Merge into wireguard_clients dict
+  set_fact:
+    wireguard_clients: "{{ wireguard_clients | combine({item.key: {'address': item.value.address, 'public_key': public_key}}) }}"
+
+- name: Generate configs
+  template:
+    src: wg/client.conf.j2
+    dest: "{{ wireguard_path }}/clients/{{ item.key }}/wg0.conf"

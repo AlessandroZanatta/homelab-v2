@@ -1,0 +1,148 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homer-conf
+  namespace: homer
+data:
+  config.yml: |
+    ---
+    # Homepage configuration
+    # See https://fontawesome.com/v5/search for icons options
+
+    title: "kalexlab dashboard"
+    subtitle: "Homer"
+    logo: "assets/icons/dark_circle.png"
+
+    header: true
+
+    stylesheet:
+      - assets/catppuccin.css
+
+    # Navbar links
+    links: [] # Allows for navbar (dark mode, layout, and search) without any links
+
+    # Services
+    # First level array represent a group.
+    # Leave only a "items" key if not using group (group name, icon & tagstyle are optional, section separation will not be displayed).
+    services:
+      - name: "Applications"
+        icon: "fas fa-cloud"
+        items:
+          - name: "Bitwarden"
+            subtitle: "Password manager"
+            logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/bitwarden.svg"
+            tag: "passwords"
+            url: "https://vault.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Nextcloud"
+            subtitle: "File storage and sharing"
+            logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/nextcloud-blue.svg"
+            tag: "file storage"
+            url: "https://cloud.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "QBitTorrent"
+            subtitle: "BitTorrent downloader"
+            logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/qbittorrent.svg"
+            tag: "torrent"
+            url: "https://torrent.kalexlab.xyz?external=true/"
+            target: "_blank"
+
+      - name: "Media"
+        icon: "fas fa-play"
+        items:
+          - name: "Anime"
+            subtitle: "Anime downloader and viewer"
+            tag: "anime"
+            url: "https://anime.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Jellyfin"
+            subtitle: "Film and series viewer"
+            logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/jellyfin.svg"
+            tag: "film"
+            url: "https://jellyfin.media.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Radarr"
+            subtitle: "Film downloader"
+            logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/radarr.svg"
+            tag: "downloader"
+            url: "https://radarr.media.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Sonarr"
+            subtitle: "Series downloader"
+            logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/sonarr.svg"
+            tag: "downloader"
+            url: "https://sonarr.media.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Prowlarr"
+            subtitle: "Indexer manager"
+            logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/prowlarr.svg"
+            tag: "indexer"
+            url: "https://prowlarr.media.kalexlab.xyz?external=true"
+            target: "_blank"
+
+      - name: "Monitoring"
+        icon: "fas fa-heartbeat"
+        items:
+          - name: "Grafana"
+            subtitle: "Cluster monitoring"
+            logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/grafana.png"
+            tag: "visualization"
+            url: "https://grafana.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Uptime Kuma"
+            subtitle: "Apps healthchecker"
+            logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/uptime-kuma.svg"
+            tag: "healthcheck"
+            url: "https://uptime.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Scrutiny"
+            subtitle: "SMART monitoring"
+            logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/scrutiny.png"
+            tag: "storage health"
+            url: "https://scrutiny.kalexlab.xyz?external=true"
+            target: "_blank"
+
+      - name: "Management"
+        icon: "fas fa-server"
+        items:
+          - name: "Traefik"
+            subtitle: "Reverse proxy"
+            logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/traefik-proxy.png"
+            tag: "routing"
+            url: "https://traefik.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Adguard"
+            subtitle: "AD blocking"
+            logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/adguard-home.png"
+            tag: "AD blocking"
+            url: "https://adguard.dns.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Longhorn"
+            subtitle: "PVC management"
+            logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/longhorn.png"
+            tag: "persistent storage"
+            url: "https://longhorn.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Registry"
+            subtitle: "Docker image repository"
+            logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/docker-moby.png"
+            tag: "docker"
+            url: "https://ui.registry.kalexlab.xyz?external=true"
+            target: "_blank"
+
+      - name: "Networking"
+        icon: "fas fa-network-wired"
+        items:
+          - name: "Router - Archer AX23"
+            subtitle: "Main router"
+            logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/openwrt.png"
+            tag: "routing"
+            url: "https://router.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Managed switch - TP Link"
+            subtitle: "HomeLab switch"
+            logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/tp-link.png"
+            tag: "switching"
+            url: "https://switch.kalexlab.xyz?external=true"
+            target: "_blank"

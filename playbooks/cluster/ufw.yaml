@@ -1,0 +1,85 @@
+---
+- name: Setup ufw
+  hosts:
+    - cluster
+  roles:
+    - ufw
+  become: true
+  vars:
+    ufw_rules:
+      common:
+        - comment: Allow ssh from VPN
+          rule: allow
+          to_port: 22
+          proto: tcp
+          from_ip: "10.8.0.0/16"
+        - comment: Allow ssh from local networks
+          rule: allow
+          to_port: 22
+          from_ip: "192.168.0.0/16"
+        - comment: Allow Kubernetes traffic
+          rule: allow
+          from_ip: "10.0.0.0/8"
+        - comment: Allow workers traffic
+          rule: allow
+          from_ip: "192.168.0.0/16"
+
+      hosts:
+        athena-pi4b:
+          - comment: Allow Wireguard
+            rule: allow
+            to_port: 51820
+            proto: udp
+
+        hermes-opti3050m:
+          - comment: Allow Wireguard
+            rule: allow
+            to_port: 51821
+            proto: udp
+
+      groups:
+        etcd:
+          - comment: Allow etcd client port
+            rule: allow
+            to_port: "2379"
+            proto: tcp
+            from_ip: "10.8.0.0/16"
+          - comment: Allow etcd peer port
+            rule: allow
+            to_port: "2380"
+            proto: tcp
+            from_ip: "10.8.0.0/16"
+        # - comment: Allow etcd metric port
+        #   rule: allow
+        #   to_port: "2381"
+        #   proto: tcp
+
+        workers:
+          - comment: Allow HTTP port from VPN
+            rule: allow
+            to_port: "80"
+            from_ip: "10.8.0.0/16"
+          - comment: Allow HTTP port from local network
+            rule: allow
+            to_port: "80"
+            from_ip: "192.168.0.0/16"
+
+          - comment: Allow HTTPS port from VPN
+            rule: allow
+            to_port: "443"
+            from_ip: "10.8.0.0/16"
+          - comment: Allow HTTPS port from local network
+            rule: allow
+            to_port: "443"
+            from_ip: "192.168.0.0/16"
+
+          - comment: Allow DNS port from VPN
+            rule: allow
+            to_port: "53"
+            from_ip: "10.8.0.0/16"
+          - comment: Allow DNS port from local network
+            rule: allow
+            to_port: "53"
+            from_ip: "192.168.0.0/16"
+
+        controllers: []

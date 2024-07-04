@@ -1,0 +1,54 @@
+---
+- name: Ensure wireguard and iptables are installed
+  apt:
+    pkg:
+      - wireguard
+      - iptables
+      - inetutils-ping
+    state: present
+    cache_valid_time: 3600
+
+- name: Enable WireGuard kernel module
+  modprobe:
+    name: wireguard
+    state: present
+    persistent: present
+
+- name: Ensure wireguard_path exists with secure mode
+  file:
+    path: "{{ wireguard_path }}"
+    state: directory
+    mode: "0700"
+
+- name: Generate Wireguard keypair
+  shell: "wg genkey | tee privatekey | wg pubkey | tee publickey"
+  args:
+    creates: "privatekey"
+    chdir: "{{ wireguard_path }}"
+
+- name: Register private key
+  block:
+    - shell: "cat {{ wireguard_path }}/privatekey"
+      register: wireguard_private_key_shell
+      changed_when: false
+    - set_fact:
+        wireguard_private_key: "{{ wireguard_private_key_shell.stdout }}"
+
+- name: Register public key
+  block:
+    - shell: "cat {{ wireguard_path }}/publickey"
+      register: wireguard_public_key_shell
+      changed_when: false
+    - set_fact:
+        wireguard_public_key: "{{ wireguard_public_key_shell.stdout }}"
+
+- name: Generate config
+  template:
+    src: wg0.conf.j2
+    dest: "{{ wireguard_path }}/{{ wireguard_interface }}.conf"
+  notify: restart wireguard
+
+- name: Start wireguard
+  service:
+    name: "wg-quick@{{ wireguard_interface }}"
+    state: started

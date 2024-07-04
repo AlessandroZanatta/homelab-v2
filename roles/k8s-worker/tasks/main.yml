@@ -1,0 +1,79 @@
+---
+- name: Install CNI
+  include_tasks: cni.yml
+
+- name: Install runc
+  include_tasks: runc.yml
+
+- name: Install containerd
+  include_tasks: containerd.yml
+
+- name: Install required packages, binaries and keys for workers
+  block:
+    - name: Check architecture is supported
+      fail:
+        msg: "Architecture {{ ansible_architecture }} is not supported!"
+      when:
+        - ansible_architecture != 'x86_64'
+        - ansible_architecture != 'arm64'
+        - ansible_architecture != 'aarch64'
+
+    - name: Download components
+      get_url:
+        url: "{{ item.url }}"
+        dest: "{{ binaries_path }}/{{ item.dest }}"
+        checksum: "sha256:{{ item.url }}.sha256"
+        mode: "0555"
+        owner: root
+        group: root
+      with_items: "{% if ansible_architecture == 'x86_64' %}{{ k8s_binaries_amd64 }}{% else %}{{ k8s_binaries_arm64 }}{% endif %}"
+
+    - name: Install required packages for worker processes
+      apt:
+        pkg: "{{ k8s_worker_required_packages }}"
+        state: present
+
+    - name: Create worker configuration directory
+      file:
+        path: "{{ k8s_config_path }}"
+        state: directory
+        mode: "{{ k8s_config_path_mode }}"
+        owner: root
+        group: root
+
+    - name: Create keys directory
+      file:
+        path: "{{ k8s_keys_path }}"
+        state: directory
+        mode: "{{ k8s_keys_path_mode }}"
+        owner: root
+        group: root
+
+    - name: Ensure required keys are present
+      copy:
+        src: "{{ k8s_pki_path }}/{{ item }}"
+        dest: "{{ k8s_keys_path }}/{{ item }}"
+        mode: "{{ k8s_keys_mode }}"
+        owner: root
+        group: root
+      with_items:
+        - "{{ k8s_required_keys }}"
+
+- name: Disable swap
+  block:
+    - name: Ensure swap is disabled for future boots
+      ansible.posix.mount:
+        name: swap
+        fstype: swap
+        state: absent
+
+    - name: Disable swap now if needed
+      command: swapoff -a
+      when: ansible_swaptotal_mb > 0
+      changed_when: false
+
+- name: Create kubelet configuration
+  include_tasks: kubelet.yml
+
+- name: Create kube-proxy configuration
+  include_tasks: kube-proxy.yml

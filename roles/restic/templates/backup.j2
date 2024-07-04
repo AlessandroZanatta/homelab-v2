@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+
+restic \
+	-r sftp:{{ restic_user }}@{{ restic_host }}:{{ restic_path }} \
+	--password-file {{ restic_password_file_path }} \
+	{% for path in restic_backup.common.exclude_paths %}--exclude {{ path }} {% endfor %} \
+	{% if restic_backup.hosts[inventory_hostname].exclude_paths is defined %} {% for path in restic_backup.hosts[inventory_hostname].exclude_paths %}--exclude {{ path }} {% endfor %} {% endif %} \
+	backup \
+	{% for path in restic_backup.common.paths %}{{ path }} {% endfor %} \
+	{% if restic_backup.hosts[inventory_hostname].paths is defined %} {% for path in restic_backup.hosts[inventory_hostname].paths %}{{ path }} {% endfor %} {% endif %}

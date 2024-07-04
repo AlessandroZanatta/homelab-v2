@@ -1,0 +1,18 @@
+[Unit]
+Description=Kubernetes Kube Proxy
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart={{ binaries_path }}/kube-proxy \
+{% for setting in k8s_kubeproxy_settings|sort %}
+  --{{ setting }}={{ k8s_kubeproxy_settings[setting] }} {% if not loop.last %}\{% endif %}
+
+{% endfor %}
+
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,13 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: metrics-aggregator-binding
+subjects:
+  - kind: User
+    name: system:aggregator
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: system:aggregated-metrics-reader
+  apiGroup: rbac.authorization.k8s.io

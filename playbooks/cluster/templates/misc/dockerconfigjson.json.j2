@@ -1,0 +1,8 @@
+{
+  "auths": {
+    "registry.kalexlab.xyz": {
+      "auth": "{{ (registry_username + ':' +  registry_password)|b64encode }}"
+    }
+  }{% if ansible_environment != 'prod' %},
+  "insecure-registries": ["registry.kalexlab.xyz"]{% endif %}
+}

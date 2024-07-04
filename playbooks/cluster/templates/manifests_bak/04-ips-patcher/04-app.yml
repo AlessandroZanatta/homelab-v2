@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: ips-patcher
+  name: ips-patcher
+  labels:
+    kalexlab.xyz/app: ips-patcher
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: ips-patcher
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: ips-patcher
+    spec:
+      restartPolicy: Always
+      serviceAccountName: ips-patcher
+      containers:
+        - name: ips-patcher
+          image: "quay.io/titansoft/imagepullsecret-patcher:v0.14"
+
+          env:
+            - name: CONFIG_ALLSERVICEACCOUNT
+              value: "true"
+            - name: CONFIG_DOCKERCONFIGJSONPATH
+              value: "/app/secrets/.dockerconfigjson"
+            - name: CONFIG_SECRETNAME
+              value: "registry-credentials"
+            - name: CONFIG_EXCLUDED_NAMESPACES
+              value: "kube-system,cert-manager,default,"
+
+          # TODO
+          # resources:
+          #   requests:
+          #     cpu: 100m
+          #     memory: 30Mi
+          #   limits:
+          #     cpu: 200m
+          #     memory: 60Mi
+
+          volumeMounts:
+            - name: src-dockerconfigjson
+              mountPath: "/app/secrets"
+              readOnly: true
+
+      automountServiceAccountToken: true
+      volumes:
+        - name: src-dockerconfigjson
+          secret:
+            secretName: ips-patcher-secrets

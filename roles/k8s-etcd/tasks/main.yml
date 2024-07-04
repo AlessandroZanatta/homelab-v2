@@ -1,0 +1,71 @@
+---
+- name: Ensure etcd is installed
+  apt:
+    pkg:
+      - etcd-client
+      - etcd-server
+    state: present
+    cache_valid_time: 3600
+
+- name: Create an etcd user and group
+  user:
+    name: "{{ k8s_etcd_user }}"
+    group: "{{ k8s_etcd_group }}"
+    system: "{{ k8s_etcd_user_system|bool }}"
+    shell: "{{ k8s_etcd_user_shell }}"
+    state: present
+
+- name: Ensure etcd config directory exists with correct permissions
+  file:
+    path: "{{ k8s_etcd_conf_dir }}"
+    mode: "{{ k8s_etcd_conf_dir_mode }}"
+    owner: "{{ k8s_etcd_conf_dir_user }}"
+    group: "{{ k8s_etcd_conf_dir_group }}"
+    state: directory
+
+- name: Create etcd data directory
+  file:
+    path: "{{ k8s_etcd_data_dir }}"
+    mode: "{{ k8s_etcd_data_dir_mode }}"
+    owner: "{{ k8s_etcd_data_dir_user }}"
+    group: "{{ k8s_etcd_data_dir_group }}"
+    state: directory
+
+- name: Copy required certificates
+  copy:
+    src: "{{ k8s_pki_path }}/{{ item }}"
+    dest: "{{ k8s_etcd_conf_dir }}/{{ item }}"
+    mode: "{{ k8s_etcd_certs_mode }}"
+    owner: "{{ k8s_etcd_certs_user }}"
+    group: "{{ k8s_etcd_certs_group }}"
+  with_items: "{{ k8s_etcd_certs }}"
+
+- name: Create initial cluster
+  set_fact:
+    initial_cluster: >-
+      {%- for host in groups[k8s_etcd_ansible_group] -%}
+        {{ hostvars[host]['ansible_hostname'] }}=https://{{ hostvars[host]['ansible_' + k8s_interface].ipv4.address }}:{{ k8s_etcd_peer_port }}{% if not loop.last %},{% endif %}
+      {%- endfor -%}
+
+- name: Add etcd_settings with initial_cluster
+  set_fact:
+    etcd_settings: "{{ etcd_settings|combine({'initial-cluster': initial_cluster}) }}"
+
+- name: Create systemd unit file
+  template:
+    src: etcd.service.j2
+    dest: /etc/systemd/system/etcd.service
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  notify:
+    - reload systemd
+    - restart etcd
+
+- name: Flush handlers
+  meta: flush_handlers
+
+- name: Enable etcd service
+  service:
+    name: etcd
+    enabled: true

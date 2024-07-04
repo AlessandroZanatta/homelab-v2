@@ -1,0 +1,162 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: nextcloud
+  name: nextcloud
+  labels:
+    kalexlab.xyz/app: nextcloud
+    kalexlab.xyz/component: app
+spec:
+  type: ClusterIP
+  ports:
+    - name: nextcloud
+      port: 80
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: nextcloud
+    kalexlab.xyz/component: app
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: nextcloud
+  name: nextcloud
+  labels:
+    kalexlab.xyz/app: nextcloud
+    kalexlab.xyz/component: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: nextcloud
+      kalexlab.xyz/component: app
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: nextcloud
+        kalexlab.xyz/component: app
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: nextcloud
+          image: nextcloud:latest
+          imagePullPolicy: Always
+
+          # securityContext:
+          #   readOnlyRootFilesystem: true
+          #   runAsNonRoot: true
+          #   runAsUser: 1000
+          #   allowPrivilegeEscalation: false
+          #   capabilities:
+          #     add:
+          #       - NET_BIND_SERVICE
+
+          ports:
+            - containerPort: 80
+              protocol: TCP
+
+          env:
+            # - name: OVERWRITECLIURL
+            #   value: "https://cloud.kalexlab.xyz"
+            # - name: OVERWRITEPROTOCOL
+            #   value: "https"
+            - name: NEXTCLOUD_TRUSTED_DOMAINS
+              value: "cloud.kalexlab.xyz nextcloud.nextcloud.svc.cluster.local"
+            - name: OVERWRITEPROTOCOL
+              value: "https"
+            - name: NEXTCLOUD_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-secrets
+                  key: NEXTCLOUD_ADMIN_USER
+            - name: NEXTCLOUD_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-secrets
+                  key: NEXTCLOUD_ADMIN_PASSWORD
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-db-secrets
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-db-secrets
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_HOST
+              value: "database"
+            - name: POSTGRES_DB
+              value: "nextcloud"
+
+          # resources:
+          #   requests:
+          #     memory: 300Mi
+          #     cpu: 50m
+          #   limits:
+          #     memory: 1Gi
+          #     cpu: 500m
+
+          readinessProbe:
+            httpGet:
+              path: /status.php
+              port: 80
+              httpHeaders:
+                - name: Host
+                  value: nextcloud.nextcloud.svc.cluster.local
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /status.php
+              port: 80
+              httpHeaders:
+                - name: Host
+                  value: nextcloud.nextcloud.svc.cluster.local
+            failureThreshold: 3
+            periodSeconds: 30
+
+          # securityContext:
+          #   allowPrivilegeEscalation: false
+          #   readOnlyRootFilesystem: true
+          # capabilities:
+          #   add:
+          #     - NET_BIND_SERVICE
+
+          volumeMounts:
+            - mountPath: /var/www/html
+              name: nextcloud-www-pvc
+            - mountPath: /var/www/html/data
+              name: nextcloud-data-pvc
+              subPath: data
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        #   runAsNonRoot: true
+        #   runAsUser: 1000
+        #   runAsGroup: 1000
+        fsGroup: 33
+        fsGroupChangePolicy: "OnRootMismatch"
+
+  volumeClaimTemplates:
+    - metadata:
+        name: nextcloud-data-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 100Gi
+    - metadata:
+        name: nextcloud-www-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 5Gi

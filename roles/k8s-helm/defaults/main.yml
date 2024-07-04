@@ -1,0 +1,40 @@
+---
+keys_path: "./build"
+k8s_interface: "wg0"
+template_prefix: "helm"
+
+helm_charts: []
+# helm_charts:
+#   - name: cilium
+#     repo_url: "https://helm.cilium.io/"
+#     release_name: "cilium"
+#     chart_name: "cilium/cilium"
+#     chart_version: "1.15.4"
+#     namespace: "cilium"
+#     pre_tasks:
+#       - install-etcd-secrets.yml
+#     post_tasks: []
+#     vars:
+#       etcd_cafile: "ca-etcd.pem"
+#       etcd_certfile: "etcd-client-cilium.pem"
+#       etcd_keyfile: "etcd-client-cilium-key.pem"
+#       etcd_interface: "{{ k8s_interface }}"
+#       etcd_client_port: "2379"
+#       etcd_group: "etcd"
+#       etcd_secrets_name: "cilium-etcd-secrets"
+
+helm_tgz_charts: []
+#   - name: porkbun-webhook
+#     tgz_url: "https://github.com/mdonoughe/porkbun-webhook/releases/download/porkbun-webhook-0.1.4/porkbun-webhook-0.1.4.tgz"
+#     namespace: "cert-manager"
+#     pre_tasks:
+#       - install-etcd-secrets.yml
+#     post_tasks: []
+#     vars:
+#       etcd_cafile: "ca-etcd.pem"
+#       etcd_certfile: "etcd-client-cilium.pem"
+#       etcd_keyfile: "etcd-client-cilium-key.pem"
+#       etcd_interface: "{{ k8s_interface }}"
+#       etcd_client_port: "2379"
+#       etcd_group: "etcd"
+#       etcd_secrets_name: "cilium-etcd-secrets"

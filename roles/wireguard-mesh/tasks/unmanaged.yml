@@ -1,0 +1,10 @@
+---
+- name: Create output folder for unmanaged configurations
+  file:
+    path: "{{ wireguard_unmanaged_path }}"
+    state: directory
+    mode: "0700"
+
+- name: Create per-peer configuration
+  include_tasks: unmanaged_loop.yml
+  with_items: "{{ wireguard_unmanaged_hosts }}"

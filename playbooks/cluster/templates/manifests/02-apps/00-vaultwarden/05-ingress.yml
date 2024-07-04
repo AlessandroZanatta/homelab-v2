@@ -1,0 +1,30 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: vaultwarden
+  name: vaultwarden-ingress
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: "{{ clusterissuer }}"
+
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+  labels:
+    kalexlab.xyz/app: vaultwarden
+spec:
+  tls:
+    - hosts:
+        - "vault.kalexlab.xyz"
+      secretName: letsencrypt-tls-vaultwarden
+  rules:
+    - host: vault.kalexlab.xyz
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vaultwarden
+                port:
+                  number: 80

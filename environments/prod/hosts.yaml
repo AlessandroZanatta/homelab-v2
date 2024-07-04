@@ -1,0 +1,48 @@
+---
+controllers:
+  hosts:
+    athena-pi4b:
+      ansible_host: "192.168.10.2"
+      wireguard_address: 10.8.2.1
+      wireguard_port: 51820
+      wireguard_endpoint: "192.168.10.2"
+      wireguard_external_endpoint: "192.168.10.2"
+
+workers:
+  hosts:
+    hermes-opti3050m:
+      ansible_host: "192.168.10.3"
+      wireguard_address: 10.8.3.1
+      wireguard_port: 51820
+      wireguard_endpoint: "192.168.10.3"
+      wireguard_external_endpoint: "192.168.10.3"
+
+cluster:
+  children:
+    controllers:
+    workers:
+
+etcd:
+  children:
+    # controllers:
+    workers:
+
+vpn:
+  children:
+    cluster:
+
+ansible_controller:
+  hosts:
+    apollo:
+      ansible_connection: local
+      ansible_python_interpreter: "/usr/bin/env python"
+
+routers:
+  hosts:
+    tplink-archer-ax23:
+      ansible_host: "192.168.10.1"
+      ansible_scp_extra_args: "-O"
+
+openwrt:
+  children:
+    routers:

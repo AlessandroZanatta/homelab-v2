@@ -1,0 +1,30 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: nextcloud
+  name: nextcloud-ingress
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: "{{ clusterissuer }}"
+
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+  labels:
+    kalexlab.xyz/app: nextcloud
+spec:
+  tls:
+    - hosts:
+        - "cloud.kalexlab.xyz"
+      secretName: letsencrypt-tls-nextcloud
+  rules:
+    - host: cloud.kalexlab.xyz
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nextcloud
+                port:
+                  number: 80

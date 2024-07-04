@@ -1,0 +1,69 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: porkbun-key:reader
+  namespace: cert-manager
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["porkbun-key"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: porkbun-webhook:key-reader
+  namespace: cert-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: porkbun-key:reader
+subjects:
+  - apiGroup: ""
+    kind: ServiceAccount
+    name: porkbun-webhook
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: list-prioritylevelconfigurations
+rules:
+  - apiGroups: ["flowcontrol.apiserver.k8s.io"]
+    resources: ["flowschemas", "prioritylevelconfigurations"]
+    verbs: ["list", "get", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: list-prioritylevelconfigurations-binding
+subjects:
+  - kind: ServiceAccount
+    name: porkbun-webhook
+    namespace: cert-manager
+roleRef:
+  kind: ClusterRole
+  name: list-prioritylevelconfigurations
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: system-aggregator-role
+rules:
+  - apiGroups: ["acme.kalexlab.xyz"]
+    resources: ["porkbun"]
+    verbs: ["create", "get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: system-aggregator-rolebinding
+subjects:
+  - kind: User
+    name: system:aggregator
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: system-aggregator-role
+  apiGroup: rbac.authorization.k8s.io

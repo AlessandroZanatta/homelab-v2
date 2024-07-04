@@ -1,0 +1,47 @@
+# https://kubernetes.io/docs/concepts/configuration/configmap/
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: diun-conf
+  namespace: diun
+data:
+  diun.yml: |
+    watch:
+      workers: 10
+      schedule: "0 */6 * * *"
+      jitter: 30s
+      firstCheckNotif: false
+      runOnStartup: true
+
+    providers:
+      kubernetes:
+        watchByDefault: true
+        namespaces:
+          - adguard
+          - anime
+          - diun
+          - homer
+          - media
+          - nextcloud
+          - registry
+          - traefik
+          - uptime-kuma
+          - vaultwarden
+
+    notif:
+      telegram:
+        tokenFile: /etc/secrets/notif/telegram/token
+        chatIDsFile: /etc/secrets/notif/telegram/chatids
+        templateBody: |
+          {% raw %}{{ .Meta.Name }} has found a new image!
+          Image info:
+            • name: {{ .Entry.Image }}
+            • platform: {{ .Entry.Manifest.Platform }}
+            {{ if .Entry.Image.HubLink }}• Hub link: {{ escapeMarkdown .Entry.Image.HubLink }}{{ end }}
+          {% endraw %}
+
+    regopts:
+      - name: "registry.kalexlab.xyz"
+        selector: image
+        usernameFile: /etc/secrets/regopts/registry.kalexlab.xyz/username
+        passwordFile: /etc/secrets/regopts/registry.kalexlab.xyz/password

@@ -1,0 +1,16 @@
+---
+- name: Test ping
+  hosts: host1
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Ping host2
+      command: ping -c1 10.8.3.1
+
+- name: Test ping
+  hosts: host2
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Ping host1
+      command: ping -c1 10.8.2.1

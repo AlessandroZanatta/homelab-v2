@@ -1,0 +1,19 @@
+---
+- name: Ensure DDNS cron updater exists
+  hosts:
+    - hermes-opti3050m
+  tasks:
+    - block:
+        - name: Copy DNS update script
+          copy:
+            src: ../../files/porkbun-update.sh
+            dest: /usr/local/bin/porkbun-update.sh
+            mode: "0500"
+          become: true
+
+        - name: Ensure cron entry exists
+          cron:
+            name: Update DNS record
+            minute: "*/2"
+            job: /usr/local/bin/porkbun-update.sh
+          become: true

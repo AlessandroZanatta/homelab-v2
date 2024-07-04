@@ -1,0 +1,151 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: scrutiny
+  name: influxdb
+  labels:
+    kalexlab.xyz/app: scrutiny
+    kalexlab.xyz/component: influxdb
+spec:
+  type: ClusterIP
+  ports:
+    - name: influxdb
+      port: 8086
+      protocol: TCP
+      targetPort: 8086
+  selector:
+    kalexlab.xyz/app: scrutiny
+    kalexlab.xyz/component: influxdb
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: scrutiny
+  name: influxdb
+  labels:
+    kalexlab.xyz/app: scrutiny
+    kalexlab.xyz/component: influxdb
+spec:
+  replicas: 1
+  serviceName: influxdb
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: scrutiny
+      kalexlab.xyz/component: influxdb
+  updateStrategy:
+    type: RollingUpdate
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: scrutiny
+        kalexlab.xyz/component: influxdb
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: influxdb
+          image: docker.io/library/influxdb:2-alpine
+          imagePullPolicy: Always
+
+          ports:
+            - name: influxdb
+              containerPort: 8086
+              protocol: TCP
+
+          env:
+            - name: DOCKER_INFLUXDB_INIT_MODE
+              value: "setup"
+            - name: DOCKER_INFLUXDB_INIT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: scrutiny-influxdb-secrets
+                  key: DOCKER_INFLUXDB_INIT_USERNAME
+            - name: DOCKER_INFLUXDB_INIT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: scrutiny-influxdb-secrets
+                  key: DOCKER_INFLUXDB_INIT_PASSWORD
+            - name: DOCKER_INFLUXDB_INIT_ORG
+              valueFrom:
+                secretKeyRef:
+                  name: scrutiny-influxdb-secrets
+                  key: DOCKER_INFLUXDB_INIT_ORG
+            - name: DOCKER_INFLUXDB_INIT_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: scrutiny-influxdb-secrets
+                  key: DOCKER_INFLUXDB_INIT_BUCKET
+            - name: DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: scrutiny-influxdb-secrets
+                  key: DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
+
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8086
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 8086
+            periodSeconds: 10
+            failureThreshold: 3
+
+          # TODO
+          # resources:
+          #   requests:
+          #     memory: 300Mi
+          #     cpu: 50m
+          #   limits:
+          #     memory: 1Gi
+          #     cpu: 500m
+
+          securityContext:
+            # allowPrivilegeEscalation: false
+            # readOnlyRootFilesystem: true
+
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /etc/influxdb2
+              name: scrutiny-influxdb-config-pvc
+            - mountPath: /var/lib/influxdb2
+              name: scrutiny-influxdb-data-pvc
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        # runAsNonRoot: true
+        # runAsUser: 1000
+        # runAsGroup: 1000
+        # fsGroup: 1000
+        # fsGroupChangePolicy: "OnRootMismatch"
+
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
+
+  volumeClaimTemplates:
+    - metadata:
+        name: scrutiny-influxdb-config-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 100Mi
+    - metadata:
+        name: scrutiny-influxdb-data-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 2Gi

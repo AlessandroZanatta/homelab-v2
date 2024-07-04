@@ -1,0 +1,18 @@
+---
+- name: Filter helm_charts if filter variable is defined
+  set_fact:
+    helm_charts: "{{ helm_charts | selectattr('name', 'equalto', filter) }}"
+  when: "filter is defined and filter != ''"
+
+- name: Filter helm_tgz_charts if filter variable is defined
+  set_fact:
+    helm_tgz_charts: "{{ helm_tgz_charts | selectattr('name', 'equalto', filter) }}"
+  when: "filter is defined and filter != ''"
+
+- name: Install charts
+  include_tasks: install_chart.yml
+  with_items: "{{ helm_charts }}"
+
+- name: Install tgz charts
+  include_tasks: install_tgz_chart.yml
+  with_items: "{{ helm_tgz_charts }}"

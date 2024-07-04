@@ -1,0 +1,10 @@
+[Interface]
+PrivateKey = {{ private_key }} 
+Address = {{ item.value.address }}
+DNS = {{ wireguard_dns }}
+
+[Peer]
+PublicKey = {{ wireguard_server_public_key }} 
+AllowedIPs = {{ wireguard_server_address }}{{ wireguard_allowed_ips }}
+Endpoint = {{ wireguard_server_endpoint }}
+

@@ -1,0 +1,58 @@
+---
+- name: Check architecture is supported
+  fail:
+    msg: "Architecture {{ ansible_architecture }} is not supported!"
+  when:
+    - ansible_architecture != 'x86_64'
+    - ansible_architecture != 'arm64'
+    - ansible_architecture != 'aarch64'
+
+- name: Decide download based on architecture
+  set_fact:
+    cni_archive: "{% if ansible_architecture == 'x86_64' %}{{ cni_archive_amd64 }}{% else %}{{ cni_archive_arm64 }}{% endif %}"
+
+- name: Create temporary directory
+  tempfile:
+    state: directory
+  register: cni_tempdir
+  changed_when: false
+
+- name: Ensure CNI configuration directory
+  file:
+    path: "{{ cni_conf_path }}"
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+
+- name: Ensure cni_binaries_path exists
+  file:
+    path: "{{ cni_binaries_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Download cni archive
+  get_url:
+    url: "{{ cni_archive.url }}"
+    dest: "{{ cni_tempdir.path }}/{{ cni_archive.dest }}"
+    checksum: "sha256:{{ cni_archive.checksum }}"
+
+- name: Unarchive CNI archive
+  unarchive:
+    src: "{{ cni_tempdir.path }}/{{ cni_archive.dest }}"
+    dest: "{{ cni_binaries_path }}"
+    mode: "0755"
+    owner: root
+    group: root
+    remote_src: true
+    exclude:
+      - LICENSE
+      - README.md
+
+- name: Delete temporary directory
+  file:
+    path: "{{ cni_tempdir.path }}"
+    state: absent
+  changed_when: false

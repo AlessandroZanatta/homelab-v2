@@ -1,0 +1,8 @@
+---
+- name: Setup etcd
+  hosts: etcd
+  roles:
+    - k8s-etcd
+  vars:
+    k8s_pki_path: "../../outputs/{{ ansible_environment }}/pki"
+  become: true

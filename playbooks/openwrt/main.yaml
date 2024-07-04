@@ -1,0 +1,7 @@
+---
+- hosts: routers
+  roles:
+    - role: openwrt
+  become: true
+  gather_facts: false
+  tasks:

@@ -1,0 +1,127 @@
+---
+- name: Install kubernetes control plane components
+  block:
+    - name: Check architecture is supported
+      fail:
+        msg: "Architecture {{ ansible_architecture }} is not supported!"
+      when:
+        - ansible_architecture != 'x86_64'
+        - ansible_architecture != 'arm64'
+        - ansible_architecture != 'aarch64'
+
+    - name: Check that k8s_binaries_path exists
+      file:
+        path: "{{ k8s_binaries_path }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Download components
+      get_url:
+        url: "{{ item.url }}"
+        dest: "{{ k8s_binaries_path }}/{{ item.dest }}"
+        checksum: "sha256:{{ item.url }}.sha256"
+        mode: "0555"
+        owner: "root"
+        group: "root"
+      with_items: "{% if ansible_architecture == 'x86_64' %}{{ k8s_binaries_amd64 }}{% else %}{{ k8s_binaries_arm64 }}{% endif %}"
+
+- name: Create user to run control plane processes
+  user:
+    name: "{{ k8s_control_plane_user }}"
+    system: "{{ k8s_control_plane_system_user }}"
+    shell: "{{ k8s_control_plane_user_shell }}"
+    state: present
+
+- name: Create k8s config directory
+  file:
+    path: "{{ k8s_config_path }}"
+    state: directory
+    owner: "{{ k8s_control_plane_user }}"
+    group: "{{ k8s_control_plane_group }}"
+    mode: "{{ k8s_config_path_mode }}"
+
+- name: Create k8s log directory
+  file:
+    path: "{{ k8s_log_base_path }}"
+    state: directory
+    owner: "{{ k8s_control_plane_user }}"
+    group: "{{ k8s_control_plane_group }}"
+    mode: "{{ k8s_log_base_mode }}"
+
+- name: Copy the required keys
+  block:
+    - name: Create keys directory
+      file:
+        path: "{{ k8s_keys_path }}"
+        state: directory
+        owner: "{{ k8s_control_plane_user }}"
+        group: "{{ k8s_control_plane_group }}"
+        mode: "{{ k8s_keys_path_mode }}"
+
+    - name: Copy keys
+      copy:
+        src: "{{ k8s_pki_path }}/{{ item }}"
+        dest: "{{ k8s_keys_path }}/{{ item }}"
+        owner: "{{ k8s_control_plane_user }}"
+        group: "{{ k8s_control_plane_group }}"
+        mode: "{{ k8s_keys_mode }}"
+      with_items: "{{ k8s_required_keys }}"
+
+- name: Create configuration files
+  block:
+    - name: Config admin user
+      include_tasks: "kube-admin.yaml"
+
+    - name: Config kube-apiserver
+      include_tasks: "kube-apiserver.yaml"
+
+    - name: Config kube-controller-manager
+      include_tasks: "kube-controller-manager.yaml"
+
+    - name: Config kube-scheduler
+      include_tasks: "kube-scheduler.yaml"
+
+- name: Wait for kube-apiserver to become ready
+  wait_for:
+    host: "{{ k8s_kube_apiserver_endpoint_host }}"
+    port: "{{ k8s_kube_apiserver_endpoint_port }}"
+    delay: 5
+
+- name: Create and apply RBAC for kubelet
+  block:
+    - name: Create temporary directory
+      tempfile:
+        state: directory
+      register: rbac_tempdir
+      changed_when: false
+
+    - name: Create templates for ClusterRole and ClusterRoleBinding
+      template:
+        src: "{{ item }}.yaml.j2"
+        dest: "{{ rbac_tempdir.path }}/{{ item }}.yaml"
+      loop:
+        - kubelet-clusterrole
+        - kubelet-clusterrolebinding
+
+    - name: Install kubernetes.core.k8s requirements
+      apt:
+        pkg:
+          - python3-kubernetes
+          - python3-yaml
+
+    - name: Apply them to the cluster
+      kubernetes.core.k8s:
+        src: "{{ rbac_tempdir.path }}/{{ item }}.yaml"
+        state: present
+        kubeconfig: "{{ k8s_kube_admin_path }}/admin.kubeconfig"
+      loop:
+        - kubelet-clusterrole
+        - kubelet-clusterrolebinding
+
+    - name: Destroy temporary directory
+      file:
+        path: "{{ rbac_tempdir.path }}"
+        state: absent
+  run_once: true

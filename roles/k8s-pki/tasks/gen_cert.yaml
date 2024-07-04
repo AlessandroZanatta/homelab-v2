@@ -1,0 +1,44 @@
+---
+- name: Decide cert_out
+  set_fact:
+    cert_out: "{% if item.cert_out is defined %}{{ item.cert_out }}{% else %}{{ item.cert }}{% endif %}"
+
+- name: Decide profile
+  set_fact:
+    profile: "{% if item.profile is defined %}{{ item.profile }}{% else %}{{ profile }}{% endif %}"
+
+- name: Decide extra_flags
+  set_fact:
+    extra_flags: "{% if item.extra_flags is defined %}{{ item.extra_flags }}{% endif %}"
+
+- name: Instantiate template
+  template:
+    src: "../templates/{{ item.cert }}-csr.json.j2"
+    dest: "{{ k8s_pki_path }}/{{ cert_out }}-csr.json"
+  vars:
+    cn: "{{ item.cn }}"
+    o: "{{ item.o }}"
+
+- name: Generate certificate
+  shell: |
+    cfssl gencert \
+      -ca={{ ca }}.pem \
+      -ca-key={{ ca }}-key.pem \
+      -config={{ ca }}-config.json \
+      -profile={{ profile }} \
+      {{ extra_flags }} \
+      {{ cert_out }}-csr.json | cfssljson -bare {{ cert_out }}
+  args:
+    chdir: "{{ k8s_pki_path }}"
+    creates: "{{ cert_out }}-key.pem"
+
+- name: Set permissions of certificates
+  file:
+    path: "{{ k8s_pki_path }}/{{ cert }}"
+    mode: "{{ k8s_pki_certificates_mode }}"
+  loop:
+    - "{{ cert_out }}-key.pem"
+    - "{{ cert_out }}.pem"
+    - "{{ cert_out }}.csr"
+  loop_control:
+    loop_var: cert

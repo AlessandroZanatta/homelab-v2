@@ -1,0 +1,50 @@
+---
+- name: Create namespace
+  kubernetes.core.k8s:
+    name: "{{ item.namespace }}"
+    kind: Namespace
+    state: present
+
+- name: Run pre-tasks
+  include_tasks: "{{ item.name }}/{{ pretask }}"
+  with_items: "{{ item.pre_tasks|default([]) }}"
+  loop_control:
+    loop_var: pretask
+
+- name: Install helm chart
+  block:
+    - name: Create temporary file for Helm values
+      tempfile:
+        state: file
+      register: values_tmpfile
+
+    - name: Create Helm values
+      template:
+        src: "{{ template_prefix }}/{{ item.name }}/values.yml"
+        dest: "{{ values_tmpfile.path }}"
+        mode: 0600
+
+    - name: Dump Helm values generated
+      debug:
+        msg: "{{ lookup('file', values_tmpfile.path).split('\n') }}"
+
+    - name: Install chart
+      kubernetes.core.helm:
+        name: "{{ item.name }}"
+        chart_ref: "{{ item.tgz_url }}"
+        release_namespace: "{{ item.namespace }}"
+        create_namespace: false
+        values_files:
+          - "{{ values_tmpfile.path }}"
+
+  always:
+    - name: Delete temporary file for Helm values
+      file:
+        path: "{{ values_tmpfile.path }}"
+        state: absent
+
+- name: Run post-tasks
+  include_tasks: "{{ item.name }}/{{ posttask }}"
+  with_items: "{{ items.post_tasks|default([]) }}"
+  loop_control:
+    loop_var: posttask

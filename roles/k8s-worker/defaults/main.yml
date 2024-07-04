@@ -1,0 +1,165 @@
+---
+k8s_interface: "eth0"
+k8s_cluster_dns: "10.32.0.254"
+
+k8s_controller: "controllers"
+
+k8s_config_path: "/etc/kubernetes/worker"
+k8s_config_path_mode: "0740"
+k8s_keys_path: "{{ k8s_config_path }}/keys"
+k8s_keys_path_mode: "0740"
+k8s_kubelet_config_path: "{{ k8s_config_path }}/kubelet"
+k8s_kube_proxy_config_path: "{{ k8s_config_path }}/kube-proxy"
+
+# Haproxy loadbalancer endpoint for apiserver
+k8s_apiserver_endpoint_host: "127.0.0.1"
+k8s_apiserver_endpoint_port: "16443"
+
+k8s_worker_required_packages:
+  - ebtables
+  - ethtool
+  - ipset
+  - conntrack
+  - iptables
+  - iptstate
+  - netstat-nat
+  - socat
+  - netbase
+
+k8s_pki_path: "./build"
+k8s_keys_mode: "0400"
+k8s_required_keys:
+  - ca-apiserver.pem
+  - ca-apiserver-key.pem
+  - apiserver.pem
+  - apiserver-key.pem
+  - apiserver-proxy.pem
+  - apiserver-proxy-key.pem
+  - apiserver-kubelet-{{ hostvars[inventory_hostname].ansible_hostname }}.pem
+  - apiserver-kubelet-{{ hostvars[inventory_hostname].ansible_hostname }}-key.pem
+
+binaries_path: "/usr/local/bin"
+binaries_mode: "555"
+
+k8s_kubelet_settings:
+  config: "{{ k8s_kubelet_config_path }}/kubelet-config.yaml"
+  node-ip: "{{ hostvars[inventory_hostname]['ansible_' + k8s_interface].ipv4.address }}"
+  kubeconfig: "{{ k8s_kubelet_config_path }}/kubeconfig"
+  # seccomp-default: ""
+
+k8s_kubeproxy_settings:
+  "config": "{{ k8s_kube_proxy_config_path }}/kubeproxy-config.yaml"
+
+##############################
+# runc version and downloads #
+##############################
+runc_version: "1.1.12"
+
+runc_binary_amd64:
+  dest: runc
+  url: "https://github.com/opencontainers/runc/releases/download/v{{ runc_version }}/runc.amd64"
+
+runc_binary_arm64:
+  dest: runc
+  url: "https://github.com/opencontainers/runc/releases/download/v{{ runc_version }}/runc.arm64"
+
+####################################
+# containerd version and downloads #
+####################################
+containerd_version: "1.7.16"
+
+containerd_archive_amd64:
+  dest: containerd.tar.gz
+  url: "https://github.com/containerd/containerd/releases/download/v{{ containerd_version }}/containerd-{{ containerd_version }}-linux-amd64.tar.gz"
+  checksum: "https://github.com/containerd/containerd/releases/download/v{{ containerd_version }}/containerd-{{ containerd_version }}-linux-amd64.tar.gz.sha256sum"
+
+containerd_archive_arm64:
+  dest: containerd.tar.gz
+  url: "https://github.com/containerd/containerd/releases/download/v{{ containerd_version }}/containerd-{{ containerd_version }}-linux-arm64.tar.gz"
+  checksum: "https://github.com/containerd/containerd/releases/download/v{{ containerd_version }}/containerd-{{ containerd_version }}-linux-arm64.tar.gz.sha256sum"
+
+containerd_conf_path: "/etc/containerd"
+
+# containerd systemd service settings
+containerd_service_settings:
+  ExecStartPre: "/usr/sbin/modprobe overlay"
+  ExecStart: "{{ binaries_path }}/containerd"
+  Restart: "always"
+  RestartSec: "5"
+  Type: "notify"
+  Delegate: "yes"
+  KillMode: "process"
+  OOMScoreAdjust: "-999"
+  LimitNOFILE: "1048576"
+  LimitNPROC: "infinity"
+  LimitCORE: "infinity"
+
+# Content of configuration file of "containerd". The settings below are the
+# settings that are different to the default "containerd" settings. So these
+# seetings will override the default settings.
+#
+# The default "containerd" configuration can be generated with this command:
+#
+# containerd config default
+#
+# Difference to default configuration:
+#
+# - The configuration file contains a few role variables that will be replaced when
+#   the configuration template is processed.
+# - In 'plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options' the
+#   setting "SystemdCgroup" is set to "true" instead of "false". This is relevant for
+#   Kubernetes e.g. Also see:
+#   https://kubernetes.io/docs/setup/production-environment/container-runtimes/#containerd-systemd)
+containerd_config: |
+  version = 2
+  [plugins]
+    [plugins."io.containerd.grpc.v1.cri"]
+      sandbox_image = "registry.k8s.io/pause:3.8"
+      [plugins."io.containerd.grpc.v1.cri".cni]
+        bin_dir = "{{ cni_binaries_path }}"
+        conf_dir = "/etc/cni/net.d"
+      [plugins."io.containerd.grpc.v1.cri".containerd]
+        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes]
+          [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+            runtime_type = "io.containerd.runc.v2"
+            [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+              BinaryName = "{{ binaries_path }}/runc"
+              SystemdCgroup = true
+
+#############################
+# CNI version and downloads #
+#############################
+cni_version: "1.4.0"
+
+cni_archive_amd64:
+  dest: cni.tgz
+  url: "https://github.com/containernetworking/plugins/releases/download/v{{ cni_version }}/cni-plugins-linux-amd64-v{{ cni_version }}.tgz"
+  checksum: "https://github.com/containernetworking/plugins/releases/download/v{{ cni_version }}/cni-plugins-linux-amd64-v{{ cni_version }}.tgz.sha256"
+
+cni_archive_arm64:
+  dest: cni.tgz
+  url: "https://github.com/containernetworking/plugins/releases/download/v{{ cni_version }}/cni-plugins-linux-arm64-v{{ cni_version }}.tgz"
+  checksum: "https://github.com/containernetworking/plugins/releases/download/v{{ cni_version }}/cni-plugins-linux-arm64-v{{ cni_version }}.tgz.sha256"
+
+cni_conf_path: "/etc/cni/net.d"
+cni_binaries_path: "/opt/cni/bin"
+#############################################
+# k8s worker binaries version and downloads #
+#############################################
+k8s_version: "1.29.4"
+
+k8s_binaries_amd64:
+  - dest: kubelet
+    url: "https://dl.k8s.io/v{{ k8s_version }}/bin/linux/amd64/kubelet"
+  - dest: kube-proxy
+    url: "https://dl.k8s.io/v{{ k8s_version }}/bin/linux/amd64/kube-proxy"
+  - dest: kubectl
+    url: "https://dl.k8s.io/v{{ k8s_version }}/bin/linux/amd64/kubectl"
+
+k8s_binaries_arm64:
+  - dest: kubelet
+    url: "https://dl.k8s.io/v{{ k8s_version }}/bin/linux/arm64/kubelet"
+  - dest: kube-proxy
+    url: "https://dl.k8s.io/v{{ k8s_version }}/bin/linux/arm64/kube-proxy"
+  - dest: kubectl
+    url: "https://dl.k8s.io/v{{ k8s_version }}/bin/linux/arm64/kubectl"

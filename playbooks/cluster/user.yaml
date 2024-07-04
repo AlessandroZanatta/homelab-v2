@@ -1,0 +1,18 @@
+---
+- name: Set bash options
+  blockinfile:
+    path: "/home/{{ default_user }}/.profile"
+    append_newline: true
+    prepend_newline: true
+    create: true
+    block: |
+      # NeoVim aliases
+      alias v=nvim
+      alias vi=nvim
+      alias vim=nvim
+
+      # Compatibility with kitty terminal
+      export TERM=xterm-256color
+
+      # Default editor
+      export EDITOR=nvim

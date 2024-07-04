@@ -1,0 +1,18 @@
+[Interface]
+PrivateKey = {{ wireguard_server_private_key }} 
+Address = {{ wireguard_server_address }}
+ListenPort = {{ wireguard_server_port }}
+{% if wireguard_server_postup is defined %}
+PostUp = {{ wireguard_server_postup }}
+{% endif %}
+{% if wireguard_server_postdown is defined %}
+PostDown = {{ wireguard_server_postdown }} 
+{% endif %}
+
+{% for client in wireguard_clients %}
+# {{ client }}
+[Peer]
+PublicKey = {{ wireguard_clients[client].public_key }} 
+AllowedIPs = {{ wireguard_clients[client].address }}
+
+{% endfor %}

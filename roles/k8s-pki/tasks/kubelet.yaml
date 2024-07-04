@@ -1,0 +1,12 @@
+---
+- name: Generate certificate
+  include_tasks: gen_cert.yaml
+  loop:
+    - cert: generic
+      cert_out: "apiserver-kubelet-{{ hostvars[host].ansible_hostname }}"
+      cn: "{{ k8s_pki_kubelet_cn }}:{{ hostvars[host].ansible_hostname }}"
+      o: "{{ k8s_pki_kubelet_o }}"
+      extra_flags: "-hostname={{ hostvars[host].ansible_hostname }}.{{ k8s_domain }},{{ hostvars[host]['ansible_default_ipv4']['address'] }},{{ hostvars[host]['ansible_' + k8s_interface].ipv4.address }}"
+  vars:
+    ca: ca-apiserver
+    profile: kubernetes

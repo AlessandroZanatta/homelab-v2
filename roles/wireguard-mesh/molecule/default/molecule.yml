@@ -1,0 +1,51 @@
+---
+dependency:
+  name: galaxy
+
+driver:
+  name: vagrant
+  provider:
+    name: virtualbox
+
+platforms:
+  - name: host1
+    box: generic/debian12
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: static
+        ip: 192.168.57.2
+    groups:
+      - vpn
+  - name: host2
+    box: generic/debian12
+    interaces:
+      - auto_config: true
+        network_name: private_network
+        type: static
+        ip: 192.168.57.3
+    groups:
+      - vpn
+
+lint: |
+  set -e
+  yamllint .
+  ansible-lint
+
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_PIPELINING: "True"
+  inventory:
+    host_vars:
+      host1:
+        wireguard_address: 10.8.2.1
+        wireguard_port: 51820
+        wireguard_endpoint: "192.168.57.2"
+      host2:
+        wireguard_address: 10.8.3.1
+        wireguard_port: 51820
+        wireguard_endpoint: "192.168.57.3"
+
+verifier:
+  name: ansible

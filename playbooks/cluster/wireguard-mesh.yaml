@@ -1,0 +1,42 @@
+---
+- name: Init wireguard unmanaged hosts
+  hosts: apollo
+  roles:
+    - wireguard-mesh
+  vars:
+    types:
+      - unmanaged
+    generate_config: false
+    wireguard_unmanaged_configurator: "apollo"
+    wireguard_unmanaged_path: "../../outputs/{{ ansible_environment }}/wg"
+    wireguard_unmanaged_hosts:
+      apollo:
+        address: 10.8.100.1
+
+- name: Setup wireguard mesh network
+  hosts: cluster
+  roles:
+    - wireguard-mesh
+  become: true
+  vars:
+    wireguard_unmanaged_configurator: "apollo"
+    types:
+      - cluster
+
+- name: Create configurations for unmanaged hosts
+  hosts: apollo
+  roles:
+    - wireguard-mesh
+  vars:
+    types:
+      - unmanaged
+    generate_config: true
+    wireguard_unmanaged_configurator: "apollo"
+    wireguard_unmanaged_path: "../../outputs/{{ ansible_environment }}/wg"
+
+  pre_tasks:
+    - name: Gather info about vpn nodes
+      setup:
+      delegate_to: "{{ item }}"
+      delegate_facts: true
+      loop: "{{ groups['vpn'] }}"

@@ -1,0 +1,18 @@
+[Unit]
+Description=Kubernetes API Server
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart={{ k8s_binaries_path }}/kube-apiserver \
+{% for setting in k8s_apiserver_settings|sort %}
+  --{{ setting }}={{ k8s_apiserver_settings[setting] }} {% if not loop.last %}\{% endif %}
+
+{% endfor %}
+{% for setting in k8s_service_options %}
+{{ setting }}
+{% endfor %}
+
+[Install]
+WantedBy=multi-user.target

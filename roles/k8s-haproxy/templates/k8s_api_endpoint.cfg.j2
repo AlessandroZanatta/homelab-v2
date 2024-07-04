@@ -1,0 +1,16 @@
+frontend k8s_api_endpoint_frontend
+  bind {{ k8s_haproxy_frontend_bind_address }}:{{ k8s_haproxy_frontend_port }}
+  mode tcp
+  option tcplog
+  default_backend k8s_api_endpoint_backend
+
+backend k8s_api_endpoint_backend
+  mode tcp
+  balance leastconn
+  stick-table type ip size 1m expire 1h
+  stick on src
+
+{% for host in groups[k8s_controllers_group] %}
+  server {{ hostvars[host]['ansible_hostname'] }} {{ hostvars[host]['ansible_' + k8s_interface].ipv4.address }}:{{ k8s_haproxy_k8s_api_endpoint_port }} check check-ssl verify none
+{% endfor %}
+

@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  author: kalex
+  description: kubernetes control plane role
+
+  license: MIT
+
+  min_ansible_version: "2.1"
+
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+
+dependencies: []

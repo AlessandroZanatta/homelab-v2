@@ -1,0 +1,105 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: vaultwarden
+  name: vaultwarden
+  labels:
+    kalexlab.xyz/app: vaultwarden
+    kalexlab.xyz/component: app
+spec:
+  type: ClusterIP
+  ports:
+    - name: vaultwarden
+      port: 80
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: vaultwarden
+    kalexlab.xyz/component: app
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: vaultwarden
+  name: vaultwarden
+  labels:
+    kalexlab.xyz/app: vaultwarden
+    kalexlab.xyz/component: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: vaultwarden
+      kalexlab.xyz/component: app
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: vaultwarden
+        kalexlab.xyz/component: app
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: app
+          image: vaultwarden/server:latest
+          imagePullPolicy: Always
+
+          securityContext:
+            readOnlyRootFilesystem: true
+            # runAsNonRoot: true
+            # runAsUser: 1000
+            allowPrivilegeEscalation: false
+            # capabilities:
+            #   add:
+            #     - NET_BIND_SERVICE
+
+          ports:
+            - containerPort: 80
+              protocol: TCP
+
+          env:
+            - name: DOMAIN
+              value: "https://vault.kalexlab.xyz"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: vaultwarden-db-secrets
+                  key: DATABASE_URL
+
+          # resources:
+          #   requests:
+          #     memory: 150Mi
+          #     cpu: 20m
+          #   limits:
+          #     memory: 500Mi
+          #     cpu: 200m
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            failureThreshold: 3
+            periodSeconds: 30
+
+          volumeMounts:
+            - mountPath: /data
+              name: vaultwarden-data-pvc
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+  volumeClaimTemplates:
+    - metadata:
+        name: vaultwarden-data-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 1Gi

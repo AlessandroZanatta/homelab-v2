@@ -1,0 +1,51 @@
+---
+- name: Create output path for peer
+  file:
+    path: "{{ wireguard_unmanaged_path }}/{{ item }}"
+    state: directory
+    mode: "0700"
+
+- name: Generate keypair
+  block:
+    - name: Create keypair
+      shell: "umask 377; wg genkey | tee privatekey | wg pubkey | tee publickey"
+      args:
+        creates: "privatekey"
+        chdir: "{{ wireguard_unmanaged_path }}/{{ item }}"
+
+    - name: Register private key
+      shell: "cat privatekey"
+      register: wireguard_private_key_shell
+      changed_when: false
+      args:
+        chdir: "{{ wireguard_unmanaged_path }}/{{ item }}"
+    - name: Register private key fact
+      set_fact:
+        wireguard_private_key: "{{ wireguard_private_key_shell.stdout }}"
+    - name: Register public key
+      shell: "cat publickey"
+      register: wireguard_public_key_shell
+      changed_when: false
+      args:
+        chdir: "{{ wireguard_unmanaged_path }}/{{ item }}"
+    - name: Register public key fact
+      set_fact:
+        wireguard_public_key: "{{ wireguard_public_key_shell.stdout }}"
+
+    - name: Register host configuration
+      set_fact:
+        wireguard_unmanaged_hosts: "{{ wireguard_unmanaged_hosts | combine({item: wireguard_unmanaged_hosts[item]|combine({'public_key': wireguard_public_key, 'private_key': wireguard_private_key})}) }}"
+
+- name: Generate config
+  template:
+    src: wg0.conf.j2
+    dest: "{{ wireguard_unmanaged_path }}/{{ item }}/{{ wireguard_interface }}.conf"
+    mode: "0400"
+  vars:
+    wireguard_public_key: "{{ wireguard_unmanaged_hosts[item].public_key }}"
+    wireguard_private_key: "{{ wireguard_unmanaged_hosts[item].private_key }}"
+    wireguard_address: "{{ wireguard_unmanaged_hosts[item].address }}"
+    wireguard_postup:
+    wireguard_postdown:
+    wireguard_use_external_endpoint: "{{ wireguard_unmanaged_hosts[item].use_external|default(true)|bool }}"
+  when: "generate_config is defined and generate_config"

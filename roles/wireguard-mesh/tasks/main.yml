@@ -1,0 +1,7 @@
+---
+- name: Include task
+  include_tasks: "{{ type }}.yml"
+  when: type == "cluster" or type == "unmanaged"
+  with_items: "{{ types }}"
+  loop_control:
+    loop_var: type

@@ -1,0 +1,186 @@
+---
+- name: Create wireguard configuration
+  hosts: apollo
+  vars:
+    wireguard_path: "../../outputs/{{ ansible_environment }}/wg-clients"
+    wireguard_allowed_ips: ", {{ local_network }}"
+    wireguard_server_address: 10.10.0.1
+    wireguard_server_port: 51830
+    wireguard_server_endpoint: "vpn.kalexlab.xyz:51830"
+    wireguard_dns: "{{ coredns_loadbalancer_ip }}"
+    wireguard_clients:
+      kalex-laptop:
+        address: 10.10.0.10
+      kalex-phone:
+        address: 10.10.0.11
+      laetitia-laptop:
+        address: 10.10.0.20
+      laetitia-phone:
+        address: 10.10.0.21
+  tasks:
+    - name: Create output path
+      file:
+        path: "{{ wireguard_path }}"
+        state: directory
+        mode: "0700"
+
+    - name: Generate server keypair
+      block:
+        - name: Create output path
+          file:
+            path: "{{ wireguard_path }}/server"
+            state: directory
+            mode: "0700"
+        - name: Generate keypair
+          shell: "umask 377; wg genkey | tee privatekey | wg pubkey | tee publickey"
+          args:
+            creates: "privatekey"
+            chdir: "{{ wireguard_path }}/server"
+
+        - name: Register private key
+          shell: "cat privatekey"
+          register: wireguard_private_key_shell
+          changed_when: false
+          args:
+            chdir: "{{ wireguard_path }}/server"
+        - name: Register private key fact
+          set_fact:
+            wireguard_server_private_key: "{{ wireguard_private_key_shell.stdout }}"
+        - name: Register public key
+          shell: "cat publickey"
+          register: wireguard_public_key_shell
+          changed_when: false
+          args:
+            chdir: "{{ wireguard_path }}/server"
+        - name: Register public key fact
+          set_fact:
+            wireguard_server_public_key: "{{ wireguard_public_key_shell.stdout }}"
+
+    - name: Generate keys for every client
+      block:
+        - name: Create output path
+          file:
+            path: "{{ wireguard_path }}/clients"
+            state: directory
+            mode: "0700"
+
+        - name: Create configurations
+          include_tasks: wireguard-clients-conf.yml
+          with_dict: "{{ wireguard_clients }}"
+
+- name: Setup Wireguard VPN on openwrt router
+  roles:
+    - openwrt
+  hosts: routers
+  vars:
+    wireguard_interface: "wg0"
+    configurator: "apollo"
+    wireguard_server_address: 10.10.0.1
+    wireguard_server_port: 51830
+  become: true
+
+  tasks:
+    - name: Install packages
+      opkg:
+        name: wireguard-tools,kmod-wireguard
+        state: present
+
+    - name: Configure wireguard VPN via UCI
+      block:
+        # Allow wireguard on the firewall
+        - name: Rename lan zone
+          uci:
+            command: rename
+            key: "firewall.@zone[0]"
+            value: lan
+
+        - name: Rename wan zone
+          uci:
+            command: rename
+            key: "firewall.@zone[1]"
+            value: wan
+
+        - name: Remove list
+          uci:
+            command: del_list
+            key: firewall.lan.network
+            value: "{{ wireguard_interface }}"
+
+        - name: Add list
+          uci:
+            command: add_list
+            key: firewall.lan.network
+            value: "{{ wireguard_interface }}"
+
+        - name: Delete port forwarding
+          uci:
+            command: absent
+            key: firewall.wg0
+
+        - name: Create new port forwarding
+          uci:
+            command: set
+            key: firewall.wg0
+            value: redirect
+
+        - name: Setup port forwarding
+          uci:
+            command: set
+            key: firewall.wg0
+            value:
+              dest: "lan"
+              target: "DNAT"
+              name: "router - Wireguard"
+              family: "ipv4"
+              src: "wan"
+              src_dport: "51830"
+              dest_ip: "192.168.10.1"
+              dest_port: "51830"
+
+        - name: Commit changes
+          uci:
+            command: commit
+
+        - name: Restart firewall
+          service:
+            name: firewall
+            state: restarted
+
+        - name: Delete interface
+          uci:
+            command: absent
+            key: "network.{{ wireguard_interface }}"
+
+        - name: Create interface
+          uci:
+            command: set
+            key: "network.{{ wireguard_interface }}"
+            value: "interface"
+
+        - name: Setup interface
+          uci:
+            command: set
+            key: "network.{{ wireguard_interface }}"
+            value:
+              proto: "wireguard"
+              private_key: "{{ hostvars[configurator].wireguard_server_private_key }}"
+              listen_port: "{{ wireguard_server_port }}"
+
+        - name: Add VPN server address
+          uci:
+            command: add_list
+            key: "network.{{ wireguard_interface }}.addresses"
+            value: "{{ wireguard_server_address }}/24"
+
+        - name: Add clients
+          include_tasks: wireguard-clients.yml
+          with_dict: "{{ hostvars[configurator].wireguard_clients }}"
+
+        - name: Commit
+          uci:
+            command: commit
+
+        - name: Restart network
+          service:
+            name: network
+            state: restarted

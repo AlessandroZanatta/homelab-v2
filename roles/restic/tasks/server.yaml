@@ -1,0 +1,91 @@
+---
+- name: Ensure restic_user exists
+  user:
+    name: "{{ restic_user }}"
+    state: present
+    password: "*"
+  become: true
+
+- name: Ensure authorized keys are installed
+  ansible.posix.authorized_key:
+    user: "{{ restic_user }}"
+    key: "{{ item }}"
+    state: present
+  with_items: "{{ [restic_public_key] + restic_authorized_keys }}"
+  become: true
+  become_user: "{{ restic_user }}"
+
+- name: Ensure restic_chroot exists and is owned by root (required by SFTP)
+  file:
+    path: "{{ restic_chroot }}"
+    state: directory
+    owner: "root"
+    group: "root"
+  become: true
+
+- name: Ensure restic_path exists
+  file:
+    path: "{{ restic_chroot }}/{{ restic_path }}"
+    state: directory
+    mode: "0700"
+    owner: "{{ restic_user }}"
+    group: "{{ restic_user }}"
+  become: true
+
+- name: Ensure restic_custom_scripts_path exists
+  file:
+    path: "{{ restic_custom_scripts_path }}"
+    state: directory
+  become: true
+
+- block:
+    - name: Ensure internal-sftp is used
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^Subsystem[ \t]+sftp"
+        line: "Subsystem sftp internal-sftp"
+
+    - name: Ensure restic_user uses internal-sftp with chroot
+      blockinfile:
+        path: /etc/ssh/sshd_config
+        append_newline: true
+        prepend_newline: true
+        block: |
+          Match User {{ restic_user }}
+              ForceCommand internal-sftp
+              ChrootDirectory {{ restic_chroot }}
+              AllowAgentForwarding no
+              AllowTcpForwarding no
+  become: true
+  notify: restart sshd
+
+- name: Ensure restic repository exists
+  command: "restic -r sftp:{{ restic_user }}@{{ restic_host }}:{{ restic_path }} --password-file {{ restic_password_file_path }} init"
+  args:
+    creates: "{{ restic_chroot }}/{{ restic_path }}/config"
+  become: true
+  register: result
+  failed_when:
+    - result.rc != 0
+    - '"config file already exists" not in result.stderr'
+  changed_when: false # result.rc == 0 or (result.rc != 0 and "config file already exists" not in result.stderr)
+
+- name: Setup restic cleanup if restic_retention is defined
+  block:
+    - name: Ensure cleanup script exists
+      template:
+        src: ../templates/cleanup.j2
+        dest: "{{ restic_custom_scripts_path }}/{{ restic_cleanup_script_name }}"
+        mode: "0555"
+      become: true
+
+    - name: Ensure cron runs cleanup script
+      cron:
+        name: Restic cleanup
+        minute: "{{ restic_retention.cron.minute|default('*') }}"
+        hour: "{{ restic_retention.cron.hour|default('*') }}"
+        day: "{{ restic_retention.cron.day|default('*') }}"
+        month: "{{ restic_retention.cron.month|default('*') }}"
+        job: "{{ restic_custom_scripts_path }}/{{ restic_cleanup_script_name }}"
+      become: true
+  when: restic_retention is defined

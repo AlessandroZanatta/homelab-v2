@@ -1,0 +1,91 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: diun
+  name: diun
+  labels:
+    kalexlab.xyz/app: diun
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: diun
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: diun
+      annotations:
+        diun.enable: "true"
+    spec:
+      serviceAccountName: diun
+      containers:
+        - name: diun
+          image: crazymax/diun:latest
+          imagePullPolicy: Always
+          args: ["serve"]
+
+          securityContext:
+            # readOnlyRootFilesystem: true
+            # runAsNonRoot: true
+            # runAsUser: 1000
+            # allowPrivilegeEscalation: false
+
+          # TODO
+          # resources:
+          #   requests:
+          #     memory: 150Mi
+          #     cpu: 20m
+          #   limits:
+          #     memory: 500Mi
+          #     cpu: 200m
+
+          env:
+            - name: TZ
+              value: "Europe/Rome"
+            - name: LOG_LEVEL
+              value: "info"
+            - name: LOG_JSON
+              value: "false"
+
+          volumeMounts:
+            - mountPath: /data
+              name: diun-pvc
+            - mountPath: /etc/diun
+              name: diun-conf
+              readOnly: true
+            - mountPath: /etc/secrets
+              name: diun-secrets
+              readOnly: true
+
+      restartPolicy: Always
+      volumes:
+        - name: diun-conf
+          configMap:
+            name: diun-conf
+            items:
+              - key: diun.yml
+                path: diun.yml
+        - name: diun-secrets
+          secret:
+            secretName: diun-secrets
+            items:
+              - key: notif_telegram_token
+                path: notif/telegram/token
+              - key: notif_telegram_chatids
+                path: notif/telegram/chatids
+              - key: regopts_registry_username
+                path: regopts/registry.kalexlab.xyz/username
+              - key: regopts_registry_password
+                path: regopts/registry.kalexlab.xyz/password
+
+  volumeClaimTemplates:
+    - metadata:
+        name: diun-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 5Gi

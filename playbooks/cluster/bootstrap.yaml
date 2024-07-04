@@ -1,0 +1,69 @@
+---
+- name: Init machine
+  hosts: cluster
+  vars:
+    ansible_become_password: changeme
+    ansible_password: changeme
+    ansible_user: "{{ default_user }}"
+    ansible_ssh_args: -o IdentitiesOnly=yes
+
+  pre_tasks:
+    - name: Update apt cache
+      become: true
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+  tasks:
+    - name: Set default_user authorized keys
+      authorized_key:
+        user: "{{ default_user }}"
+        key: "{{ item }}"
+      with_items: "{{ ssh_authorized_keys }}"
+
+    - name: Install pam_ssh_agent_auth PAM module
+      become: true
+      apt:
+        name: libpam-ssh-agent-auth
+        state: present
+
+    - name: Set authorized keys for pam_ssh_agent_auth
+      become: true
+      lineinfile:
+        path: /etc/security/authorized_keys
+        line: "{{ item }}"
+        create: true
+      with_items: "{{ ssh_authorized_keys }}"
+
+    - name: Set sudoers env_keep for pam_ssh_agent_auth
+      become: true
+      lineinfile:
+        path: /etc/sudoers
+        insertbefore: "Defaults	env_reset"
+        line: 'Defaults  env_keep += "SSH_AUTH_SOCK"'
+        state: present
+        validate: /usr/sbin/visudo -cf %s
+
+    - name: Set PAM policy for pam_ssh_agent_auth
+      become: true
+      lineinfile:
+        path: /etc/pam.d/sudo
+        insertbefore: "@include common-auth"
+        line: "auth [success=2 default=ignore] pam_ssh_agent_auth.so file=/etc/security/authorized_keys"
+        state: present
+
+- name: Change default passwords
+  hosts: cluster
+  become: true
+  vars:
+    ansible_become_password: changeme
+    ansible_user: "{{ default_user }}"
+
+  tasks:
+    - name: Disable root password
+      user:
+        name: root
+        password: "*"
+
+    - name: Change default user password
+      shell: "echo {{ default_user }}:{{ default_user_password }} | chpasswd"

@@ -1,0 +1,6 @@
+---
+roles:
+  - name: openwrt
+    src: ssh://git@github.com/gekmihesg/ansible-openwrt.git
+    version: master
+    scm: git

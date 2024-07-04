@@ -1,0 +1,10 @@
+---
+- name: Harden hosts
+  hosts:
+    - cluster
+  roles:
+    - hardening
+  become: true
+  vars:
+    hardening_ssh_allowed_users:
+      - kalex

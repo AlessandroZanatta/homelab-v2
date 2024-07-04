@@ -1,0 +1,21 @@
+[Unit]
+Description=Kubernetes Controller Manager
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+Wants=network-online.target
+Wants=kube-apiserver.service
+After=network-online.target
+After=kube-apiserver.service
+
+[Service]
+ExecStartPre=/usr/bin/timeout 30 sh -c 'while ! ss -H -t -l -n sport = :{{ k8s_kube_apiserver_endpoint_port }} | grep -q "^LISTEN.*:{{ k8s_kube_apiserver_endpoint_port }}"; do sleep 1; done'
+ExecStart={{ k8s_binaries_path }}/kube-controller-manager \
+{% for setting in k8s_controller_manager_settings|sort %}
+  --{{ setting }}={{ k8s_controller_manager_settings[setting] }} {% if not loop.last %}\{% endif %}
+
+{% endfor %}
+{% for setting in k8s_service_options %}
+{{ setting }}
+{% endfor %}
+
+[Install]
+WantedBy=multi-user.target

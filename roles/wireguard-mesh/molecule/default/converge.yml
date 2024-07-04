@@ -1,0 +1,10 @@
+---
+- name: Setup wireguard
+  hosts: vpn
+  gather_facts: false
+  vars:
+    types:
+      - cluster
+  roles:
+    - wireguard
+  become: true

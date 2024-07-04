@@ -1,0 +1,16 @@
+---
+- name: Test backup works
+  hosts: all
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Backup
+      command: /usr/local/bin/restic-backup
+
+    - name: Backup again
+      command: /usr/local/bin/restic-backup
+
+    - name: Cleanup should removed one backup due to retention policy
+      command: /usr/local/bin/restic-cleanup
+      register: res
+      failed_when: 'res.rc != 0 or "Applying Policy: keep 1 latest snapshots" not in res.stdout or "1 snapshots have been removed, running prune" not in res.stdout'

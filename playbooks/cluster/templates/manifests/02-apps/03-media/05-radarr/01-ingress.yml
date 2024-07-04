@@ -1,0 +1,30 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: media
+  name: radarr-ingress
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: "{{ clusterissuer }}"
+
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+  labels:
+    kalexlab.xyz/app: media
+spec:
+  tls:
+    - hosts:
+        - "radarr.media.kalexlab.xyz"
+      secretName: letsencrypt-tls-radarr
+  rules:
+    - host: radarr.media.kalexlab.xyz
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: radarr
+                port:
+                  number: 7878

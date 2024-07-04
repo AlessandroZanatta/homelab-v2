@@ -1,0 +1,92 @@
+---
+- name: Setup restic as both server and client
+  hosts: server
+  gather_facts: false
+  roles:
+    - restic
+  vars:
+    types:
+      - server
+      - client
+
+    restic_host: 192.168.57.2
+    restic_password: test-password
+
+    restic_retention:
+      policy:
+        keep-last: 1
+      # Never schedule this cronjob by setting it to run on 31st of February
+      cron:
+        day: 31
+        month: 2
+
+    restic_backup:
+      cron:
+        day: 31
+        month: 2
+
+      common:
+        paths:
+          - /srv
+        exclude_paths: []
+
+      hosts:
+        server:
+          exclude_paths:
+            - /srv/restic
+  become: true
+
+  pre_tasks:
+    - name: Ensure root user has .ssh directory
+      file:
+        path: /root/.ssh
+        state: directory
+
+    - name: Ensure keypair for restic exists
+      community.crypto.openssh_keypair:
+        path: /root/.ssh/id
+
+    - name: Register public key
+      command: cat /root/.ssh/id.pub
+      register: restic_public_key_cmd
+      changed_when: false
+
+    - name: Register private key
+      command: cat /root/.ssh/id
+      register: restic_private_key_cmd
+      changed_when: false
+
+    - name: Set fact about keys
+      set_fact:
+        restic_private_key: "{{ restic_private_key_cmd.stdout }}"
+        restic_public_key: "{{ restic_public_key_cmd.stdout }}"
+
+- name: Setup client
+  hosts: client
+  roles:
+    - restic
+  vars:
+    types:
+      - client
+
+    restic_host: 192.168.57.2
+    restic_password: test-password
+    restic_private_key: "{{ hostvars['server'].restic_private_key }}"
+    restic_public_key: "{{ hostvars['server'].restic_public_key }}"
+
+    restic_backup:
+      cron:
+        day: 31
+        month: 2
+
+      common:
+        paths:
+          - /srv
+        exclude_paths:
+          - /srv/restic
+
+      hosts:
+        client:
+          paths:
+            - /home
+  become: true

@@ -1,0 +1,45 @@
+---
+- name: Ensure ufw is installed
+  apt:
+    pkg: ufw
+    state: present
+    cache_valid_time: 3600
+
+- name: Setup ufw logging
+  community.general.ufw:
+    logging: "{{ ufw_logging[inventory_hostname]|default(ufw_default_logging) }}"
+
+- name: Setup ufw default policy for incoming traffic
+  community.general.ufw:
+    policy: "{{ ufw_incoming_policy[inventory_hostname]|default(ufw_default_incoming_policy) }}"
+    direction: incoming
+
+- name: Setup ufw default policy for outgoing traffic
+  community.general.ufw:
+    policy: "{{ ufw_outgoing_policy[inventory_hostname]|default(ufw_default_outgoing_policy) }}"
+    direction: outgoing
+
+- name: Get rules for the groups the host belongs to
+  set_fact:
+    ufw_group_rules: "{{ ufw_group_rules|default([]) + ufw_rules.groups[item]|default([]) }}"
+  with_items: "{{ group_names }}"
+
+- name: Configure ufw rules
+  community.general.ufw:
+    rule: "{{ item.rule }}"
+    interface: "{{ item.interface | default('') }}"
+    direction: "{{ item.direction | default('in') }}"
+    from_ip: "{{ item.from_ip | default('any') }}"
+    to_ip: "{{ item.to_ip | default('any') }}"
+    from_port: "{{ item.from_port | default('') }}"
+    to_port: "{{ item.to_port | default('') }}"
+    protocol: "{{ item.protocol | default('any') }}"
+    route: "{{ item.route | default(false) }}"
+    log: "{{ item.log | default(false) }}"
+    comment: "{{ item.comment | default(omit) }}"
+  with_items: "{{ ufw_rules.common + ufw_group_rules|default([]) + ufw_rules.hosts[inventory_hostname]|default([]) }}"
+  notify: reload ufw
+
+- name: Enable ufw
+  community.general.ufw:
+    state: enabled

@@ -1,0 +1,27 @@
+---
+- name: Replace bad chars in item.key
+  set_fact:
+    name: "{{ item.key | replace('-', '_') }}"
+
+- name: Delete client configuration
+  uci:
+    command: absent
+    key: "network.{{ name }}"
+
+- name: Create client configuration
+  uci:
+    command: set
+    key: "network.{{ name }}"
+    value: "wireguard_{{ wireguard_interface }}"
+
+- name: Set public key
+  uci:
+    command: set
+    key: "network.{{ name }}.public_key"
+    value: "{{ item.value.public_key }}"
+
+- name: Add allowed IPs
+  uci:
+    command: add_list
+    key: "network.{{ name }}.allowed_ips"
+    value: "{{ item.value.address }}/32"

@@ -1,0 +1,13 @@
+---
+- name: Setup Kubernetes PKI
+  hosts: ansible_controller
+  roles:
+    - k8s-pki
+  vars:
+    k8s_pki_path: "../../outputs/{{ ansible_environment }}/pki"
+    k8s_domain: "{{ domain }}"
+    k8s_pki_extra_etcd_clients:
+      - cert: generic
+        cert_out: etcd-client-cilium
+        cn: "Cilium"
+        o: "Cilium"

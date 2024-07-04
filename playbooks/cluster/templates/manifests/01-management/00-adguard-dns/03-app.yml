@@ -1,0 +1,137 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: adguard
+  name: adguard
+  labels:
+    kalexlab.xyz/app: adguard
+spec:
+  type: ClusterIP
+  clusterIP: "{{ adguard_ip }}"
+  ports:
+    - name: adguard-interface
+      port: 80
+      protocol: TCP
+    - name: adguard-dns-tcp
+      port: 53
+      targetPort: 53
+      protocol: TCP
+    - name: adguard-dns-udp
+      port: 53
+      targetPort: 53
+      protocol: UDP
+  selector:
+    kalexlab.xyz/app: adguard
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: adguard
+  name: adguard
+  labels:
+    kalexlab.xyz/app: adguard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: adguard
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: adguard
+    spec:
+      restartPolicy: Always
+      initContainers:
+        # workaround for this issue
+        # https://github.com/AdguardTeam/AdGuardHome/issues/5966
+        - name: copy-config
+          image: docker.io/library/alpine:3.17
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c", "cp /mnt/AdGuardHome.yaml /mnt/conf"]
+          volumeMounts:
+            - mountPath: /mnt/conf
+              name: adguard-conf
+            - mountPath: /mnt/AdGuardHome.yaml
+              name: adguard-conf-map
+              subPath: AdGuardHome.yaml
+      containers:
+        - name: app
+          image: adguard/adguardhome:latest
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 80
+              protocol: TCP
+            - containerPort: 53
+              protocol: TCP
+            - containerPort: 53
+              protocol: UDP
+
+          resources:
+            requests:
+              memory: 75Mi
+              cpu: 10m
+            limits:
+              memory: 200Mi
+              cpu: 100m
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            failureThreshold: 3
+            periodSeconds: 30
+
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              add:
+                - NET_BIND_SERVICE
+
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /opt/adguardhome/work
+              name: adguard-work-pvc
+            - mountPath: /opt/adguardhome/conf
+              name: adguard-conf
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: adguard-conf
+          emptyDir:
+            sizeLimit: 10Mi
+        - name: adguard-conf-map
+          configMap:
+            name: adguard-conf
+
+  volumeClaimTemplates:
+    - metadata:
+        name: adguard-work-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 10Gi

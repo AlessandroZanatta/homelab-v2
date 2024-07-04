@@ -1,0 +1,8 @@
+---
+- name: Gather information about etcd group nodes
+  setup:
+  delegate_to: "{{ host }}"
+  delegate_facts: true
+  loop: "{{ groups[item.vars.etcd_group] }}"
+  loop_control:
+    loop_var: host
