@@ -38,7 +38,7 @@ spec:
         # TODO: move to postgres when possible
         # TODO: move to stable v2 image when released
         - name: app
-          image: docker.io/louislam/uptime-kuma:nightly2-rootless
+          image: docker.io/louislam/uptime-kuma:latest
           imagePullPolicy: Always
 
           ports:
@@ -91,19 +91,19 @@ spec:
             periodSeconds: 30
 
           securityContext:
-            readOnlyRootFilesystem: true
-            allowPrivilegeEscalation: false
+            # readOnlyRootFilesystem: true
+            # allowPrivilegeEscalation: false
 
           volumeMounts:
             - mountPath: /app/data
               name: uptime-data
 
       securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
-        fsGroupChangePolicy: "OnRootMismatch"
+        # runAsNonRoot: true
+        # runAsUser: 1000
+        # runAsGroup: 1000
+        # fsGroup: 1000
+        # fsGroupChangePolicy: "OnRootMismatch"
 
       enableServiceLinks: false
       automountServiceAccountToken: false

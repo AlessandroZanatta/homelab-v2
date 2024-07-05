@@ -1,140 +1,140 @@
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  namespace: uptime-kuma
-  name: database
-  labels:
-    kalexlab.xyz/app: uptime-kuma
-    kalexlab.xyz/component: database
-spec:
-  type: ClusterIP
-  ports:
-    - name: mariadb
-      port: 3306
-      protocol: TCP
-      targetPort: 3306
-  selector:
-    kalexlab.xyz/app: uptime-kuma
-    kalexlab.xyz/component: database
----
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  namespace: uptime-kuma
-  name: database
-  labels:
-    kalexlab.xyz/app: uptime-kuma
-    kalexlab.xyz/component: database
-spec:
-  replicas: 1
-  serviceName: database
-  selector:
-    matchLabels:
-      kalexlab.xyz/app: uptime-kuma
-      kalexlab.xyz/component: database
-  updateStrategy:
-    type: RollingUpdate
-  minReadySeconds: 5
-  template:
-    metadata:
-      labels:
-        kalexlab.xyz/app: uptime-kuma
-        kalexlab.xyz/component: database
-    spec:
-      restartPolicy: Always
-      containers:
-        - name: database
-          image: docker.io/library/mariadb:latest
-          imagePullPolicy: Always
-
-          ports:
-            - name: mariadb
-              containerPort: 3306
-              protocol: TCP
-
-          env:
-            - name: MARIADB_RANDOM_ROOT_PASSWORD
-              value: "true"
-            - name: MARIADB_USER
-              valueFrom:
-                secretKeyRef:
-                  name: uptime-kuma-db-secrets
-                  key: MARIADB_USER
-            - name: MARIADB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: uptime-kuma-db-secrets
-                  key: MARIADB_PASSWORD
-            # - name: MARIADB_DATABASE
-            #   value: "kuma"
-
-          livenessProbe:
-            exec:
-              command:
-                [
-                  "sh",
-                  "-c",
-                  "mariadb-admin ping --user=$MARIADB_USER --password=$MARIADB_PASSWORD",
-                ]
-            periodSeconds: 30
-          readinessProbe:
-            exec:
-              command:
-                [
-                  "sh",
-                  "-c",
-                  "mariadb-admin ping --user=$MARIADB_USER --password=$MARIADB_PASSWORD",
-                ]
-            periodSeconds: 10
-            failureThreshold: 3
-
-          # TODO
-          # resources:
-          #   requests:
-          #     memory: 300Mi
-          #     cpu: 50m
-          #   limits:
-          #     memory: 1Gi
-          #     cpu: 500m
-
-          # securityContext:
-          #   allowPrivilegeEscalation: false
-          #   readOnlyRootFilesystem: true
-
-          volumeMounts:
-            - mountPath: /tmp
-              name: tmp
-            - mountPath: /var/run/mysqld
-              name: mariadb-run
-            - mountPath: /var/lib/mysql
-              name: uptime-kuma-db-pvc
-
-      enableServiceLinks: false
-      automountServiceAccountToken: false
-
-      # securityContext:
-      #   runAsNonRoot: true
-      #   runAsUser: 1000
-      #   runAsGroup: 1000
-      #   fsGroup: 1000
-      #   fsGroupChangePolicy: "OnRootMismatch"
-
-      volumes:
-        - name: tmp
-          emptyDir:
-            sizeLimit: 1Gi
-        - name: mariadb-run
-          emptyDir:
-            sizeLimit: 1Gi
-
-  volumeClaimTemplates:
-    - metadata:
-        name: uptime-kuma-db-pvc
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        storageClassName: longhorn
-        resources:
-          requests:
-            storage: 5Gi
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   namespace: uptime-kuma
+#   name: database
+#   labels:
+#     kalexlab.xyz/app: uptime-kuma
+#     kalexlab.xyz/component: database
+# spec:
+#   type: ClusterIP
+#   ports:
+#     - name: mariadb
+#       port: 3306
+#       protocol: TCP
+#       targetPort: 3306
+#   selector:
+#     kalexlab.xyz/app: uptime-kuma
+#     kalexlab.xyz/component: database
+# ---
+# apiVersion: apps/v1
+# kind: StatefulSet
+# metadata:
+#   namespace: uptime-kuma
+#   name: database
+#   labels:
+#     kalexlab.xyz/app: uptime-kuma
+#     kalexlab.xyz/component: database
+# spec:
+#   replicas: 1
+#   serviceName: database
+#   selector:
+#     matchLabels:
+#       kalexlab.xyz/app: uptime-kuma
+#       kalexlab.xyz/component: database
+#   updateStrategy:
+#     type: RollingUpdate
+#   minReadySeconds: 5
+#   template:
+#     metadata:
+#       labels:
+#         kalexlab.xyz/app: uptime-kuma
+#         kalexlab.xyz/component: database
+#     spec:
+#       restartPolicy: Always
+#       containers:
+#         - name: database
+#           image: docker.io/library/mariadb:latest
+#           imagePullPolicy: Always
+#
+#           ports:
+#             - name: mariadb
+#               containerPort: 3306
+#               protocol: TCP
+#
+#           env:
+#             - name: MARIADB_RANDOM_ROOT_PASSWORD
+#               value: "true"
+#             - name: MARIADB_USER
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: uptime-kuma-db-secrets
+#                   key: MARIADB_USER
+#             - name: MARIADB_PASSWORD
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: uptime-kuma-db-secrets
+#                   key: MARIADB_PASSWORD
+#             # - name: MARIADB_DATABASE
+#             #   value: "kuma"
+#
+#           livenessProbe:
+#             exec:
+#               command:
+#                 [
+#                   "sh",
+#                   "-c",
+#                   "mariadb-admin ping --user=$MARIADB_USER --password=$MARIADB_PASSWORD",
+#                 ]
+#             periodSeconds: 30
+#           readinessProbe:
+#             exec:
+#               command:
+#                 [
+#                   "sh",
+#                   "-c",
+#                   "mariadb-admin ping --user=$MARIADB_USER --password=$MARIADB_PASSWORD",
+#                 ]
+#             periodSeconds: 10
+#             failureThreshold: 3
+#
+#           # TODO
+#           # resources:
+#           #   requests:
+#           #     memory: 300Mi
+#           #     cpu: 50m
+#           #   limits:
+#           #     memory: 1Gi
+#           #     cpu: 500m
+#
+#           # securityContext:
+#           #   allowPrivilegeEscalation: false
+#           #   readOnlyRootFilesystem: true
+#
+#           volumeMounts:
+#             - mountPath: /tmp
+#               name: tmp
+#             - mountPath: /var/run/mysqld
+#               name: mariadb-run
+#             - mountPath: /var/lib/mysql
+#               name: uptime-kuma-db-pvc
+#
+#       enableServiceLinks: false
+#       automountServiceAccountToken: false
+#
+#       # securityContext:
+#       #   runAsNonRoot: true
+#       #   runAsUser: 1000
+#       #   runAsGroup: 1000
+#       #   fsGroup: 1000
+#       #   fsGroupChangePolicy: "OnRootMismatch"
+#
+#       volumes:
+#         - name: tmp
+#           emptyDir:
+#             sizeLimit: 1Gi
+#         - name: mariadb-run
+#           emptyDir:
+#             sizeLimit: 1Gi
+#
+#   volumeClaimTemplates:
+#     - metadata:
+#         name: uptime-kuma-db-pvc
+#       spec:
+#         accessModes:
+#           - ReadWriteOnce
+#         storageClassName: longhorn
+#         resources:
+#           requests:
+#             storage: 5Gi
