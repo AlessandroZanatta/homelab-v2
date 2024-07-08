@@ -7,6 +7,17 @@
   vars:
     types:
       - server
+
+    restic_retention:
+      policy:
+        keep-last: 30
+        keep-monthly: 12
+        keep-yearly: 5
+
+      cron:
+        minute: "0"
+        hour: "4"
+
   become: true
 
   pre_tasks:

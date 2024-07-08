@@ -13,8 +13,13 @@ restic \
 	-r sftp:{{ restic_user }}@{{ restic_host }}:{{ restic_path }} \
 	--password-file {{ restic_password_file_path }} \
 	forget \
-	--prune \
 	{% for policy in restic_retention.policy %}--{{ policy }}={{ restic_retention.policy[policy] }} {% endfor %}
+
+# Prune
+restic \
+	-r sftp:{{ restic_user }}@{{ restic_host }}:{{ restic_path }} \
+	--password-file {{ restic_password_file_path }} \
+	prune
 
 # Post-check
 restic \

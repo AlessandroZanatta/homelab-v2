@@ -8,3 +8,4 @@
   vars:
     hardening_ssh_allowed_users:
       - kalex
+      - restic
