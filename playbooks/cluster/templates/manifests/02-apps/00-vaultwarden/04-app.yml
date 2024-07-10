@@ -65,7 +65,11 @@ spec:
                 secretKeyRef:
                   name: vaultwarden-db-secrets
                   key: DATABASE_URL
-
+            - name: ADMIN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: vaultwarden-secrets
+                  key: ADMIN_TOKEN
           # resources:
           #   requests:
           #     memory: 150Mi
