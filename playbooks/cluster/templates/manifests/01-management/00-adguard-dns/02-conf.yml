@@ -190,6 +190,8 @@ data:
           answer: "{{ traefik_loadbalancer_ip }}"
         - domain: "prowlarr.media.kalexlab.xyz"
           answer: "{{ traefik_loadbalancer_ip }}"
+        - domain: "bazarr.media.kalexlab.xyz"
+          answer: "{{ traefik_loadbalancer_ip }}"
         - domain: "traefik.kalexlab.xyz"
           answer: "{{ traefik_loadbalancer_ip }}"
         - domain: "adguard.dns.kalexlab.xyz"
