@@ -29,6 +29,17 @@ ingressClass:
   isDefaultClass: true
   # name: my-custom-class
 
+metrics:
+  ## -- Enable metrics for internal resources. Default: false
+  addInternals: false
+  prometheus:
+    entryPoint: metrics
+    service:
+      enabled: true
+    disableAPICheck:
+    serviceMonitor:
+      enabled: true
+
 ingressRoute:
   dashboard:
     # -- Create an IngressRoute for the dashboard

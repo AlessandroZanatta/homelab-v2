@@ -1,0 +1,27 @@
+---
+- name: Create dashboards
+  kubernetes.core.k8s:
+    definition: |
+      ---
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: "{{ dashboard.name }}"
+        namespace: prometheus
+        labels:
+          grafana_dashboard: "1"
+      data:
+        {{ dashboard.name }}.json: |
+          {{ lookup('url', dashboard.url, split_lines=False) | indent(4) }}
+  loop:
+    - name: traefik
+      url: "https://grafana.com/api/dashboards/17346/revisions/8/download"
+    - name: longhorn
+      url: "https://grafana.com/api/dashboards/16888/revisions/9/download"
+    - name: node-exporter-temperature
+      url: "https://grafana.com/api/dashboards/15202/revisions/1/download"
+    - name: mdadm
+      url: "https://grafana.com/api/dashboards/12768/revisions/1/download"
+
+  loop_control:
+    loop_var: dashboard

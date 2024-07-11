@@ -67,6 +67,9 @@
         chart_name: "prometheus-community/kube-prometheus-stack"
         chart_version: "60.4.0"
         namespace: "prometheus"
+        post_tasks:
+          - create-dashboards.yml
+          - delete-dashboards.yml
 
     helm_tgz_charts:
       - name: porkbun-webhook
