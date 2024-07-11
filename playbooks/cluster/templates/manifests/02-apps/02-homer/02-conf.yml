@@ -80,6 +80,12 @@ data:
             tag: "indexer"
             url: "https://prowlarr.media.kalexlab.xyz?external=true"
             target: "_blank"
+          - name: "Bazarr"
+            subtitle: "Subtitles provider"
+            logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/bazarr.png"
+            tag: "subtitles"
+            url: "https://bazarr.media.kalexlab.xyz?external=true"
+            target: "_blank"
 
       - name: "Monitoring"
         icon: "fas fa-heartbeat"

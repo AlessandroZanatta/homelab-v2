@@ -1,10 +1,11 @@
 ---
-- name: Create unused dashboards
+- name: Delete unused dashboards
   kubernetes.core.k8s:
     api_version: v1
     kind: ConfigMap
     namespace: prometheus
     name: "{{ dashboard }}"
+    state: absent
   loop:
     - prometheus-kube-prometheus-apiserver
     - prometheus-kube-prometheus-controller-manager
