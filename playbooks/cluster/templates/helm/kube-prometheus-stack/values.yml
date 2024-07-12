@@ -149,6 +149,38 @@ grafana:
           - grafana.kalexlab.xyz
         secretName: letsencrypt-tls-grafana
 
+  alerting:
+    telegram-cp.yaml:
+      apiVersion: 1
+      contactPoints:
+        - orgId: 1
+          name: Telegram contact point
+          receivers:
+            - uid: bdri5am7bpuype
+              type: telegram
+              settings:
+                bottoken: "{{ grafana_telegram_token }}"
+                chatid: "{{ grafana_telegram_chatids }}"
+                disable_notification: false
+                disable_web_page_preview: false
+                protect_content: false
+              disableResolveMessage: false
+
+    telegram-notification-policy.yaml:
+      apiVersion: 1
+      policies:
+        - orgId: 1
+          receiver: Telegram contact point
+          group_by:
+            - grafana_folder
+            - alertname
+
+    delete-default-mail-cp.yml:
+      apiVersion: 1
+      deleteContactPoints:
+        - orgId: 1
+          uid: ""
+
 ## Deploy node exporter as a daemonset to all nodes
 ##
 nodeExporter:
