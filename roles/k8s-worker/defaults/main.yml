@@ -45,7 +45,7 @@ k8s_kubelet_settings:
   config: "{{ k8s_kubelet_config_path }}/kubelet-config.yaml"
   node-ip: "{{ hostvars[inventory_hostname]['ansible_' + k8s_interface].ipv4.address }}"
   kubeconfig: "{{ k8s_kubelet_config_path }}/kubeconfig"
-  # seccomp-default: ""
+  seccomp-default: ""
 
 k8s_kubeproxy_settings:
   "config": "{{ k8s_kube_proxy_config_path }}/kubeproxy-config.yaml"

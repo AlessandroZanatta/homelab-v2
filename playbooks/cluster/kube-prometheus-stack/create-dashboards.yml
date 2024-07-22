@@ -22,6 +22,8 @@
       url: "https://grafana.com/api/dashboards/15202/revisions/1/download"
     - name: mdadm
       url: "https://grafana.com/api/dashboards/12768/revisions/1/download"
+    # - name: speedtest
+    #   url: "https://grafana.com/api/dashboards/13306/revisions/1/download"
 
   loop_control:
     loop_var: dashboard

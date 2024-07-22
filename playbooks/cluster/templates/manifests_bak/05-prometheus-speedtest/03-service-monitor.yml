@@ -1,0 +1,15 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  namespace: prometheus-speedtest
+  name: prometheus-speedtest-servicemonitor
+spec:
+  endpoints:
+    - interval: 2m
+      scrapeTimeout: 2m
+      port: scraping
+      path: "/probe"
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: prometheus-speedtest

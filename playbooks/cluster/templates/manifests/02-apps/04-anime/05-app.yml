@@ -13,6 +13,9 @@ spec:
     - name: anime
       port: 9000
       protocol: TCP
+    - name: gluetun-pprof
+      port: 6060
+      protocol: TCP
   selector:
     kalexlab.xyz/app: anime
     kalexlab.xyz/component: app
@@ -76,6 +79,8 @@ spec:
                 - NET_ADMIN
 
           env:
+            - name: PPROF_ENABLED
+              value: "yes"
             - name: DNS_KEEP_NAMESERVER
               value: "on"
             - name: BLOCK_MALICIOUS
@@ -87,7 +92,7 @@ spec:
             # - name: FIREWALL
             #   value: "off"
             - name: FIREWALL_INPUT_PORTS
-              value: "8080,9000"
+              value: "8080,9000,6060"
             # Bypass tun0 interface for:
             #  - Cluster VPN subnet
             #  - Pods subnet

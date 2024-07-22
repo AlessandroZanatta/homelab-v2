@@ -100,8 +100,8 @@ servers:
     # nodePort: 30053
     # hostPort: 53
     plugins:
-      - name: debug
-      - name: log
+      # - name: debug
+      # - name: log
       - name: errors
       # Serves a /health endpoint on :8080, required for livenessProbe
       - name: health
@@ -121,6 +121,9 @@ servers:
         parameters: ". {{ adguard_ip }} 1.1.1.1"
         configBlock: |-
           policy sequential
+
+      - name: prometheus
+        parameters: 0.0.0.0:9153
 
       # - name: cache
       #   parameters: 30

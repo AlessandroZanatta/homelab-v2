@@ -58,21 +58,21 @@ crds:
 
 ## Component scraping coreDns. Use either this or kubeDns
 ##
-coreDns:
-  enabled: true
-  service:
-    enabled: true
-    port: 9153
-    targetPort: 9153
-
-    ipDualStack:
-      enabled: false
-      ipFamilies: ["IPv6", "IPv4"]
-      ipFamilyPolicy: "PreferDualStack"
-    # selector:
-    #   k8s-app: kube-dns
-  serviceMonitor:
-    enabled: true
+# coreDns:
+#   enabled: true
+#   service:
+#     enabled: true
+#     port: 9153
+#     targetPort: 9153
+#
+#     ipDualStack:
+#       enabled: false
+#       ipFamilies: ["IPv6", "IPv4"]
+#       ipFamilyPolicy: "PreferDualStack"
+#     # selector:
+#     #   k8s-app: kube-dns
+#   serviceMonitor:
+#     enabled: true
 
 # TODO
 ## Component scraping etcd

@@ -10,7 +10,6 @@
     - prometheus-kube-prometheus-apiserver
     - prometheus-kube-prometheus-controller-manager
     - prometheus-kube-prometheus-etcd
-    - prometheus-kube-prometheus-k8s-coredns
     - prometheus-kube-prometheus-proxy
     - prometheus-kube-prometheus-scheduler
 
