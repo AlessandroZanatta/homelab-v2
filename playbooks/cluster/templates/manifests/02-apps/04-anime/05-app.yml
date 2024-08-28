@@ -268,7 +268,7 @@ spec:
         storageClassName: longhorn
         resources:
           requests:
-            storage: 400Gi
+            storage: 100Gi
     - metadata:
         name: anime-cache-pvc
       spec:
