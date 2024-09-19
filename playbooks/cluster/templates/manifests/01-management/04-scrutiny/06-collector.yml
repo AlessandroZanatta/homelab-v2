@@ -29,23 +29,17 @@ spec:
           image: ghcr.io/analogj/scrutiny:master-collector
           imagePullPolicy: Always
 
-          env:
-            - name: COLLECTOR_API_ENDPOINT
-              value: "https://scrutiny.kalexlab.xyz"
-
           securityContext:
             privileged: true
 
-          # TODO: PR the option in scrutiny to whitelist drives
-          # and use it in the configuration
-          # volumeMounts:
-          #   - mountPath: /opt/scrutiny/config/collector.yaml
-          #     name: scrutiny-collector-conf
+          volumeMounts:
+            - mountPath: /opt/scrutiny/config/collector.yaml
+              name: scrutiny-collector-conf
 
       enableServiceLinks: false
       automountServiceAccountToken: false
 
-      # volumes:
-      #   - name: scrutiny-collector-conf
-      #     secret:
-      #       secretName: scrutiny-collector-conf
+      volumes:
+        - name: scrutiny-collector-conf
+          config:
+            name: scrutiny-collector-conf

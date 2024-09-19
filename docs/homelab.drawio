@@ -1,0 +1,75 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64; rv:130.0) Gecko/20100101 Firefox/130.0" version="24.7.14">
+  <diagram name="Page-1" id="1YIZtrRZN3KQSizDupLK">
+    <mxGraphModel dx="1018" dy="650" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="xuq99P_1Lpv4SmsvICTi-1" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="960" height="640" as="geometry" />
+        </mxCell>
+        <mxCell id="xuq99P_1Lpv4SmsvICTi-2" value="Dell Optiplex 3050m" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="xuq99P_1Lpv4SmsvICTi-7" value="" style="group" vertex="1" connectable="0" parent="1">
+          <mxGeometry x="940" y="80" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="xuq99P_1Lpv4SmsvICTi-3" value="CoreDNS" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="xuq99P_1Lpv4SmsvICTi-7">
+          <mxGeometry width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="xuq99P_1Lpv4SmsvICTi-5" value="&lt;font style=&quot;font-size: 9px;&quot;&gt;Cluster DNS&lt;br&gt;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="xuq99P_1Lpv4SmsvICTi-7">
+          <mxGeometry x="30" y="40" width="60" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="xuq99P_1Lpv4SmsvICTi-8" value="" style="group" vertex="1" connectable="0" parent="1">
+          <mxGeometry x="940" y="580" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="xuq99P_1Lpv4SmsvICTi-9" value="Traefik" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="xuq99P_1Lpv4SmsvICTi-8">
+          <mxGeometry width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="xuq99P_1Lpv4SmsvICTi-10" value="&lt;font style=&quot;font-size: 9px;&quot;&gt;Cluster Loadbalancer&lt;br&gt;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="xuq99P_1Lpv4SmsvICTi-8">
+          <mxGeometry x="15" y="40" width="90" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="xuq99P_1Lpv4SmsvICTi-11" value="" style="sketch=0;aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#00188D;shape=mxgraph.mscae.enterprise.router" vertex="1" parent="1">
+          <mxGeometry x="1120" y="327.5" width="83.33" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="xuq99P_1Lpv4SmsvICTi-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0.71;entryDx=0;entryDy=0;entryPerimeter=0;startArrow=classic;startFill=1;" edge="1" parent="1" source="xuq99P_1Lpv4SmsvICTi-9" target="xuq99P_1Lpv4SmsvICTi-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xuq99P_1Lpv4SmsvICTi-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0.22;entryDx=0;entryDy=0;entryPerimeter=0;startArrow=classic;startFill=1;" edge="1" parent="1" source="xuq99P_1Lpv4SmsvICTi-3" target="xuq99P_1Lpv4SmsvICTi-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xuq99P_1Lpv4SmsvICTi-14" value="Switch + Router" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="300" width="60" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="xuq99P_1Lpv4SmsvICTi-15" value="&lt;div&gt;192.168.10.20&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="1059" y="580" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="xuq99P_1Lpv4SmsvICTi-16" value="&lt;div&gt;192.168.10.21&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="1059" y="80" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="xuq99P_1Lpv4SmsvICTi-17" value="192.168.10.3" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="900" y="10" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="xuq99P_1Lpv4SmsvICTi-18" value="192.168.10.1/24" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="392.5" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="xuq99P_1Lpv4SmsvICTi-21" value="" style="group" vertex="1" connectable="0" parent="1">
+          <mxGeometry x="700" y="80" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="xuq99P_1Lpv4SmsvICTi-19" value="AdGuard" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="xuq99P_1Lpv4SmsvICTi-21">
+          <mxGeometry width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="xuq99P_1Lpv4SmsvICTi-20" value="&lt;font style=&quot;font-size: 9px;&quot;&gt;Local DNS + filtering&lt;br&gt;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="xuq99P_1Lpv4SmsvICTi-21">
+          <mxGeometry x="10" y="40" width="100" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="xuq99P_1Lpv4SmsvICTi-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="xuq99P_1Lpv4SmsvICTi-3" target="xuq99P_1Lpv4SmsvICTi-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xuq99P_1Lpv4SmsvICTi-23" value="&lt;div&gt;forwards&lt;/div&gt;&lt;div&gt;queries to&lt;br&gt;&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="xuq99P_1Lpv4SmsvICTi-22">
+          <mxGeometry x="-0.0611" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

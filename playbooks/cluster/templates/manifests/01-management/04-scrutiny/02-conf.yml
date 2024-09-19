@@ -5,7 +5,7 @@ metadata:
   name: scrutiny-collector-conf
   namespace: scrutiny
 data:
-  # TODO: PR the option in scrutiny to whitelist drives
+  # TODO: wait for https://github.com/AnalogJ/scrutiny/pull/686 to be merged
   collector.yaml: |
     ---
     version: 1
@@ -13,36 +13,9 @@ data:
     host:
       id: "hermes"
 
-    devices:
-
-    #  # example to show how to ignore a specific disk/device.
-    #  - device: /dev/sda
-    #    ignore: true
-    #
-    #  # examples showing how to force smartctl to detect disks inside a raid array/virtual disk
-    #  - device: /dev/bus/0
-    #    type:
-    #      - megaraid,14
-    #      - megaraid,15
-    #      - megaraid,18
-    #      - megaraid,19
-    #      - megaraid,20
-    #      - megaraid,21
-    #
-    #  - device: /dev/twa0
-    #    type:
-    #      - 3ware,0
-    #      - 3ware,1
-    #      - 3ware,2
-    #      - 3ware,3
-    #      - 3ware,4
-    #      - 3ware,5
-    #
-    #  # example to show how to override the smartctl command args (per device), see below for how to override these globally.
-    #  - device: /dev/sda
-    #    commands:
-    #      metrics_info_args: '--info --json -T permissive' # used to determine device unique ID & register device with Scrutiny
-    #      metrics_smart_args: '--xall --json -T permissive' # used to retrieve smart data for each device.
+    allow_listed_devices:
+      - /dev/sda
+      - /dev/sdb
 
     log:
       level: INFO
