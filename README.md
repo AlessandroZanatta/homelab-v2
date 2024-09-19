@@ -26,4 +26,4 @@ The following is a general overview of the folders:
 
 ## Cluster overview
 
-A cluster overview is document in (docs/homelab.png)[homelab.png]. It is a high level view of what is going in inside the cluster.
+![Homelab overview](https://github.com/AlessandroZanatta/homelab/blob/master/docs/homelab.png?raw=true)
