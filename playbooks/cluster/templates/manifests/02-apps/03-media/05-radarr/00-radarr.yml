@@ -25,7 +25,12 @@ metadata:
   labels:
     kalexlab.xyz/app: media
     kalexlab.xyz/component: radarr
+  annotations:
+    ignore-check.kube-linter.io/no-read-only-root-fs: "Uses lots of directories"
+    ignore-check.kube-linter.io/run-as-non-root: "Runs with lower privileges after startup"
+
 spec:
+  serviceName: radarr
   replicas: 1
   selector:
     matchLabels:

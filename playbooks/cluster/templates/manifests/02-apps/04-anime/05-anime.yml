@@ -29,6 +29,7 @@ metadata:
     kalexlab.xyz/app: anime
     kalexlab.xyz/component: app
 spec:
+  serviceName: anime
   replicas: 1
   # Do not update in place with zero downtime
   # Gluetun issues?
@@ -54,20 +55,6 @@ spec:
       # {% if ansible_environment == 'prod' %}
 
       initContainers:
-        # - name: copy-nginx
-        #   image: registry.kalexlab.xyz/anime/frontend:latest
-        #   imagePullPolicy: Always
-        #   command: [
-        #       "sh",
-        #       "-c",
-        #       "cp -r /etc/nginx/* /mnt/nginx && \
-        #       cp -r /usr/share/nginx/html/* /mnt/nginx-html",
-        #     ]
-        #   volumeMounts:
-        #     - mountPath: /mnt/nginx
-        #       name: nginx
-        #     - mountPath: /mnt/nginx-html
-        #       name: nginx-html
         - name: gluetun
           image: qmcgaw/gluetun:latest
           # native sidecar (https://kubernetes.io/blog/2023/08/25/native-sidecar-containers/)
@@ -79,8 +66,8 @@ spec:
                 - NET_ADMIN
 
           env:
-            - name: PPROF_ENABLED
-              value: "yes"
+            # - name: PPROF_ENABLED
+            #   value: "yes"
             - name: DNS_KEEP_NAMESERVER
               value: "on"
             - name: BLOCK_MALICIOUS
@@ -132,7 +119,7 @@ spec:
       # {% endif %}
 
       imagePullSecrets:
-        - name: anime-registry-secrets
+        - name: registry-credentials
 
       containers:
         - name: anime-backend

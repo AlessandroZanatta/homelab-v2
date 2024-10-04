@@ -1,0 +1,30 @@
+<?php
+return [
+    'database.vaultwarden.svc.cluster.local' => array(
+        'driver'    => 'pgsql',
+        'username'  => '{{ vaultwarden_postgres_username }}',
+        'pass'      => '{{ vaultwarden_postgres_password }}',
+        'label'     => 'Vaultwarden',
+        'databases' => array(
+            'vaultwarden' => 'Vaultwarden',
+        ),
+    ),
+    'database.nextcloud.svc.cluster.local' => array(
+        'driver'    => 'pgsql',
+        'username'  => '{{ nextcloud_postgres_user }}',
+        'pass'      => '{{ nextcloud_postgres_password }}',
+        'label'     => 'Nextcloud',
+        'databases' => array(
+            'nextcloud' => 'Nextcloud',
+        ),
+    ),
+    'database.anime.svc.cluster.local' => array(
+        'driver'    => 'pgsql',
+        'username'  => '{{ anime_postgres_user }}',
+        'pass'      => '{{ anime_postgres_password }}',
+        'label'     => 'Anime',
+        'databases' => array(
+            'anime' => 'Anime',
+        ),
+    ),
+];

@@ -1,30 +1,32 @@
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: cert-manager.io/v1
+kind: Certificate
 metadata:
+  name: adguard-certificate
   namespace: adguard
-  name: adguard-ingress
-  annotations:
-    kubernetes.io/ingress.class: traefik
-    cert-manager.io/cluster-issuer: "{{ clusterissuer }}"
-
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
-  labels:
-    kalexlab.xyz/app: adguard
 spec:
+  commonName: adguard.dns.kalexlab.xyz
+  secretName: adguard-ingress-certificate-secret
+  dnsNames:
+    - adguard.dns.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: "{{ clusterissuer }}"
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: adguard-ingress
+  namespace: adguard
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`adguard.dns.kalexlab.xyz`)
+      services:
+        - name: adguard
+          port: 80
   tls:
-    - hosts:
-        - "adguard.dns.kalexlab.xyz"
-      secretName: letsencrypt-tls-adguard
-  rules:
-    - host: adguard.dns.kalexlab.xyz
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: adguard
-                port:
-                  number: 80
+    secretName: adguard-ingress-certificate-secret

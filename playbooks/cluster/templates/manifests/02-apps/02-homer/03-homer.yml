@@ -23,6 +23,7 @@ metadata:
   labels:
     kalexlab.xyz/app: homer
 spec:
+  serviceName: homer
   replicas: 1
   selector:
     matchLabels:
@@ -39,16 +40,30 @@ spec:
         - name: copy-config-and-theme
           image: docker.io/library/alpine:3.17
           imagePullPolicy: IfNotPresent
-          command:
-            - "sh"
-            - "-c"
-            - >
-              cp /mnt/config.yml /mnt/assets &&
-              mkdir -p /mnt/assets/images /mnt/assets/icons &&
-              wget -O /mnt/assets/catppuccin.css https://raw.githubusercontent.com/mrpbennett/catppuccin-homer/main/flavours/catppuccin-frappe.css &&
-              wget -O /mnt/assets/images/romb.png https://raw.githubusercontent.com/mrpbennett/catppuccin-homer/main/assets/images/backgrounds/romb.png &&
-              wget -O /mnt/assets/icons/dark_circle.png https://raw.githubusercontent.com/mrpbennett/catppuccin-homer/main/assets/logos/dark_circle.png &&
-              wget -O /tmp/favicon.zip https://github.com/mrpbennett/catppuccin-homer/raw/main/assets/favicons/dark_favicon.zip && unzip -od /mnt/assets/icons /tmp/favicon.zip
+          command: [
+              "sh",
+              "-c",
+              "cp /mnt/config.yml /mnt/assets && \
+              mkdir -p /mnt/assets/images /mnt/assets/icons && \
+              wget -O /mnt/assets/catppuccin.css https://raw.githubusercontent.com/mrpbennett/catppuccin-homer/main/flavours/catppuccin-frappe.css && \
+              wget -O /mnt/assets/images/romb.png https://raw.githubusercontent.com/mrpbennett/catppuccin-homer/main/assets/images/backgrounds/romb.png && \
+              wget -O /mnt/assets/icons/dark_circle.png https://raw.githubusercontent.com/mrpbennett/catppuccin-homer/main/assets/logos/dark_circle.png && \
+              wget -O /mnt/assets/icons/favicon.zip https://raw.githubusercontent.com/mrpbennett/catppuccin-homer/refs/heads/main/assets/favicons/dark_favicon.zip && \
+              unzip -od /mnt/assets/icons /mnt/assets/icons/favicon.zip && \
+              rm /mnt/assets/icons/favicon.zip",
+            ]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+
+          resources:
+            requests:
+              memory: 1Mi
+              cpu: 1m
+            limits:
+              memory: 20Mi
+              cpu: 10m
+
           volumeMounts:
             - mountPath: /mnt/assets
               name: homer-pvc
@@ -64,13 +79,17 @@ spec:
             - containerPort: 8080
               protocol: TCP
 
-          # resources:
-          #   requests:
-          #     memory: 5Mi
-          #     cpu: 1m
-          #   limits:
-          #     memory: 20Mi
-          #     cpu: 5m
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+
+          resources:
+            requests:
+              memory: 1Mi
+              cpu: 1m
+            limits:
+              memory: 20Mi
+              cpu: 10m
 
           readinessProbe:
             httpGet:
@@ -83,10 +102,6 @@ spec:
               port: 8080
             failureThreshold: 3
             periodSeconds: 30
-
-          securityContext:
-            readOnlyRootFilesystem: true
-            allowPrivilegeEscalation: false
 
           volumeMounts:
             - mountPath: /www/assets

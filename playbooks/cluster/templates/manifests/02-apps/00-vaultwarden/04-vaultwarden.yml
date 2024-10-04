@@ -6,16 +6,16 @@ metadata:
   name: vaultwarden
   labels:
     kalexlab.xyz/app: vaultwarden
-    kalexlab.xyz/component: app
+    kalexlab.xyz/component: vaultwarden
 spec:
   type: ClusterIP
   ports:
     - name: vaultwarden
-      port: 80
+      port: 8080
       protocol: TCP
   selector:
     kalexlab.xyz/app: vaultwarden
-    kalexlab.xyz/component: app
+    kalexlab.xyz/component: vaultwarden
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -24,19 +24,20 @@ metadata:
   name: vaultwarden
   labels:
     kalexlab.xyz/app: vaultwarden
-    kalexlab.xyz/component: app
+    kalexlab.xyz/component: vaultwarden
 spec:
+  serviceName: vaultwarden
   replicas: 1
   selector:
     matchLabels:
       kalexlab.xyz/app: vaultwarden
-      kalexlab.xyz/component: app
+      kalexlab.xyz/component: vaultwarden
   minReadySeconds: 5
   template:
     metadata:
       labels:
         kalexlab.xyz/app: vaultwarden
-        kalexlab.xyz/component: app
+        kalexlab.xyz/component: vaultwarden
     spec:
       restartPolicy: Always
       containers:
@@ -46,18 +47,15 @@ spec:
 
           securityContext:
             readOnlyRootFilesystem: true
-            # runAsNonRoot: true
-            # runAsUser: 1000
             allowPrivilegeEscalation: false
-            # capabilities:
-            #   add:
-            #     - NET_BIND_SERVICE
 
           ports:
-            - containerPort: 80
+            - containerPort: 8080
               protocol: TCP
 
           env:
+            - name: ROCKET_PORT
+              value: "8080"
             - name: DOMAIN
               value: "https://vault.kalexlab.xyz"
             - name: DATABASE_URL
@@ -70,29 +68,37 @@ spec:
                 secretKeyRef:
                   name: vaultwarden-secrets
                   key: ADMIN_TOKEN
-          # resources:
-          #   requests:
-          #     memory: 150Mi
-          #     cpu: 20m
-          #   limits:
-          #     memory: 500Mi
-          #     cpu: 200m
+
+          resources:
+            requests:
+              memory: 100Mi
+              cpu: 2m
+            limits:
+              memory: 500Mi
+              cpu: 200m
 
           readinessProbe:
             httpGet:
               path: /
-              port: 80
+              port: 8080
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /
-              port: 80
+              port: 8080
             failureThreshold: 3
             periodSeconds: 30
 
           volumeMounts:
             - mountPath: /data
               name: vaultwarden-data-pvc
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
 
       enableServiceLinks: false
       automountServiceAccountToken: false

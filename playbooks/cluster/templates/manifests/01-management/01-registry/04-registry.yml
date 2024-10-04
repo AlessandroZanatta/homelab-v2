@@ -6,17 +6,16 @@ metadata:
   name: registry
   labels:
     kalexlab.xyz/app: registry
+    kalexlab.xyz/component: registry
 spec:
   type: ClusterIP
   ports:
     - name: registry
       port: 5000
       protocol: TCP
-    - name: registry-ui
-      port: 8080
-      protocol: TCP
   selector:
     kalexlab.xyz/app: registry
+    kalexlab.xyz/component: registry
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -25,32 +24,21 @@ metadata:
   name: registry
   labels:
     kalexlab.xyz/app: registry
+    kalexlab.xyz/component: registry
 spec:
+  serviceName: registry
   replicas: 1
   selector:
     matchLabels:
       kalexlab.xyz/app: registry
+      kalexlab.xyz/component: registry
   minReadySeconds: 5
   template:
     metadata:
       labels:
         kalexlab.xyz/app: registry
+        kalexlab.xyz/component: registry
     spec:
-      initContainers:
-        - name: copy-nginx
-          image: joxit/docker-registry-ui:2
-          imagePullPolicy: Always
-          command: [
-              "sh",
-              "-c",
-              "cp -r /etc/nginx/* /mnt/nginx && \
-              cp -r /usr/share/nginx/html/* /mnt/nginx-html",
-            ]
-          volumeMounts:
-            - mountPath: /mnt/nginx
-              name: nginx
-            - mountPath: /mnt/nginx-html
-              name: nginx-html
       restartPolicy: Always
       containers:
         - name: registry
@@ -59,8 +47,6 @@ spec:
 
           securityContext:
             readOnlyRootFilesystem: true
-            runAsNonRoot: true
-            runAsUser: 1000
             allowPrivilegeEscalation: false
 
           ports:
@@ -71,10 +57,9 @@ spec:
             requests:
               memory: 20Mi
               cpu: 5m
-          # TODO
-          #   limits:
-          #     memory: 200Mi
-          #     cpu: 100m
+            limits:
+              memory: 200Mi
+              cpu: 3000m # very CPU-intensive on push
 
           readinessProbe:
             httpGet:
@@ -95,53 +80,6 @@ spec:
               mountPath: /etc/docker/registry
               readOnly: true
 
-        - name: registry-ui
-          image: joxit/docker-registry-ui:2
-          env:
-            - name: REGISTRY_TITLE
-              value: "kalexlab registry"
-            - name: NGINX_PROXY_PASS_URL
-              value: "http://localhost:5000"
-            - name: SINGLE_REGISTRY
-              value: "true"
-            - name: DELETE_IMAGES
-              value: "true"
-            - name: REGISTRY_SECURED
-              value: "true"
-
-          ports:
-            - containerPort: 8080
-              protocol: TCP
-
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 8080
-            periodSeconds: 10
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 8080
-            failureThreshold: 3
-            periodSeconds: 30
-
-          securityContext:
-            readOnlyRootFilesystem: true
-            allowPrivilegeEscalation: false
-            capabilities:
-              add:
-                - NET_BIND_SERVICE
-
-          volumeMounts:
-            - mountPath: /tmp
-              name: tmp
-            - mountPath: /etc/nginx
-              name: nginx
-            - mountPath: /var/cache/nginx
-              name: nginx-cache
-            - mountPath: /usr/share/nginx/html
-              name: nginx-html
-
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -153,18 +91,6 @@ spec:
       automountServiceAccountToken: false
 
       volumes:
-        - name: tmp
-          emptyDir:
-            sizeLimit: 1Gi
-        - name: nginx
-          emptyDir:
-            sizeLimit: 1Gi
-        - name: nginx-cache
-          emptyDir:
-            sizeLimit: 1Gi
-        - name: nginx-html
-          emptyDir:
-            sizeLimit: 1Gi
         - name: registry-conf
           projected:
             sources:

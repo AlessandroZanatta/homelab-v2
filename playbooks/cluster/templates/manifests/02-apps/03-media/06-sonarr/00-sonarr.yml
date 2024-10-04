@@ -3,49 +3,53 @@ apiVersion: v1
 kind: Service
 metadata:
   namespace: media
-  name: jellyfin
+  name: sonarr
   labels:
     kalexlab.xyz/app: media
-    kalexlab.xyz/component: jellyfin
+    kalexlab.xyz/component: sonarr
 spec:
   type: ClusterIP
   ports:
-    - name: jellyfin
-      port: 8096
+    - name: sonarr
+      port: 8989
       protocol: TCP
   selector:
     kalexlab.xyz/app: media
-    kalexlab.xyz/component: jellyfin
+    kalexlab.xyz/component: sonarr
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   namespace: media
-  name: jellyfin
+  name: sonarr
   labels:
     kalexlab.xyz/app: media
-    kalexlab.xyz/component: jellyfin
+    kalexlab.xyz/component: sonarr
+  annotations:
+    ignore-check.kube-linter.io/no-read-only-root-fs: "Uses lots of directories"
+    ignore-check.kube-linter.io/run-as-non-root: "Runs with lower privileges after startup"
 spec:
+  serviceName: sonarr
   replicas: 1
   selector:
     matchLabels:
       kalexlab.xyz/app: media
-      kalexlab.xyz/component: jellyfin
+      kalexlab.xyz/component: sonarr
   minReadySeconds: 5
   template:
     metadata:
       labels:
         kalexlab.xyz/app: media
-        kalexlab.xyz/component: jellyfin
+        kalexlab.xyz/component: sonarr
     spec:
       restartPolicy: Always
       containers:
         - name: app
-          image: linuxserver/jellyfin:latest
+          image: linuxserver/sonarr:latest
           imagePullPolicy: Always
 
           ports:
-            - containerPort: 8096
+            - containerPort: 8989
               protocol: TCP
 
           env:
@@ -58,21 +62,21 @@ spec:
 
           resources:
             requests:
-              memory: 150Mi
-              cpu: 20m
+              memory: 100Mi
+              cpu: 5m
             limits:
-              memory: 500Mi
-              cpu: 1000m
+              memory: 250Mi
+              cpu: 200m
 
           readinessProbe:
             httpGet:
               path: /
-              port: 8096
+              port: 8989
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /
-              port: 8096
+              port: 8989
             failureThreshold: 3
             periodSeconds: 30
 
@@ -82,13 +86,10 @@ spec:
             allowPrivilegeEscalation: false
 
           volumeMounts:
-            - mountPath: /data/media
+            - mountPath: /data
               name: media-data-pvc
-              subPath: media
             - mountPath: /config
-              name: jellyfin-conf-pvc
-            - mountPath: /cache
-              name: jellyfin-cache
+              name: sonarr-conf-pvc
 
       enableServiceLinks: false
       automountServiceAccountToken: false
@@ -105,16 +106,14 @@ spec:
         - name: media-data-pvc
           persistentVolumeClaim:
             claimName: media-data-pvc
-        - name: jellyfin-cache
-          emptyDir:
 
   volumeClaimTemplates:
     - metadata:
-        name: jellyfin-conf-pvc
+        name: sonarr-conf-pvc
       spec:
         accessModes:
           - ReadWriteOnce
         storageClassName: longhorn
         resources:
           requests:
-            storage: 1Gi
+            storage: 100Mi

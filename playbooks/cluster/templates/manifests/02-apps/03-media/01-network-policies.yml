@@ -1,1 +1,217 @@
 ---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: media
+  name: default-deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: media
+  name: allow-egress-cluster-dns
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: coredns
+      ports:
+        - protocol: UDP
+          port: 53
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: media
+  name: jellyfin
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: media
+      kalexlab.xyz/component: jellyfin
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: 8096
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: media
+  name: radarr
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: media
+      kalexlab.xyz/component: radarr
+  policyTypes:
+    - Egress
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: media
+              kalexlab.xyz/component: prowlarr-qbittorrent
+      ports:
+        - protocol: TCP
+          port: 7878
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: media
+              kalexlab.xyz/component: prowlarr-qbittorrent
+      ports:
+        - protocol: TCP
+          port: 9696
+        - protocol: TCP
+          port: 8080
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 192.168.0.0/16
+              - 172.16.0.0/20
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: media
+  name: sonarr
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: media
+      kalexlab.xyz/component: sonarr
+  policyTypes:
+    - Egress
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: media
+              kalexlab.xyz/component: prowlarr-qbittorrent
+      ports:
+        - protocol: TCP
+          port: 8989
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: media
+              kalexlab.xyz/component: prowlarr-qbittorrent
+      ports:
+        - protocol: TCP
+          port: 9696
+        - protocol: TCP
+          port: 8080
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 192.168.0.0/16
+              - 172.16.0.0/20
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: media
+  name: prowlarr-qbittorrent
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: media
+      kalexlab.xyz/component: prowlarr-qbittorrent
+  policyTypes:
+    - Egress
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: media
+              kalexlab.xyz/component: radarr
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: media
+              kalexlab.xyz/component: sonarr
+      ports:
+        - protocol: TCP
+          port: 9696
+        - protocol: TCP
+          port: 8080
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: media
+              kalexlab.xyz/component: radarr
+      ports:
+        - protocol: TCP
+          port: 7878
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: media
+              kalexlab.xyz/component: sonarr
+      ports:
+        - protocol: TCP
+          port: 8989
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: media
+              kalexlab.xyz/component: prowlarr-qbittorrent
+      ports:
+        - protocol: TCP
+          port: 9696
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 192.168.0.0/16
+              - 172.16.0.0/20

@@ -23,6 +23,7 @@ metadata:
   labels:
     kalexlab.xyz/app: uptime-kuma
 spec:
+  serviceName: uptime-kuma
   replicas: 1
   selector:
     matchLabels:

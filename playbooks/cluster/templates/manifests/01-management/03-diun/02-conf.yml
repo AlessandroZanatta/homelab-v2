@@ -16,17 +16,6 @@ data:
     providers:
       kubernetes:
         watchByDefault: true
-        namespaces:
-          - adguard
-          - anime
-          - diun
-          - homer
-          - media
-          - nextcloud
-          - registry
-          - traefik
-          - uptime-kuma
-          - vaultwarden
 
     notif:
       telegram:

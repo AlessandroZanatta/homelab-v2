@@ -5,7 +5,6 @@ metadata:
   name: scrutiny-collector-conf
   namespace: scrutiny
 data:
-  # TODO: wait for https://github.com/AnalogJ/scrutiny/pull/686 to be merged
   collector.yaml: |
     ---
     version: 1
@@ -15,10 +14,10 @@ data:
 
     allow_listed_devices:
       - /dev/sda
-      - /dev/sdb
+      - /dev/nvme0
 
     log:
       level: INFO
 
     api:
-      endpoint: "https://scrutiny.kalexlab.xyz"
+      endpoint: "http://web:8080"

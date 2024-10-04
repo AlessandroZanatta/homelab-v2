@@ -7,7 +7,6 @@ metadata:
     k8s-app: metrics-server
   name: metrics-server
   namespace: kube-system
-
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -155,7 +154,10 @@ spec:
             periodSeconds: 10
           resources:
             requests:
-              cpu: 100m
+              cpu: 5m
+              memory: 30Mi
+            limits:
+              cpu: 50m
               memory: 200Mi
           securityContext:
             allowPrivilegeEscalation: false

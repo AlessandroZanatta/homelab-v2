@@ -3,10 +3,10 @@ apiVersion: v1
 kind: Service
 metadata:
   namespace: media
-  name: prowlarr-qbittorrent-gluetun
+  name: prowlarr-qbittorrent
   labels:
     kalexlab.xyz/app: media
-    kalexlab.xyz/component: prowlarr-qbittorrent-gluetun
+    kalexlab.xyz/component: prowlarr-qbittorrent
 spec:
   type: ClusterIP
   ports:
@@ -27,35 +27,32 @@ spec:
       protocol: TCP
   selector:
     kalexlab.xyz/app: media
-    kalexlab.xyz/component: prowlarr-qbittorrent-gluetun
+    kalexlab.xyz/component: prowlarr-qbittorrent
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   namespace: media
-  name: prowlarr-qbittorrent-gluetun
+  name: prowlarr-qbittorrent
   labels:
     kalexlab.xyz/app: media
-    kalexlab.xyz/component: prowlarr-qbittorrent-gluetun
+    kalexlab.xyz/component: prowlarr-qbittorrent
+  annotations:
+    ignore-check.kube-linter.io/no-read-only-root-fs: "Uses lots of directories"
+    ignore-check.kube-linter.io/run-as-non-root: "Runs with lower privileges after startup"
 spec:
+  serviceName: prowlarr-qbittorrent
   replicas: 1
-  # Do not update in place with zero downtime
-  # Gluetun issues?
-  updateStrategy:
-    type: RollingUpdate
-    # rollingUpdate:
-    #   maxUnavailable: 1
-    #   maxSurge: 0
   selector:
     matchLabels:
       kalexlab.xyz/app: media
-      kalexlab.xyz/component: prowlarr-qbittorrent-gluetun
+      kalexlab.xyz/component: prowlarr-qbittorrent
   minReadySeconds: 5
   template:
     metadata:
       labels:
         kalexlab.xyz/app: media
-        kalexlab.xyz/component: prowlarr-qbittorrent-gluetun
+        kalexlab.xyz/component: prowlarr-qbittorrent
     spec:
       restartPolicy: Always
       initContainers:
@@ -122,6 +119,9 @@ spec:
             capabilities:
               add:
                 - NET_ADMIN
+              drop:
+                - NET_RAW
+
         # {% endif %}
 
         - name: flaresolverr

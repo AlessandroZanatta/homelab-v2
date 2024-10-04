@@ -1,60 +1,43 @@
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: cert-manager.io/v1
+kind: Certificate
 metadata:
   namespace: scrutiny
-  name: scrutiny-influxdb-ingress
-  annotations:
-    kubernetes.io/ingress.class: traefik
-    cert-manager.io/cluster-issuer: "{{ clusterissuer }}"
-
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
-  labels:
-    kalexlab.xyz/app: scrutiny
+  name: scrutiny-certificate
 spec:
-  tls:
-    - hosts:
-        - "influxdb.scrutiny.kalexlab.xyz"
-      secretName: letsencrypt-tls-scrutiny-influxdb
-  rules:
-    - host: influxdb.scrutiny.kalexlab.xyz
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: influxdb
-                port:
-                  number: 8086
+  commonName: scrutiny.kalexlab.xyz
+  secretName: scrutiny-ingress-certificate-secret
+  dnsNames:
+    - scrutiny.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: "{{ clusterissuer }}"
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
 metadata:
   namespace: scrutiny
-  name: scrutiny-web-ingress
-  annotations:
-    kubernetes.io/ingress.class: traefik
-    cert-manager.io/cluster-issuer: "{{ clusterissuer }}"
-
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
-  labels:
-    kalexlab.xyz/app: scrutiny
+  name: scrutiny-basic-auth
 spec:
+  basicAuth:
+    secret: scrutiny-auth-secrets
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: scrutiny-ingress
+  namespace: scrutiny
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`scrutiny.kalexlab.xyz`)
+      services:
+        - name: web
+          port: 8080
+      middlewares:
+        - name: scrutiny-basic-auth
   tls:
-    - hosts:
-        - "scrutiny.kalexlab.xyz"
-      secretName: letsencrypt-tls-scrutiny-web
-  rules:
-    - host: scrutiny.kalexlab.xyz
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: web
-                port:
-                  number: 8080
+    secretName: scrutiny-ingress-certificate-secret

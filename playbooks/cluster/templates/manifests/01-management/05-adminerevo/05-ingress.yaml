@@ -1,0 +1,43 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: adminerevo
+  name: adminerevo-ingress-certificate
+spec:
+  commonName: adminerevo.kalexlab.xyz
+  secretName: adminerevo-ingress-certificate-secret
+  dnsNames:
+    - adminerevo.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: "{{ clusterissuer }}"
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  namespace: adminerevo
+  name: adminerevo-basic-auth
+spec:
+  basicAuth:
+    secret: adminerevo-auth-secrets
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  namespace: adminerevo
+  name: adminerevo-ingress
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`adminerevo.kalexlab.xyz`)
+      services:
+        - name: adminerevo
+          port: 8080
+      middlewares:
+        - name: adminerevo-basic-auth
+  tls:
+    secretName: adminerevo-ingress-certificate-secret

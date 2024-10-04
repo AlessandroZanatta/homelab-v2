@@ -1,30 +1,32 @@
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: media
+  name: jellyfin-ingress-certificate
+spec:
+  commonName: jellyfin.media.kalexlab.xyz
+  secretName: jellyfin-ingress-certificate-secret
+  dnsNames:
+    - jellyfin.media.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: "{{ clusterissuer }}"
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
 metadata:
   namespace: media
   name: jellyfin-ingress
-  annotations:
-    kubernetes.io/ingress.class: traefik
-    cert-manager.io/cluster-issuer: "{{ clusterissuer }}"
-
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
-  labels:
-    kalexlab.xyz/app: media
 spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`jellyfin.media.kalexlab.xyz`)
+      services:
+        - name: jellyfin
+          port: 8096
   tls:
-    - hosts:
-        - "jellyfin.media.kalexlab.xyz"
-      secretName: letsencrypt-tls-jellyfin
-  rules:
-    - host: jellyfin.media.kalexlab.xyz
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: jellyfin
-                port:
-                  number: 8096
+    secretName: jellyfin-ingress-certificate-secret

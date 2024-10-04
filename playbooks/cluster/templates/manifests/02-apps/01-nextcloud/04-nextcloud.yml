@@ -6,7 +6,7 @@ metadata:
   name: nextcloud
   labels:
     kalexlab.xyz/app: nextcloud
-    kalexlab.xyz/component: app
+    kalexlab.xyz/component: nextcloud
 spec:
   type: ClusterIP
   ports:
@@ -15,7 +15,7 @@ spec:
       protocol: TCP
   selector:
     kalexlab.xyz/app: nextcloud
-    kalexlab.xyz/component: app
+    kalexlab.xyz/component: nextcloud
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -24,44 +24,37 @@ metadata:
   name: nextcloud
   labels:
     kalexlab.xyz/app: nextcloud
-    kalexlab.xyz/component: app
+    kalexlab.xyz/component: nextcloud
+  annotations:
+    ignore-check.kube-linter.io/no-read-only-root-fs: "Apache is a nightmare"
+    ignore-check.kube-linter.io/run-as-non-root: "Nextcloud drops privs (+ it is a nightmare)"
 spec:
+  serviceName: nextcloud
   replicas: 1
   selector:
     matchLabels:
       kalexlab.xyz/app: nextcloud
-      kalexlab.xyz/component: app
+      kalexlab.xyz/component: nextcloud
   minReadySeconds: 5
   template:
     metadata:
       labels:
         kalexlab.xyz/app: nextcloud
-        kalexlab.xyz/component: app
+        kalexlab.xyz/component: nextcloud
     spec:
       restartPolicy: Always
       containers:
         - name: nextcloud
-          image: nextcloud:latest
+          image: "nextcloud:latest"
           imagePullPolicy: Always
-
-          # securityContext:
-          #   readOnlyRootFilesystem: true
-          #   runAsNonRoot: true
-          #   runAsUser: 1000
-          #   allowPrivilegeEscalation: false
-          #   capabilities:
-          #     add:
-          #       - NET_BIND_SERVICE
 
           ports:
             - containerPort: 80
               protocol: TCP
 
           env:
-            # - name: OVERWRITECLIURL
-            #   value: "https://cloud.kalexlab.xyz"
-            # - name: OVERWRITEPROTOCOL
-            #   value: "https"
+            - name: TRUSTED_PROXIES
+              value: "10.0.0.0/8"
             - name: NEXTCLOUD_TRUSTED_DOMAINS
               value: "cloud.kalexlab.xyz nextcloud.nextcloud.svc.cluster.local"
             - name: OVERWRITEPROTOCOL
@@ -91,13 +84,13 @@ spec:
             - name: POSTGRES_DB
               value: "nextcloud"
 
-          # resources:
-          #   requests:
-          #     memory: 300Mi
-          #     cpu: 50m
-          #   limits:
-          #     memory: 1Gi
-          #     cpu: 500m
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 10m
+            limits:
+              memory: 1Gi
+              cpu: 2000m
 
           readinessProbe:
             httpGet:
@@ -117,13 +110,6 @@ spec:
             failureThreshold: 3
             periodSeconds: 30
 
-          # securityContext:
-          #   allowPrivilegeEscalation: false
-          #   readOnlyRootFilesystem: true
-          # capabilities:
-          #   add:
-          #     - NET_BIND_SERVICE
-
           volumeMounts:
             - mountPath: /var/www/html
               name: nextcloud-www-pvc
@@ -135,9 +121,6 @@ spec:
       automountServiceAccountToken: false
 
       securityContext:
-        #   runAsNonRoot: true
-        #   runAsUser: 1000
-        #   runAsGroup: 1000
         fsGroup: 33
         fsGroupChangePolicy: "OnRootMismatch"
 
