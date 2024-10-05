@@ -40,7 +40,6 @@ spec:
   podSelector:
     matchLabels:
       kalexlab.xyz/app: diun
-      kalexlab.xyz/component: diun
   policyTypes:
     - Egress
   egress:
