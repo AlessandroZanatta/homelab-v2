@@ -210,6 +210,8 @@ data:
           answer: "{{ traefik_loadbalancer_ip }}"
         - domain: "adminerevo.kalexlab.xyz"
           answer: "{{ traefik_loadbalancer_ip }}"
+        - domain: "test.reciept.kalexlab.xyz"
+          answer: "{{ traefik_loadbalancer_ip }}"
 
         - domain: "athena.kalexlab.xyz"
           answer: "{{ hostvars['athena-pi4b'].ansible_host }}"

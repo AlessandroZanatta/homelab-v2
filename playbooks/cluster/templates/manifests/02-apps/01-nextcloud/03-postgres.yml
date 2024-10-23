@@ -45,7 +45,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: database
-          image: docker.io/library/postgres:alpine
+          image: docker.io/library/postgres:16-alpine
           imagePullPolicy: IfNotPresent
 
           ports:

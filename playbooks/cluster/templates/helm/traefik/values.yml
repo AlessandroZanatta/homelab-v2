@@ -70,7 +70,7 @@ providers:
     # -- Allows IngressRoute to reference resources in namespace other than theirs
     allowCrossNamespace: false
     # -- Allows to reference ExternalName services in IngressRoute
-    allowExternalNameServices: false
+    allowExternalNameServices: true
     # -- Allows to return 503 when there is no endpoints available
     allowEmptyServices: false
     # ingressClass: traefik-internal
