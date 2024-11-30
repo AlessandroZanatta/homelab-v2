@@ -1,0 +1,12 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: glitchtip
+  name: glitchtip-config
+data:
+  ENABLE_SOCIAL_AUTH: "false"
+  GLITCHTIP_DOMAIN: "https://glitchtip.kalexlab.xyz"
+  CELERY_WORKER_AUTOSCALE: "1,2"
+  CELERY_WORKER_MAX_TASKS_PER_CHILD: "10000"
+  REDIS_URL: "redis://cache:6379"

@@ -28,6 +28,13 @@ metadata:
   annotations:
     ignore-check.kube-linter.io/no-read-only-root-fs: "Apache is a nightmare"
     ignore-check.kube-linter.io/run-as-non-root: "Nextcloud drops privs (+ it is a nightmare)"
+
+    keel.sh/policy: force
+    keel.sh/force: "true"
+    keel.sh/match-tag: "true"
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@every 6h"
+    keel.sh/approvals: "1"
 spec:
   serviceName: nextcloud
   replicas: 1

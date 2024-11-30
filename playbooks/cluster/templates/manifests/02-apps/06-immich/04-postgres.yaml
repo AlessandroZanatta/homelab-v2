@@ -2,10 +2,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: vaultwarden
+  namespace: immich
   name: database
   labels:
-    kalexlab.xyz/app: vaultwarden
+    kalexlab.xyz/app: immich
     kalexlab.xyz/component: database
 spec:
   type: ClusterIP
@@ -15,16 +15,16 @@ spec:
       protocol: TCP
       targetPort: 5432
   selector:
-    kalexlab.xyz/app: vaultwarden
+    kalexlab.xyz/app: immich
     kalexlab.xyz/component: database
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  namespace: vaultwarden
+  namespace: immich
   name: database
   labels:
-    kalexlab.xyz/app: vaultwarden
+    kalexlab.xyz/app: immich
     kalexlab.xyz/component: database
   annotations:
     keel.sh/policy: force
@@ -38,7 +38,7 @@ spec:
   serviceName: database
   selector:
     matchLabels:
-      kalexlab.xyz/app: vaultwarden
+      kalexlab.xyz/app: immich
       kalexlab.xyz/component: database
   updateStrategy:
     type: RollingUpdate
@@ -46,14 +46,30 @@ spec:
   template:
     metadata:
       labels:
-        kalexlab.xyz/app: vaultwarden
+        kalexlab.xyz/app: immich
         kalexlab.xyz/component: database
     spec:
       restartPolicy: Always
       containers:
         - name: database
-          image: docker.io/library/postgres:16-alpine
+          image: "docker.io/tensorchord/pgvecto-rs:pg14-v0.2.0"
           imagePullPolicy: Always
+          args:
+            [
+              "postgres",
+              "-c",
+              "shared_preload_libraries=vectors.so",
+              "-c",
+              'search_path="$user", public, vectors',
+              "-c",
+              "logging_collector=on",
+              "-c",
+              "max_wal_size=2GB",
+              "-c",
+              "shared_buffers=512MB",
+              "-c",
+              "wal_compression=on",
+            ]
 
           ports:
             - name: postgres
@@ -64,15 +80,17 @@ spec:
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: vaultwarden-db-secrets
+                  name: immich-secrets
                   key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: vaultwarden-db-secrets
+                  name: immich-secrets
                   key: POSTGRES_PASSWORD
             - name: POSTGRES_DB
-              value: "vaultwarden"
+              value: "immich"
+            - name: POSTGRES_INITDB_ARGS
+              value: "--data-checksums"
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
 
@@ -88,13 +106,14 @@ spec:
             periodSeconds: 10
             failureThreshold: 3
 
-          resources:
-            requests:
-              memory: 40Mi
-              cpu: 5m
-            limits:
-              memory: 200Mi
-              cpu: 50m
+          # TODO
+          # resources:
+          #   requests:
+          #     memory: 300Mi
+          #     cpu: 50m
+          #   limits:
+          #     memory: 1Gi
+          #     cpu: 500m
 
           securityContext:
             allowPrivilegeEscalation: false
@@ -103,10 +122,10 @@ spec:
           volumeMounts:
             - mountPath: /tmp
               name: tmp
-            - mountPath: /var/run
+            - mountPath: /var/run/postgresql
               name: postgres-run
             - mountPath: /var/lib/postgresql/data
-              name: vaultwarden-db-pvc
+              name: immich-db-pvc
               subPath: pgdata
 
       enableServiceLinks: false
@@ -129,11 +148,11 @@ spec:
 
   volumeClaimTemplates:
     - metadata:
-        name: vaultwarden-db-pvc
+        name: immich-db-pvc
       spec:
         accessModes:
           - ReadWriteOnce
         storageClassName: longhorn
         resources:
           requests:
-            storage: 2Gi
+            storage: 1Gi

@@ -12,6 +12,13 @@ metadata:
     ignore-check.kube-linter.io/privileged-container:
     ignore-check.kube-linter.io/privilege-escalation-container:
     ignore-check.kube-linter.io/run-as-non-root:
+
+    keel.sh/policy: force
+    keel.sh/force: "true"
+    keel.sh/match-tag: "true"
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@every 6h"
+    keel.sh/approvals: "1"
 spec:
   selector:
     matchLabels:

@@ -7,7 +7,7 @@
       apiVersion: cert-manager.io/v1
       kind: Certificate
       metadata:
-        namespace: longhorn-system 
+        namespace: longhorn-system
         name: longhorn-certificate
       spec:
         commonName: longhorn.kalexlab.xyz
@@ -25,13 +25,12 @@
       apiVersion: v1
       kind: Secret
       metadata:
-        namespace: longhorn-system 
+        namespace: longhorn-system
         name: longhorn-auth-secrets
       type: kubernetes.io/basic-auth
       stringData:
         username: "{{ longhorn_username }}"
         password: "{{ longhorn_password }}"
-
 - name: Create middleware for basic auth for Longhorn UI
   kubernetes.core.k8s:
     state: present

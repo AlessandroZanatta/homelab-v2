@@ -22,6 +22,13 @@ metadata:
   name: uptime-kuma
   labels:
     kalexlab.xyz/app: uptime-kuma
+  annotations:
+    keel.sh/policy: force
+    keel.sh/force: "true"
+    keel.sh/match-tag: "true"
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@every 6h"
+    keel.sh/approvals: "1"
 spec:
   serviceName: uptime-kuma
   replicas: 1
@@ -39,7 +46,7 @@ spec:
         # TODO: move to postgres when possible
         # TODO: move to stable v2 image when released
         - name: app
-          image: docker.io/louislam/uptime-kuma:latest
+          image: docker.io/louislam/uptime-kuma:beta-rootless
           imagePullPolicy: Always
 
           ports:

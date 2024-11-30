@@ -1,0 +1,24 @@
+---
+# https://kubernetes.io/docs/concepts/configuration/configmap/
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: keel
+  name: keel-telegram-bot-conf
+data:
+  keel-telegram-bot.yml: |
+    keel-telegram-bot:
+      log_level: warning
+
+      # Keel specific configuration options
+      keel:
+        host: keel
+        port: 9300
+        ssl: false
+
+      # Approval Monitor specific configuration options
+      monitor:
+        interval: 10s
+
+      stats:
+        enabled: false

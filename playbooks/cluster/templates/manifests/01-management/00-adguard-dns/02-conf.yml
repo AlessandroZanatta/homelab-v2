@@ -210,6 +210,12 @@ data:
           answer: "{{ traefik_loadbalancer_ip }}"
         - domain: "adminerevo.kalexlab.xyz"
           answer: "{{ traefik_loadbalancer_ip }}"
+        - domain: "glitchtip.kalexlab.xyz"
+          answer: "{{ traefik_loadbalancer_ip }}"
+        - domain: "keel.kalexlab.xyz"
+          answer: "{{ traefik_loadbalancer_ip }}"
+        - domain: "immich.kalexlab.xyz"
+          answer: "{{ traefik_loadbalancer_ip }}"
         - domain: "test.reciept.kalexlab.xyz"
           answer: "{{ traefik_loadbalancer_ip }}"
 

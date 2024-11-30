@@ -1,0 +1,32 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: glitchtip
+  name: glitchtip-ingress-certificate
+spec:
+  commonName: glitchtip.kalexlab.xyz
+  secretName: glitchtip-ingress-certificate-secret
+  dnsNames:
+    - glitchtip.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: "{{ clusterissuer }}"
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  namespace: glitchtip
+  name: glitchtip-ingress
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`glitchtip.kalexlab.xyz`)
+      services:
+        - name: web
+          port: 8000
+  tls:
+    secretName: glitchtip-ingress-certificate-secret

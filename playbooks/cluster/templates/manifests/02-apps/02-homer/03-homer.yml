@@ -22,6 +22,13 @@ metadata:
   name: homer
   labels:
     kalexlab.xyz/app: homer
+  annotations:
+    keel.sh/policy: force
+    keel.sh/force: "true"
+    keel.sh/match-tag: "true"
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@every 6h"
+    keel.sh/approvals: "1"
 spec:
   serviceName: homer
   replicas: 1
@@ -61,8 +68,9 @@ spec:
               memory: 1Mi
               cpu: 1m
             limits:
-              memory: 20Mi
-              cpu: 10m
+              # faster restarts due to above command
+              memory: 50Mi
+              cpu: 100m
 
           volumeMounts:
             - mountPath: /mnt/assets

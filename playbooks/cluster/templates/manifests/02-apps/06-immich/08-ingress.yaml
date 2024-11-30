@@ -1,0 +1,32 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: immich
+  name: immich-ingress-certificate
+spec:
+  commonName: immich.kalexlab.xyz
+  secretName: immich-ingress-certificate-secret
+  dnsNames:
+    - immich.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: "{{ clusterissuer }}"
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  namespace: immich
+  name: immich-ingress
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`immich.kalexlab.xyz`)
+      services:
+        - name: immich
+          port: 2283
+  tls:
+    secretName: immich-ingress-certificate-secret
