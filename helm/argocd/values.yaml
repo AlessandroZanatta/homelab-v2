@@ -66,7 +66,7 @@ repoServer:
       name: helm-secrets-private-keys
   initContainers:
     - name: download-tools
-      image: alpine:latest
+      image: "alpine:latest"
       imagePullPolicy: IfNotPresent
       command: [sh, -ec]
       env:
@@ -104,7 +104,7 @@ extraObjects:
       name: helm-secrets-private-keys
       namespace: argocd
     data:
-      sops.agekey:
+      sops.agekey: "{{ .Values.secrets.sopskey | b64enc }}"
   - apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:

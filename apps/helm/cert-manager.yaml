@@ -2,25 +2,25 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: sops-operator
+  name: cert-manager
   namespace: argocd
 spec:
   project: default
   sources:
-    - repoURL: "https://isindir.github.io/sops-secrets-operator/"
-      chart: sops-secrets-operator
-      targetRevision: 0.18.6
+    - repoURL: "https://charts.jetstack.io"
+      chart: cert-manager
+      targetRevision: 1.15.0
       helm:
-        releaseName: sops
+        releaseName: cert-manager
         valueFiles:
-          - "$values/helm/sops-operator/values.yaml"
-          - "secrets://https://raw.githubusercontent.com/AlessandroZanatta/homelab/master/helm/sops-operator/secrets.yaml"
+          - "$values/helm/cert-manager/values.yaml"
+          - "secrets://https://raw.githubusercontent.com/AlessandroZanatta/homelab/master/helm/cert-manager/secrets.yaml"
     - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
       targetRevision: master
       ref: "values"
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: sops
+    namespace: cert-manager
   syncPolicy:
     automated:
       prune: true
