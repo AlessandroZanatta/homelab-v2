@@ -1,0 +1,32 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: anime
+  name: anime-ingress-certificate
+spec:
+  commonName: anime.kalexlab.xyz
+  secretName: anime-ingress-certificate-secret
+  dnsNames:
+    - anime.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  namespace: anime
+  name: anime-ingress
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`anime.kalexlab.xyz`)
+      services:
+        - name: app
+          port: 9000
+  tls:
+    secretName: anime-ingress-certificate-secret

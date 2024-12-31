@@ -1,0 +1,75 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: anime-conf
+  namespace: anime
+data:
+  config.yml: |
+    providers_path: "providers"
+    media_path: "/data/anime"
+    cache_path: "/data/cache"
+    watched_threshold: 92
+
+    server:
+      listen_address: "0.0.0.0:8080"
+      debug: false
+
+    database:
+      DSNFile: /etc/secrets/db/dsn
+
+    providers:
+      AnimeSaturn:
+        interval: 7200
+        language: "Italiano"
+        priority: 100
+      AnimeItaly:
+        interval: 7200
+        language: "Italiano"
+        priority: 50
+      Animeseries:
+        interval: 7200
+        language: "English"
+        priority: 100
+      Aniwave:
+        interval: 86400 # really avoid spamming so that the VPN IP maybe doesn't get blacklisted
+        language: "English"
+        priority: 90
+  nginx.conf: |
+    events {}
+
+    http {
+      upstream backend {
+        server localhost:8080;
+      }
+
+      server {
+        include mime.types;
+        listen 9000;
+
+        access_log off;
+
+        location / {
+          root   /usr/share/nginx/html;
+          index  index.html index.htm;
+          try_files $uri $uri/ /index.html;
+        }
+
+        location ~ ^/api/ {
+          proxy_read_timeout 300;
+          proxy_pass http://backend;
+        }
+
+        location ~ ^/auth/ {
+          proxy_pass http://backend;
+        }
+
+        location ~ ^/media/ {
+          proxy_pass http://backend;
+        }
+
+        location ~ ^/debug/ {
+          proxy_pass http://backend;
+        }
+      }
+    }

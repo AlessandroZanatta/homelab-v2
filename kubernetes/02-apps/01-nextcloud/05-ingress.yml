@@ -1,0 +1,32 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: nextcloud
+  name: nextcloud-ingress-certificate
+spec:
+  commonName: cloud.kalexlab.xyz
+  secretName: nextcloud-ingress-certificate-secret
+  dnsNames:
+    - cloud.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  namespace: nextcloud
+  name: nextcloud-ingress
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`cloud.kalexlab.xyz`)
+      services:
+        - name: nextcloud
+          port: 80
+  tls:
+    secretName: nextcloud-ingress-certificate-secret

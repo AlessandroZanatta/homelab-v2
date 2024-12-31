@@ -1,0 +1,141 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: anime
+  name: database
+  labels:
+    kalexlab.xyz/app: anime
+    kalexlab.xyz/component: database
+spec:
+  type: ClusterIP
+  ports:
+    - name: postgres
+      port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    kalexlab.xyz/app: anime
+    kalexlab.xyz/component: database
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: anime
+  name: database
+  labels:
+    kalexlab.xyz/app: anime
+    kalexlab.xyz/component: database
+  annotations:
+    keel.sh/policy: force
+    keel.sh/force: "true"
+    keel.sh/match-tag: "true"
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@every 6h"
+    keel.sh/approvals: "1"
+spec:
+  replicas: 1
+  serviceName: database
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: anime
+      kalexlab.xyz/component: database
+  updateStrategy:
+    type: RollingUpdate
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: anime
+        kalexlab.xyz/component: database
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: database
+          image: docker.io/library/postgres:16-alpine
+          imagePullPolicy: Always
+
+          ports:
+            - name: postgres
+              containerPort: 5432
+              protocol: TCP
+
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: anime-db-secrets
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: anime-db-secrets
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              value: "anime"
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+
+          livenessProbe:
+            exec:
+              command:
+                ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+            # initialDelaySeconds: 120
+            periodSeconds: 30
+          readinessProbe:
+            exec:
+              command:
+                ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+            periodSeconds: 10
+            failureThreshold: 3
+
+          # TODO
+          # resources:
+          #   requests:
+          #     memory: 300Mi
+          #     cpu: 50m
+          #   limits:
+          #     memory: 1Gi
+          #     cpu: 500m
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /var/run/postgresql
+              name: postgres-run
+            - mountPath: /var/lib/postgresql/data
+              name: anime-db-pvc
+              subPath: pgdata
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: postgres-run
+          emptyDir:
+            sizeLimit: 1Gi
+
+  volumeClaimTemplates:
+    - metadata:
+        name: anime-db-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 2Gi

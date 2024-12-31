@@ -1,0 +1,32 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: homer
+  name: homer-ingress-certificate
+spec:
+  commonName: homer.kalexlab.xyz
+  secretName: homer-ingress-certificate-secret
+  dnsNames:
+    - homer.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  namespace: homer
+  name: homer-ingress
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`homer.kalexlab.xyz`)
+      services:
+        - name: homer
+          port: 8080
+  tls:
+    secretName: homer-ingress-certificate-secret

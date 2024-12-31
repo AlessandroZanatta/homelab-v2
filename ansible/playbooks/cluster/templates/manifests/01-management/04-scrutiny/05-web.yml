@@ -1,0 +1,146 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: scrutiny
+  name: web
+  labels:
+    kalexlab.xyz/app: scrutiny
+    kalexlab.xyz/component: web
+spec:
+  type: ClusterIP
+  ports:
+    - name: web
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    kalexlab.xyz/app: scrutiny
+    kalexlab.xyz/component: web
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: scrutiny
+  name: web
+  labels:
+    kalexlab.xyz/app: scrutiny
+    kalexlab.xyz/component: web
+  annotations:
+    keel.sh/policy: force
+    keel.sh/force: "true"
+    keel.sh/match-tag: "true"
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@every 6h"
+    keel.sh/approvals: "1"
+spec:
+  replicas: 1
+  serviceName: web
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: scrutiny
+      kalexlab.xyz/component: web
+  updateStrategy:
+    type: RollingUpdate
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: scrutiny
+        kalexlab.xyz/component: web
+    spec:
+      restartPolicy: Always
+
+      initContainers:
+        - name: wait-influxdb
+          image: docker.io/library/alpine:3.17
+          imagePullPolicy: IfNotPresent
+
+          resources:
+            requests:
+              memory: 30Mi
+              cpu: 1m
+            limits:
+              memory: 300Mi
+              cpu: 20m
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+
+          command:
+            [
+              "sh",
+              "-c",
+              "for i in $(seq 1 300); do nc -zvw1 influxdb 8086 && exit 0 || sleep 3; done; exit 1",
+            ]
+
+      containers:
+        - name: web
+          image: ghcr.io/analogj/scrutiny:master-web
+          imagePullPolicy: Always
+
+          ports:
+            - name: web
+              containerPort: 8080
+              protocol: TCP
+
+          env:
+            - name: GIN_MODE
+              value: release
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            periodSeconds: 10
+            failureThreshold: 3
+
+          resources:
+            requests:
+              memory: 30Mi
+              cpu: 1m
+            limits:
+              memory: 300Mi
+              cpu: 20m
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+
+          volumeMounts:
+            - mountPath: /opt/scrutiny/config
+              name: scrutiny-conf
+            - mountPath: /opt/scrutiny/db
+              name: scrutiny-db-pvc
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+
+      volumes:
+        - name: scrutiny-conf
+          secret:
+            secretName: scrutiny-conf
+
+  volumeClaimTemplates:
+    - metadata:
+        name: scrutiny-db-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 100Mi

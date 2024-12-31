@@ -1,0 +1,124 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: registry
+  name: registry
+  labels:
+    kalexlab.xyz/app: registry
+    kalexlab.xyz/component: registry
+spec:
+  type: ClusterIP
+  ports:
+    - name: registry
+      port: 5000
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: registry
+    kalexlab.xyz/component: registry
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: registry
+  name: registry
+  labels:
+    kalexlab.xyz/app: registry
+    kalexlab.xyz/component: registry
+  annotations:
+    keel.sh/policy: force
+    keel.sh/force: "true"
+    keel.sh/match-tag: "true"
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@every 6h"
+    keel.sh/approvals: "1"
+spec:
+  serviceName: registry
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: registry
+      kalexlab.xyz/component: registry
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: registry
+        kalexlab.xyz/component: registry
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: registry
+          image: registry:2
+          imagePullPolicy: Always
+
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+
+          ports:
+            - containerPort: 5000
+              protocol: TCP
+
+          resources:
+            requests:
+              memory: 20Mi
+              cpu: 5m
+            limits:
+              memory: 200Mi
+              cpu: 3000m # very CPU-intensive on push
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            failureThreshold: 3
+            periodSeconds: 30
+
+          volumeMounts:
+            - name: registry-pvc
+              mountPath: /var/lib/registry
+            - name: registry-conf
+              mountPath: /etc/docker/registry
+              readOnly: true
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      volumes:
+        - name: registry-conf
+          projected:
+            sources:
+              - configMap:
+                  name: registry-conf
+                  items:
+                    - key: config.yml
+                      path: config.yml
+              - secret:
+                  name: registry-htpasswd
+                  items:
+                    - key: htpasswd
+                      path: htpasswd
+
+  volumeClaimTemplates:
+    - metadata:
+        name: registry-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 10Gi

@@ -1,0 +1,133 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adminerevo
+  namespace: adminerevo
+  labels:
+    kalexlab.xyz/app: adminerevo
+spec:
+  type: ClusterIP
+  ports:
+    - name: adminerevo
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    kalexlab.xyz/app: adminerevo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adminerevo
+  namespace: adminerevo
+  labels:
+    kalexlab.xyz/app: adminerevo
+  annotations:
+    keel.sh/policy: force
+    keel.sh/force: "true"
+    keel.sh/match-tag: "true"
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@every 1m"
+    keel.sh/approvals: "1"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: adminerevo
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: adminerevo
+    spec:
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: registry-credentials
+      initContainers:
+        - name: copy-html
+          image: "registry.kalexlab.xyz/adminerevo:latest"
+          imagePullPolicy: Always
+          securityContext:
+            readOnlyRootFilesystem: true
+
+          resources:
+            requests:
+              memory: 20Mi
+              cpu: 5m
+            limits:
+              memory: 200Mi
+              cpu: 100m
+
+          command: ["sh", "-c", "cp -r /var/www/html/* /mnt/html"]
+          volumeMounts:
+            - mountPath: /mnt/html
+              name: html
+      containers:
+        - name: adminerevo
+          image: "registry.kalexlab.xyz/adminerevo:latest"
+          imagePullPolicy: Always
+
+          securityContext:
+            readOnlyRootFilesystem: true
+
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+
+          env:
+            - name: ADMINER_DESIGN
+              value: "hydra"
+
+          resources:
+            requests:
+              memory: 50Mi
+              cpu: 10m
+            limits:
+              memory: 500Mi
+              cpu: 200m
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            periodSeconds: 60
+
+          volumeMounts:
+            - mountPath: /var/www/html
+              name: html
+            - mountPath: /var/www/html/plugins-custom
+              name: plugins
+            - mountPath: /servers.php
+              name: servers
+              subPath: servers.php
+            - mountPath: /tmp
+              name: tmp
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      volumes:
+        - name: plugins
+          configMap:
+            name: adminerevo-config
+        - name: servers
+          secret:
+            secretName: adminerevo-secrets
+        - name: html
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi

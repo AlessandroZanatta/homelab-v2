@@ -1,0 +1,191 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: glitchtip
+  name: web
+  labels:
+    kalexlab.xyz/app: glitchtip
+    kalexlab.xyz/component: web
+spec:
+  type: ClusterIP
+  ports:
+    - name: web
+      port: 8000
+      protocol: TCP
+      targetPort: 8000
+  selector:
+    kalexlab.xyz/app: glitchtip
+    kalexlab.xyz/component: web
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: glitchtip
+  name: web
+  labels:
+    kalexlab.xyz/app: glitchtip
+    kalexlab.xyz/component: web
+  annotations:
+    keel.sh/policy: force
+    keel.sh/force: "true"
+    keel.sh/match-tag: "true"
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@every 6h"
+    keel.sh/approvals: "1"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: glitchtip
+      kalexlab.xyz/component: web
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: glitchtip
+        kalexlab.xyz/component: web
+    spec:
+      restartPolicy: Always
+      initContainers:
+        - name: wait-valkey
+          image: docker.io/library/alpine:3.17
+          imagePullPolicy: IfNotPresent
+
+          resources:
+            requests:
+              memory: 30Mi
+              cpu: 1m
+            limits:
+              memory: 300Mi
+              cpu: 20m
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+
+          command:
+            [
+              "sh",
+              "-c",
+              "for i in $(seq 1 300); do nc -zvw1 cache 6379 && exit 0 || sleep 3; done; exit 1",
+            ]
+        - name: wait-postgres
+          image: docker.io/library/alpine:3.17
+          imagePullPolicy: IfNotPresent
+
+          resources:
+            requests:
+              memory: 30Mi
+              cpu: 1m
+            limits:
+              memory: 300Mi
+              cpu: 20m
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+
+          command:
+            [
+              "sh",
+              "-c",
+              "for i in $(seq 1 300); do nc -zvw1 database 5432 && exit 0 || sleep 3; done; exit 1",
+            ]
+      containers:
+        - name: web
+          image: "glitchtip/glitchtip:latest"
+          imagePullPolicy: Always
+          command: ["/bin/sh", "-c", "./bin/run-migrate.sh && ./bin/start.sh"]
+
+          ports:
+            - name: web
+              containerPort: 8000
+              protocol: TCP
+
+          env:
+            - name: PORT
+              value: "8000"
+            - name: ENABLE_SOCIAL_AUTH
+              valueFrom:
+                configMapKeyRef:
+                  name: glitchtip-config
+                  key: ENABLE_SOCIAL_AUTH
+            - name: GLITCHTIP_DOMAIN
+              valueFrom:
+                configMapKeyRef:
+                  name: glitchtip-config
+                  key: GLITCHTIP_DOMAIN
+            - name: CELERY_WORKER_AUTOSCALE
+              valueFrom:
+                configMapKeyRef:
+                  name: glitchtip-config
+                  key: CELERY_WORKER_AUTOSCALE
+            - name: CELERY_WORKER_MAX_TASKS_PER_CHILD
+              valueFrom:
+                configMapKeyRef:
+                  name: glitchtip-config
+                  key: CELERY_WORKER_MAX_TASKS_PER_CHILD
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: glitchtip-config
+                  key: REDIS_URL
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: glitchtip-secrets
+                  key: DATABASE_URL
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: glitchtip-secrets
+                  key: SECRET_KEY
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            periodSeconds: 60
+
+          # TODO: set resources based on usage
+          # resources:
+          #   requests:
+          #     memory: 10Mi
+          #     cpu: 1m
+          #   limits:
+          #     memory: 300Mi
+          #     cpu: 200m
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /code/uploads
+              name: uploads-pvc
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: uploads-pvc
+          persistentVolumeClaim:
+            claimName: uploads-pvc

@@ -1,0 +1,125 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: media
+  name: radarr
+  labels:
+    kalexlab.xyz/app: media
+    kalexlab.xyz/component: radarr
+spec:
+  type: ClusterIP
+  ports:
+    - name: radarr
+      port: 7878
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: media
+    kalexlab.xyz/component: radarr
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: media
+  name: radarr
+  labels:
+    kalexlab.xyz/app: media
+    kalexlab.xyz/component: radarr
+  annotations:
+    ignore-check.kube-linter.io/no-read-only-root-fs: "Uses lots of directories"
+    ignore-check.kube-linter.io/run-as-non-root: "Runs with lower privileges after startup"
+
+    keel.sh/policy: force
+    keel.sh/force: "true"
+    keel.sh/match-tag: "true"
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@every 6h"
+    keel.sh/approvals: "1"
+spec:
+  serviceName: radarr
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: media
+      kalexlab.xyz/component: radarr
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: media
+        kalexlab.xyz/component: radarr
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: app
+          image: linuxserver/radarr:latest
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 7878
+              protocol: TCP
+
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "UTC"
+
+          resources:
+            requests:
+              memory: 100Mi
+              cpu: 5m
+            limits:
+              memory: 250Mi
+              cpu: 200m
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 7878
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 7878
+            failureThreshold: 3
+            periodSeconds: 30
+
+          securityContext:
+            # uses a LOT of directories
+            # readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+
+          volumeMounts:
+            - mountPath: /data
+              name: media-data-pvc
+            - mountPath: /config
+              name: radarr-conf-pvc
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        # Will run with lower privileges after startup anyway
+        # runAsNonRoot: true
+        # runAsUser: 1000
+        # runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+
+      volumes:
+        - name: media-data-pvc
+          persistentVolumeClaim:
+            claimName: media-data-pvc
+  volumeClaimTemplates:
+    - metadata:
+        name: radarr-conf-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 100Mi

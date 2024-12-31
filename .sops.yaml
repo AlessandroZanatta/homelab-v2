@@ -1,0 +1,7 @@
+---
+creation_rules:
+  - path_regex: kubernetes/.*\.ya?ml$
+    encrypted_regex: ^(data|stringData)$
+    age: "age1xulh9knukykzerg98wclqtfx33crk0h30q4jhwuz03ja9nsjppwq7tmycl"
+  - path_regex: helm/.*\.ya?ml$
+    age: "age1xulh9knukykzerg98wclqtfx33crk0h30q4jhwuz03ja9nsjppwq7tmycl"

@@ -1,0 +1,77 @@
+---
+image:
+  # -- Traefik image pull policy
+  pullPolicy: Always
+
+deployment:
+  enabled: true
+  # -- Deployment or DaemonSet
+  kind: Deployment
+  # -- Number of pods of the deployment (only applies when kind == Deployment)
+  replicas: 2
+
+ingressRoute:
+  dashboard:
+    enabled: false
+
+providers:
+  kubernetesCRD:
+    enabled: true
+    # -- Allows to reference ExternalName services in IngressRoute
+    allowExternalNameServices: true
+
+  kubernetesIngress:
+    enabled: true # TODO: migrate to IngressRoute and disable this!
+
+# -- Global command arguments to be passed to all traefik's pods
+globalArguments:
+  - "--global.checknewversion"
+  - "--global.sendanonymoususage=false"
+
+ports:
+  web:
+    ## -- Enable this entrypoint as a default entrypoint. When a service doesn't explicitly set an entrypoint it will only use this entrypoint.
+    # asDefault: true
+    port: 8000
+    # hostPort: 8000
+    # containerPort: 8000
+    expose:
+      default: true
+    exposedPort: 80
+    ## -- Different target traefik port on the cluster, useful for IP type LB
+    # targetPort: 80
+    # The port protocol (TCP/UDP)
+    protocol: TCP
+    # Port Redirections
+    # Added in 2.2, you can make permanent redirects via entrypoints.
+    # https://docs.traefik.io/routing/entrypoints/#redirection
+    redirectTo:
+      port: websecure
+
+  websecure:
+    ## -- Enable this entrypoint as a default entrypoint. When a service doesn't explicitly set an entrypoint it will only use this entrypoint.
+    asDefault: true
+    port: 8443
+    # hostPort: 8443
+    # containerPort: 8443
+    expose:
+      default: true
+    exposedPort: 443
+    ## -- Different target traefik port on the cluster, useful for IP type LB
+    # targetPort: 80
+    ## -- The port protocol (TCP/UDP)
+    protocol: TCP
+
+    ## Set TLS at the entrypoint
+    ## https://doc.traefik.io/traefik/routing/entrypoints/#tls
+    tls:
+      enabled: true
+
+service:
+  enabled: true
+  ## -- Single service is using `MixedProtocolLBService` feature gate.
+  ## -- When set to false, it will create two Service, one for TCP and one for UDP.
+  single: true
+  type: LoadBalancer
+  labels:
+    kalexlab.xyz/ip-pool: traefik

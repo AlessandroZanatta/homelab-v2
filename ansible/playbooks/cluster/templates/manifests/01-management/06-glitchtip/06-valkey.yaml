@@ -1,0 +1,107 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: glitchtip
+  name: cache
+  labels:
+    kalexlab.xyz/app: glitchtip
+    kalexlab.xyz/component: cache
+spec:
+  type: ClusterIP
+  ports:
+    - name: valkey
+      port: 6379
+      protocol: TCP
+      targetPort: 6379
+  selector:
+    kalexlab.xyz/app: glitchtip
+    kalexlab.xyz/component: cache
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: glitchtip
+  name: cache
+  labels:
+    kalexlab.xyz/app: glitchtip
+    kalexlab.xyz/component: cache
+  annotations:
+    keel.sh/policy: force
+    keel.sh/force: "true"
+    keel.sh/match-tag: "true"
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@every 6h"
+    keel.sh/approvals: "1"
+spec:
+  replicas: 1
+  serviceName: cache
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: glitchtip
+      kalexlab.xyz/component: cache
+  updateStrategy:
+    type: RollingUpdate
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: glitchtip
+        kalexlab.xyz/component: cache
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: cache
+          image: "docker.io/valkey/valkey:8-alpine"
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: valkey
+              containerPort: 6379
+              protocol: TCP
+
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "valkey-cli ping"]
+            periodSeconds: 30
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "valkey-cli ping"]
+            periodSeconds: 10
+            failureThreshold: 3
+
+          resources:
+            requests:
+              memory: 10Mi
+              cpu: 1m
+            limits:
+              memory: 200Mi
+              cpu: 100m
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /data
+              name: data
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: data
+          emptyDir:
+            sizeLimit: 1Gi

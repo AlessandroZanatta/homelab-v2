@@ -1,0 +1,3 @@
+# Make sure argocd has access to sops age key
+
+!sops.agekey

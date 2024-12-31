@@ -2,8 +2,9 @@
 .vagrant
 sonobuoy.txt
 
-todolist
+todolist.md
 
 /installers
 /migration
-/outputs
+
+sops.agekey

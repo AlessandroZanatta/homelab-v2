@@ -1,0 +1,43 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: scrutiny
+  name: scrutiny-certificate
+spec:
+  commonName: scrutiny.kalexlab.xyz
+  secretName: scrutiny-ingress-certificate-secret
+  dnsNames:
+    - scrutiny.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  namespace: scrutiny
+  name: scrutiny-basic-auth
+spec:
+  basicAuth:
+    secret: scrutiny-auth-secrets
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: scrutiny-ingress
+  namespace: scrutiny
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`scrutiny.kalexlab.xyz`)
+      services:
+        - name: web
+          port: 8080
+      middlewares:
+        - name: scrutiny-basic-auth
+  tls:
+    secretName: scrutiny-ingress-certificate-secret
