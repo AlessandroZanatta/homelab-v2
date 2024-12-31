@@ -17,8 +17,8 @@
         chart_version: "1.15.3"
         namespace: "cilium"
         pre_tasks:
-          - install-etcd-secrets.yml
-          - gather-etcd-group-nodes.yml
+          - install-etcd-secrets.yaml
+          - gather-etcd-group-nodes.yaml
         vars:
           etcd_cafile: "ca-etcd.pem"
           etcd_certfile: "etcd-client-cilium.pem"
@@ -56,10 +56,10 @@
         chart_version: "1.6.2"
         namespace: "longhorn-system"
         pre_tasks:
-          - install-dependencies.yml
+          - install-dependencies.yaml
         post_tasks:
-          - create-traefik-ingress.yml
-          - create-trim-fs-job.yml
+          - create-traefik-ingress.yaml
+          - create-trim-fs-job.yaml
 
       - name: kube-prometheus-stack
         repo_url: "https://prometheus-community.github.io/helm-charts"
@@ -68,8 +68,8 @@
         chart_version: "60.4.0"
         namespace: "prometheus"
         post_tasks:
-          - create-dashboards.yml
-          - delete-dashboards.yml
+          - create-dashboards.yaml
+          - delete-dashboards.yaml
 
     helm_tgz_charts:
       - name: porkbun-webhook

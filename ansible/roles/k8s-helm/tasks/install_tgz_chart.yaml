@@ -20,7 +20,7 @@
 
     - name: Create Helm values
       template:
-        src: "{{ template_prefix }}/{{ item.name }}/values.yml"
+        src: "{{ template_prefix }}/{{ item.name }}/values.yaml"
         dest: "{{ values_tmpfile.path }}"
         mode: 0600
 

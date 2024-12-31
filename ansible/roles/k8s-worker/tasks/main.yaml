@@ -1,12 +1,12 @@
 ---
 - name: Install CNI
-  include_tasks: cni.yml
+  include_tasks: cni.yaml
 
 - name: Install runc
-  include_tasks: runc.yml
+  include_tasks: runc.yaml
 
 - name: Install containerd
-  include_tasks: containerd.yml
+  include_tasks: containerd.yaml
 
 - name: Install required packages, binaries and keys for workers
   block:
@@ -73,7 +73,7 @@
       changed_when: false
 
 - name: Create kubelet configuration
-  include_tasks: kubelet.yml
+  include_tasks: kubelet.yaml
 
 - name: Create kube-proxy configuration
-  include_tasks: kube-proxy.yml
+  include_tasks: kube-proxy.yaml

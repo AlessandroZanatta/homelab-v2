@@ -6,7 +6,7 @@ metadata:
   name: diun-conf
   namespace: diun
 data:
-  diun.yml: |
+  diun.yaml: |
     watch:
       workers: 10
       schedule: "0 */6 * * *"

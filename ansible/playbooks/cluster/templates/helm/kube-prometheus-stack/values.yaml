@@ -175,7 +175,7 @@ grafana:
             - grafana_folder
             - alertname
 
-    delete-default-mail-cp.yml:
+    delete-default-mail-cp.yaml:
       apiVersion: 1
       deleteContactPoints:
         - orgId: 1

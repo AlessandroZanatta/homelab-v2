@@ -5,7 +5,7 @@
   delegate_facts: true
   loop: "{{ groups[k8s_workers_group] | union(groups[k8s_controllers_groups]) | union(groups[k8s_etcd_group]) }}"
 
-# https://github.com/githubixx/ansible-role-kubernetes-ca/blob/ea24283ed977b5b1945dc2f518c57cea7ec98ecc/tasks/main.yml#L10
+# https://github.com/githubixx/ansible-role-kubernetes-ca/blob/ea24283ed977b5b1945dc2f518c57cea7ec98ecc/tasks/main.yaml#L10
 - name: Set kubernetes api server cert hosts
   set_fact:
     k8s_pki_api_hosts: >-

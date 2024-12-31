@@ -6,7 +6,7 @@ metadata:
   namespace: keel
   name: keel-telegram-bot-conf
 data:
-  keel-telegram-bot.yml: |
+  keel-telegram-bot.yaml: |
     keel-telegram-bot:
       log_level: warning
 

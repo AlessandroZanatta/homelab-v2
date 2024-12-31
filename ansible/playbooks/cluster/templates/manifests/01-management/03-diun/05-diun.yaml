@@ -80,8 +80,8 @@ spec:
           configMap:
             name: diun-conf
             items:
-              - key: diun.yml
-                path: diun.yml
+              - key: diun.yaml
+                path: diun.yaml
         - name: diun-secrets
           secret:
             secretName: diun-secrets

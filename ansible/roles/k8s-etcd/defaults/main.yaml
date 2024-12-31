@@ -61,7 +61,7 @@ k8s_etcd_certs:
 # etcd systemd unit options #
 #############################
 
-# Borrowed from https://github.com/githubixx/ansible-role-etcd/blob/master/defaults/main.yml
+# Borrowed from https://github.com/githubixx/ansible-role-etcd/blob/master/defaults/main.yaml
 etcd_service_options:
   - User={{ k8s_etcd_user }}
   - Group={{ k8s_etcd_group }}

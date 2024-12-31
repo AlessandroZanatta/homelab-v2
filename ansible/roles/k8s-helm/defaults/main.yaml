@@ -12,7 +12,7 @@ helm_charts: []
 #     chart_version: "1.15.4"
 #     namespace: "cilium"
 #     pre_tasks:
-#       - install-etcd-secrets.yml
+#       - install-etcd-secrets.yaml
 #     post_tasks: []
 #     vars:
 #       etcd_cafile: "ca-etcd.pem"
@@ -28,7 +28,7 @@ helm_tgz_charts: []
 #     tgz_url: "https://github.com/mdonoughe/porkbun-webhook/releases/download/porkbun-webhook-0.1.4/porkbun-webhook-0.1.4.tgz"
 #     namespace: "cert-manager"
 #     pre_tasks:
-#       - install-etcd-secrets.yml
+#       - install-etcd-secrets.yaml
 #     post_tasks: []
 #     vars:
 #       etcd_cafile: "ca-etcd.pem"

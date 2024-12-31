@@ -50,6 +50,10 @@ spec:
         kalexlab.xyz/component: app
     spec:
       restartPolicy: Always
+
+      # Jinja2 commented to not break yamllint
+      # {% if ansible_environment == 'prod' %}
+
       initContainers:
         - name: gluetun
           image: qmcgaw/gluetun:latest
@@ -112,6 +116,7 @@ spec:
                 secretKeyRef:
                   name: gluetun-secrets
                   key: SERVER_HOSTNAMES
+      # {% endif %}
 
       imagePullSecrets:
         - name: registry-credentials
@@ -159,9 +164,9 @@ spec:
             allowPrivilegeEscalation: false
 
           volumeMounts:
-            - mountPath: /app/config.yml
+            - mountPath: /app/config.yaml
               name: anime-conf
-              subPath: config.yml
+              subPath: config.yaml
             - mountPath: /data/anime
               name: anime-data-pvc
             - mountPath: /data/cache

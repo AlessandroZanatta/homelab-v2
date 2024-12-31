@@ -6,5 +6,5 @@
     mode: "0700"
 
 - name: Create per-peer configuration
-  include_tasks: unmanaged_loop.yml
+  include_tasks: unmanaged_loop.yaml
   with_items: "{{ wireguard_unmanaged_hosts }}"

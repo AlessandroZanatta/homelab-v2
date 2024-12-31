@@ -99,9 +99,9 @@
 #           volumeMounts:
 #             - mountPath: /tmp
 #               name: tmp
-#             - mountPath: /app/keel-telegram-bot.yml
+#             - mountPath: /app/keel-telegram-bot.yaml
 #               name: keel-telegram-bot-conf
-#               subPath: keel-telegram-bot.yml
+#               subPath: keel-telegram-bot.yaml
 #
 #       enableServiceLinks: false
 #       automountServiceAccountToken: false

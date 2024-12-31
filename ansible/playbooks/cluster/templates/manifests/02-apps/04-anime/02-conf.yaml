@@ -5,7 +5,7 @@ metadata:
   name: anime-conf
   namespace: anime
 data:
-  config.yml: |
+  config.yaml: |
     providers_path: "providers"
     media_path: "/data/anime"
     cache_path: "/data/cache"

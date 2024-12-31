@@ -50,7 +50,7 @@ spec:
           command: [
               "sh",
               "-c",
-              "cp /mnt/config.yml /mnt/assets && \
+              "cp /mnt/config.yaml /mnt/assets && \
               mkdir -p /mnt/assets/images /mnt/assets/icons && \
               wget -O /mnt/assets/catppuccin.css https://raw.githubusercontent.com/mrpbennett/catppuccin-homer/main/flavours/catppuccin-frappe.css && \
               wget -O /mnt/assets/images/romb.png https://raw.githubusercontent.com/mrpbennett/catppuccin-homer/main/assets/images/backgrounds/romb.png && \
@@ -75,9 +75,9 @@ spec:
           volumeMounts:
             - mountPath: /mnt/assets
               name: homer-pvc
-            - mountPath: /mnt/config.yml
+            - mountPath: /mnt/config.yaml
               name: homer-conf
-              subPath: config.yml
+              subPath: config.yaml
       containers:
         - name: app
           image: b4bz/homer:latest

@@ -5,7 +5,7 @@ metadata:
   name: homer-conf
   namespace: homer
 data:
-  config.yml: |
+  config.yaml: |
     ---
     # Homepage configuration
     # See https://fontawesome.com/v5/search for icons options

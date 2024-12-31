@@ -104,8 +104,8 @@ spec:
               - configMap:
                   name: registry-conf
                   items:
-                    - key: config.yml
-                      path: config.yml
+                    - key: config.yaml
+                      path: config.yaml
               - secret:
                   name: registry-htpasswd
                   items:

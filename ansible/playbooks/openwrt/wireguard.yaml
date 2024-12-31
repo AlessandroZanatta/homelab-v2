@@ -65,7 +65,7 @@
             mode: "0700"
 
         - name: Create configurations
-          include_tasks: wireguard-clients-conf.yml
+          include_tasks: wireguard-clients-conf.yaml
           with_dict: "{{ wireguard_clients }}"
 
 - name: Setup Wireguard VPN on openwrt router
@@ -173,7 +173,7 @@
             value: "{{ wireguard_server_address }}/24"
 
         - name: Add clients
-          include_tasks: wireguard-clients.yml
+          include_tasks: wireguard-clients.yaml
           with_dict: "{{ hostvars[configurator].wireguard_clients }}"
 
         - name: Commit

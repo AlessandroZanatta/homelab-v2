@@ -1,6 +1,6 @@
 ---
 - name: Include task
-  include_tasks: "{{ type }}.yml"
+  include_tasks: "{{ type }}.yaml"
   when: type == "cluster" or type == "unmanaged"
   with_items: "{{ types }}"
   loop_control:

@@ -10,9 +10,9 @@
   when: "filter is defined and filter != ''"
 
 - name: Install charts
-  include_tasks: install_chart.yml
+  include_tasks: install_chart.yaml
   with_items: "{{ helm_charts }}"
 
 - name: Install tgz charts
-  include_tasks: install_tgz_chart.yml
+  include_tasks: install_tgz_chart.yaml
   with_items: "{{ helm_tgz_charts }}"
