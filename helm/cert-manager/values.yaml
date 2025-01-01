@@ -4,14 +4,7 @@ global:
     # Override the namespace used for the leader election lease.
     namespace: cert-manager
 
-prometheus:
-  # Enable Prometheus monitoring for the cert-manager controller to use with the
-  # Prometheus Operator
-  enabled: true
-
-  servicemonitor:
-    # Create a ServiceMonitor to add cert-manager to Prometheus.
-    enabled: true
+enableCertificateOwnerRef: true
 
 extraObjects:
   # Extra objects needed to create a cluster issuer using the porkbun webhook for cert-manager
