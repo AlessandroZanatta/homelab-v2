@@ -97,6 +97,10 @@ repoServer:
         - mountPath: /gitops-tools
           name: gitops-tools
 
+# NOTE: keep this extraObjects here!
+# There are (at least) two reasons:
+#   1) Sops key must be a "normal" secret, cannot be a SopsSecret as ArgoCD is deployed first
+#   2) ArgoCD is the only app deployed manually, hence it makes sense for it to be completely self-contained
 extraObjects:
   - apiVersion: v1
     kind: Secret

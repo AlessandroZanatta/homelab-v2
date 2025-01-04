@@ -1,7 +1,12 @@
 ---
 creation_rules:
-  - path_regex: kubernetes/.*\.ya?ml$
+  # Encrypt only the data and stringData values when dealing with SopsSecrets
+  # SopsSecrets are either in the kubernetes folder, or in a helm chart
+  # under the extra folder
+  - path_regex: (kubernetes|extra)/.*\.ya?ml$
     encrypted_regex: ^(data|stringData)$
     age: "age1xulh9knukykzerg98wclqtfx33crk0h30q4jhwuz03ja9nsjppwq7tmycl"
+
+  # Encrypted everything when dealing with Helm values
   - path_regex: helm/.*\.ya?ml$
     age: "age1xulh9knukykzerg98wclqtfx33crk0h30q4jhwuz03ja9nsjppwq7tmycl"

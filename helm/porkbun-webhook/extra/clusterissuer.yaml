@@ -1,0 +1,27 @@
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt
+  namespace: cert-manager
+spec:
+  acme:
+    server: "https://acme-v02.api.letsencrypt.org/directory" # "https://acme-staging-v02.api.letsencrypt.org/directory"
+    email: alessandro.zanatta.lav@gmail.com
+    privateKeySecretRef:
+      name: letsencrypt-clusterissuer
+    solvers:
+      - selector:
+          dnsZones:
+            - kalexlab.xyz
+        dns01:
+          webhook:
+            groupName: acme.kalexlab.xyz
+            solverName: porkbun
+            config:
+              apiKeySecretRef:
+                name: porkbun-key
+                key: api-key
+              secretKeySecretRef:
+                name: porkbun-key
+                key: secret-key
