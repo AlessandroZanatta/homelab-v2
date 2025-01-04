@@ -435,10 +435,10 @@ envoy:
   # -- Annotations to be added to all top-level cilium-envoy objects (resources under templates/cilium-envoy)
   annotations: {}
   # -- Security Context for cilium-envoy pods.
-  podSecurityContext:
-    # -- AppArmorProfile options for the `cilium-agent` and init containers
-    appArmorProfile:
-      type: "Unconfined"
+  # podSecurityContext:
+  #   # -- AppArmorProfile options for the `cilium-agent` and init containers
+  #   appArmorProfile:
+  #     type: "Unconfined"
   # -- Annotations to be added to envoy pods
   podAnnotations: {}
   # -- Labels to be added to envoy pods
