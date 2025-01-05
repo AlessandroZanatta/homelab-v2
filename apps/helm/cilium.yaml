@@ -16,6 +16,7 @@ spec:
           - $values/helm/cilium/values.yaml
     - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
       targetRevision: master
+      path: helm/cilium/extra
       ref: values
   destination:
     server: "https://kubernetes.default.svc"
