@@ -2,25 +2,25 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: sops-operator
+  name: longhorn
   namespace: argocd
 spec:
   project: homelab
   sources:
-    - repoURL: "https://isindir.github.io/sops-secrets-operator/"
-      chart: sops-secrets-operator
-      targetRevision: 0.18.6
+    - repoURL: "https://charts.longhorn.io"
+      chart: longhorn
+      targetRevision: 1.6.2 
       helm:
-        releaseName: sops
+        releaseName: longhorn 
         valueFiles:
-          - $values/helm/sops-operator/values.yaml
-          - "secrets://https://raw.githubusercontent.com/AlessandroZanatta/homelab/master/helm/sops-operator/secrets.yaml"
+          - $values/helm/longhorn/values.yaml
     - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
       targetRevision: master
+      path: helm/longhorn/extra
       ref: values
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: sops
+    namespace: longhorn-system 
   syncPolicy:
     automated:
       prune: true

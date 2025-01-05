@@ -2,25 +2,24 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: sops-operator
+  name: coredns
   namespace: argocd
 spec:
   project: homelab
   sources:
-    - repoURL: "https://isindir.github.io/sops-secrets-operator/"
-      chart: sops-secrets-operator
-      targetRevision: 0.18.6
+    - repoURL: "https://coredns.github.io/helm"
+      chart: coredns
+      targetRevision: 1.30.0
       helm:
-        releaseName: sops
+        releaseName: coredns
         valueFiles:
-          - $values/helm/sops-operator/values.yaml
-          - "secrets://https://raw.githubusercontent.com/AlessandroZanatta/homelab/master/helm/sops-operator/secrets.yaml"
+          - $values/helm/coredns/values.yaml
     - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
       targetRevision: master
       ref: values
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: sops
+    namespace: kube-system
   syncPolicy:
     automated:
       prune: true

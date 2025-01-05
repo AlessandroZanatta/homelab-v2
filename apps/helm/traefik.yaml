@@ -2,25 +2,25 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: sops-operator
+  name: traefik
   namespace: argocd
 spec:
   project: homelab
   sources:
-    - repoURL: "https://isindir.github.io/sops-secrets-operator/"
-      chart: sops-secrets-operator
-      targetRevision: 0.18.6
+    - repoURL: "https://traefik.github.io/charts"
+      chart: traefik
+      targetRevision: 28.2.0
       helm:
-        releaseName: sops
+        releaseName: traefik
         valueFiles:
-          - $values/helm/sops-operator/values.yaml
-          - "secrets://https://raw.githubusercontent.com/AlessandroZanatta/homelab/master/helm/sops-operator/secrets.yaml"
+          - $values/helm/traefik/values.yaml
     - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
       targetRevision: master
+      path: helm/traefik/extra
       ref: values
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: sops
+    namespace: traefik
   syncPolicy:
     automated:
       prune: true

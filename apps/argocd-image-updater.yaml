@@ -1,0 +1,19 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd-image-updater
+  namespace: argocd
+spec:
+  project: homelab
+  sources:
+    - repoURL: "https://github.com/argoproj-labs/argocd-image-updater.git"
+      path: manifests/base
+      targetRevision: master
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
