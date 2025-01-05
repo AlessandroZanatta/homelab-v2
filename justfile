@@ -1,4 +1,4 @@
-
+AGE_RECIPIENT := "age1ff26etr9n8nsp2ve2lkh7w4dqd9g9m9u3y8aw77ureu639mrfatqmuqnhv"
 
 conform *ARGS:
   kubeconform -strict -kubernetes-version 1.29.4 -ignore-missing-schemas playbooks/cluster/templates/manifests {{ ARGS }}
@@ -41,7 +41,7 @@ sops SECRET_FILE:
   SOPS=$(yq -r .sops "{{ SECRET_FILE }}")
   # Not encrypted, missing sops header
   if [[ "$SOPS" == "null" ]]; then
-    SOPS_AGE_RECIPIENTS="age1ff26etr9n8nsp2ve2lkh7w4dqd9g9m9u3y8aw77ureu639mrfatqmuqnhv" sops --encrypt --in-place "{{ SECRET_FILE }}"
+    SOPS_AGE_RECIPIENTS="{{ AGE_RECIPIENT }}" sops --encrypt --in-place "{{ SECRET_FILE }}"
   else
     SOPS_AGE_KEY_FILE=./sops.agekey sops --decrypt --in-place "{{ SECRET_FILE }}"
   fi
@@ -56,7 +56,7 @@ ensure-sops SECRET_FILE:
   SOPS=$(yq -r .sops "{{ SECRET_FILE }}")
   # Not encrypted, missing sops header
   if [[ "$SOPS" == "null" ]]; then
-    SOPS_AGE_RECIPIENTS="age1ff26etr9n8nsp2ve2lkh7w4dqd9g9m9u3y8aw77ureu639mrfatqmuqnhv" sops --encrypt --in-place "{{ SECRET_FILE }}"
+    SOPS_AGE_RECIPIENTS="{{ AGE_RECIPIENT }}" sops --encrypt --in-place "{{ SECRET_FILE }}"
     echo "{{ SECRET_FILE }} is now encrypted!"
   fi
 
@@ -65,7 +65,7 @@ encrypt-all:
 
   set -e
 
-  for FILE_PATH in $(find . -type f -name "*secret*.y?ml"); do
+  for FILE_PATH in $(find ./helm ./kubernetes -type f -name "*secret*.y?ml"); do
     $(just ensure-sops "$FILE_PATH")
   done
 
