@@ -5,5 +5,5 @@ resources:
   - namespace.yaml
   - network-policies.yaml
   - conf.yaml
-  - adguard.yaml
+  - adminerevo.yaml
   - ingress.yaml
