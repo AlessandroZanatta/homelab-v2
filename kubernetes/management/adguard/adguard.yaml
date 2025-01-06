@@ -48,7 +48,7 @@ spec:
         # workaround for this issue
         # https://github.com/AdguardTeam/AdGuardHome/issues/5966
         - name: copy-config
-          image: "docker.io/library/alpine:3.17"
+          image: "docker.io/alpine:3.17"
           imagePullPolicy: IfNotPresent
           command: ["sh", "-c", "cp /mnt/AdGuardHome.yaml /mnt/conf"]
           securityContext:

@@ -1,4 +1,0 @@
-kustomize:
-  images:
-  - adguard/adguardhome:v0.107.55
-  - docker.io/alpine:3.21.0

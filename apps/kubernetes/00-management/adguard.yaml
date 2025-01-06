@@ -2,17 +2,21 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: metric-server
+  name: adguard
   namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: "adguard/adguardhome:0.x,docker.io/alpine:3.x"
+    argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/write-back-target: kustomization
 spec:
   project: homelab
   sources:
     - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
       targetRevision: master
-      path: kubernetes/00-base/02-metric-server
+      path: kubernetes/management/adguard
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: kube-system
+    namespace: adguard
   syncPolicy:
     automated:
       prune: true

@@ -1,0 +1,25 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: metric-server
+  namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: "registry.k8s.io/metrics-server/metrics-server:0.7.x"
+    argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/write-back-target: kustomization
+spec:
+  project: homelab
+  sources:
+    - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
+      targetRevision: master
+      path: kubernetes/monitoring/metric-server
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: kube-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
