@@ -8,7 +8,7 @@ metadata:
     kalexlab.xyz/app: adguard
 spec:
   type: ClusterIP
-  clusterIP: "10.32.0.253"
+  clusterIP: 10.32.0.253
   ports:
     - name: adguard-interface
       port: 80
@@ -31,13 +31,6 @@ metadata:
   name: adguard
   labels:
     kalexlab.xyz/app: adguard
-  annotations:
-    keel.sh/policy: force
-    keel.sh/force: "true"
-    keel.sh/match-tag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@every 6h"
-    keel.sh/approvals: "1"
 spec:
   serviceName: adguard
   replicas: 1
@@ -78,7 +71,7 @@ spec:
               subPath: AdGuardHome.yaml
       containers:
         - name: app
-          image: "adguard/adguardhome:latest"
+          image: "adguard/adguardhome:v0.107.55"
           imagePullPolicy: Always
 
           ports:
