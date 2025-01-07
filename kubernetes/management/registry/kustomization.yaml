@@ -11,3 +11,5 @@ resources:
 images:
 - name: joxit/docker-registry-ui
   newTag: 2.5.7
+- name: registry
+  newTag: 2.8.3
