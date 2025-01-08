@@ -4,6 +4,3 @@ kind: Kustomization
 resources:
   - metric-server.yaml
   - rbac.yaml
-images:
-  - name: registry.k8s.io/metrics-server/metrics-server
-    newTag: v0.7.2
