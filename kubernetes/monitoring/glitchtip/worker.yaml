@@ -39,7 +39,7 @@ spec:
       restartPolicy: Always
       initContainers:
         - name: wait-valkey
-          image: "alpine:3.17"
+          image: "docker.io/library/alpine:3.17"
           imagePullPolicy: IfNotPresent
 
           resources:
@@ -61,7 +61,7 @@ spec:
               "for i in $(seq 1 300); do nc -zvw1 cache 6379 && exit 0 || sleep 3; done; exit 1",
             ]
         - name: wait-postgres
-          image: "alpine:3.17"
+          image: "docker.io/library/alpine:3.17"
           imagePullPolicy: IfNotPresent
 
           resources:
@@ -84,7 +84,7 @@ spec:
             ]
       containers:
         - name: worker
-          image: "glitchtip/glitchtip:v4.2"
+          image: "docker.io/glitchtip/glitchtip:v4.2"
           imagePullPolicy: Always
           command: ["./bin/run-celery-with-beat.sh"]
 

@@ -7,8 +7,8 @@ metadata:
 spec:
   project: homelab
   sources:
-    - repoURL: "https://github.com/argoproj-labs/argocd-image-updater.git"
-      path: manifests/base
+    - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
+      path: kubernetes/management/argocd-image-updater
       targetRevision: master
   destination:
     server: "https://kubernetes.default.svc"

@@ -46,7 +46,7 @@ spec:
 
       initContainers:
         - name: wait-influxdb
-          image: "alpine:3.17"
+          image: "docker.io/library/alpine:3.17"
           imagePullPolicy: IfNotPresent
 
           resources:

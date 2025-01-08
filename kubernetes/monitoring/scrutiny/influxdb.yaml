@@ -45,7 +45,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: influxdb
-          image: "influxdb:2-alpine"
+          image: "docker.io/library/influxdb:2-alpine"
           imagePullPolicy: Always
 
           ports:

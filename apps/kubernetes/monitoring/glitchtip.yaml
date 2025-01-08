@@ -5,7 +5,7 @@ metadata:
   name: glitchtip
   namespace: argocd
   annotations:
-    argocd-image-updater.argoproj.io/image-list: "postgres=postgres:17.x-0,valkey=valkey/valkey:8.x-0,alpine:3.x,glitchtip/glitchtip:v4.x"
+    argocd-image-updater.argoproj.io/image-list: "postgres=docker.io/library/postgres:17.x-0, valkey=docker.io/valkey/valkey:8.x-0, docker.io/library/alpine:3.x, docker.io/glitchtip/glitchtip:v4.x"
     argocd-image-updater.argoproj.io/postgres.allow-tags: "regexp:^.*-alpine$"
     argocd-image-updater.argoproj.io/valkey.allow-tags: "regexp:^.*-alpine$"
     argocd-image-updater.argoproj.io/write-back-method: git

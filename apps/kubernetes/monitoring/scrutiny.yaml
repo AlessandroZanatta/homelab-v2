@@ -5,10 +5,13 @@ metadata:
   name: scrutiny
   namespace: argocd
   annotations:
-    argocd-image-updater.argoproj.io/image-list: "influxdb=influxdb:2.x-0,collector=ghcr.io/analogj/scrutiny:0.x-0,web=ghcr.io./analogj/scrutiny:0.x-0,alpine:3.x"
+    argocd-image-updater.argoproj.io/image-list: "collector=ghcr.io/analogj/scrutiny:0.x-0, web=ghcr.io/analogj/scrutiny:0.x-0, docker.io/library/alpine:3.x, influxdb=docker.io/library/influxdb:2.x-0"
     argocd-image-updater.argoproj.io/influxdb.allow-tags: "regexp:^.*-alpine$"
     argocd-image-updater.argoproj.io/collector.allow-tags: "regexp:^.*-collector$"
+    # Pinning the image name is necessary due to collector and web tags being on the same image name
+    argocd-image-updater.argoproj.io/collector.kustomize.image-name: "ghcr.io/analogj/scrutiny:v0.8.0-collector"
     argocd-image-updater.argoproj.io/web.allow-tags: "regexp:^.*-web$"
+    argocd-image-updater.argoproj.io/web.kustomize.image-name: "ghcr.io/analogj/scrutiny:v0.8.0-web"
     argocd-image-updater.argoproj.io/write-back-method: git
     argocd-image-updater.argoproj.io/write-back-target: kustomization
 spec:
@@ -23,6 +26,6 @@ spec:
   syncPolicy:
     automated:
       prune: true
-      selfHeal: true
+      # selfHeal: true
     syncOptions:
       - CreateNamespace=true

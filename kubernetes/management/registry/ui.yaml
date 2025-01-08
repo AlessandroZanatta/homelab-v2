@@ -40,7 +40,7 @@ spec:
     spec:
       initContainers:
         - name: copy-nginx
-          image: joxit/docker-registry-ui:2
+          image: "docker.io/joxit/docker-registry-ui:2"
           imagePullPolicy: Always
           securityContext:
             readOnlyRootFilesystem: true
@@ -67,7 +67,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: ui
-          image: "joxit/docker-registry-ui:2"
+          image: "docker.io/joxit/docker-registry-ui:2"
           env:
             - name: REGISTRY_TITLE
               value: "kalexlab registry"

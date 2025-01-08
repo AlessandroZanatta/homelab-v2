@@ -5,7 +5,7 @@ metadata:
   name: registry
   namespace: argocd
   annotations:
-    argocd-image-updater.argoproj.io/image-list: "registry:2.x,joxit/docker-registry-ui:2.x"
+    argocd-image-updater.argoproj.io/image-list: "docker.io/library/registry:2.x, docker.io/joxit/docker-registry-ui:2.x"
     argocd-image-updater.argoproj.io/write-back-method: git
     argocd-image-updater.argoproj.io/write-back-target: kustomization
 spec:
