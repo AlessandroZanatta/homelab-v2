@@ -25,13 +25,6 @@ metadata:
   labels:
     kalexlab.xyz/app: registry
     kalexlab.xyz/component: registry
-  annotations:
-    keel.sh/policy: force
-    keel.sh/force: "true"
-    keel.sh/match-tag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@every 6h"
-    keel.sh/approvals: "1"
 spec:
   serviceName: registry
   replicas: 1
@@ -49,7 +42,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: registry
-          image: registry:2
+          image: "docker.io/registry:2"
           imagePullPolicy: Always
 
           securityContext:
@@ -85,7 +78,6 @@ spec:
               mountPath: /var/lib/registry
             - name: registry-conf
               mountPath: /etc/docker/registry
-              readOnly: true
 
       securityContext:
         runAsNonRoot: true
@@ -104,8 +96,8 @@ spec:
               - configMap:
                   name: registry-conf
                   items:
-                    - key: config.yaml
-                      path: config.yaml
+                    - key: config.yml
+                      path: config.yml
               - secret:
                   name: registry-htpasswd
                   items:

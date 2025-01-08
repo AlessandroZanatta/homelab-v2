@@ -2,10 +2,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: adguard
+  name: registry
   namespace: argocd
   annotations:
-    argocd-image-updater.argoproj.io/image-list: "adguard/adguardhome:0.x,alpine:3.x"
+    argocd-image-updater.argoproj.io/image-list: "registry:2.x,joxit/docker-registry-ui:2.x"
     argocd-image-updater.argoproj.io/write-back-method: git
     argocd-image-updater.argoproj.io/write-back-target: kustomization
 spec:
@@ -13,10 +13,10 @@ spec:
   sources:
     - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
       targetRevision: master
-      path: kubernetes/management/adguard
+      path: kubernetes/management/registry
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: adguard
+    namespace: registry
   syncPolicy:
     automated:
       prune: true

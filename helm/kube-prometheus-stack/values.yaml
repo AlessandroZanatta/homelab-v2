@@ -16,6 +16,12 @@ grafana:
   enabled: true
   defaultDashboardsTimezone: Europe/Rome
 
+prometheusOperator:
+  tls:
+    enabled: false
+  admissionWebhooks:
+    enabled: false
+
 ## Deploy a Prometheus instance
 ##
 prometheus:

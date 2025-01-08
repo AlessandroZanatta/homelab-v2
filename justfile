@@ -80,3 +80,7 @@ yaml-fix:
               print("Fixed: " + filename)
               f.seek(0)
               f.write('---\n' + content)
+
+format:
+  just yaml-fix
+  prettier -w 'kubernetes/**/*.y*ml' 'helm/**/*.y*ml' 'apps/**/*.y*ml'

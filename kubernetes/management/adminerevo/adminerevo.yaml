@@ -23,13 +23,6 @@ metadata:
   namespace: adminerevo
   labels:
     kalexlab.xyz/app: adminerevo
-  annotations:
-    keel.sh/policy: force
-    keel.sh/force: "true"
-    keel.sh/match-tag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@every 1m"
-    keel.sh/approvals: "1"
 spec:
   replicas: 1
   selector:

@@ -12,13 +12,6 @@ metadata:
     ignore-check.kube-linter.io/privileged-container:
     ignore-check.kube-linter.io/privilege-escalation-container:
     ignore-check.kube-linter.io/run-as-non-root:
-
-    keel.sh/policy: force
-    keel.sh/force: "true"
-    keel.sh/match-tag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@every 6h"
-    keel.sh/approvals: "1"
 spec:
   selector:
     matchLabels:
@@ -36,7 +29,7 @@ spec:
       restartPolicy: Always
       initContainers:
         - name: copy-cron-fix-script
-          image: ghcr.io/analogj/scrutiny:master-collector
+          image: "ghcr.io/analogj/scrutiny:v0.8.0-collector"
           imagePullPolicy: Always
           securityContext:
             readOnlyRootFilesystem: true
@@ -65,7 +58,7 @@ spec:
             - mountPath: /mnt/entrypoint
               name: entrypoint
         - name: wait-influxdb
-          image: docker.io/library/alpine:3.17
+          image: "alpine:3.17"
           imagePullPolicy: IfNotPresent
 
           resources:
@@ -88,7 +81,7 @@ spec:
             ]
       containers:
         - name: collector
-          image: ghcr.io/analogj/scrutiny:master-collector
+          image: "ghcr.io/analogj/scrutiny:v0.8.0-collector"
           imagePullPolicy: Always
           command: ["/entrypoint/entrypoint-collector.sh"]
 
@@ -99,10 +92,6 @@ spec:
             limits:
               memory: 50Mi
               cpu: 10m
-
-          env:
-            - name: COLLECTOR_RUN_STARTUP
-              value: "true"
 
           securityContext:
             privileged: true

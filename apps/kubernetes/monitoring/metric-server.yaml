@@ -5,7 +5,7 @@ metadata:
   name: metric-server
   namespace: argocd
   annotations:
-    argocd-image-updater.argoproj.io/image-list: "registry.k8s.io/metrics-server/metrics-server:0.7.x"
+    argocd-image-updater.argoproj.io/image-list: "registry.k8s.io/metrics-server/metrics-server:0.x"
     argocd-image-updater.argoproj.io/write-back-method: git
     argocd-image-updater.argoproj.io/write-back-target: kustomization
 spec:

@@ -9,9 +9,9 @@ spec:
   sources:
     - repoURL: "https://charts.longhorn.io"
       chart: longhorn
-      targetRevision: 1.6.2 
+      targetRevision: 1.6.2
       helm:
-        releaseName: longhorn 
+        releaseName: longhorn
         valueFiles:
           - $values/helm/longhorn/values.yaml
     - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
@@ -20,7 +20,7 @@ spec:
       ref: values
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: longhorn-system 
+    namespace: longhorn-system
   syncPolicy:
     automated:
       prune: true

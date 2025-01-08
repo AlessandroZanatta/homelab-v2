@@ -25,13 +25,6 @@ metadata:
   labels:
     kalexlab.xyz/app: registry
     kalexlab.xyz/component: ui
-  annotations:
-    keel.sh/policy: force
-    keel.sh/force: "true"
-    keel.sh/match-tag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@every 6h"
-    keel.sh/approvals: "1"
 spec:
   replicas: 1
   selector:
@@ -74,7 +67,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: ui
-          image: joxit/docker-registry-ui:2
+          image: "joxit/docker-registry-ui:2"
           env:
             - name: REGISTRY_TITLE
               value: "kalexlab registry"

@@ -2,10 +2,12 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: adguard
+  name: glitchtip
   namespace: argocd
   annotations:
-    argocd-image-updater.argoproj.io/image-list: "adguard/adguardhome:0.x,alpine:3.x"
+    argocd-image-updater.argoproj.io/image-list: "postgres=postgres:17.x-0,valkey=valkey/valkey:8.x-0,alpine:3.x,glitchtip/glitchtip:v4.x"
+    argocd-image-updater.argoproj.io/postgres.allow-tags: "regexp:^.*-alpine$"
+    argocd-image-updater.argoproj.io/valkey.allow-tags: "regexp:^.*-alpine$"
     argocd-image-updater.argoproj.io/write-back-method: git
     argocd-image-updater.argoproj.io/write-back-target: kustomization
 spec:
@@ -13,10 +15,10 @@ spec:
   sources:
     - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
       targetRevision: master
-      path: kubernetes/management/adguard
+      path: kubernetes/monitoring/glitchtip
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: adguard
+    namespace: glitchtip
   syncPolicy:
     automated:
       prune: true

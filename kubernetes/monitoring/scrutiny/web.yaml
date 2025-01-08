@@ -26,13 +26,6 @@ metadata:
   labels:
     kalexlab.xyz/app: scrutiny
     kalexlab.xyz/component: web
-  annotations:
-    keel.sh/policy: force
-    keel.sh/force: "true"
-    keel.sh/match-tag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@every 6h"
-    keel.sh/approvals: "1"
 spec:
   replicas: 1
   serviceName: web
@@ -53,7 +46,7 @@ spec:
 
       initContainers:
         - name: wait-influxdb
-          image: docker.io/library/alpine:3.17
+          image: "alpine:3.17"
           imagePullPolicy: IfNotPresent
 
           resources:
@@ -77,7 +70,7 @@ spec:
 
       containers:
         - name: web
-          image: ghcr.io/analogj/scrutiny:master-web
+          image: "ghcr.io/analogj/scrutiny:v0.8.0-web"
           imagePullPolicy: Always
 
           ports:

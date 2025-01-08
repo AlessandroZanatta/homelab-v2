@@ -16,21 +16,13 @@ spec:
     kalexlab.xyz/app: homer
 ---
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   namespace: homer
   name: homer
   labels:
     kalexlab.xyz/app: homer
-  annotations:
-    keel.sh/policy: force
-    keel.sh/force: "true"
-    keel.sh/match-tag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@every 6h"
-    keel.sh/approvals: "1"
 spec:
-  serviceName: homer
   replicas: 1
   selector:
     matchLabels:
@@ -45,12 +37,12 @@ spec:
 
       initContainers:
         - name: copy-config-and-theme
-          image: docker.io/library/alpine:3.17
+          image: "alpine:3.17"
           imagePullPolicy: IfNotPresent
           command: [
               "sh",
               "-c",
-              "cp /mnt/config.yaml /mnt/assets && \
+              "cp /mnt/config.yml /mnt/assets && \
               mkdir -p /mnt/assets/images /mnt/assets/icons && \
               wget -O /mnt/assets/catppuccin.css https://raw.githubusercontent.com/mrpbennett/catppuccin-homer/main/flavours/catppuccin-frappe.css && \
               wget -O /mnt/assets/images/romb.png https://raw.githubusercontent.com/mrpbennett/catppuccin-homer/main/assets/images/backgrounds/romb.png && \
@@ -74,13 +66,13 @@ spec:
 
           volumeMounts:
             - mountPath: /mnt/assets
-              name: homer-pvc
-            - mountPath: /mnt/config.yaml
+              name: homer-assets
+            - mountPath: /mnt/config.yml
               name: homer-conf
-              subPath: config.yaml
+              subPath: config.yml
       containers:
         - name: app
-          image: b4bz/homer:latest
+          image: "b4bz/homer:latest"
           imagePullPolicy: Always
 
           ports:
@@ -113,7 +105,7 @@ spec:
 
           volumeMounts:
             - mountPath: /www/assets
-              name: homer-pvc
+              name: homer-assets
 
       enableServiceLinks: false
       automountServiceAccountToken: false
@@ -129,14 +121,6 @@ spec:
         - name: homer-conf
           configMap:
             name: homer-conf
-
-  volumeClaimTemplates:
-    - metadata:
-        name: homer-pvc
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        storageClassName: longhorn
-        resources:
-          requests:
-            storage: 100Mi
+        - name: homer-assets
+          emptyDir:
+            sizeLimit: 1Gi

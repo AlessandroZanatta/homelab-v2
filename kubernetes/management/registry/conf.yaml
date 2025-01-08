@@ -5,7 +5,7 @@ metadata:
   name: registry-conf
   namespace: registry
 data:
-  config.yaml: |
+  config.yml: |
     version: 0.1
     log:
       fields:

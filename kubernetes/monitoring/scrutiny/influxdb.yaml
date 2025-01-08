@@ -26,13 +26,6 @@ metadata:
   labels:
     kalexlab.xyz/app: scrutiny
     kalexlab.xyz/component: influxdb
-  annotations:
-    keel.sh/policy: force
-    keel.sh/force: "true"
-    keel.sh/match-tag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@every 6h"
-    keel.sh/approvals: "1"
 spec:
   replicas: 1
   serviceName: influxdb
@@ -52,7 +45,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: influxdb
-          image: docker.io/library/influxdb:2-alpine
+          image: "influxdb:2-alpine"
           imagePullPolicy: Always
 
           ports:

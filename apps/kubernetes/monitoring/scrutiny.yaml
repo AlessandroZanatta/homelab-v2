@@ -2,10 +2,13 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: adguard
+  name: scrutiny
   namespace: argocd
   annotations:
-    argocd-image-updater.argoproj.io/image-list: "adguard/adguardhome:0.x,alpine:3.x"
+    argocd-image-updater.argoproj.io/image-list: "influxdb=influxdb:2.x-0,collector=ghcr.io/analogj/scrutiny:0.x-0,web=ghcr.io./analogj/scrutiny:0.x-0,alpine:3.x"
+    argocd-image-updater.argoproj.io/influxdb.allow-tags: "regexp:^.*-alpine$"
+    argocd-image-updater.argoproj.io/collector.allow-tags: "regexp:^.*-collector$"
+    argocd-image-updater.argoproj.io/web.allow-tags: "regexp:^.*-web$"
     argocd-image-updater.argoproj.io/write-back-method: git
     argocd-image-updater.argoproj.io/write-back-target: kustomization
 spec:
@@ -13,10 +16,10 @@ spec:
   sources:
     - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
       targetRevision: master
-      path: kubernetes/management/adguard
+      path: kubernetes/monitoring/scrutiny
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: adguard
+    namespace: scrutiny
   syncPolicy:
     automated:
       prune: true

@@ -26,13 +26,6 @@ metadata:
   labels:
     kalexlab.xyz/app: glitchtip
     kalexlab.xyz/component: web
-  annotations:
-    keel.sh/policy: force
-    keel.sh/force: "true"
-    keel.sh/match-tag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@every 6h"
-    keel.sh/approvals: "1"
 spec:
   replicas: 1
   selector:
@@ -49,7 +42,7 @@ spec:
       restartPolicy: Always
       initContainers:
         - name: wait-valkey
-          image: docker.io/library/alpine:3.17
+          image: "alpine:3.17"
           imagePullPolicy: IfNotPresent
 
           resources:
@@ -71,7 +64,7 @@ spec:
               "for i in $(seq 1 300); do nc -zvw1 cache 6379 && exit 0 || sleep 3; done; exit 1",
             ]
         - name: wait-postgres
-          image: docker.io/library/alpine:3.17
+          image: "alpine:3.17"
           imagePullPolicy: IfNotPresent
 
           resources:
@@ -94,7 +87,7 @@ spec:
             ]
       containers:
         - name: web
-          image: "glitchtip/glitchtip:latest"
+          image: "glitchtip/glitchtip:v4.2"
           imagePullPolicy: Always
           command: ["/bin/sh", "-c", "./bin/run-migrate.sh && ./bin/start.sh"]
 
