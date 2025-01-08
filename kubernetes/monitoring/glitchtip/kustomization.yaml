@@ -18,3 +18,5 @@ images:
   newTag: 8.0.2-alpine
 - name: alpine
   newTag: 3.21.1
+- name: glitchtip/glitchtip
+  newTag: v4.2.3
