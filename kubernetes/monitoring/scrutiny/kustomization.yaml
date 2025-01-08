@@ -1,12 +1,18 @@
----
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - namespace.yaml
-  - network-policies.yaml
-  - conf.yaml
-  - secrets.yaml
-  - influxdb.yaml
-  - web.yaml
-  - collector.yaml
-  - ingress.yaml
+- namespace.yaml
+- network-policies.yaml
+- conf.yaml
+- secrets.yaml
+- influxdb.yaml
+- web.yaml
+- collector.yaml
+- ingress.yaml
+images:
+- name: influxdb
+  newTag: 2.7.11-alpine
+- name: ghcr.io/analogj/scrutiny
+  newTag: v0.8.1-collector
+- name: alpine
+  newTag: 3.21.1
