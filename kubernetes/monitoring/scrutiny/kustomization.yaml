@@ -19,3 +19,7 @@ images:
 - name: ghcr.io/analogj/scrutiny:v0.8.0-web
   newName: ghcr.io/analogj/scrutiny
   newTag: v0.8.1-web
+- name: docker.io/alpine
+  newTag: 3.21.1
+- name: docker.io/influxdb
+  newTag: 2.7.11-alpine
