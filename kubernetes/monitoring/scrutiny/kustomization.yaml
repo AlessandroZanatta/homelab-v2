@@ -16,3 +16,6 @@ images:
   newTag: v0.8.1-collector
 - name: alpine
   newTag: 3.21.1
+- name: ghcr.io/analogj/scrutiny:v0.8.0-web
+  newName: ghcr.io/analogj/scrutiny
+  newTag: v0.8.1-web
