@@ -42,7 +42,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: registry
-          image: "docker.io/registry:2"
+          image: "registry:2"
           imagePullPolicy: Always
 
           securityContext:
