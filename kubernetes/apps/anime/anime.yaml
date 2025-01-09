@@ -159,9 +159,9 @@ spec:
             allowPrivilegeEscalation: false
 
           volumeMounts:
-            - mountPath: /app/config.yaml
+            - mountPath: /app/config.yml
               name: anime-conf
-              subPath: config.yaml
+              subPath: config.yml
             - mountPath: /data/anime
               name: anime-data-pvc
             - mountPath: /data/cache
