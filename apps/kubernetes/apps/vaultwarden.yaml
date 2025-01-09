@@ -5,7 +5,7 @@ metadata:
   name: vaultwarden
   namespace: argocd
   annotations:
-    argocd-image-updater.argoproj.io/image-list: "postgres=docker.io/library/postgres:16.x-0, vaultwarden=docker.io/library/vaultwarden:1.x-0"
+    argocd-image-updater.argoproj.io/image-list: "postgres=docker.io/library/postgres:16.x-0, vaultwarden=docker.io/vaultwarden/server:1.x-0"
     argocd-image-updater.argoproj.io/postgres.allow-tags: "regexp:^.*-alpine$"
     argocd-image-updater.argoproj.io/vaultwarden.allow-tags: "regexp:^.*-alpine$"
     argocd-image-updater.argoproj.io/write-back-method: git
