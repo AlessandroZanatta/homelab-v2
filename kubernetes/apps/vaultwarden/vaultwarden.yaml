@@ -25,13 +25,6 @@ metadata:
   labels:
     kalexlab.xyz/app: vaultwarden
     kalexlab.xyz/component: vaultwarden
-  annotations:
-    keel.sh/policy: force
-    keel.sh/force: "true"
-    keel.sh/match-tag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@every 6h"
-    keel.sh/approvals: "1"
 spec:
   serviceName: vaultwarden
   replicas: 1
@@ -49,7 +42,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: app
-          image: vaultwarden/server:latest
+          image: "docker.io/library/vaultwarden/server:1.32.7-alpine"
           imagePullPolicy: Always
 
           securityContext:

@@ -25,13 +25,6 @@ metadata:
   labels:
     kalexlab.xyz/app: immich
     kalexlab.xyz/component: immich
-  annotations:
-    keel.sh/policy: force
-    keel.sh/force: "true"
-    keel.sh/match-tag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@every 6h"
-    keel.sh/approvals: "1"
 spec:
   serviceName: immich
   replicas: 1
@@ -49,7 +42,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: immich
-          image: "ghcr.io/immich-app/immich-server:release"
+          image: "ghcr.io/immich-app/immich-server:v1.124.2"
           imagePullPolicy: Always
 
           securityContext:

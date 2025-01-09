@@ -2,10 +2,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: anime
+  namespace: nextcloud
   name: database
   labels:
-    kalexlab.xyz/app: anime
+    kalexlab.xyz/app: nextcloud
     kalexlab.xyz/component: database
 spec:
   type: ClusterIP
@@ -15,30 +15,23 @@ spec:
       protocol: TCP
       targetPort: 5432
   selector:
-    kalexlab.xyz/app: anime
+    kalexlab.xyz/app: nextcloud
     kalexlab.xyz/component: database
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  namespace: anime
+  namespace: nextcloud
   name: database
   labels:
-    kalexlab.xyz/app: anime
+    kalexlab.xyz/app: nextcloud
     kalexlab.xyz/component: database
-  annotations:
-    keel.sh/policy: force
-    keel.sh/force: "true"
-    keel.sh/match-tag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@every 6h"
-    keel.sh/approvals: "1"
 spec:
   replicas: 1
   serviceName: database
   selector:
     matchLabels:
-      kalexlab.xyz/app: anime
+      kalexlab.xyz/app: nextcloud
       kalexlab.xyz/component: database
   updateStrategy:
     type: RollingUpdate
@@ -46,14 +39,14 @@ spec:
   template:
     metadata:
       labels:
-        kalexlab.xyz/app: anime
+        kalexlab.xyz/app: nextcloud
         kalexlab.xyz/component: database
     spec:
       restartPolicy: Always
       containers:
         - name: database
-          image: docker.io/library/postgres:16-alpine
-          imagePullPolicy: Always
+          image: "docker.io/library/postgres:16-alpine"
+          imagePullPolicy: IfNotPresent
 
           ports:
             - name: postgres
@@ -64,15 +57,15 @@ spec:
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: anime-db-secrets
+                  name: nextcloud-db-secrets
                   key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: anime-db-secrets
+                  name: nextcloud-db-secrets
                   key: POSTGRES_PASSWORD
             - name: POSTGRES_DB
-              value: "anime"
+              value: "nextcloud"
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
 
@@ -80,7 +73,6 @@ spec:
             exec:
               command:
                 ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
-            # initialDelaySeconds: 120
             periodSeconds: 30
           readinessProbe:
             exec:
@@ -89,14 +81,13 @@ spec:
             periodSeconds: 10
             failureThreshold: 3
 
-          # TODO
-          # resources:
-          #   requests:
-          #     memory: 300Mi
-          #     cpu: 50m
-          #   limits:
-          #     memory: 1Gi
-          #     cpu: 500m
+          resources:
+            requests:
+              memory: 40Mi
+              cpu: 5m
+            limits:
+              memory: 300Mi
+              cpu: 200m
 
           securityContext:
             allowPrivilegeEscalation: false
@@ -105,10 +96,10 @@ spec:
           volumeMounts:
             - mountPath: /tmp
               name: tmp
-            - mountPath: /var/run/postgresql
+            - mountPath: /var/run
               name: postgres-run
             - mountPath: /var/lib/postgresql/data
-              name: anime-db-pvc
+              name: nextcloud-db-pvc
               subPath: pgdata
 
       enableServiceLinks: false
@@ -131,11 +122,11 @@ spec:
 
   volumeClaimTemplates:
     - metadata:
-        name: anime-db-pvc
+        name: nextcloud-db-pvc
       spec:
         accessModes:
           - ReadWriteOnce
         storageClassName: longhorn
         resources:
           requests:
-            storage: 2Gi
+            storage: 5Gi

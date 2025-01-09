@@ -2,68 +2,66 @@
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: anime
-  name: app
+  namespace: media
+  name: prowlarr-qbittorrent
   labels:
-    kalexlab.xyz/app: anime
-    kalexlab.xyz/component: app
+    kalexlab.xyz/app: media
+    kalexlab.xyz/component: prowlarr-qbittorrent
 spec:
   type: ClusterIP
   ports:
-    - name: anime
-      port: 9000
+    - name: qbittorrent
+      port: 8080
       protocol: TCP
-    - name: gluetun-pprof
-      port: 6060
+    - name: qbittorrent-bt-tcp
+      port: 6881
+      protocol: TCP
+    - name: qbittorrent-bt-udp
+      port: 6881
+      protocol: UDP
+    - name: prowlarr
+      port: 9696
+      protocol: TCP
+    - name: flaresolverr
+      port: 8191
       protocol: TCP
   selector:
-    kalexlab.xyz/app: anime
-    kalexlab.xyz/component: app
+    kalexlab.xyz/app: media
+    kalexlab.xyz/component: prowlarr-qbittorrent
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  namespace: anime
-  name: app
+  namespace: media
+  name: prowlarr-qbittorrent
   labels:
-    kalexlab.xyz/app: anime
-    kalexlab.xyz/component: app
+    kalexlab.xyz/app: media
+    kalexlab.xyz/component: prowlarr-qbittorrent
+  annotations:
+    ignore-check.kube-linter.io/no-read-only-root-fs: "Uses lots of directories"
+    ignore-check.kube-linter.io/run-as-non-root: "Runs with lower privileges after startup"
 spec:
-  serviceName: anime
+  serviceName: prowlarr-qbittorrent
   replicas: 1
-  # Do not update in place with zero downtime
-  # Gluetun issues?
-  updateStrategy:
-    type: RollingUpdate
-    # rollingUpdate:
-    #   maxUnavailable: 1
-    #   maxSurge: 0
   selector:
     matchLabels:
-      kalexlab.xyz/app: anime
-      kalexlab.xyz/component: app
+      kalexlab.xyz/app: media
+      kalexlab.xyz/component: prowlarr-qbittorrent
   minReadySeconds: 5
   template:
     metadata:
       labels:
-        kalexlab.xyz/app: anime
-        kalexlab.xyz/component: app
+        kalexlab.xyz/app: media
+        kalexlab.xyz/component: prowlarr-qbittorrent
     spec:
       restartPolicy: Always
       initContainers:
         - name: gluetun
-          image: qmcgaw/gluetun:latest
+          image: "docker.io/qmcgaw/gluetun:v3.40.0"
           # native sidecar (https://kubernetes.io/blog/2023/08/25/native-sidecar-containers/)
           restartPolicy: Always
 
-          securityContext:
-            capabilities:
-              add:
-                - NET_ADMIN
-
           env:
-            # - name: PPROF_ENABLED
-            #   value: "yes"
             - name: DNS_KEEP_NAMESERVER
               value: "on"
             - name: BLOCK_MALICIOUS
@@ -75,7 +73,7 @@ spec:
             # - name: FIREWALL
             #   value: "off"
             - name: FIREWALL_INPUT_PORTS
-              value: "8080,9000,6060"
+              value: "8080,9696,6881,8191"
             # Bypass tun0 interface for:
             #  - Cluster VPN subnet
             #  - Pods subnet
@@ -113,12 +111,89 @@ spec:
                   name: gluetun-secrets
                   key: SERVER_HOSTNAMES
 
-      imagePullSecrets:
-        - name: registry-credentials
+          # TODO: try stricter permissions, such as runAsUser: 1000
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+              drop:
+                - NET_RAW
+
+        - name: flaresolverr
+          image: "ghcr.io/flaresolverr/flaresolverr:v3.3.21"
+          # native sidecar (https://kubernetes.io/blog/2023/08/25/native-sidecar-containers/)
+          restartPolicy: Always
+
+          ports:
+            - containerPort: 8191
+              protocol: TCP
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8191
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8191
+            failureThreshold: 3
+            periodSeconds: 30
 
       containers:
-        - name: anime-backend
-          image: registry.kalexlab.xyz/anime/backend:latest
+        - name: prowlarr
+          image: "docker.io/linuxserver/prowlarr:1.29.2"
+          imagePullPolicy: Always
+
+          # securityContext:
+          #   readOnlyRootFilesystem: true
+          #   runAsNonRoot: true
+          #   runAsUser: 1000
+          #   runAsGroup: 1000
+          #   allowPrivilegeEscalation: false
+
+          ports:
+            - containerPort: 9696
+              protocol: TCP
+
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+
+          # TODO
+          # resources:
+          #   requests:
+          #     memory: 150Mi
+          #     cpu: 20m
+          #   limits:
+          #     memory: 500Mi
+          #     cpu: 1000m
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 9696
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 9696
+            failureThreshold: 3
+            periodSeconds: 30
+
+          securityContext:
+            # uses a LOT of directories
+            # readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+
+          volumeMounts:
+            - mountPath: /config
+              name: prowlarr-conf-pvc
+
+        - name: qbittorrent
+          image: "docker.io/linuxserver/qbittorrent:5.0.3"
           imagePullPolicy: Always
 
           # securityContext:
@@ -131,6 +206,18 @@ spec:
           ports:
             - containerPort: 8080
               protocol: TCP
+            - containerPort: 6881
+              protocol: TCP
+            - containerPort: 6881
+              protocol: UDP
+
+          env:
+            - name: WEBUI_PORT
+              value: "8080"
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
 
           # TODO
           # resources:
@@ -143,120 +230,60 @@ spec:
 
           readinessProbe:
             httpGet:
-              path: /health
+              path: /
               port: 8080
             periodSeconds: 10
           livenessProbe:
             httpGet:
-              path: /health
+              path: /
               port: 8080
             failureThreshold: 3
             periodSeconds: 30
 
           securityContext:
-            # Running python and an headless in a readonly fs is too painful
+            # uses a LOT of directories
             # readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
 
           volumeMounts:
-            - mountPath: /app/config.yaml
-              name: anime-conf
-              subPath: config.yaml
-            - mountPath: /data/anime
-              name: anime-data-pvc
-            - mountPath: /data/cache
-              name: anime-cache-pvc
-            - mountPath: /etc/secrets/db/dsn
-              name: anime-db-secrets
-              subPath: dsn
-
-        - name: anime-frontend
-          image: registry.kalexlab.xyz/anime/frontend:latest
-          imagePullPolicy: Always
-          # command: ["sleep"]
-          # args: ["infinity"]
-
-          ports:
-            - containerPort: 9000
-              protocol: TCP
-
-          # TODO
-          # resources:
-          #   requests:
-          #     memory: 150Mi
-          #     cpu: 20m
-          #   limits:
-          #     memory: 500Mi
-          #     cpu: 1000m
-
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 9000
-            periodSeconds: 10
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 9000
-            failureThreshold: 3
-            periodSeconds: 30
-
-          securityContext:
-            runAsNonRoot: true
-            runAsUser: 1000
-            runAsGroup: 1000
-            readOnlyRootFilesystem: true
-            allowPrivilegeEscalation: false
-
-          volumeMounts:
-            - mountPath: /etc/nginx/nginx.conf
-              name: anime-conf
-              subPath: nginx.conf
-            - mountPath: /var/cache/nginx
-              name: nginx-cache
-            - mountPath: /var/run
-              name: run
+            - mountPath: /data/torrents
+              name: media-data-pvc
+              subPath: torrents
+            - mountPath: /config
+              name: qbittorrent-conf-pvc
 
       enableServiceLinks: false
       automountServiceAccountToken: false
 
       securityContext:
+        # Will run with lower privileges after startup anyway
+        # runAsNonRoot: true
+        # runAsUser: 1000
+        # runAsGroup: 1000
         fsGroup: 1000
         fsGroupChangePolicy: "OnRootMismatch"
 
       volumes:
-        - name: tmp
-          emptyDir:
-            sizeLimit: 1Gi
-        - name: run
-          emptyDir:
-            sizeLimit: 1Gi
-        - name: nginx-cache
-          emptyDir:
-            sizeLimit: 1Gi
-        - name: anime-conf
-          configMap:
-            name: anime-conf
-        - name: anime-db-secrets
-          secret:
-            secretName: anime-db-secrets
+        - name: media-data-pvc
+          persistentVolumeClaim:
+            claimName: media-data-pvc
 
   volumeClaimTemplates:
     - metadata:
-        name: anime-data-pvc
+        name: prowlarr-conf-pvc
       spec:
         accessModes:
           - ReadWriteOnce
         storageClassName: longhorn
         resources:
           requests:
-            storage: 150Gi
+            storage: 100Mi
     - metadata:
-        name: anime-cache-pvc
+        name: qbittorrent-conf-pvc
       spec:
         accessModes:
           - ReadWriteOnce
         storageClassName: longhorn
         resources:
           requests:
-            storage: 500Mi
+            storage: 100Mi

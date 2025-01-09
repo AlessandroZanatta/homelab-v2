@@ -1,0 +1,27 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nextcloud
+  namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: "postgres=docker.io/library/postgres:16.x-0, nextcloud=docker.io/library/nextcloud:30.x-0"
+    argocd-image-updater.argoproj.io/postgres.allow-tags: "regexp:^.*-alpine$"
+    argocd-image-updater.argoproj.io/nextcloud.allow-tags: "regexp:^.*-apache$"
+    argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/write-back-target: kustomization
+spec:
+  project: homelab
+  sources:
+    - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
+      targetRevision: master
+      path: kubernetes/apps/nextcloud
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: nextcloud
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

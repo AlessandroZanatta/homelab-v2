@@ -5,10 +5,9 @@ resources:
   - namespace.yaml
   - network-policies.yaml
   - conf.yaml
-  - adguard.yaml
+  - secrets.yaml
+  - postgres.yaml
+  - valkey.yaml
+  - immich.yaml
+  - machine-learning.yaml
   - ingress.yaml
-images:
-  - name: docker.io/adguard/adguardhome
-    newTag: v0.107.55
-  - name: docker.io/alpine
-    newTag: 3.21.2

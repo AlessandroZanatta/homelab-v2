@@ -37,7 +37,7 @@ spec:
 
       initContainers:
         - name: copy-config-and-theme
-          image: "alpine:3.17"
+          image: "docker.io/library/alpine:3.17"
           imagePullPolicy: IfNotPresent
           command: [
               "sh",
@@ -72,7 +72,7 @@ spec:
               subPath: config.yml
       containers:
         - name: app
-          image: "b4bz/homer:latest"
+          image: "docker.io/b4bz/homer:v24.12.1"
           imagePullPolicy: Always
 
           ports:

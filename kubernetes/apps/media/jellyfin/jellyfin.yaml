@@ -3,60 +3,53 @@ apiVersion: v1
 kind: Service
 metadata:
   namespace: media
-  name: radarr
+  name: jellyfin
   labels:
     kalexlab.xyz/app: media
-    kalexlab.xyz/component: radarr
+    kalexlab.xyz/component: jellyfin
 spec:
   type: ClusterIP
   ports:
-    - name: radarr
-      port: 7878
+    - name: jellyfin
+      port: 8096
       protocol: TCP
   selector:
     kalexlab.xyz/app: media
-    kalexlab.xyz/component: radarr
+    kalexlab.xyz/component: jellyfin
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   namespace: media
-  name: radarr
+  name: jellyfin
   labels:
     kalexlab.xyz/app: media
-    kalexlab.xyz/component: radarr
+    kalexlab.xyz/component: jellyfin
   annotations:
     ignore-check.kube-linter.io/no-read-only-root-fs: "Uses lots of directories"
     ignore-check.kube-linter.io/run-as-non-root: "Runs with lower privileges after startup"
-
-    keel.sh/policy: force
-    keel.sh/force: "true"
-    keel.sh/match-tag: "true"
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@every 6h"
-    keel.sh/approvals: "1"
 spec:
-  serviceName: radarr
+  serviceName: jellyfin
   replicas: 1
   selector:
     matchLabels:
       kalexlab.xyz/app: media
-      kalexlab.xyz/component: radarr
+      kalexlab.xyz/component: jellyfin
   minReadySeconds: 5
   template:
     metadata:
       labels:
         kalexlab.xyz/app: media
-        kalexlab.xyz/component: radarr
+        kalexlab.xyz/component: jellyfin
     spec:
       restartPolicy: Always
       containers:
         - name: app
-          image: linuxserver/radarr:latest
+          image: "docker.io/linuxserver/jellyfin:10.10.3"
           imagePullPolicy: Always
 
           ports:
-            - containerPort: 7878
+            - containerPort: 8096
               protocol: TCP
 
           env:
@@ -64,48 +57,43 @@ spec:
               value: "1000"
             - name: PGID
               value: "1000"
-            - name: TZ
-              value: "UTC"
 
           resources:
             requests:
-              memory: 100Mi
-              cpu: 5m
+              memory: 150Mi
+              cpu: 20m
             limits:
-              memory: 250Mi
-              cpu: 200m
+              memory: 500Mi
+              cpu: 3000m
 
           readinessProbe:
             httpGet:
               path: /
-              port: 7878
+              port: 8096
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /
-              port: 7878
+              port: 8096
             failureThreshold: 3
             periodSeconds: 30
 
           securityContext:
-            # uses a LOT of directories
-            # readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
 
           volumeMounts:
-            - mountPath: /data
+            - mountPath: /data/media
               name: media-data-pvc
+              subPath: media
             - mountPath: /config
-              name: radarr-conf-pvc
+              name: jellyfin-conf-pvc
+            - mountPath: /cache
+              name: jellyfin-cache
 
       enableServiceLinks: false
       automountServiceAccountToken: false
 
       securityContext:
-        # Will run with lower privileges after startup anyway
-        # runAsNonRoot: true
-        # runAsUser: 1000
-        # runAsGroup: 1000
         fsGroup: 1000
         fsGroupChangePolicy: "OnRootMismatch"
 
@@ -113,13 +101,16 @@ spec:
         - name: media-data-pvc
           persistentVolumeClaim:
             claimName: media-data-pvc
+        - name: jellyfin-cache
+          emptyDir:
+
   volumeClaimTemplates:
     - metadata:
-        name: radarr-conf-pvc
+        name: jellyfin-conf-pvc
       spec:
         accessModes:
           - ReadWriteOnce
         storageClassName: longhorn
         resources:
           requests:
-            storage: 100Mi
+            storage: 1Gi
