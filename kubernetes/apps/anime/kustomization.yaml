@@ -1,4 +1,3 @@
----
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
@@ -9,3 +8,6 @@ resources:
   - postgres.yaml
   - anime.yaml
   - ingress.yaml
+images:
+  - name: docker.io/postgres
+    newTag: 16.6-alpine
