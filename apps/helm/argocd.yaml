@@ -2,24 +2,25 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cert-manager
+  name: argocd
   namespace: argocd
 spec:
   project: homelab
   sources:
-    - repoURL: "https://charts.jetstack.io"
-      chart: cert-manager
-      targetRevision: 1.*
+    - repoURL: "https://argoproj.github.io/argo-helm"
+      chart: argo-cd
+      targetRevision: 7.*
       helm:
-        releaseName: cert-manager
+        releaseName: argocd
         valueFiles:
-          - $values/helm/cert-manager/values.yaml
+          - $values/helm/argocd/values.yaml
+          - "secrets://https://raw.githubusercontent.com/AlessandroZanatta/homelab/master/helm/argocd/secrets.yaml"
     - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
       targetRevision: master
       ref: values
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: cert-manager
+    namespace: argocd
   syncPolicy:
     automated:
       prune: true

@@ -9,7 +9,7 @@ spec:
   sources:
     - repoURL: "https://k8tz.github.io/k8tz/"
       chart: k8tz
-      targetRevision: v0.17.1
+      targetRevision: v0.*
       helm:
         releaseName: k8tz
         valueFiles:

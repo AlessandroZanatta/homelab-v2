@@ -2,24 +2,21 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cert-manager
+  name: uptime-kuma
   namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: "docker.io/library/mariadb:10.x, "
+    argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/write-back-target: kustomization
 spec:
   project: homelab
   sources:
-    - repoURL: "https://charts.jetstack.io"
-      chart: cert-manager
-      targetRevision: 1.*
-      helm:
-        releaseName: cert-manager
-        valueFiles:
-          - $values/helm/cert-manager/values.yaml
     - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
       targetRevision: master
-      ref: values
+      path: kubernetes/monitoring/uptime-kuma
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: cert-manager
+    namespace: uptime-kuma
   syncPolicy:
     automated:
       prune: true
