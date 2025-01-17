@@ -18,9 +18,6 @@ prometheus:
 service:
   clusterIP: "10.32.0.254"
 
-customLabels:
-  kalexlab.xyz/ip-pool: coredns
-
 servers:
   - zones:
       - zone: .
@@ -30,7 +27,7 @@ servers:
     # hostPort: 53
     plugins:
       # - name: debug
-      # - name: log
+      - name: log
       - name: errors
       # Serves a /health endpoint on :8080, required for livenessProbe
       - name: health
@@ -47,12 +44,12 @@ servers:
           ttl 30
 
       - name: forward
-        parameters: ". 10.32.0.253 1.1.1.1"
-        configBlock: |-
-          policy sequential
+        parameters: "kalexlab.xyz. 10.32.0.253"
+      - name: forward
+        parameters: ". 1.1.1.1"
 
       - name: prometheus
-        parameters: 0.0.0.0:9153
+        parameters: "0.0.0.0:9153"
 
       - name: loop
       - name: reload

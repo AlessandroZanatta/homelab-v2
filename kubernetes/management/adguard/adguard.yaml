@@ -6,6 +6,7 @@ metadata:
   name: adguard
   labels:
     kalexlab.xyz/app: adguard
+    kalexlab.xyz/ip-pool: adguard
 spec:
   type: ClusterIP
   clusterIP: 10.32.0.253
