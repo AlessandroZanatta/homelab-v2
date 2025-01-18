@@ -4,6 +4,8 @@ kind: ConfigMap
 metadata:
   name: dashboards
   namespace: prometheus
+  labels:
+    grafana_dashboard: "1"
 data:
   traefik.json: |
     {
