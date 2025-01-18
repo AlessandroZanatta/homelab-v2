@@ -11,6 +11,16 @@ image:
   digest: ""
   useDigest: false
 
+hubble:
+  # -- Enable Hubble (true by default).
+  enabled: true
+
+  relay:
+    enabled: true
+
+  ui:
+    enabled: true
+
 ipam:
   # -- Configure IP Address Management mode.
   # ref: https://docs.cilium.io/en/stable/network/concepts/ipam/
