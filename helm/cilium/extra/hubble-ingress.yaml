@@ -1,0 +1,43 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: cilium
+  name: hubble-certificate
+spec:
+  commonName: hubble.kalexlab.xyz
+  secretName: hubble-ingress-certificate-secret
+  dnsNames:
+    - hubble.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  namespace: cilium
+  name: hubble-basic-auth
+spec:
+  basicAuth:
+    secret: hubble-auth-secrets
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: hubble-ingress
+  namespace: cilium
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`hubble.kalexlab.xyz`)
+      services:
+        - name: hubble-ui
+          port: 80
+      middlewares:
+        - name: hubble-basic-auth
+  tls:
+    secretName: hubble-ingress-certificate-secret
