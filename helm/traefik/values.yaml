@@ -21,7 +21,7 @@ providers:
     allowExternalNameServices: true
 
   kubernetesIngress:
-    enabled: true # TODO: migrate to IngressRoute and disable this!
+    enabled: false
 
 # -- Global command arguments to be passed to all traefik's pods
 globalArguments:
