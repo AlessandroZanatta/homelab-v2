@@ -1,0 +1,28 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argo-events
+  namespace: argocd
+spec:
+  project: homelab
+  sources:
+    - repoURL: "https://argoproj.github.io/argo-helm"
+      chart: argo-events
+      targetRevision: 2.*
+      helm:
+        releaseName: argo-events
+        valueFiles:
+          - $values/helm/argo-events/values.yaml
+    - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
+      targetRevision: master
+      ref: values
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: argo-events
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
