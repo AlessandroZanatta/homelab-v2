@@ -8,8 +8,6 @@ resources:
   - vaultwarden.yaml
   - ingress.yaml
 images:
-  - name: docker.io/postgres
-    newTag: 16.6-alpine
   - name: docker.io/vaultwarden/server
     newTag: 1.32.7-alpine
   - name: docker.io/library/postgres

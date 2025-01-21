@@ -9,7 +9,5 @@ resources:
 images:
   - name: docker.io/b4bz/homer
     newTag: v24.12.1
-  - name: docker.io/alpine
-    newTag: 3.21.2
   - name: docker.io/library/alpine
     newTag: 3.21.2

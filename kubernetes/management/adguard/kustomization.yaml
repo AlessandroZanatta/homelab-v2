@@ -9,7 +9,5 @@ resources:
 images:
   - name: docker.io/adguard/adguardhome
     newTag: v0.107.55
-  - name: docker.io/alpine
-    newTag: 3.21.2
   - name: docker.io/library/alpine
     newTag: 3.21.2

@@ -8,10 +8,6 @@ resources:
   - nextcloud.yaml
   - ingress.yaml
 images:
-  - name: docker.io/postgres
-    newTag: 16.6-alpine
-  - name: docker.io/nextcloud
-    newTag: 30.0.5-apache
   - name: docker.io/library/postgres
     newTag: 16.6-alpine
   - name: docker.io/library/nextcloud
