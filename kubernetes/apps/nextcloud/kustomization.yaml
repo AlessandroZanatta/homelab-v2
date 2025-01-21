@@ -12,3 +12,7 @@ images:
     newTag: 16.6-alpine
   - name: docker.io/nextcloud
     newTag: 30.0.5-apache
+  - name: docker.io/library/postgres
+    newTag: 16.6-alpine
+  - name: docker.io/library/nextcloud
+    newTag: 30.0.5-apache
