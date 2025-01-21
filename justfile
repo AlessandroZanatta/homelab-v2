@@ -1,16 +1,10 @@
 AGE_RECIPIENT := "age1ff26etr9n8nsp2ve2lkh7w4dqd9g9m9u3y8aw77ureu639mrfatqmuqnhv"
 
 conform *ARGS:
-  kubeconform -strict -kubernetes-version 1.29.4 -ignore-missing-schemas playbooks/cluster/templates/manifests {{ ARGS }}
+  kubeconform -strict -kubernetes-version 1.29.4 -ignore-missing-schemas kubernetes {{ ARGS }}
 
 lint *ARGS:
-  kube-linter lint --exclude latest-tag playbooks/cluster/templates/manifests {{ ARGS }}
-
-apply FILTER:
-  ansible-playbook -i environments/prod playbooks/cluster/k8s-apps.yaml -t apply -e 'filter={{ FILTER }}'
-
-delete FILTER:
-  ansible-playbook -i environments/prod playbooks/cluster/k8s-apps.yaml -t delete -e 'filter={{ FILTER }}'
+  kube-linter lint --exclude latest-tag kubernetes {{ ARGS }}
 
 _check_secret_file SECRET_FILE:
   #!/bin/bash
