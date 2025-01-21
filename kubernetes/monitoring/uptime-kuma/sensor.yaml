@@ -1,0 +1,84 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: configuration-sensor
+  namespace: uptime-kuma
+spec:
+  template:
+    serviceAccountName: operate-workflow-sa
+  dependencies:
+    - name: secret
+      eventSourceName: monitor
+      eventName: secret-uptime-kuma-gitops
+    - name: statefulset
+      eventSourceName: monitor
+      eventName: statefulset-uptime-kuma
+      filters:
+        data:
+          - path: body.status.readyReplicas
+            type: number
+            value:
+              - "1"
+  triggers:
+    - template:
+        name: trigger-workflow
+        conditions: "secret || statefulset"
+        argoWorkflow:
+          operation: submit
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: sync-configuration-
+                namespace: uptime-kuma
+              spec:
+                entrypoint: update-config
+                # Only a single workflow, no parallelism
+                synchronization:
+                  mutexes:
+                    - name: only-one
+                volumes:
+                  - name: config
+                    secret:
+                      secretName: uptime-kuma-gitops
+                templates:
+                  - name: update-config
+                    container:
+                      image: "ghcr.io/alessandrozanatta/uptime-kuma-gitops:latest"
+
+                      env:
+                        - name: CONFIG_PATH
+                          value: /configs/config.yaml
+
+                      volumeMounts:
+                        - mountPath: /configs
+                          name: config
+
+          # k8s:
+          #   operation: create
+          #   source:
+          #     resource:
+          #       apiVersion: batch/v1
+          #       kind: Job
+          #       metadata:
+          #         namespace: uptime-kuma
+          #         generateName: update-configuration-
+          #       spec:
+          #         template:
+          #           spec:
+          #             containers:
+          #               - name: uptime-kuma-gitops
+          #                 image: "ghcr.io/alessandrozanatta/uptime-kuma-gitops:latest"
+          #
+          #             volumes:
+          #               - name: config
+          #                 valueFrom:
+          #                   secretKeyRef:
+          #                     name: uptime-kuma-gitops
+          #                     key: config.yaml
+          #
+          #             restartPolicy: Never
+
+          parameters: []

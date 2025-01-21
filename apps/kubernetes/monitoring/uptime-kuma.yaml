@@ -5,7 +5,7 @@ metadata:
   name: uptime-kuma
   namespace: argocd
   annotations:
-    argocd-image-updater.argoproj.io/image-list: "docker.io/library/mariadb:10.x, "
+    argocd-image-updater.argoproj.io/image-list: "docker.io/library/mariadb:10.x, docker.io/library/alpine:3.x"
     argocd-image-updater.argoproj.io/write-back-method: git
     argocd-image-updater.argoproj.io/write-back-target: kustomization
 spec:

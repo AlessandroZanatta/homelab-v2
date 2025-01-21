@@ -1,0 +1,11 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventBus
+metadata:
+  namespace: uptime-kuma
+  name: default
+spec:
+  nats:
+    native:
+      replicas: 3
+      auth: none

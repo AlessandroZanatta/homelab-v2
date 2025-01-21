@@ -1,0 +1,32 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: uptime-kuma
+  name: uptime-ingress-certificate
+spec:
+  commonName: uptime.kalexlab.xyz
+  secretName: uptime-ingress-certificate-secret
+  dnsNames:
+    - uptime.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  namespace: uptime-kuma
+  name: uptime-ingress
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`uptime.kalexlab.xyz`)
+      services:
+        - name: uptime-kuma
+          port: 3001
+  tls:
+    secretName: uptime-ingress-certificate-secret
