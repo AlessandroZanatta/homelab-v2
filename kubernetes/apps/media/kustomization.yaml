@@ -16,7 +16,7 @@ images:
   - name: ghcr.io/flaresolverr/flaresolverr
     newTag: v3.3.21
   - name: docker.io/linuxserver/prowlarr
-    newTag: 1.29.2
+    newTag: 1.30.2
   - name: docker.io/linuxserver/qbittorrent
     newTag: 5.0.3
   - name: docker.io/linuxserver/radarr
