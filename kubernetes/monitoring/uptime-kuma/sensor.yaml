@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
 metadata:
-  name: configuration-sensor
+  name: configuration
   namespace: uptime-kuma
 spec:
   template:
@@ -16,7 +16,11 @@ spec:
       eventName: statefulset-uptime-kuma
       filters:
         data:
-          - path: body.status.readyReplicas
+          - path: body.status.availableReplicas
+            type: number
+            value:
+              - "1"
+          - path: body.status.currentReplicas
             type: number
             value:
               - "1"
@@ -34,11 +38,14 @@ spec:
                 generateName: sync-configuration-
                 namespace: uptime-kuma
               spec:
+                serviceAccountName: operate-workflow-sa
                 entrypoint: update-config
+
                 # Only a single workflow, no parallelism
                 synchronization:
                   mutexes:
                     - name: only-one
+
                 volumes:
                   - name: config
                     secret:
