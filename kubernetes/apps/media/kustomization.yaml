@@ -10,7 +10,7 @@ resources:
   - pvc.yaml
 images:
   - name: docker.io/linuxserver/jellyfin
-    newTag: 10.10.4
+    newTag: 10.10.5
   - name: docker.io/qmcgaw/gluetun
     newTag: v3.40.0
   - name: ghcr.io/flaresolverr/flaresolverr
