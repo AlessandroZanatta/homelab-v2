@@ -146,14 +146,13 @@ spec:
               port: 8000
             periodSeconds: 60
 
-          # TODO: set resources based on usage
-          # resources:
-          #   requests:
-          #     memory: 10Mi
-          #     cpu: 1m
-          #   limits:
-          #     memory: 300Mi
-          #     cpu: 200m
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 1m
+            limits:
+              memory: 500Mi
+              cpu: 100m
 
           securityContext:
             allowPrivilegeEscalation: false
