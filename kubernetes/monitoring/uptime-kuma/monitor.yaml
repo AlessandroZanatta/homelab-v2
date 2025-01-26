@@ -6,6 +6,10 @@ metadata:
   namespace: uptime-kuma
 spec:
   template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: uptime-kuma
+        kalexlab.xyz/component: monitor
     serviceAccountName: monitor-sa
   resource:
     secret-uptime-kuma-gitops:

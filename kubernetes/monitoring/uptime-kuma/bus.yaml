@@ -7,5 +7,9 @@ metadata:
 spec:
   nats:
     native:
+      metadata:
+        labels:
+          kalexlab.xyz/app: uptime-kuma
+          kalexlab.xyz/component: eventbus
       replicas: 3
-      auth: none
+      auth: token

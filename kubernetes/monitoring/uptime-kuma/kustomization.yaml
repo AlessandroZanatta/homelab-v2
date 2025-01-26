@@ -3,13 +3,13 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - namespace.yaml
-  # - network-policies.yaml
+  - network-policies.yaml
   - rbac.yaml
   - secrets.yaml
   - mariadb.yaml
   - bus.yaml
-  - event.yaml
-  - sensor.yaml
+  - monitor.yaml
+  - configurator.yaml
   - uptime-kuma.yaml
   - ingress.yaml
 images:

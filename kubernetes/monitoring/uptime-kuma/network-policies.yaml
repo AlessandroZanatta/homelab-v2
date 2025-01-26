@@ -52,6 +52,10 @@ spec:
           podSelector:
             matchLabels:
               app.kubernetes.io/name: traefik
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: uptime-kuma
+              kalexlab.xyz/component: configurator-runner
       ports:
         - protocol: TCP
           port: 3001
@@ -89,3 +93,151 @@ spec:
       ports:
         - protocol: TCP
           port: 3306
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: uptime-kuma
+  name: bus
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: uptime-kuma
+      kalexlab.xyz/component: eventbus
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: uptime-kuma
+              kalexlab.xyz/component: eventbus
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: uptime-kuma
+              kalexlab.xyz/component: configurator
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: uptime-kuma
+              kalexlab.xyz/component: monitor
+      ports:
+        - protocol: TCP
+          port: 4222
+        - protocol: TCP
+          port: 6222
+        - protocol: TCP
+          port: 8222
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: uptime-kuma
+              kalexlab.xyz/component: eventbus
+      ports:
+        - protocol: TCP
+          port: 4222
+        - protocol: TCP
+          port: 6222
+        - protocol: TCP
+          port: 8222
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: uptime-kuma
+  name: monitor
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: uptime-kuma
+      kalexlab.xyz/component: monitor
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: uptime-kuma
+              kalexlab.xyz/component: eventbus
+      ports:
+        - protocol: TCP
+          port: 4222
+        - protocol: TCP
+          port: 6222
+        - protocol: TCP
+          port: 8222
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: monitor-to-apiserver
+spec:
+  endpointSelector:
+    matchLabels:
+      kalexlab.xyz/app: uptime-kuma
+      kalexlab.xyz/component: monitor
+  egress:
+    - toEntities:
+        - kube-apiserver
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: uptime-kuma
+  name: configurator
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: uptime-kuma
+      kalexlab.xyz/component: configurator
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: uptime-kuma
+              kalexlab.xyz/component: eventbus
+      ports:
+        - protocol: TCP
+          port: 4222
+        - protocol: TCP
+          port: 6222
+        - protocol: TCP
+          port: 8222
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: configurator-to-apiserver
+spec:
+  endpointSelector:
+    matchLabels:
+      kalexlab.xyz/app: uptime-kuma
+      kalexlab.xyz/component: configurator
+  egress:
+    - toEntities:
+        - kube-apiserver
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: uptime-kuma
+  name: configurator-runner
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: uptime-kuma
+      kalexlab.xyz/component: configurator-runner
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: uptime-kuma
+              kalexlab.xyz/component: uptime-kuma
+      ports:
+        - protocol: TCP
+          port: 3001

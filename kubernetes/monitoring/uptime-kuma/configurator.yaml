@@ -2,10 +2,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
 metadata:
-  name: configuration
+  name: configurator
   namespace: uptime-kuma
 spec:
   template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: uptime-kuma
+        kalexlab.xyz/component: configurator
     serviceAccountName: operate-workflow-sa
   dependencies:
     - name: secret
@@ -29,13 +33,13 @@ spec:
         name: trigger-workflow
         conditions: "secret || statefulset"
         argoWorkflow:
-          operation: resubmit
+          operation: submit
           source:
             resource:
               apiVersion: argoproj.io/v1alpha1
               kind: Workflow
               metadata:
-                name: sync-configuration
+                generateName: configurator-runner-
                 namespace: uptime-kuma
               spec:
                 serviceAccountName: operate-workflow-sa
@@ -52,6 +56,10 @@ spec:
                       secretName: uptime-kuma-gitops
                 templates:
                   - name: update-config
+                    metadata:
+                      labels:
+                        kalexlab.xyz/app: uptime-kuma
+                        kalexlab.xyz/component: configurator-runner
                     container:
                       image: "ghcr.io/alessandrozanatta/uptime-kuma-gitops:latest"
 
