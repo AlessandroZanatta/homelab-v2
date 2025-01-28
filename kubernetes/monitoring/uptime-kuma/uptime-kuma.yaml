@@ -26,6 +26,9 @@ metadata:
   labels:
     kalexlab.xyz/app: uptime-kuma
     kalexlab.xyz/component: uptime-kuma
+  annotations:
+    ignore-check.kube-linter.io/drop-net-raw-capability: "Required for ping checks"
+    ignore-check.kube-linter.io/privilege-escalation-container: "Required for ping checks"
 spec:
   replicas: 1
   serviceName: uptime-kuma
