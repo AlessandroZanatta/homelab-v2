@@ -35,7 +35,6 @@ ansible_controller:
   hosts:
     apollo:
       ansible_connection: local
-      ansible_python_interpreter: "/usr/bin/env python"
 
 routers:
   hosts:

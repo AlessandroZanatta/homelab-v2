@@ -1,10 +1,5 @@
-.vault_pass
-.vagrant
-sonobuoy.txt
-
 todolist.md
 
-/installers
 /migration
 
 sops.agekey

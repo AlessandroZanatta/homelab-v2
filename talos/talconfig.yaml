@@ -1,0 +1,51 @@
+---
+clusterName: homelab
+endpoint: "https://${CONTROL_PLANE_VIP}:6443"
+talosVersion: v1.9.2
+kubernetesVersion: v1.31.5
+
+nodes:
+  # - hostname: hermes
+  #   ipAddress: 192.168.10.3
+  #   installDisk: /dev/nvme0n1
+  #   controlPlane: false
+  - hostname: zeus
+    ipAddress: 192.168.10.4
+    installDisk: /dev/nvme0n1
+    controlPlane: true
+
+allowSchedulingOnControlPlanes: true
+
+cniConfig:
+  name: none
+
+patches:
+  - "@./patches/machine/longhorn.yaml"
+  - "@./patches/machine/features.yaml"
+  - "@./patches/cluster/coredns.yaml"
+  - "@./patches/cluster/admission_control.yaml"
+
+controlPlane:
+  patches:
+    - "@./patches/machine/vip.yaml"
+
+  schematic:
+    customization:
+      extraKernelArgs:
+        - talos.platform=metal
+      systemExtensions:
+        officialExtensions:
+          - siderolabs/iscsi-tools
+          - siderolabs/util-linux-tools
+          - siderolabs/intel-ucode
+
+worker:
+  schematic:
+    customization:
+      extraKernelArgs:
+        - talos.platform=metal
+      systemExtensions:
+        officialExtensions:
+          - siderolabs/iscsi-tools
+          - siderolabs/util-linux-tools
+          - siderolabs/intel-ucode

@@ -1,10 +1,17 @@
 AGE_RECIPIENT := "age1ff26etr9n8nsp2ve2lkh7w4dqd9g9m9u3y8aw77ureu639mrfatqmuqnhv"
+DEFAULT_TALOS_ENDPOINT := "192.168.10.4"
 
 conform *ARGS:
   kubeconform -strict -kubernetes-version 1.29.4 -ignore-missing-schemas kubernetes {{ ARGS }}
 
 lint *ARGS:
   kube-linter lint --exclude latest-tag kubernetes {{ ARGS }}
+
+tal *ARGS:
+  talosctl -e {{ DEFAULT_TALOS_ENDPOINT }} {{ ARGS }}
+
+tal-genconfig:
+  SOPS_AGE_KEY_FILE=./sops.agekey talhelper genconfig -s talos/talsecret.yaml -c talos/talconfig.yaml -e talos/talenv.yaml -o talos/clusterconfig
 
 _check_secret_file SECRET_FILE:
   #!/bin/bash
@@ -19,7 +26,7 @@ _check_secret_file SECRET_FILE:
   KIND=$(yq -r .kind "{{ SECRET_FILE }}")
 
   if ! [[ "$KIND" == "SopsSecret" ]]; then
-    if ! echo "{{ SECRET_FILE }}" | grep -q "helm/"; then
+    if ! echo "{{ SECRET_FILE }}" | egrep -q "(helm|talos)/"; then
       echo "{{ SECRET_FILE }} is not a SopsSecret, nor a Helm secret"
       exit 1
     fi
@@ -77,4 +84,4 @@ yaml-fix:
 
 format:
   just yaml-fix
-  prettier -w 'kubernetes/**/*.y*ml' 'helm/**/*.y*ml' 'apps/**/*.y*ml'
+  prettier -w 'kubernetes/**/*.y*ml' 'helm/**/*.y*ml' 'apps/**/*.y*ml' 'talos/**/*.yaml'

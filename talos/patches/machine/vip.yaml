@@ -1,0 +1,9 @@
+---
+machine:
+  network:
+    interfaces:
+      - deviceSelector:
+          physical: true
+        dhcp: true
+        vip:
+          ip: "${CONTROL_PLANE_VIP}"

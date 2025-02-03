@@ -10,3 +10,6 @@ creation_rules:
   # Encrypted everything when dealing with Helm values
   - path_regex: helm/.*\.ya?ml$
     age: "age1xulh9knukykzerg98wclqtfx33crk0h30q4jhwuz03ja9nsjppwq7tmycl"
+
+  - path_regex: talos/.*$
+    age: "age1xulh9knukykzerg98wclqtfx33crk0h30q4jhwuz03ja9nsjppwq7tmycl"

@@ -1,5 +1,0 @@
----
-coredns_ip: "10.32.0.254"
-adguard_ip: "10.32.0.253"
-
-cluster_issuer_key: "letsencrypt-clusterissuer"

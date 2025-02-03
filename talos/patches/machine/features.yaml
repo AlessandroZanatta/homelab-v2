@@ -1,0 +1,8 @@
+---
+machine:
+  features:
+    kubePrism:
+      enabled: false
+
+    hostDNS:
+      enabled: false

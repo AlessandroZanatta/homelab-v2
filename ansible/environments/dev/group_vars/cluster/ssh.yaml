@@ -1,3 +1,0 @@
----
-# Ignore errors regarding host key as vagrant machines are created and destroyed frequently
-ansible_ssh_extra_args: -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null

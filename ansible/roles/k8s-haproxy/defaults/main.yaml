@@ -1,7 +1,0 @@
----
-# haproxy bind address
-k8s_haproxy_frontend_bind_address: "127.0.0.1"
-k8s_haproxy_frontend_port: "16443"
-k8s_haproxy_k8s_api_endpoint_port: "6443"
-k8s_controllers_group: "controllers"
-k8s_interface: "wg0"
