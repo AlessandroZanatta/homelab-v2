@@ -1,0 +1,8 @@
+---
+- op: test
+  path: /spec/routes/0/match
+  value: Host(`traefik.kalexlab.xyz`)
+
+- op: replace
+  path: /spec/routes/0/match
+  value: Host(`traefik.dev.kalexlab.xyz`)

@@ -15,6 +15,7 @@ metadata:
   namespace: traefik
 spec:
   secretName: letsencrypt-tls-traefik
+  commonName: traefik.kalexlab.xyz
   dnsNames:
     - traefik.kalexlab.xyz
   issuerRef:

@@ -1,0 +1,10 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: cilium
+  name: hubble-certificate
+spec:
+  commonName: hubble.dev.kalexlab.xyz
+  dnsNames:
+    - hubble.dev.kalexlab.xyz

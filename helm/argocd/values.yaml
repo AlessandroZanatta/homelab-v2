@@ -100,7 +100,6 @@ repoServer:
 # NOTE: keep this extraObjects here!
 # There are (at least) two reasons:
 #   1) Sops key must be a "normal" secret, cannot be a SopsSecret as ArgoCD is deployed first
-#   2) ArgoCD is the only app deployed manually, hence it makes sense for it to be completely self-contained
 extraObjects:
   - apiVersion: v1
     kind: Secret
@@ -109,49 +108,3 @@ extraObjects:
       namespace: argocd
     data:
       sops.agekey: "{{ .Values.secrets.sopskey | b64enc }}"
-  - apiVersion: cert-manager.io/v1
-    kind: Certificate
-    metadata:
-      name: letsencrypt-tls-argocd
-      namespace: argocd
-    spec:
-      secretName: letsencrypt-tls-argocd
-      dnsNames:
-        - argocd.kalexlab.xyz
-      issuerRef:
-        group: cert-manager.io
-        kind: ClusterIssuer
-        name: letsencrypt
-  - apiVersion: traefik.io/v1alpha1
-    kind: IngressRoute
-    metadata:
-      namespace: argocd
-      name: argocd-dashboard-ingress
-    spec:
-      entryPoints:
-        - web
-        - websecure
-      routes:
-        - kind: Rule
-          match: Host(`argocd.kalexlab.xyz`)
-          services:
-            - name: argocd-server
-              port: 80
-      tls:
-        secretName: letsencrypt-tls-argocd
-  - apiVersion: argoproj.io/v1alpha1
-    kind: AppProject
-    metadata:
-      name: homelab
-      namespace: argocd
-    spec:
-      orphanedResources:
-        warn: true
-      clusterResourceWhitelist:
-        - group: "*"
-          kind: "*"
-      destinations:
-        - namespace: "*"
-          server: "https://kubernetes.default.svc"
-      sourceRepos:
-        - "*"

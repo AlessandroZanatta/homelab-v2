@@ -2,22 +2,24 @@
 apiVersion: "cilium.io/v2alpha1"
 kind: CiliumLoadBalancerIPPool
 metadata:
-  name: pool-adguard
+  name: pool-traefik
+  namespace: kube-system
 spec:
   blocks:
-    - cidr: "192.168.10.21/32"
+    - cidr: "192.168.10.20/32"
   serviceSelector:
     matchLabels:
-      kalexlab.xyz/ip-pool: adguard
+      kalexlab.xyz/ip-pool: traefik
 ---
 apiVersion: "cilium.io/v2alpha1"
 kind: CiliumL2AnnouncementPolicy
 metadata:
-  name: l2policy-adguard
+  name: l2policy-traefik
+  namespace: kube-system
 spec:
   interfaces:
     - "^eth[0-9]+"
   loadBalancerIPs: true
   serviceSelector:
     matchLabels:
-      kalexlab.xyz/ip-pool: adguard
+      kalexlab.xyz/ip-pool: traefik

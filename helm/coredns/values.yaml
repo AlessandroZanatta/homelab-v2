@@ -3,18 +3,12 @@ replicaCount: 2
 
 prometheus:
   service:
-    enabled: true
-    annotations:
-      prometheus.io/scrape: "true"
-      prometheus.io/port: "9153"
+    enabled: false
   monitor:
-    enabled: true
-    additionalLabels: {}
-    namespace: ""
-    interval: ""
+    enabled: false
 
 service:
-  clusterIP: "10.32.0.254"
+  clusterIP: "10.96.0.10"
 
 servers:
   - zones:
@@ -42,7 +36,7 @@ servers:
           ttl 30
 
       - name: forward
-        parameters: "kalexlab.xyz. 10.32.0.253"
+        parameters: "kalexlab.xyz. 10.96.0.11"
       - name: forward
         parameters: ". 1.1.1.1"
 

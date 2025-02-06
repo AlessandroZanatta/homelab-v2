@@ -1,0 +1,12 @@
+---
+- op: test
+  path: /spec/acme/solvers/0/selector/dnsZones/0
+  value: kalexlab.xyz
+
+- op: replace
+  path: /spec/acme/server
+  value: "https://acme-staging-v02.api.letsencrypt.org/directory"
+
+- op: replace
+  path: /spec/acme/solvers/0/selector/dnsZones/0
+  value: dev.kalexlab.xyz

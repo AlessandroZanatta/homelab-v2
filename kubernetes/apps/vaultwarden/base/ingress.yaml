@@ -11,7 +11,7 @@ spec:
     - vault.kalexlab.xyz
   issuerRef:
     kind: ClusterIssuer
-    name: "letsencrypt"
+    name: letsencrypt
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
