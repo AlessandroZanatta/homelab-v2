@@ -1,5 +1,7 @@
 todolist.md
 
+.vagrant
 /migration
+/imags
 
 sops.agekey
