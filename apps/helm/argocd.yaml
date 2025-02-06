@@ -5,7 +5,7 @@ metadata:
   name: argocd
   namespace: argocd
 spec:
-  project: homelab
+  project: default
   sources:
     - repoURL: "https://argoproj.github.io/argo-helm"
       chart: argo-cd
@@ -14,8 +14,8 @@ spec:
         releaseName: argocd
         valueFiles:
           - $values/helm/argocd/values.yaml
-          - "secrets://https://raw.githubusercontent.com/AlessandroZanatta/homelab/master/helm/argocd/secrets.yaml"
-    - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
+          - "secrets://https://raw.githubusercontent.com/AlessandroZanatta/homelab-v2/master/helm/argocd/secrets.yaml"
+    - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
       targetRevision: master
       ref: values
   destination:

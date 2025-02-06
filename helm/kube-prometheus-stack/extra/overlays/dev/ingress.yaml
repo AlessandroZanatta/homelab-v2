@@ -1,0 +1,8 @@
+---
+- op: test
+  path: /spec/routes/0/match
+  value: Host(`grafana.kalexlab.xyz`)
+
+- op: replace
+  path: /spec/routes/0/match
+  value: Host(`grafana.dev.kalexlab.xyz`)

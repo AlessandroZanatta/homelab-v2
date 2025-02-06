@@ -1,24 +1,7 @@
 ---
-# Default values for longhorn.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-global:
-  # -- Toleration for nodes allowed to run user-deployed components such as Longhorn Manager, Longhorn UI, and Longhorn Driver Deployer.
-  tolerations: []
-  # -- Node selector for nodes allowed to run user-deployed components such as Longhorn Manager, Longhorn UI, and Longhorn Driver Deployer.
-  nodeSelector: {}
-
 networkPolicies:
   # -- Setting that allows you to enable network policies that control access to Longhorn pods.
-  enabled: false
-
-defaultSettings:
-  # -- Percentage of disk space that is not allocated to the default disk on each new Longhorn node.
-  storageReservedPercentageForDefaultDisk: 15
-  # -- Default path for storing data on a host. The default value is "/var/lib/longhorn/".
-  defaultDataPath: /srv/longhorn
-  # -- Percentage of storage that can be allocated relative to hard drive capacity. The default value is "100".
-  storageOverProvisioningPercentage: 100
+  enabled: true
 
 persistence:
   # -- Setting that allows you to specify the default Longhorn StorageClass.
@@ -43,6 +26,13 @@ csi:
 longhornUI:
   # -- Replica count for Longhorn UI.
   replicas: 1
+
+# -- Setting that allows you to update the default backupstore.
+defaultBackupStore:
+  # -- Endpoint used to access the default backupstore. (Options: "NFS", "CIFS", "AWS", "GCP", "AZURE")
+  backupTarget: "s3://longhorn@dummyregion/"
+  # -- Name of the Kubernetes secret associated with the default backup target.
+  backupTargetCredentialSecret: backups-secrets
 
 ingress:
   enabled: false

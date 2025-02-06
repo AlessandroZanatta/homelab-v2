@@ -1,29 +1,37 @@
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: porkbun-webhook
   namespace: argocd
 spec:
-  project: homelab
-  sources:
-    - repoURL: "https://github.com/mdonoughe/porkbun-webhook"
-      path: deploy/porkbun-webhook
-      targetRevision: main
-      helm:
-        releaseName: porkbun-webhook
-        valueFiles:
-          - $values/helm/porkbun-webhook/values.yaml
-    - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
-      targetRevision: master
-      path: helm/porkbun-webhook/extra
-      ref: values
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: cert-manager
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - clusters: {}
+  template:
+    metadata:
+      name: porkbun-webhook
+    spec:
+      project: default
+      sources:
+        - repoURL: "https://github.com/mdonoughe/porkbun-webhook"
+          path: deploy/porkbun-webhook
+          targetRevision: main
+          helm:
+            releaseName: porkbun-webhook
+            valueFiles:
+              - $values/helm/porkbun-webhook/values.yaml
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          path: "helm/porkbun-webhook/extra/overlays/{{ .metadata.labels.env }}"
+          ref: values
+      destination:
+        server: "https://kubernetes.default.svc"
+        namespace: cert-manager
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

@@ -5,7 +5,7 @@ metadata:
   name: k8tz
   namespace: argocd
 spec:
-  project: homelab
+  project: default
   sources:
     - repoURL: "https://k8tz.github.io/k8tz/"
       chart: k8tz
@@ -14,7 +14,7 @@ spec:
         releaseName: k8tz
         valueFiles:
           - $values/helm/k8tz/values.yaml
-    - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
+    - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
       targetRevision: master
       ref: values
   destination:

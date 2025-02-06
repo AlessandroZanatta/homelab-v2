@@ -1,29 +1,46 @@
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: longhorn
   namespace: argocd
 spec:
-  project: homelab
-  sources:
-    - repoURL: "https://charts.longhorn.io"
-      chart: longhorn
-      targetRevision: 1.*
-      helm:
-        releaseName: longhorn
-        valueFiles:
-          - $values/helm/longhorn/values.yaml
-    - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
-      targetRevision: master
-      path: helm/longhorn/extra
-      ref: values
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: longhorn-system
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - clusters: {}
+  template:
+    metadata:
+      name: longhorn
+    spec:
+      project: default
+      sources:
+        - repoURL: "https://charts.longhorn.io"
+          chart: longhorn
+          targetRevision: 1.*
+          helm:
+            releaseName: longhorn
+            valueFiles:
+              - $values/helm/longhorn/values.yaml
+              - "$values/helm/longhorn/values-{{ .metadata.labels.env }}.yaml"
+
+        - repoURL: "https://github.com/kubernetes-csi/external-snapshotter.git"
+          targetRevision: 8.*
+          path: deploy/kubernetes/snapshot-controller
+        - repoURL: "https://github.com/kubernetes-csi/external-snapshotter.git"
+          targetRevision: 8.*
+          path: client/config/crd
+
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          path: "helm/longhorn/extra/overlays/{{ .metadata.labels.env }}"
+          ref: values
+      destination:
+        server: "https://kubernetes.default.svc"
+        namespace: longhorn-system
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

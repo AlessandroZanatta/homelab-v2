@@ -10,8 +10,50 @@ lint *ARGS:
 tal *ARGS:
   talosctl -e {{ DEFAULT_TALOS_ENDPOINT }} {{ ARGS }}
 
-tal-genconfig:
-  SOPS_AGE_KEY_FILE=./sops.agekey talhelper genconfig -s talos/talsecret.yaml -c talos/talconfig.yaml -e talos/talenv.yaml -o talos/clusterconfig
+tal-genconfig TALENV='prod':
+  SOPS_AGE_KEY_FILE=./sops.agekey talhelper genconfig -s talos/talsecret.yaml -c talos/talconfig.yaml -e "talos/talenv.{{ TALENV }}.yaml" -o talos/clusterconfig
+
+vagrant_run:
+  #!/bin/bash
+
+  set -e
+
+  if [ "$EUID" -ne 0 ]
+    then echo "Please run as root!"
+    exit 1
+  fi
+
+  RUN=$(sudo -u "$SUDO_USER" vagrant up 2>&1)
+  if [[ "$RUN" =~ "already provisioned" ]]; then
+    echo "Already running, stop first with 'vagrant destroy'"
+    exit 1
+  fi
+
+  echo "Started machines!"
+
+  basename=${PWD##*/}
+
+  echo -n "Waiting for machines to get an address"
+  # Wait for machines to get an address
+  until virsh domifaddr "$basename"_worker | grep -q "192.168.121"; do
+    echo -n .
+    sleep 1
+  done
+  until virsh domifaddr "$basename"_control-plane | grep -q "192.168.121"; do
+    echo -n .
+    sleep 1
+  done
+
+  # Get IP addresses of machines
+  WORKER_IP=$(virsh domifaddr "$basename"_worker | grep -Po '(\d+\.){3}\d+')
+  CONTROLLER_IP=$(virsh domifaddr "$basename"_control-plane | grep -Po '(\d+\.){3}\d+')
+
+  # Write ephemeral IP to name binding in /etc/hosts
+  # NOTE: this works as talos includes node hostnames in the certificate SANs automatically
+  sed -i -n -e '/worker/!p' -e '$a'"$WORKER_IP worker" /etc/hosts
+  sed -i -n -e '/controller/!p' -e '$a'"$CONTROLLER_IP controller" /etc/hosts
+
+  echo " Machines ready!"
 
 _check_secret_file SECRET_FILE:
   #!/bin/bash

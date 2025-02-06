@@ -5,7 +5,7 @@ metadata:
   name: argo-events
   namespace: argocd
 spec:
-  project: homelab
+  project: default
   sources:
     - repoURL: "https://argoproj.github.io/argo-helm"
       chart: argo-events
@@ -14,7 +14,7 @@ spec:
         releaseName: argo-events
         valueFiles:
           - $values/helm/argo-events/values.yaml
-    - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
+    - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
       targetRevision: master
       ref: values
   destination:

@@ -3,7 +3,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   namespace: prometheus
-  name: letsencrypt-tls-grafana
+  name: grafana-dashboard-certificate
 spec:
   secretName: letsencrypt-tls-grafana
   dnsNames:

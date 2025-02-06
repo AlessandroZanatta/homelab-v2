@@ -1,29 +1,37 @@
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: cilium
   namespace: argocd
 spec:
-  project: homelab
-  sources:
-    - repoURL: "https://helm.cilium.io/"
-      chart: cilium
-      targetRevision: 1.*
-      helm:
-        releaseName: cilium
-        valueFiles:
-          - $values/helm/cilium/values.yaml
-    - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
-      targetRevision: master
-      path: helm/cilium/extra
-      ref: values
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: cilium
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - clusters: {}
+  template:
+    metadata:
+      name: cilium
+    spec:
+      project: default
+      sources:
+        - repoURL: "https://helm.cilium.io/"
+          chart: cilium
+          targetRevision: 1.*
+          helm:
+            releaseName: cilium
+            valueFiles:
+              - $values/helm/cilium/values.yaml
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          path: "helm/cilium/extra/overlays/{{ .metadata.labels.env }}"
+          ref: values
+      destination:
+        server: "https://kubernetes.default.svc"
+        namespace: kube-system
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

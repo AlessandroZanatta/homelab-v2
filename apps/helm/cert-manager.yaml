@@ -5,7 +5,7 @@ metadata:
   name: cert-manager
   namespace: argocd
 spec:
-  project: homelab
+  project: default
   sources:
     - repoURL: "https://charts.jetstack.io"
       chart: cert-manager
@@ -14,7 +14,7 @@ spec:
         releaseName: cert-manager
         valueFiles:
           - $values/helm/cert-manager/values.yaml
-    - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
+    - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
       targetRevision: master
       ref: values
   destination:

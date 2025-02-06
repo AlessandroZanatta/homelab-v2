@@ -5,7 +5,7 @@ metadata:
   name: coredns
   namespace: argocd
 spec:
-  project: homelab
+  project: default
   sources:
     - repoURL: "https://coredns.github.io/helm"
       chart: coredns
@@ -14,7 +14,7 @@ spec:
         releaseName: coredns
         valueFiles:
           - $values/helm/coredns/values.yaml
-    - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
+    - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
       targetRevision: master
       ref: values
   destination:

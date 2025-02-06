@@ -8,7 +8,7 @@ configs:
 
   repositories:
     homelab:
-      url: "https://github.com/AlessandroZanatta/homelab"
+      url: "https://github.com/AlessandroZanatta/homelab-v2"
       name: homelab
       type: git
 
@@ -98,8 +98,7 @@ repoServer:
           name: gitops-tools
 
 # NOTE: keep this extraObjects here!
-# There are (at least) two reasons:
-#   1) Sops key must be a "normal" secret, cannot be a SopsSecret as ArgoCD is deployed first
+# Sops key must be a "normal" secret, cannot be a SopsSecret as ArgoCD is deployed first
 extraObjects:
   - apiVersion: v1
     kind: Secret

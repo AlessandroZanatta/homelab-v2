@@ -1,0 +1,4 @@
+---
+defaultSettings:
+  # -- Percentage of storage that can be allocated relative to hard drive capacity. The default value is "100".
+  storageOverProvisioningPercentage: 100000

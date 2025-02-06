@@ -5,19 +5,19 @@ metadata:
   name: sops-operator
   namespace: argocd
 spec:
-  project: homelab
+  project: default
   sources:
     - repoURL: "https://isindir.github.io/sops-secrets-operator/"
       chart: sops-secrets-operator
-      # Keep this version for k8s v1.29.x
+      # Keep this version for k8s v1.31.x
       #   ref: https://github.com/isindir/sops-secrets-operator?tab=readme-ov-file#versioning
-      targetRevision: 0.18.6
+      targetRevision: 0.20.4
       helm:
         releaseName: sops
         valueFiles:
           - $values/helm/sops-operator/values.yaml
           - "secrets://https://raw.githubusercontent.com/AlessandroZanatta/homelab/master/helm/sops-operator/secrets.yaml"
-    - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
+    - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
       targetRevision: master
       ref: values
   destination:

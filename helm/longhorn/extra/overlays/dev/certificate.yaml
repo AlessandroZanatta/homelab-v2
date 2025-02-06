@@ -1,0 +1,10 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: longhorn-certificate
+  namespace: longhorn-system
+spec:
+  commonName: longhorn.dev.kalexlab.xyz
+  dnsNames:
+    - longhorn.dev.kalexlab.xyz
