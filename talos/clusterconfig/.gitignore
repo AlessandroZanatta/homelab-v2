@@ -1,3 +1,5 @@
+homelab-worker.yaml
+homelab-controller.yaml
+homelab-hermes.yaml
 homelab-zeus.yaml
 talosconfig
-homelab-hermes.yaml

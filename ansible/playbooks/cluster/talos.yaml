@@ -1,0 +1,47 @@
+---
+- name: Generate Talos configuration with talhelper
+  command: "talhelper genconfig -s talsecret.yaml -c talconfig.yaml -e talenv.{{ ansible_environment|quote }}.yaml"
+  args:
+    chdir: "{{ talos_path }}"
+  environment:
+    SOPS_AGE_KEY_FILE: ../sops.agekey
+
+- name: Get initial controller
+  set_fact:
+    initial_controller: "{{ controllers | first }}"
+
+- name: Apply the configuration to the initial controller
+  command: "talosctl -e {{ initial_controller.ip|quote }} -n {{ initial_controller.ip|quote }} apply-config --file homelab-{{ initial_controller.name|quote }}.yaml --insecure"
+  args:
+    chdir: "{{ clusterconfig_path }}"
+
+- name: Bootstrap cluster
+  command: "talosctl --talosconfig talosconfig -e {{ initial_controller.ip|quote }} -n {{ initial_controller.ip|quote }} bootstrap"
+  args:
+    chdir: "{{ clusterconfig_path }}"
+  register: result
+  until:
+    - result.rc == 0
+  retries: 30
+  delay: 2
+
+- name: Configure other nodes
+  command: "talosctl -e {{ node.ip|quote }} -n {{ node.ip|quote }} apply-config --file homelab-{{ node.name|quote }}.yaml --insecure"
+  args:
+    chdir: "{{ clusterconfig_path }}"
+  with_items: "{{ controllers[1:] + workers }}"
+  loop_control:
+    loop_var: node
+
+- name: Get cluster kubeconfig
+  command: "talosctl --talosconfig talosconfig -e {{ initial_controller.ip|quote }} -n {{ initial_controller.ip|quote }} kubeconfig --force --force-context-name homelab-{{ ansible_environment|quote }}"
+  args:
+    chdir: "{{ clusterconfig_path }}"
+
+- name: Wait for apiserver to be available
+  command: "curl -k https://{{ initial_controller.ip }}:6443"
+  register: result
+  until:
+    - result.rc == 0
+  retries: 60
+  delay: 2

@@ -1,0 +1,5 @@
+---
+ansible_controller:
+  hosts:
+    apollo:
+      ansible_connection: local

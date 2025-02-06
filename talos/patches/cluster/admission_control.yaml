@@ -8,7 +8,7 @@ cluster:
           defaults:
             audit: restricted
             audit-version: latest
-            enforce: baseline
+            enforce: privileged
             enforce-version: latest
             warn: restricted
             warn-version: latest
@@ -16,7 +16,7 @@ cluster:
             namespaces:
               - longhorn-system # required for raw storage access
               - kube-prometheus-stack # required by node exporter
-              - scrutiny # required by collector
+              - scrutiny # required by collector to access physical disks
             runtimeClasses: []
             usernames: []
           kind: PodSecurityConfiguration

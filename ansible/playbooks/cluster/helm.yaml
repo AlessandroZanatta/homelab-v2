@@ -1,0 +1,54 @@
+---
+- name: Add helm repository ({{ chart.repo_url }})
+  kubernetes.core.helm_repository:
+    name: "{{ chart.chart_name.split('/')[0] }}"
+    repo_url: "{{ chart.repo_url }}"
+
+- name: Decrypt secrets ({{ chart.release_name }})
+  set_fact:
+    decrypted_secrets_files: "{{ decrypted_secrets_files|default({}) | combine(lookup('ansible.builtin.file', secret_file)|community.sops.decrypt(age_keyfile=age_keyfile_path)|from_yaml) }}"
+  with_items: "{{ chart.secrets_files|default([]) }}"
+  loop_control:
+    loop_var: secret_file
+
+- block:
+    - name: Create tempfile for decrypted secrets ({{ chart.release_name }})
+      ansible.builtin.tempfile:
+      register: decrypted_secrets_tempfile
+
+    - name: Copy secrets to tempfile ({{ chart.release_name }})
+      ansible.builtin.copy:
+        content: "{{ decrypted_secrets_files|default({})|to_yaml }}"
+        dest: "{{ decrypted_secrets_tempfile.path }}"
+
+    # Generate templates instead of using Helm directly to avoid the creation of
+    # Helm secrets, as we want bootstrap charts to be (eventually) managed by ArgoCD
+    - name: Generate manifests from chart template ({{ chart.release_name }})
+      kubernetes.core.helm_template:
+        name: "{{ chart.release_name }}"
+        chart_ref: "{{ chart.chart_name }}"
+        chart_version: "{{ chart.chart_version }}"
+        release_namespace: "{{ chart.namespace }}"
+        update_repo_cache: true
+        values_files: "{{ chart.values_files + [decrypted_secrets_tempfile.path] }}"
+      register: manifests
+
+  always:
+    - name: Delete tempfile for decrypted secrets
+      ansible.builtin.file:
+        path: "{{ decrypted_secrets_tempfile.path }}"
+        state: absent
+
+- name: Create namespace ({{ chart.release_name }})
+  kubernetes.core.k8s:
+    context: "homelab-{{ ansible_environment }}"
+    state: present
+    name: "{{ chart.namespace }}"
+    api_version: v1
+    kind: Namespace
+
+- name: Create resources from templates ({{ chart.release_name }})
+  kubernetes.core.k8s:
+    context: "homelab-{{ ansible_environment }}"
+    state: present
+    definition: "{{ manifests.stdout | from_yaml_all }}"

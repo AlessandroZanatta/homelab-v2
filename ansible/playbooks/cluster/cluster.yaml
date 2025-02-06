@@ -1,0 +1,13 @@
+---
+# Should:
+# - install CNI
+# - install CoreDNS
+# - install argocd
+# - bootstrap with app of apps
+# - delete helm secrets for cni, corens and argocd
+
+- name: Install bootstrap Helm resources
+  include_tasks: helm.yaml
+  with_items: "{{ bootstrap_helm_charts }}"
+  loop_control:
+    loop_var: chart

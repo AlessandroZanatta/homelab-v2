@@ -1,35 +1,13 @@
 ---
 controllers:
   hosts:
-    athena-pi4b:
+    athena:
       ansible_host: "192.168.10.2"
-      wireguard_address: 10.8.2.1
-      wireguard_port: 51820
-      wireguard_endpoint: "192.168.10.2"
-      wireguard_external_endpoint: "192.168.10.2"
 
 workers:
   hosts:
-    hermes-opti3050m:
+    hermes:
       ansible_host: "192.168.10.3"
-      wireguard_address: 10.8.3.1
-      wireguard_port: 51820
-      wireguard_endpoint: "192.168.10.3"
-      wireguard_external_endpoint: "192.168.10.3"
-
-cluster:
-  children:
-    controllers:
-    workers:
-
-etcd:
-  children:
-    # controllers:
-    workers:
-
-vpn:
-  children:
-    cluster:
 
 ansible_controller:
   hosts:
