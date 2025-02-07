@@ -9,7 +9,7 @@ metadata:
     kalexlab.xyz/ip-pool: adguard
 spec:
   type: LoadBalancer
-  clusterIP: 10.32.0.253
+  clusterIP: 10.96.0.11
   ports:
     - name: adguard-interface
       port: 80

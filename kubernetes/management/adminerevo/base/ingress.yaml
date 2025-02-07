@@ -3,7 +3,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   namespace: adminerevo
-  name: adminerevo-ingress-certificate
+  name: adminerevo-certificate
 spec:
   commonName: adminerevo.kalexlab.xyz
   secretName: adminerevo-ingress-certificate-secret

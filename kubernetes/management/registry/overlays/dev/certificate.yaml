@@ -1,0 +1,10 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: registry-certificate
+  namespace: registry
+spec:
+  commonName: registry.dev.kalexlab.xyz
+  dnsNames:
+    - registry.dev.kalexlab.xyz

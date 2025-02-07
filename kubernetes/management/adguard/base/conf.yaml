@@ -220,6 +220,8 @@ data:
           answer: "192.168.10.20"
         - domain: "hubble.kalexlab.xyz"
           answer: "192.168.10.20"
+        - domain: "backups.kalexlab.xyz"
+          answer: "192.168.10.20"
         - domain: "test.reciept.kalexlab.xyz"
           answer: "192.168.10.20"
 

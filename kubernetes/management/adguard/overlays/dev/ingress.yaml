@@ -1,0 +1,8 @@
+---
+- op: test
+  path: /spec/routes/0/match
+  value: Host(`adguard.dns.kalexlab.xyz`)
+
+- op: replace
+  path: /spec/routes/0/match
+  value: Host(`adguard.dns.dev.kalexlab.xyz`)

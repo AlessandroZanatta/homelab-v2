@@ -1,0 +1,10 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: adminerevo-certificate
+  namespace: adminerevo
+spec:
+  commonName: adminerevo.dev.kalexlab.xyz
+  dnsNames:
+    - adminerevo.dev.kalexlab.xyz
