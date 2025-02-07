@@ -4,6 +4,11 @@ kind: Application
 metadata:
   name: k8tz
   namespace: argocd
+  annotations:
+    # k8tz should be deployed first to allow injection of the timezone on other pods
+    argocd.argoproj.io/sync-wave: "-99"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   sources:

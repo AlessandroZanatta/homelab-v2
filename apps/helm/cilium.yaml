@@ -12,6 +12,8 @@ spec:
   template:
     metadata:
       name: cilium
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
     spec:
       project: default
       sources:
@@ -27,7 +29,7 @@ spec:
           path: "helm/cilium/extra/overlays/{{ .metadata.labels.env }}"
           ref: values
       destination:
-        server: "https://kubernetes.default.svc"
+        server: "{{ .server }}"
         namespace: kube-system
       syncPolicy:
         automated:

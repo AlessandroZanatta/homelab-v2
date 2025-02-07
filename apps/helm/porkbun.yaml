@@ -12,6 +12,8 @@ spec:
   template:
     metadata:
       name: porkbun-webhook
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
     spec:
       project: default
       sources:
@@ -27,7 +29,7 @@ spec:
           path: "helm/porkbun-webhook/extra/overlays/{{ .metadata.labels.env }}"
           ref: values
       destination:
-        server: "https://kubernetes.default.svc"
+        server: "{{ .server }}"
         namespace: cert-manager
       syncPolicy:
         automated:

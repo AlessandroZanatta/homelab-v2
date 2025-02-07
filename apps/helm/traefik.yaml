@@ -1,29 +1,39 @@
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: traefik
   namespace: argocd
 spec:
-  project: default
-  sources:
-    - repoURL: "https://traefik.github.io/charts"
-      chart: traefik
-      targetRevision: 33.x
-      helm:
-        releaseName: traefik
-        valueFiles:
-          - $values/helm/traefik/values.yaml
-    - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
-      targetRevision: master
-      path: helm/traefik/extra
-      ref: values
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: traefik
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - clusters: {}
+  template:
+    metadata:
+      name: traefik
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: default
+      sources:
+        - repoURL: "https://traefik.github.io/charts"
+          chart: traefik
+          targetRevision: 33.x
+          helm:
+            releaseName: traefik
+            valueFiles:
+              - $values/helm/traefik/values.yaml
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          path: "helm/traefik/extra/overlays/{{ .metadata.labels.env }}"
+          ref: values
+      destination:
+        server: "{{ .server }}"
+        namespace: traefik
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

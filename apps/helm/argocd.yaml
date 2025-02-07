@@ -1,29 +1,40 @@
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: argocd
   namespace: argocd
 spec:
-  project: default
-  sources:
-    - repoURL: "https://argoproj.github.io/argo-helm"
-      chart: argo-cd
-      targetRevision: 7.*
-      helm:
-        releaseName: argocd
-        valueFiles:
-          - $values/helm/argocd/values.yaml
-          - "secrets://https://raw.githubusercontent.com/AlessandroZanatta/homelab-v2/master/helm/argocd/secrets.yaml"
-    - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
-      targetRevision: master
-      ref: values
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: argocd
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - clusters: {}
+  template:
+    metadata:
+      name: argocd
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: default
+      sources:
+        - repoURL: "https://argoproj.github.io/argo-helm"
+          chart: argo-cd
+          targetRevision: 7.*
+          helm:
+            releaseName: argocd
+            valueFiles:
+              - $values/helm/argocd/values.yaml
+              - "secrets://https://raw.githubusercontent.com/AlessandroZanatta/homelab-v2/master/helm/argocd/secrets.yaml"
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          path: "helm/argocd/extra/overlays/{{ .metadata.labels.env }}"
+          ref: values
+      destination:
+        server: "{{ .server }}"
+        namespace: argocd
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

@@ -12,6 +12,8 @@ spec:
   template:
     metadata:
       name: kube-prometheus-stack
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
     spec:
       project: default
       sources:
@@ -28,7 +30,7 @@ spec:
           path: "helm/kube-prometheus-stack/extra/overlays/{{ .metadata.labels.env }}"
           ref: values
       destination:
-        server: "https://kubernetes.default.svc"
+        server: "{{ .server }}"
         namespace: prometheus
       syncPolicy:
         automated:

@@ -12,6 +12,8 @@ spec:
   template:
     metadata:
       name: longhorn
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
     spec:
       project: default
       sources:
@@ -36,7 +38,7 @@ spec:
           path: "helm/longhorn/extra/overlays/{{ .metadata.labels.env }}"
           ref: values
       destination:
-        server: "https://kubernetes.default.svc"
+        server: "{{ .server }}"
         namespace: longhorn-system
       syncPolicy:
         automated:
