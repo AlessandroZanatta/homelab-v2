@@ -18,7 +18,7 @@ spec:
         releaseName: sops
         valueFiles:
           - $values/helm/sops-operator/values.yaml
-          - "secrets://https://raw.githubusercontent.com/AlessandroZanatta/homelab/master/helm/sops-operator/secrets.yaml"
+          - "secrets://https://raw.githubusercontent.com/AlessandroZanatta/homelab-v2/master/helm/sops-operator/secrets.yaml"
     - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
       targetRevision: master
       ref: values
