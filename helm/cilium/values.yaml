@@ -7,6 +7,10 @@ hubble:
   ui:
     enabled: true
 
+# Enable support for L2 Announcements
+l2announcements:
+  enabled: true
+
 # Values from the Talos docs
 #   ref: https://www.talos.dev/v1.9/kubernetes-guides/network/deploying-cilium/#method-1-helm-install
 ipam:
