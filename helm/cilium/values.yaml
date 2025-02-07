@@ -17,7 +17,7 @@ ipam:
   mode: kubernetes
 
 # In dev, kube proxy replacement did not appear to work
-kubeProxyReplacement: false
+kubeProxyReplacement: true
 
 securityContext:
   capabilities:
@@ -42,3 +42,6 @@ cgroup:
   autoMount:
     enabled: false
   hostRoot: /sys/fs/cgroup
+
+k8sServiceHost: localhost
+k8sServicePort: 7445
