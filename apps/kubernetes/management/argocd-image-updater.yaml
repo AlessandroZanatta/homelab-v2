@@ -11,8 +11,9 @@ spec:
     # TODO: evaluate whether this makes sense/is needed
     # Only run the image updater on the production cluster for now
     - clusters:
-        matchLabels:
-          env: prod
+        selector:
+          matchLabels:
+            env: prod
   template:
     metadata:
       name: argocd-image-updater
