@@ -1,26 +1,34 @@
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: adminerevo
   namespace: argocd
-  annotations:
-    argocd-image-updater.argoproj.io/image-list: "adminerevo=registry.kalexlab.xyz/adminerevo:latest"
-    argocd-image-updater.argoproj.io/adminerevo.update-strategy: newest-build
-    argocd-image-updater.argoproj.io/write-back-method: git
-    argocd-image-updater.argoproj.io/write-back-target: kustomization
 spec:
-  project: homelab
-  sources:
-    - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
-      targetRevision: master
-      path: kubernetes/management/adminerevo
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: adminerevo
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - clusters: {}
+  template:
+    metadata:
+      name: adminerevo
+      annotations:
+        argocd-image-updater.argoproj.io/image-list: "adminerevo=registry.kalexlab.xyz/adminerevo:latest"
+        argocd-image-updater.argoproj.io/adminerevo.update-strategy: newest-build
+        argocd-image-updater.argoproj.io/write-back-method: git
+        argocd-image-updater.argoproj.io/write-back-target: kustomization
+    spec:
+      project: default
+      sources:
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          path: "kubernetes/management/adminerevo/overlays/{{ .metadata.labels.env }}"
+      destination:
+        server: "{{ .server }}"
+        namespace: adminerevo
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

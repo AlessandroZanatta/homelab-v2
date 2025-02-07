@@ -1,19 +1,31 @@
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: argocd-image-updater
   namespace: argocd
 spec:
-  project: homelab
-  sources:
-    - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
-      path: kubernetes/management/argocd-image-updater
-      targetRevision: master
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: argocd
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    # TODO: evaluate whether this makes sense/is needed
+    # Only run the image updater on the production cluster for now
+    - clusters:
+        matchLabels:
+          env: prod
+  template:
+    metadata:
+      name: argocd-image-updater
+    spec:
+      project: default
+      sources:
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          path: "kubernetes/management/argocd-image-updater/overlays/{{ .metadata.labels.env }}"
+          targetRevision: master
+      destination:
+        server: "{{ .server }}"
+        namespace: argocd
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
