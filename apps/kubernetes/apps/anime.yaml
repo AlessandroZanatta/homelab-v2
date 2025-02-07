@@ -1,26 +1,34 @@
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: anime
   namespace: argocd
-  annotations:
-    argocd-image-updater.argoproj.io/image-list: "postgres=docker.io/library/postgres:16.x-0, docker.io/qmcgaw/gluetun:v3.x"
-    argocd-image-updater.argoproj.io/postgres.allow-tags: "regexp:^.*-alpine$"
-    argocd-image-updater.argoproj.io/write-back-method: git
-    argocd-image-updater.argoproj.io/write-back-target: kustomization
 spec:
-  project: homelab
-  sources:
-    - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
-      targetRevision: master
-      path: kubernetes/apps/anime
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: anime
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - clusters: {}
+  template:
+    metadata:
+      name: anime
+      annotations:
+        argocd-image-updater.argoproj.io/image-list: "postgres=docker.io/library/postgres:16.x-0, docker.io/qmcgaw/gluetun:v3.x"
+        argocd-image-updater.argoproj.io/postgres.allow-tags: "regexp:^.*-alpine$"
+        argocd-image-updater.argoproj.io/write-back-method: git
+        argocd-image-updater.argoproj.io/write-back-target: kustomization
+    spec:
+      project: default
+      sources:
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          path: "kubernetes/apps/anime/overlays/{{ .metadata.labels.env }}"
+      destination:
+        server: "{{ .server }}"
+        namespace: anime
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

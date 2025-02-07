@@ -3,7 +3,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   namespace: anime
-  name: anime-ingress-certificate
+  name: anime-certificate
 spec:
   commonName: anime.kalexlab.xyz
   secretName: anime-ingress-certificate-secret

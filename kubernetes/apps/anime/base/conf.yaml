@@ -20,21 +20,9 @@ data:
 
     providers:
       AnimeSaturn:
-        interval: 7200
+        interval: 86400
         language: "Italiano"
         priority: 100
-      AnimeItaly:
-        interval: 7200
-        language: "Italiano"
-        priority: 50
-      Animeseries:
-        interval: 7200
-        language: "English"
-        priority: 100
-      Aniwave:
-        interval: 86400 # really avoid spamming so that the VPN IP maybe doesn't get blacklisted
-        language: "English"
-        priority: 90
   nginx.conf: |
     events {}
 

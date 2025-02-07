@@ -1,0 +1,8 @@
+---
+- op: test
+  path: /spec/routes/0/match
+  value: Host(`immich.kalexlab.xyz`)
+
+- op: replace
+  path: /spec/routes/0/match
+  value: Host(`immich.dev.kalexlab.xyz`)

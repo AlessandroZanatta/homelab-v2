@@ -1,26 +1,36 @@
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: immich
   namespace: argocd
-  annotations:
-    argocd-image-updater.argoproj.io/image-list: "ghcr.io/immich-app/immich-server:v1.x, ghcr.io/immich-app/immich-machine-learning:v1.x, valkey=docker.io/valkey/valkey:8.x-0"
-    argocd-image-updater.argoproj.io/valkey.allow-tags: "regexp:^.*-alpine$"
-    argocd-image-updater.argoproj.io/write-back-method: git
-    argocd-image-updater.argoproj.io/write-back-target: kustomization
 spec:
-  project: homelab
-  sources:
-    - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
-      targetRevision: master
-      path: kubernetes/apps/immich
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: immich
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - clusters: {}
+  template:
+    metadata:
+      name: immich
+      annotations:
+        argocd-image-updater.argoproj.io/image-list: "ghcr.io/immich-app/immich-server:v1.x, ghcr.io/immich-app/immich-machine-learning:v1.x, valkey=docker.io/valkey/valkey:8.x-0"
+        argocd-image-updater.argoproj.io/valkey.allow-tags: "regexp:^.*-alpine$"
+        argocd-image-updater.argoproj.io/write-back-method: git
+        argocd-image-updater.argoproj.io/write-back-target: kustomization
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: default
+      sources:
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          path: "kubernetes/apps/immich/overlays/{{ .metadata.labels.env }}"
+      destination:
+        server: "{{ .server }}"
+        namespace: immich
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

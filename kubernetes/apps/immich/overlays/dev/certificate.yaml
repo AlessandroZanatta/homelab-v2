@@ -1,0 +1,10 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: immich-certificate
+  namespace: immich
+spec:
+  commonName: immich.dev.kalexlab.xyz
+  dnsNames:
+    - immich.dev.kalexlab.xyz
