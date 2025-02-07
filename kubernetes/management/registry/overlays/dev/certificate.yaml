@@ -8,3 +8,4 @@ spec:
   commonName: registry.dev.kalexlab.xyz
   dnsNames:
     - registry.dev.kalexlab.xyz
+    - ui.registry.dev.kalexlab.xyz

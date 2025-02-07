@@ -6,3 +6,11 @@
 - op: replace
   path: /spec/routes/0/match
   value: Host(`registry.dev.kalexlab.xyz`)
+
+- op: test
+  path: /spec/routes/1/match
+  value: Host(`ui.registry.kalexlab.xyz`)
+
+- op: replace
+  path: /spec/routes/1/match
+  value: Host(`ui.registry.dev.kalexlab.xyz`)
