@@ -10,9 +10,9 @@ service:
   port: 443
 
 resources:
-  limits:
-    cpu: 100m
-    memory: 100Mi
   requests:
     cpu: 10m
     memory: 20Mi
+  limits:
+    cpu: 100m
+    memory: 100Mi

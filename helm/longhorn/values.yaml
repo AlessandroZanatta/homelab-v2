@@ -3,15 +3,18 @@ networkPolicies:
   # -- Setting that allows you to enable network policies that control access to Longhorn pods.
   enabled: true
 
+preUpgradeChecker:
+  # -- Setting that allows Longhorn to perform pre-upgrade checks. Disable this setting when installing Longhorn using Argo CD or other GitOps solutions.
+  # Must be disabled due to https://github.com/longhorn/longhorn/issues/4853
+  jobEnabled: false
+
 persistence:
-  # -- Setting that allows you to specify the default Longhorn StorageClass.
-  defaultClass: true
-  # -- Filesystem type of the default Longhorn StorageClass.
-  defaultFsType: ext4
   # -- Reclaim policy that provides instructions for handling of a volume after its claim is released. (Options: "Retain", "Delete")
   reclaimPolicy: Retain
   # -- Replica count of the default Longhorn StorageClass.
-  defaultClassReplicaCount: 1
+  defaultClassReplicaCount: 2
+  # -- Setting that allows you to specify the data engine version for the default Longhorn StorageClass. (Options: "v1", "v2")
+  dataEngine: v1
 
 csi:
   # -- Replica count of the CSI Attacher. When unspecified, Longhorn uses the default value ("3").
