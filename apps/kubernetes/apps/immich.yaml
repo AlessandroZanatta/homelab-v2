@@ -17,8 +17,6 @@ spec:
         argocd-image-updater.argoproj.io/valkey.allow-tags: "regexp:^.*-alpine$"
         argocd-image-updater.argoproj.io/write-back-method: git
         argocd-image-updater.argoproj.io/write-back-target: kustomization
-      finalizers:
-        - resources-finalizer.argocd.argoproj.io
     spec:
       project: default
       sources:

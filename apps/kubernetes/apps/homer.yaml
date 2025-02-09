@@ -16,8 +16,6 @@ spec:
         argocd-image-updater.argoproj.io/image-list: "docker.io/b4bz/homer:v24.x, docker.io/library/alpine:3.x"
         argocd-image-updater.argoproj.io/write-back-method: git
         argocd-image-updater.argoproj.io/write-back-target: kustomization
-      finalizers:
-        - resources-finalizer.argocd.argoproj.io
     spec:
       project: default
       sources:

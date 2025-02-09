@@ -16,19 +16,18 @@ spec:
         argocd-image-updater.argoproj.io/image-list: "docker.io/linuxserver/jellyfin:10.x, docker.io/qmcgaw/gluetun:v3.x, ghcr.io/flaresolverr/flaresolverr:v3.x, docker.io/linuxserver/prowlarr:1.x, docker.io/linuxserver/qbittorrent:5.x, docker.io/linuxserver/radarr:5.x, docker.io/linuxserver/sonarr:4.x"
         argocd-image-updater.argoproj.io/write-back-method: git
         argocd-image-updater.argoproj.io/write-back-target: kustomization
-      finalizers:
-        - resources-finalizer.argocd.argoproj.io
-  project: default
-  sources:
-    - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
-      targetRevision: master
-      path: "kubernetes/apps/media/overlays/{{ .metadata.labels.env }}"
-  destination:
-    server: "{{ .server }}"
-    namespace: media
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+    spec:
+      project: default
+      sources:
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          path: "kubernetes/apps/media/overlays/{{ .metadata.labels.env }}"
+      destination:
+        server: "{{ .server }}"
+        namespace: media
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
