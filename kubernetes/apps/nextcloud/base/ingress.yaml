@@ -3,7 +3,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   namespace: nextcloud
-  name: nextcloud-ingress-certificate
+  name: nextcloud-certificate
 spec:
   commonName: cloud.kalexlab.xyz
   secretName: nextcloud-ingress-certificate-secret

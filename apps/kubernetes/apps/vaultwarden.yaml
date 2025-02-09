@@ -1,27 +1,35 @@
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: vaultwarden
   namespace: argocd
-  annotations:
-    argocd-image-updater.argoproj.io/image-list: "postgres=docker.io/library/postgres:16.x-0, vaultwarden=docker.io/vaultwarden/server:1.x-0"
-    argocd-image-updater.argoproj.io/postgres.allow-tags: "regexp:^.*-alpine$"
-    argocd-image-updater.argoproj.io/vaultwarden.allow-tags: "regexp:^.*-alpine$"
-    argocd-image-updater.argoproj.io/write-back-method: git
-    argocd-image-updater.argoproj.io/write-back-target: kustomization
 spec:
-  project: homelab
-  sources:
-    - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
-      targetRevision: master
-      path: kubernetes/apps/vaultwarden
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: vaultwarden
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - clusters: {}
+  template:
+    metadata:
+      name: vaultwarden
+      annotations:
+        argocd-image-updater.argoproj.io/image-list: "postgres=docker.io/library/postgres:16.x-0, vaultwarden=docker.io/vaultwarden/server:1.x-0"
+        argocd-image-updater.argoproj.io/postgres.allow-tags: "regexp:^.*-alpine$"
+        argocd-image-updater.argoproj.io/vaultwarden.allow-tags: "regexp:^.*-alpine$"
+        argocd-image-updater.argoproj.io/write-back-method: git
+        argocd-image-updater.argoproj.io/write-back-target: kustomization
+    spec:
+      project: default
+      sources:
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          path: "kubernetes/apps/vaultwarden/overlays/{{ .metadata.labels.env }}"
+      destination:
+        server: "{{ .server }}"
+        namespace: vaultwarden
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

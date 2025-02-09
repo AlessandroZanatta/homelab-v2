@@ -1,0 +1,10 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: nextcloud
+  name: nextcloud-certificate
+spec:
+  commonName: cloud.dev.kalexlab.xyz
+  dnsNames:
+    - cloud.dev.kalexlab.xyz

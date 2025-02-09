@@ -1,0 +1,14 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: media
+  name: media-certificate
+spec:
+  commonName: jellyfin.dev.kalexlab.xyz
+  dnsNames:
+    - jellyfin.dev.kalexlab.xyz
+    - prowlarr.dev.kalexlab.xyz
+    - torrent.dev.kalexlab.xyz
+    - radarr.dev.kalexlab.xyz
+    - sonarr.dev.kalexlab.xyz

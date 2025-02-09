@@ -1,0 +1,32 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: reciept
+  name: test-reciept-ingress-certificate
+spec:
+  commonName: test.reciept.kalexlab.xyz
+  secretName: test-reciept-ingress-certificate-secret
+  dnsNames:
+    - test.reciept.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  namespace: reciept
+  name: test-reciept-ingress
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`test.reciept.kalexlab.xyz`)
+      services:
+        - name: test-service
+          port: 8000
+  tls:
+    secretName: test-reciept-ingress-certificate-secret

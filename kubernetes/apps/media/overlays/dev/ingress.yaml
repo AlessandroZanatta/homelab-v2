@@ -1,0 +1,40 @@
+---
+- op: test
+  path: /spec/routes/0/match
+  value: Host(`jellyfin.kalexlab.xyz`)
+
+- op: replace
+  path: /spec/routes/0/match
+  value: Host(`jellyfin.dev.kalexlab.xyz`)
+
+- op: test
+  path: /spec/routes/1/match
+  value: Host(`prowlarr.kalexlab.xyz`)
+
+- op: replace
+  path: /spec/routes/1/match
+  value: Host(`prowlarr.dev.kalexlab.xyz`)
+
+- op: test
+  path: /spec/routes/2/match
+  value: Host(`torrent.kalexlab.xyz`)
+
+- op: replace
+  path: /spec/routes/2/match
+  value: Host(`torrent.dev.kalexlab.xyz`)
+
+- op: test
+  path: /spec/routes/3/match
+  value: Host(`radarr.kalexlab.xyz`)
+
+- op: replace
+  path: /spec/routes/3/match
+  value: Host(`radarr.dev.kalexlab.xyz`)
+
+- op: test
+  path: /spec/routes/4/match
+  value: Host(`sonarr.kalexlab.xyz`)
+
+- op: replace
+  path: /spec/routes/4/match
+  value: Host(`sonarr.dev.kalexlab.xyz`)

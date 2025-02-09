@@ -1,0 +1,56 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: media
+  name: media-certificate
+spec:
+  commonName: jellyfin.kalexlab.xyz
+  secretName: media-ingress-certificate-secret
+  dnsNames:
+    - jellyfin.kalexlab.xyz
+    - prowlarr.kalexlab.xyz
+    - torrent.kalexlab.xyz
+    - radarr.kalexlab.xyz
+    - sonarr.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  namespace: media
+  name: media-ingress
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`jellyfin.kalexlab.xyz`)
+      services:
+        - name: jellyfin
+          port: 8096
+    - kind: Rule
+      match: Host(`prowlarr.kalexlab.xyz`)
+      services:
+        - name: prowlarr-qbittorrent
+          port: 9696
+    - kind: Rule
+      match: Host(`torrent.kalexlab.xyz`)
+      services:
+        - name: prowlarr-qbittorrent
+          port: 8080
+    - kind: Rule
+      match: Host(`radarr.kalexlab.xyz`)
+      services:
+        - name: radarr
+          port: 7878
+    - kind: Rule
+      match: Host(`sonarr.kalexlab.xyz`)
+      services:
+        - name: sonarr
+          port: 8989
+  tls:
+    secretName: media-ingress-certificate-secret

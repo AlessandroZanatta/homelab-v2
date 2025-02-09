@@ -80,7 +80,7 @@ spec:
             #  - Services subnet
             #  - Local subnet
             - name: FIREWALL_OUTBOUND_SUBNETS
-              value: "10.8.0.0/16,10.0.0.0/16,10.32.0.0/16,192.168.0.0/16"
+              value: "10.0.0.0/8,192.168.0.0/16"
             - name: VPN_SERVICE_PROVIDER
               value: "mullvad"
             - name: VPN_TYPE

@@ -1,21 +1,30 @@
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: media
   namespace: argocd
-  annotations:
-    argocd-image-updater.argoproj.io/image-list: "docker.io/linuxserver/jellyfin:10.x, docker.io/qmcgaw/gluetun:v3.x, ghcr.io/flaresolverr/flaresolverr:v3.x, docker.io/linuxserver/prowlarr:1.x, docker.io/linuxserver/qbittorrent:5.x, docker.io/linuxserver/radarr:5.x, docker.io/linuxserver/sonarr:4.x"
-    argocd-image-updater.argoproj.io/write-back-method: git
-    argocd-image-updater.argoproj.io/write-back-target: kustomization
 spec:
-  project: homelab
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - clusters: {}
+  template:
+    metadata:
+      name: media
+      annotations:
+        argocd-image-updater.argoproj.io/image-list: "docker.io/linuxserver/jellyfin:10.x, docker.io/qmcgaw/gluetun:v3.x, ghcr.io/flaresolverr/flaresolverr:v3.x, docker.io/linuxserver/prowlarr:1.x, docker.io/linuxserver/qbittorrent:5.x, docker.io/linuxserver/radarr:5.x, docker.io/linuxserver/sonarr:4.x"
+        argocd-image-updater.argoproj.io/write-back-method: git
+        argocd-image-updater.argoproj.io/write-back-target: kustomization
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+  project: default
   sources:
-    - repoURL: "https://github.com/AlessandroZanatta/homelab.git"
+    - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
       targetRevision: master
-      path: kubernetes/apps/media
+      path: "kubernetes/apps/media/overlays/{{ .metadata.labels.env }}"
   destination:
-    server: "https://kubernetes.default.svc"
+    server: "{{ .server }}"
     namespace: media
   syncPolicy:
     automated:
