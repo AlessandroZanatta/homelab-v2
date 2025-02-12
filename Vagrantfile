@@ -6,7 +6,7 @@ Vagrant.configure("2") do |config|
       domain.cpus = 4
       domain.memory = 8192
       domain.storage :file, :device => :cdrom, :path => iso_path 
-      domain.storage :file, :size => '20G', :type => 'raw'
+      domain.storage :file, :size => '80G', :type => 'raw'
       domain.boot 'hd'
       domain.boot 'cdrom'
     end
@@ -17,7 +17,7 @@ Vagrant.configure("2") do |config|
       domain.cpus = 4
       domain.memory = 8192
       domain.storage :file, :device => :cdrom, :path => iso_path 
-      domain.storage :file, :size => '20G', :type => 'raw'
+      domain.storage :file, :size => '80G', :type => 'raw'
       domain.boot 'hd'
       domain.boot 'cdrom'
     end
