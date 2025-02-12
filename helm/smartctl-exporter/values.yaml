@@ -1,0 +1,15 @@
+---
+config:
+  devices:
+    - /dev/nvme0n1
+    - /dev/sda
+
+extraInstances: []
+# - config:
+#     devices:
+#     - /dev/nvme0n1
+#   nodeSelector:
+#     type: other
+
+serviceMonitor:
+  enabled: true

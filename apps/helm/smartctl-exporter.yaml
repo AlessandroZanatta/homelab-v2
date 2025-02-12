@@ -1,0 +1,40 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: smartctl-exporter
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    # Development environment does not have disks with valid SMART data
+    - clusters:
+        selector:
+          matchLabels:
+            env: prod
+  template:
+    metadata:
+      name: smartctl-exporter
+    spec:
+      project: default
+      sources:
+        - repoURL: "https://prometheus-community.github.io/helm-charts"
+          chart: prometheus-smartctl-exporter
+          targetRevision: 0.*
+          helm:
+            releaseName: smartctl-exporter
+            valueFiles:
+              - $values/helm/smartctl-exporter/values.yaml
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          ref: values
+      destination:
+        server: "{{ .server }}"
+        namespace: prometheus
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
