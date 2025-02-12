@@ -1,7 +1,7 @@
 ---
 clusterName: homelab
 endpoint: "https://${CONTROL_PLANE_VIP}:6443"
-talosVersion: v1.9.2
+talosVersion: v1.9.3
 kubernetesVersion: v1.31.5
 
 nodes:
@@ -20,10 +20,19 @@ nodes:
     ipAddress: 192.168.10.3
     installDisk: /dev/nvme0n1
     controlPlane: false
+    machineDisks:
+      - device: /dev/sda
+        partitions:
+          - mountpoint: /var/mnt/longhorn
+
   - hostname: zeus
     ipAddress: 192.168.10.4
     installDisk: /dev/nvme0n1
     controlPlane: true
+    machineDisks:
+      - device: /dev/sda
+        partitions:
+          - mountpoint: /var/mnt/longhorn
 
 allowSchedulingOnControlPlanes: true
 
