@@ -40,6 +40,7 @@ cniConfig:
   name: none
 
 patches:
+  - "@./patches/machine/kubelet.yaml"
   - "@./patches/machine/longhorn.yaml"
   - "@./patches/machine/features.yaml"
   - "@./patches/cluster/coredns.yaml"

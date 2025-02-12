@@ -11,9 +11,12 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+    - repoURL: "https://github.com/alex1989hu/kubelet-serving-cert-approver.git"
+      targetRevision: release-0.9
+      path: deploy/standalone
+    - repoURL: "https://github.com/kubernetes-sigs/metrics-server.git"
       targetRevision: master
-      path: kubernetes/monitoring/metric-server
+      path: manifests/overlays/release
   destination:
     server: "https://kubernetes.default.svc"
     namespace: kube-system

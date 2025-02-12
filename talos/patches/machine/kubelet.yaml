@@ -1,0 +1,7 @@
+---
+# Required by metric-server
+#   ref: https://www.talos.dev/v1.9/kubernetes-guides/configuration/deploy-metrics-server/
+machine:
+  kubelet:
+    extraArgs:
+      rotate-server-certificates: true
