@@ -1,0 +1,5 @@
+---
+config:
+  oidc:
+    secret:
+      create: false

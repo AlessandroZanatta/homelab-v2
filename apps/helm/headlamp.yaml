@@ -1,0 +1,37 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: headlamp
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - clusters: {}
+  template:
+    metadata:
+      name: headlamp
+    spec:
+      project: default
+      sources:
+        - repoURL: "https://headlamp-k8s.github.io/headlamp/"
+          chart: headlamp
+          targetRevision: 0.x
+          helm:
+            releaseName: headlamp
+            valueFiles:
+              - $values/helm/headlamp/values.yaml
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          path: "helm/headlamp/extra/overlays/{{ .metadata.labels.env }}"
+          ref: values
+      destination:
+        server: "{{ .server }}"
+        namespace: headlamp
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
