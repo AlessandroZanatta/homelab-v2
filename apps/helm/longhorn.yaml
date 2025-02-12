@@ -23,18 +23,13 @@ spec:
             valueFiles:
               - $values/helm/longhorn/values.yaml
               - "$values/helm/longhorn/values-{{ .metadata.labels.env }}.yaml"
-
-        - repoURL: "https://github.com/kubernetes-csi/external-snapshotter.git"
-          targetRevision: 8.*
-          path: deploy/kubernetes/snapshot-controller
-        - repoURL: "https://github.com/kubernetes-csi/external-snapshotter.git"
-          targetRevision: 8.*
-          path: client/config/crd
-
         - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
           targetRevision: master
           path: "helm/longhorn/extra/overlays/{{ .metadata.labels.env }}"
           ref: values
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          path: "helm/longhorn/patches/{{ .metadata.labels.env }}"
       destination:
         server: "{{ .server }}"
         namespace: longhorn-system

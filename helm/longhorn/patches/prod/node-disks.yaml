@@ -1,0 +1,18 @@
+---
+apiVersion: longhorn.io/v1beta2
+kind: Node
+metadata:
+  name: zeus
+  namespace: longhorn-system
+  # https://github.com/argoproj/argo-cd/issues/2437#issuecomment-1264964312
+  annotations:
+    argocd.argoproj.io/sync-options: "ServerSideApply=true"
+spec:
+  disks:
+    sata-disk:
+      allowScheduling: true
+      diskType: filesystem
+      evictionRequested: false
+      path: /var/mnt/longhorn
+      storageReserved: 0
+      tags: []
