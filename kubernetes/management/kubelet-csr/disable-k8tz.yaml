@@ -1,0 +1,7 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kubelet-serving-cert-approver
+  annotations:
+    k8tz.io/inject: "false"

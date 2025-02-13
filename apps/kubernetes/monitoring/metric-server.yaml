@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: metric-server
+  name: metrics-server
   namespace: argocd
   annotations:
     argocd-image-updater.argoproj.io/image-list: "registry.k8s.io/metrics-server/metrics-server:0.x"
@@ -11,9 +11,6 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: "https://github.com/alex1989hu/kubelet-serving-cert-approver.git"
-      targetRevision: release-0.9
-      path: deploy/standalone
     - repoURL: "https://github.com/kubernetes-sigs/metrics-server.git"
       targetRevision: master
       path: manifests/overlays/release
