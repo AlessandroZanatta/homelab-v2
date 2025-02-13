@@ -2,7 +2,7 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: letsencrypt-tls-traefik
+  name: traefik-certificate
   namespace: traefik
 spec:
   commonName: traefik.dev.kalexlab.xyz

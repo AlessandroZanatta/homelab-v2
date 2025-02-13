@@ -5,7 +5,7 @@ metadata:
   namespace: prometheus
   name: grafana-dashboard-certificate
 spec:
-  secretName: letsencrypt-tls-grafana
+  secretName: grafana-ingress-certificate-secret
   dnsNames:
     - grafana.kalexlab.xyz
   issuerRef:
@@ -29,4 +29,4 @@ spec:
         - name: prometheus-grafana
           port: 80
   tls:
-    secretName: letsencrypt-tls-grafana
+    secretName: grafana-ingress-certificate-secret

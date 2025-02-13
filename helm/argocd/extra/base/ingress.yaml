@@ -5,7 +5,7 @@ metadata:
   name: argocd-dashboard-certificate
   namespace: argocd
 spec:
-  secretName: letsencrypt-tls-argocd
+  secretName: argocd-ingress-certificate-secret
   commonName: argocd.kalexlab.xyz
   dnsNames:
     - argocd.kalexlab.xyz
@@ -30,4 +30,4 @@ spec:
         - name: argocd-server
           port: 80
   tls:
-    secretName: letsencrypt-tls-argocd
+    secretName: argocd-ingress-certificate-secret

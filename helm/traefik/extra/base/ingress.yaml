@@ -11,10 +11,10 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: letsencrypt-tls-traefik
+  name: traefik-certificate
   namespace: traefik
 spec:
-  secretName: letsencrypt-tls-traefik
+  secretName: traefik-ingress-certificate-secret
   commonName: traefik.kalexlab.xyz
   dnsNames:
     - traefik.kalexlab.xyz
@@ -41,4 +41,4 @@ spec:
         - kind: TraefikService
           name: api@internal
   tls:
-    secretName: letsencrypt-tls-traefik
+    secretName: traefik-ingress-certificate-secret
