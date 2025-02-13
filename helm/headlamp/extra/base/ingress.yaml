@@ -15,7 +15,7 @@ metadata:
   namespace: headlamp
 spec:
   secretName: headlamp-ingress-certificate-secret
-  commonname: headlamp.kalexlab.xyz
+  commonName: headlamp.kalexlab.xyz
   dnsNames:
     - headlamp.kalexlab.xyz
   issuerRef:
