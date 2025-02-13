@@ -1,8 +1,10 @@
 ---
-- op: test
-  path: /spec/routes/0/match
-  value: Host(`vault.kalexlab.xyz`)
-
-- op: replace
-  path: /spec/routes/0/match
-  value: Host(`vault.dev.kalexlab.xyz`)
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: vaultwarden
+  name: vaultwarden-ingress-certificate
+spec:
+  commonName: vault.dev.kalexlab.xyz
+  dnsNames:
+    - vault.dev.kalexlab.xyz
