@@ -15,7 +15,7 @@ spec:
     spec:
       project: default
       sources:
-        - repoURL: "https://helm.cilium.io/"
+        - repoURL: "https://helm.cilium.io"
           chart: cilium
           targetRevision: 1.*
           helm:
