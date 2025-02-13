@@ -7,11 +7,11 @@ kubernetesVersion: v1.31.5
 nodes:
   # Test nodes on Vagrant
   - hostname: worker
-    ipAddress: worker.local
+    ipAddress: worker
     installDisk: /dev/vda
     controlPlane: false
   - hostname: controller
-    ipAddress: controller.local
+    ipAddress: controller
     installDisk: /dev/vda
     controlPlane: true
 
@@ -33,6 +33,13 @@ nodes:
       - device: /dev/sda
         partitions:
           - mountpoint: /var/mnt/longhorn
+    schematic:
+      customization:
+        extraKernelArgs:
+          - talos.platform=metal
+          # ASPM gives PCIe errors on this node
+          # Power efficiency looks OK even without ASPM (~7-10W idle)
+          - pcie_aspm=off
 
 allowSchedulingOnControlPlanes: true
 
