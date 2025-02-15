@@ -1,0 +1,75 @@
+---
+# Init containers to add to the Velero deployment's pod spec. At least one plugin provider image is required.
+# If the value is a string then it is evaluated as a template.
+initContainers:
+  - name: velero-plugin-for-aws
+    image: velero/velero-plugin-for-aws:v1.11.1
+    imagePullPolicy: Always
+    volumeMounts:
+      - mountPath: /target
+        name: plugins
+  # - name: velero-plugin-for-csi
+  #   image: velero/velero-plugin-for-csi:v0.7.1
+  #   imagePullPolicy: Always
+  #   volumeMounts:
+  #     - mountPath: /target
+  #       name: plugins
+
+# Settings for Velero's prometheus metrics. Enabled by default.
+metrics:
+  enabled: true
+
+  serviceMonitor:
+    enabled: true
+
+##
+## Parameters for the `default` BackupStorageLocation and VolumeSnapshotLocation,
+## and additional server settings.
+##
+configuration:
+  # Parameters for the BackupStorageLocation(s). Configure multiple by adding other element(s) to the backupStorageLocation slice.
+  # See https://velero.io/docs/v1.6/api-types/backupstoragelocation/
+  backupStorageLocation:
+    # name is the name of the backup storage location where backups should be stored. If a name is not provided,
+    # a backup storage location will be created with the name "default". Optional.
+    - name: default
+      # provider is the name for the backup storage location provider.
+      provider: aws
+      # bucket is the name of the bucket to store backups in. Required.
+      bucket: velero
+      credential:
+        # name of the secret used by this backupStorageLocation.
+        name:
+        # name of key that contains the secret data to be used.
+        key:
+      config:
+        region: dummy
+        s3ForcePathStyle: true
+        s3Url: "https://backups.kalexlab.xyz"
+        publicUrl: "https://backups.kalexlab.xyz"
+
+  # Parameters for the VolumeSnapshotLocation(s). Configure multiple by adding other element(s) to the volumeSnapshotLocation slice.
+  # See https://velero.io/docs/v1.6/api-types/volumesnapshotlocation/
+  volumeSnapshotLocation:
+    # name is the name of the volume snapshot location where snapshots are being taken. Required.
+    - name: default
+      provider: aws
+      config:
+        region: dummy
+
+  # Comma separated list of velero feature flags. default: empty
+  features: EnableCSI
+
+# Backup schedules to create.
+# Eg:
+schedules:
+  daily-backup:
+    schedule: "0 2 * * *"
+    template:
+      storageLocation: default
+      excludedNamespaces:
+        - kube-system
+
+      # Do not need to store secrets, they are encrypted as SopsSecrets anyway!
+      excludedNamespaceScopedResources:
+        - secrets

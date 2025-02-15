@@ -1,0 +1,38 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: backups-certificate
+  namespace: backups
+spec:
+  commonName: backups.kalexlab.xyz
+  secretName: backups-ingress-certificate-secret
+  dnsNames:
+    - ui.backups.kalexlab.xyz
+    - backups.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: backups-ingress
+  namespace: backups
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`ui.backups.kalexlab.xyz`)
+      services:
+        - name: minio
+          port: 9001
+    - kind: Rule
+      match: Host(`backups.kalexlab.xyz`)
+      services:
+        - name: minio
+          port: 9000
+  tls:
+    secretName: backups-ingress-certificate-secret
