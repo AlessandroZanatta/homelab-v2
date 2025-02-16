@@ -22,7 +22,7 @@ spec:
             releaseName: longhorn
             valueFiles:
               - $values/helm/longhorn/values.yaml
-              - "$values/helm/longhorn/values-{{ .metadata.labels.env }}.yaml"
+              - $values/helm/longhorn/values-{{ .metadata.labels.env }}.yaml
         - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
           targetRevision: master
           path: "helm/longhorn/extra/overlays/{{ .metadata.labels.env }}"
