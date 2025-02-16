@@ -1,27 +1,35 @@
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: glitchtip
   namespace: argocd
-  annotations:
-    argocd-image-updater.argoproj.io/image-list: "postgres=docker.io/library/postgres:17.x-0, valkey=docker.io/valkey/valkey:8.x-0, docker.io/library/alpine:3.x, docker.io/glitchtip/glitchtip:v4.x"
-    argocd-image-updater.argoproj.io/postgres.allow-tags: "regexp:^.*-alpine$"
-    argocd-image-updater.argoproj.io/valkey.allow-tags: "regexp:^.*-alpine$"
-    argocd-image-updater.argoproj.io/write-back-method: git
-    argocd-image-updater.argoproj.io/write-back-target: kustomization
 spec:
-  project: default
-  sources:
-    - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
-      targetRevision: master
-      path: kubernetes/monitoring/glitchtip
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: glitchtip
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - clusters: {}
+  template:
+    metadata:
+      name: glitchtip
+      annotations:
+        argocd-image-updater.argoproj.io/image-list: "postgres=docker.io/library/postgres:17.x-0, valkey=docker.io/valkey/valkey:8.x-0, docker.io/library/alpine:3.x, docker.io/glitchtip/glitchtip:v4.x"
+        argocd-image-updater.argoproj.io/postgres.allow-tags: "regexp:^.*-alpine$"
+        argocd-image-updater.argoproj.io/valkey.allow-tags: "regexp:^.*-alpine$"
+        argocd-image-updater.argoproj.io/write-back-method: git
+        argocd-image-updater.argoproj.io/write-back-target: kustomization
+    spec:
+      project: default
+      sources:
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          path: "kubernetes/monitoring/glitchtip/overlays/{{ .metadata.labels.env }}"
+      destination:
+        server: "{{ .server }}"
+        namespace: glitchtip
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

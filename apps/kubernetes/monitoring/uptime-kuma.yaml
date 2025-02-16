@@ -1,25 +1,33 @@
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: uptime-kuma
   namespace: argocd
-  annotations:
-    argocd-image-updater.argoproj.io/image-list: "docker.io/library/mariadb:10.x, docker.io/library/alpine:3.x"
-    argocd-image-updater.argoproj.io/write-back-method: git
-    argocd-image-updater.argoproj.io/write-back-target: kustomization
 spec:
-  project: default
-  sources:
-    - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
-      targetRevision: master
-      path: kubernetes/monitoring/uptime-kuma
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: uptime-kuma
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - clusters: {}
+  template:
+    metadata:
+      name: uptime-kuma
+      annotations:
+        argocd-image-updater.argoproj.io/image-list: "docker.io/library/mariadb:10.x, docker.io/library/alpine:3.x"
+        argocd-image-updater.argoproj.io/write-back-method: git
+        argocd-image-updater.argoproj.io/write-back-target: kustomization
+    spec:
+      project: default
+      sources:
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          path: "kubernetes/monitoring/uptime-kuma/overlays/{{ .metadata.labels.env }}"
+      destination:
+        server: "{{ .server }}"
+        namespace: uptime-kuma
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
