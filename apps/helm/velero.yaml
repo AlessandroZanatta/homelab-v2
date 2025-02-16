@@ -22,6 +22,7 @@ spec:
             releaseName: velero
             valueFiles:
               - $values/helm/velero/values.yaml
+              - $values/helm/velero/values-{{ .metadata.labels.env }}.yaml
         - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
           targetRevision: master
           path: "helm/velero/extra/overlays/{{ .metadata.labels.env }}"
