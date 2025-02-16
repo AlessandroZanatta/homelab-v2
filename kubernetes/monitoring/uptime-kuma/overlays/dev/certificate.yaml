@@ -1,0 +1,10 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: uptime-kuma
+  name: uptime-certificate
+spec:
+  commonName: uptime.dev.kalexlab.xyz
+  dnsNames:
+    - uptime.dev.kalexlab.xyz

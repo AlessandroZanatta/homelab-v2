@@ -3,7 +3,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   namespace: glitchtip
-  name: glitchtip-ingress-certificate
+  name: glitchtip-certificate
 spec:
   commonName: glitchtip.kalexlab.xyz
   secretName: glitchtip-ingress-certificate-secret

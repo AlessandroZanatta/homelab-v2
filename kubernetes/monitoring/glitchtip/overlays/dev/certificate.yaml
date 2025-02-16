@@ -1,0 +1,10 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: glitchtip
+  name: glitchtip-certificate
+spec:
+  commonName: glitchtip.dev.kalexlab.xyz
+  dnsNames:
+    - glitchtip.dev.kalexlab.xyz
