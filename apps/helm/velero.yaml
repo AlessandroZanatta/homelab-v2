@@ -1,0 +1,37 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: velero
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - clusters: {}
+  template:
+    metadata:
+      name: velero
+    spec:
+      project: default
+      sources:
+        - repoURL: "https://vmware-tanzu.github.io/helm-charts/"
+          chart: velero
+          targetRevision: 8.x
+          helm:
+            releaseName: velero
+            valueFiles:
+              - $values/helm/velero/values.yaml
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          path: "helm/velero/extra/overlays/{{ .metadata.labels.env }}"
+          ref: values
+      destination:
+        server: "{{ .server }}"
+        namespace: velero
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
