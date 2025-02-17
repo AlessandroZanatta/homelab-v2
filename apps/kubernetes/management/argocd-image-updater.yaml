@@ -8,8 +8,7 @@ spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
   generators:
-    # TODO: evaluate whether this makes sense/is needed
-    # Only run the image updater on the production cluster for now
+    # Only run the image updater on the production cluster to avoid extra commits
     - clusters:
         selector:
           matchLabels:
