@@ -1,0 +1,43 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: ddns-updater
+  name: ddns-updater-certificate
+spec:
+  commonName: ddns.kalexlab.xyz
+  secretName: ddns-updater-ingress-certificate-secret
+  dnsNames:
+    - ddns.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  namespace: ddns-updater
+  name: ddns-updater-basic-auth
+spec:
+  basicAuth:
+    secret: ddns-updater-auth-secrets
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  namespace: ddns-updater
+  name: ddns-updater-ingress
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`ddns.kalexlab.xyz`)
+      services:
+        - name: ddns-updater
+          port: 8000
+      middlewares:
+        - name: ddns-updater-basic-auth
+  tls:
+    secretName: ddns-updater-ingress-certificate-secret

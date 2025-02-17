@@ -1,0 +1,111 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ddns-updater
+  namespace: ddns-updater
+  labels:
+    kalexlab.xyz/app: ddns-updater
+spec:
+  type: ClusterIP
+  ports:
+    - name: ddns-updater
+      port: 8000
+      protocol: TCP
+      targetPort: 8000
+  selector:
+    kalexlab.xyz/app: ddns-updater
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ddns-updater
+  namespace: ddns-updater
+  labels:
+    kalexlab.xyz/app: ddns-updater
+spec:
+  serviceName: ddns-updater
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: ddns-updater
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: ddns-updater
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: ddns-updater
+          image: "ghcr.io/qdm12/ddns-updater:2.9.0"
+          imagePullPolicy: Always
+
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+
+          env:
+            - name: DATADIR
+              value: /data
+            - name: CONFIG_FILEPATH
+              value: /config.json
+
+            # Keep backups disabled
+            - name: BACKUP_PERIOD
+              value: "0"
+
+          resources:
+            requests:
+              memory: 50Mi
+              cpu: 10m
+            limits:
+              memory: 500Mi
+              cpu: 200m
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            periodSeconds: 60
+
+          volumeMounts:
+            - mountPath: /data
+              name: ddns-updater-data-pvc
+            - mountPath: /config.json
+              name: config
+              subPath: config.json
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      volumes:
+        - name: config
+          secret:
+            secretName: ddns-updater-secrets
+
+  volumeClaimTemplates:
+    - metadata:
+        name: ddns-updater-data-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 100Mi

@@ -1,0 +1,10 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ddns-updater-certificate
+  namespace: ddns-updater
+spec:
+  commonName: ddns.dev.kalexlab.xyz
+  dnsNames:
+    - ddns.dev.kalexlab.xyz
