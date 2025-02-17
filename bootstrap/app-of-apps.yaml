@@ -10,6 +10,8 @@ spec:
     - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
       targetRevision: master
       path: apps
+      directory:
+        recurse: true
   destination:
     server: "https://kubernetes.default.svc"
     namespace: argocd
