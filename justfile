@@ -78,7 +78,7 @@ sops SECRET_FILE:
   #!/bin/bash
 
   set -e
-  
+
   just _check_secret_file "{{ SECRET_FILE }}"
 
   SOPS=$(yq -r .sops "{{ SECRET_FILE }}")
@@ -94,7 +94,9 @@ ensure-sops SECRET_FILE:
 
   set -e
 
-  just _check_secret_file "{{ SECRET_FILE }}"
+  if ! just _check_secret_file "{{ SECRET_FILE }}"; then
+    exit 0
+  fi
 
   SOPS=$(yq -r .sops "{{ SECRET_FILE }}")
   # Not encrypted, missing sops header
@@ -126,4 +128,4 @@ yaml-fix:
 
 format:
   just yaml-fix
-  prettier -w 'kubernetes/**/*.y*ml' 'helm/**/*.y*ml' 'apps/**/*.y*ml' 'talos/**/*.yaml'
+  prettier --log-level silent -w 'kubernetes/**/*.y*ml' 'helm/**/*.y*ml' 'apps/**/*.y*ml' 'talos/**/*.yaml'

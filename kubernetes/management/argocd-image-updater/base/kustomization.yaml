@@ -6,7 +6,7 @@ resources:
   - secrets.yaml
 patchesStrategicMerge:
   - conf.yaml
-  - pullsecrets.yaml
+  - deployment.yaml
 images:
   - name: quay.io/argoprojlabs/argocd-image-updater
     newName: registry.kalexlab.xyz/argocd-image-updater

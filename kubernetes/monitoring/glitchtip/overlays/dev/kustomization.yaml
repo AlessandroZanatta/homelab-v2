@@ -10,5 +10,5 @@ patches:
       group: traefik.io
       version: v1alpha1
       kind: IngressRoute
-      name: registry-ingress
-      namespace: registry
+      name: glitchtip-ingress
+      namespace: glitchtip
