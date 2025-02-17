@@ -22,8 +22,8 @@
   register: result
   until:
     - result.rc == 0
-  retries: 30
-  delay: 2
+  retries: 60
+  delay: 3
 
 - name: Configure other nodes
   command: "talosctl -e {{ node.ip|quote }} -n {{ node.ip|quote }} apply-config --file homelab-{{ node.name|quote }}.yaml --insecure"
@@ -44,4 +44,4 @@
   until:
     - result.rc == 0
   retries: 60
-  delay: 2
+  delay: 3

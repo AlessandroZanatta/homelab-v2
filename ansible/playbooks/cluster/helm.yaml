@@ -34,7 +34,7 @@
       register: manifests
 
   always:
-    - name: Delete tempfile for decrypted secrets
+    - name: Delete tempfile for decrypted secrets ({{ chart.release_name }})
       ansible.builtin.file:
         path: "{{ decrypted_secrets_tempfile.path }}"
         state: absent

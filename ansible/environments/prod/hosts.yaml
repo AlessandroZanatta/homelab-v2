@@ -1,14 +1,4 @@
 ---
-controllers:
-  hosts:
-    athena:
-      ansible_host: "192.168.10.2"
-
-workers:
-  hosts:
-    hermes:
-      ansible_host: "192.168.10.3"
-
 ansible_controller:
   hosts:
     apollo:
