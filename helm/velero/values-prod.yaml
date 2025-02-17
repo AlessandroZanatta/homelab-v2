@@ -1,17 +1,25 @@
 ---
 configuration:
-  # Parameters for the BackupStorageLocation(s). Configure multiple by adding other element(s) to the backupStorageLocation slice.
-  # See https://velero.io/docs/v1.6/api-types/backupstoragelocation/
   backupStorageLocation:
-    # name is the name of the backup storage location where backups should be stored. If a name is not provided,
-    # a backup storage location will be created with the name "default". Optional.
     - name: default
-      # provider is the name for the backup storage location provider.
       provider: aws
-      # bucket is the name of the bucket to store backups in. Required.
       bucket: velero
       config:
         region: dummy
         s3ForcePathStyle: true
         s3Url: "https://backups.kalexlab.xyz"
         publicUrl: "https://backups.kalexlab.xyz"
+
+schedules:
+  daily-backup:
+    schedule: "0 2 * * *"
+    template:
+      csiSnapshotTimeout: 2h0m0s
+      storageLocation: default
+      excludedNamespaces:
+        - kube-system
+        - velero
+
+      # Do not need to store secrets, they are encrypted as SopsSecrets anyway!
+      excludedNamespaceScopedResources:
+        - secrets

@@ -7,41 +7,17 @@ initContainers:
       - mountPath: /target
         name: plugins
 
-# Settings for Velero's prometheus metrics. Enabled by default.
 metrics:
   enabled: true
 
   serviceMonitor:
     enabled: true
 
-##
-## Parameters for the `default` BackupStorageLocation and VolumeSnapshotLocation,
-## and additional server settings.
-##
 configuration:
-  # Parameters for the VolumeSnapshotLocation(s). Configure multiple by adding other element(s) to the volumeSnapshotLocation slice.
-  # See https://velero.io/docs/v1.6/api-types/volumesnapshotlocation/
   volumeSnapshotLocation:
-    # name is the name of the volume snapshot location where snapshots are being taken. Required.
     - name: default
       provider: aws
       config:
         region: dummy
 
-  # Comma separated list of velero feature flags. default: empty
   features: EnableCSI
-
-schedules:
-  daily-backup:
-    schedule: "0 2 * * *"
-    template:
-      csiSnapshotTimeout: 2h0m0s
-      storageLocation: default
-      excludedNamespaces:
-        - kube-system
-        - velero
-        - backups
-
-      # Do not need to store secrets, they are encrypted as SopsSecrets anyway!
-      excludedNamespaceScopedResources:
-        - secrets
