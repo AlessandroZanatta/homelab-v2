@@ -216,6 +216,8 @@ data:
           answer: "192.168.10.20"
         - domain: "backups.kalexlab.xyz"
           answer: "192.168.10.20"
+        - domain: "ddns.kalexlab.xyz"
+          answer: "192.168.10.20"
         - domain: "test.reciept.kalexlab.xyz"
           answer: "192.168.10.20"
 
@@ -227,6 +229,11 @@ data:
           answer: "192.168.10.3"
         - domain: "switch.kalexlab.xyz"
           answer: "192.168.10.10"
+
+        - domain: "*.media.kalexlab.xyz"
+          answer: "192.168.10.20"
+        - domain: "*.dev.kalexlab.xyz"
+          answer: "192.168.121.20"
 
       safebrowsing_cache_size: 1048576
       safesearch_cache_size: 1048576
