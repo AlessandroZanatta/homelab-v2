@@ -1,5 +1,19 @@
----
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ../../base
+images:
+  - name: docker.io/linuxserver/jellyfin
+    newTag: 10.10.6
+  - name: docker.io/qmcgaw/gluetun
+    newTag: v3.40.0
+  - name: ghcr.io/flaresolverr/flaresolverr
+    newTag: v3.3.21
+  - name: docker.io/linuxserver/prowlarr
+    newTag: 1.30.2
+  - name: docker.io/linuxserver/qbittorrent
+    newTag: 5.0.3
+  - name: docker.io/linuxserver/radarr
+    newTag: 5.18.4
+  - name: docker.io/linuxserver/sonarr
+    newTag: 4.0.13
