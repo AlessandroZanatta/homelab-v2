@@ -12,7 +12,7 @@ images:
   - name: docker.io/linuxserver/prowlarr
     newTag: 1.30.2
   - name: docker.io/linuxserver/qbittorrent
-    newTag: 5.0.3
+    newTag: 5.0.4
   - name: docker.io/linuxserver/radarr
     newTag: 5.18.4
   - name: docker.io/linuxserver/sonarr
