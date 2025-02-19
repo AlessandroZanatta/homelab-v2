@@ -1,17 +1,17 @@
 ---
 clusterName: homelab
 endpoint: "https://${CONTROL_PLANE_VIP}:6443"
-talosVersion: v1.9.3
+talosVersion: v1.9.2
 kubernetesVersion: v1.31.5
 
 nodes:
   # Test nodes on Vagrant
   - hostname: worker
-    ipAddress: worker
+    ipAddress: worker.local
     installDisk: /dev/vda
     controlPlane: false
   - hostname: controller
-    ipAddress: controller
+    ipAddress: controller.local
     installDisk: /dev/vda
     controlPlane: true
 
@@ -40,6 +40,11 @@ nodes:
           # ASPM gives PCIe errors on this node
           # Power efficiency looks OK even without ASPM (~7-10W idle)
           - pcie_aspm=off
+        systemExtensions:
+          officialExtensions:
+            - siderolabs/intel-ucode
+            - siderolabs/iscsi-tools
+            - siderolabs/util-linux-tools
 
 allowSchedulingOnControlPlanes: true
 
@@ -65,9 +70,9 @@ controlPlane:
         - talos.platform=metal
       systemExtensions:
         officialExtensions:
+          - siderolabs/intel-ucode
           - siderolabs/iscsi-tools
           - siderolabs/util-linux-tools
-          - siderolabs/intel-ucode
 
 worker:
   schematic:
@@ -76,6 +81,6 @@ worker:
         - talos.platform=metal
       systemExtensions:
         officialExtensions:
+          - siderolabs/intel-ucode
           - siderolabs/iscsi-tools
           - siderolabs/util-linux-tools
-          - siderolabs/intel-ucode

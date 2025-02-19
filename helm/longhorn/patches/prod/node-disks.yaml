@@ -8,6 +8,8 @@ metadata:
   #   ref: https://github.com/argoproj/argo-cd/issues/2437#issuecomment-1264964312
   annotations:
     argocd.argoproj.io/sync-options: "ServerSideApply=true"
+    # Make sure to apply last, as it needs to patch the existing Longhorn node
+    argocd.argoproj.io/sync-wave: "99"
 spec:
   disks:
     sata-disk:
@@ -25,6 +27,7 @@ metadata:
   namespace: longhorn-system
   annotations:
     argocd.argoproj.io/sync-options: "ServerSideApply=true"
+    argocd.argoproj.io/sync-wave: "99"
 spec:
   disks:
     sata-disk:
