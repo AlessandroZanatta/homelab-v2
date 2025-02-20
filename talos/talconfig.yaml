@@ -21,16 +21,19 @@ nodes:
     installDisk: /dev/nvme0n1
     controlPlane: false
     machineDisks:
-      - device: /dev/sda
+      - device: /dev/disk/by-id/ata-CT1000MX500SSD1_2406E89658C0
         partitions:
           - mountpoint: /var/mnt/longhorn
+      - device: "/dev/disk/by-id/usb-WD_Elements_2620_575841324134314E33564B52-0:0"
+        partitions:
+          - mountpoint: /var/mnt/backups
 
   - hostname: zeus
     ipAddress: 192.168.10.4
     installDisk: /dev/nvme0n1
     controlPlane: true
     machineDisks:
-      - device: /dev/sda
+      - device: /dev/disk/by-id/ata-CT1000MX500SSD1_2434E988FA39
         partitions:
           - mountpoint: /var/mnt/longhorn
     schematic:
