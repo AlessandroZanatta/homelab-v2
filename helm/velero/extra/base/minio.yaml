@@ -73,7 +73,7 @@ spec:
 
       containers:
         - name: minio
-          image: "quay.io/minio/minio"
+          image: "quay.io/minio/minio:latest"
           imagePullPolicy: Always
           args: ["server", "/data", "--console-address", ":9001"]
 

@@ -12,6 +12,11 @@ spec:
   template:
     metadata:
       name: velero
+      annotations:
+        argocd-image-updater.argoproj.io/image-list: "docker.io/library/alpine:3.x, minio=quay.io/minio/minio:latest"
+        argocd-image-updater.argoproj.io/minio.update-strategy: newest-build
+        argocd-image-updater.argoproj.io/write-back-method: git
+        argocd-image-updater.argoproj.io/write-back-target: kustomization
     spec:
       project: default
       sources:
