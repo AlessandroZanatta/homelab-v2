@@ -1,5 +1,11 @@
----
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ../../base
+images:
+  - name: ghcr.io/immich-app/immich-server
+    newTag: v1.126.1
+  - name: ghcr.io/immich-app/immich-machine-learning
+    newTag: v1.126.1
+  - name: docker.io/valkey/valkey
+    newTag: 8.1.0-rc1-alpine
