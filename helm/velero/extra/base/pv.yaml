@@ -20,5 +20,5 @@ spec:
               values:
                 - hermes
   hostPath:
-    path: "/backups"
+    path: "/var/mnt/backups"
     type: DirectoryOrCreate
