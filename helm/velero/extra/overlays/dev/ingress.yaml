@@ -14,3 +14,6 @@
 - op: replace
   path: /spec/routes/1/match
   value: Host(`ui.backups.dev.kalexlab.xyz`)
+
+- op: remove
+  path: /metadata/annotations/external-dns.alpha.kubernetes.io~1target

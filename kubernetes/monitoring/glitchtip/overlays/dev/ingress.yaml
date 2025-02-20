@@ -6,3 +6,6 @@
 - op: replace
   path: /spec/routes/0/match
   value: Host(`glitchtip.dev.kalexlab.xyz`)
+
+- op: remove
+  path: /metadata/annotations/external-dns.alpha.kubernetes.io~1target

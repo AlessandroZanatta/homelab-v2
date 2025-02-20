@@ -1,0 +1,110 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: external-dns
+  namespace: external-dns
+  labels:
+    kalexlab.xyz/app: external-dns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: external-dns
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: external-dns
+    spec:
+      restartPolicy: Always
+      serviceAccountName: external-dns
+      containers:
+        - name: external-dns
+          image: registry.k8s.io/external-dns/external-dns:v0.15.1
+          args:
+            - --log-level=info
+            - --source=traefik-proxy
+            - --traefik-disable-legacy
+            - --provider=webhook
+            - --registry=txt
+            - --txt-owner-id=external-dns
+
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+
+          ports:
+            - containerPort: 7979
+              protocol: TCP
+
+          resources:
+            requests:
+              memory: 20Mi
+              cpu: 1m
+            limits:
+              memory: 100Mi
+              cpu: 50m
+
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 7979
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 7979
+            periodSeconds: 60
+
+        - name: external-dns-webhook-provider
+          image: ghcr.io/alessandrozanatta/external-dns-porkbun-webhook:main
+          imagePullPolicy: Always
+          args:
+            - --log-level=info
+            - --domain-filter=kalexlab.xyz
+
+          ports:
+            - containerPort: 8888
+              protocol: TCP
+
+          env:
+            - name: PORKBUN_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: porkbun-secrets
+                  key: api-key
+            - name: PORKBUN_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: porkbun-secrets
+                  key: secret-key
+
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+
+          resources:
+            requests:
+              memory: 20Mi
+              cpu: 1m
+            limits:
+              memory: 100Mi
+              cpu: 50m
+
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8888
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8888
+            periodSeconds: 60
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"

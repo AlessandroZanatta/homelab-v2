@@ -38,3 +38,6 @@
 - op: replace
   path: /spec/routes/4/match
   value: Host(`sonarr.dev.kalexlab.xyz`)
+
+- op: remove
+  path: /metadata/annotations/external-dns.alpha.kubernetes.io~1target

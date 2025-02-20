@@ -19,6 +19,8 @@ kind: IngressRoute
 metadata:
   name: backups-ingress
   namespace: velero
+  annotations:
+    external-dns.alpha.kubernetes.io/target: 192.168.10.20
 spec:
   entryPoints:
     - web

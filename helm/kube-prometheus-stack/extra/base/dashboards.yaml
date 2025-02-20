@@ -2502,7 +2502,7 @@ data:
         ]
       },
       "timezone": "",
-      "title": "Kubernetes/Tanzu/Velero",
+      "title": "Kubernetes / Velero",
       "uid": "EbXSjT24k",
       "version": 15,
       "weekStart": ""
@@ -6953,7 +6953,7 @@ data:
       },
       "timepicker": {},
       "timezone": "",
-      "title": "Dashboard for smartctl_exporter",
+      "title": "Smartctl exporter",
       "uid": "f8f249a0-be78-41b1-97fe-8d0a92a71b93",
       "version": 16,
       "weekStart": "",
