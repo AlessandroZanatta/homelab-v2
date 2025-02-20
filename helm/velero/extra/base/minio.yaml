@@ -46,6 +46,30 @@ spec:
       nodeSelector:
         kubernetes.io/hostname: hermes
       restartPolicy: Always
+      initContainers:
+        - name: chown-pv
+          image: "docker.io/library/alpine:3.17"
+          imagePullPolicy: IfNotPresent
+
+          resources:
+            requests:
+              memory: 30Mi
+              cpu: 1m
+            limits:
+              memory: 300Mi
+              cpu: 20m
+
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsUser: 0
+            runAsGroup: 0
+
+          command: ["sh", "-c", "chown -R 1000:1000 /data"]
+
+          volumeMounts:
+            - mountPath: /data
+              name: minio-data-pvc
+
       containers:
         - name: minio
           image: "quay.io/minio/minio"
