@@ -4,12 +4,12 @@ config:
     - /dev/nvme0n1
     - /dev/sda
 
-extraInstances: []
-# - config:
-#     devices:
-#     - /dev/nvme0n1
-#   nodeSelector:
-#     type: other
+extraInstances:
+  - config:
+      devices:
+        - /dev/sdb
+    nodeSelector:
+      kubernetes.io/hostname: hermes
 
 serviceMonitor:
   enabled: true
