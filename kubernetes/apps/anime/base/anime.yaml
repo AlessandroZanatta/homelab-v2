@@ -47,7 +47,7 @@ spec:
       restartPolicy: Always
       initContainers:
         - name: gluetun
-          image: "docker.io/qmcgaw/gluetun:latest"
+          image: "docker.io/qmcgaw/gluetun:v3.40.0"
           restartPolicy: Always
 
           securityContext:
