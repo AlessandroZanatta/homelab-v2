@@ -11,15 +11,13 @@ configuration:
         publicUrl: "https://backups.kalexlab.xyz"
 
 schedules:
-  daily-backup:
-    schedule: "0 2 * * *"
+  full:
+    schedule: "0 */6 * * *"
+    useOwnerReferencesInBackup: false
     template:
       csiSnapshotTimeout: 2h0m0s
+      ttl: 744h0m0s
       storageLocation: default
       excludedNamespaces:
         - kube-system
         - velero
-
-      # Do not need to store secrets, they are encrypted as SopsSecrets anyway!
-      excludedNamespaceScopedResources:
-        - secrets

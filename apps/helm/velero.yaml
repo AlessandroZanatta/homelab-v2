@@ -26,10 +26,6 @@ spec:
     spec:
       project: default
       sources:
-        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
-          targetRevision: master
-          path: "helm/velero/extra/overlays/{{ .metadata.labels.env }}"
-          ref: values
         - repoURL: "https://vmware-tanzu.github.io/helm-charts/"
           chart: velero
           targetRevision: 8.x
@@ -37,8 +33,12 @@ spec:
             releaseName: velero
             valueFiles:
               - $values/helm/velero/values.yaml
-              - "secrets://https://raw.githubusercontent.com/AlessandroZanatta/homelab-v2/master/helm/velero/secrets.yaml"
               - $values/helm/velero/values-{{ .metadata.labels.env }}.yaml
+              - "secrets://https://raw.githubusercontent.com/AlessandroZanatta/homelab-v2/master/helm/velero/secrets.yaml"
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          path: "helm/velero/extra/overlays/{{ .metadata.labels.env }}"
+          ref: values
       destination:
         server: "{{ .server }}"
         namespace: velero
