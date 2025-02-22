@@ -1,0 +1,28 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cloudnative-pg
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: "https://cloudnative-pg.github.io/charts"
+      chart: cloudnative-pg
+      targetRevision: 0.*
+      helm:
+        releaseName: cloudnative-pg
+        valueFiles:
+          - $values/helm/cloudnative-pg/values.yaml
+    - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+      targetRevision: master
+      ref: values
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: cnpg-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
