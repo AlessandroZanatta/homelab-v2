@@ -141,6 +141,8 @@ spec:
 
                     /usr/bin/mc mb myminio/velero;
                     /usr/bin/mc mb myminio/longhorn;
+                    /usr/bin/mc mb myminio/cnpg;
+                    /usr/bin/mc mb myminio/restic;
                     exit 0;',
                   ]
 
