@@ -9,6 +9,3 @@ resources:
   - postgres.yaml
   - anime.yaml
   - ingress.yaml
-images:
-  - name: docker.io/library/postgres
-    newTag: 16.6-alpine

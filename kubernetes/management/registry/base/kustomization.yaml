@@ -9,8 +9,3 @@ resources:
   - registry.yaml
   - ui.yaml
   - ingress.yaml
-images:
-  - name: docker.io/joxit/docker-registry-ui
-    newTag: 2.5.7
-  - name: docker.io/library/registry
-    newTag: 2.8.3

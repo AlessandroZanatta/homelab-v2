@@ -12,8 +12,3 @@ resources:
   - configurator.yaml
   - uptime-kuma.yaml
   - ingress.yaml
-images:
-  - name: docker.io/library/mariadb
-    newTag: 10.11.10
-  - name: docker.io/library/alpine
-    newTag: 3.21.2
