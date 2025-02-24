@@ -65,7 +65,7 @@ spec:
             runAsUser: 0
             runAsGroup: 0
 
-          command: ["sh", "-c", "chown -R 1000:1000 /data"]
+          command: ["sh", "-c", "chown 1000:1000 /data"]
 
           volumeMounts:
             - mountPath: /data
