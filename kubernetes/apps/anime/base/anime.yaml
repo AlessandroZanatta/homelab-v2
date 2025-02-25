@@ -161,8 +161,8 @@ spec:
             - mountPath: /data/cache
               name: anime-cache-pvc
             - mountPath: /etc/secrets/db/dsn
-              name: anime-db-secrets
-              subPath: dsn
+              name: cluster-app
+              subPath: uri
 
         - name: anime-frontend
           image: "registry.kalexlab.xyz/anime/frontend:latest"
@@ -229,9 +229,9 @@ spec:
         - name: anime-conf
           configMap:
             name: anime-conf
-        - name: anime-db-secrets
+        - name: cluster-app
           secret:
-            secretName: anime-db-secrets
+            secretName: cluster-app
 
   volumeClaimTemplates:
     - metadata:

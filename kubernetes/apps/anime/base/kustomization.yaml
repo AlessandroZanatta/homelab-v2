@@ -6,6 +6,6 @@ resources:
   - network-policies.yaml
   - conf.yaml
   - secrets.yaml
-  - postgres.yaml
+  - cluster.yaml
   - anime.yaml
   - ingress.yaml

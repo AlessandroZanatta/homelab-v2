@@ -40,6 +40,35 @@ spec:
         kalexlab.xyz/component: vaultwarden
     spec:
       restartPolicy: Always
+      initContainers:
+        - name: wait-cluster
+          image: "docker.io/library/alpine:3.17"
+          imagePullPolicy: IfNotPresent
+
+          resources:
+            requests:
+              memory: 30Mi
+              cpu: 1m
+            limits:
+              memory: 300Mi
+              cpu: 20m
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
+
+          command:
+            [
+              "sh",
+              "-c",
+              "for i in $(seq 1 300); do nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1",
+            ]
+
       containers:
         - name: app
           image: "docker.io/vaultwarden/server:1.32.7-alpine"
@@ -48,6 +77,11 @@ spec:
           securityContext:
             readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
 
           ports:
             - containerPort: 8080
@@ -61,8 +95,8 @@ spec:
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
-                  name: vaultwarden-db-secrets
-                  key: DATABASE_URL
+                  name: cluster-app
+                  key: uri
             - name: ADMIN_TOKEN
               valueFrom:
                 secretKeyRef:

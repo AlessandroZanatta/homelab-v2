@@ -5,6 +5,7 @@ resources:
   - namespace.yaml
   - network-policies.yaml
   - secrets.yaml
-  - postgres.yaml
+  - cluster.yaml
+  - valkey.yaml
   - nextcloud.yaml
   - ingress.yaml

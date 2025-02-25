@@ -60,7 +60,7 @@ spec:
         - podSelector:
             matchLabels:
               kalexlab.xyz/app: vaultwarden
-              kalexlab.xyz/component: database
+              kalexlab.xyz/component: cluster
       ports:
         - protocol: TCP
           port: 5432
@@ -69,12 +69,12 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   namespace: vaultwarden
-  name: database
+  name: cluster
 spec:
   podSelector:
     matchLabels:
       kalexlab.xyz/app: vaultwarden
-      kalexlab.xyz/component: database
+      kalexlab.xyz/component: cluster
   policyTypes:
     - Ingress
   ingress:

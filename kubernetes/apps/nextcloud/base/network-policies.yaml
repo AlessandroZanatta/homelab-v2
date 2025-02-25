@@ -60,10 +60,18 @@ spec:
         - podSelector:
             matchLabels:
               kalexlab.xyz/app: nextcloud
-              kalexlab.xyz/component: database
+              kalexlab.xyz/component: cluster
       ports:
         - protocol: TCP
           port: 5432
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: nextcloud
+              kalexlab.xyz/component: cache
+      ports:
+        - protocol: TCP
+          port: 6379
     - to:
         - ipBlock:
             cidr: 0.0.0.0/0
@@ -76,12 +84,12 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   namespace: nextcloud
-  name: database
+  name: cluster
 spec:
   podSelector:
     matchLabels:
       kalexlab.xyz/app: nextcloud
-      kalexlab.xyz/component: database
+      kalexlab.xyz/component: cluster
   policyTypes:
     - Ingress
   ingress:
@@ -100,3 +108,37 @@ spec:
       ports:
         - protocol: TCP
           port: 5432
+
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: prometheus
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: 9187
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: nextcloud
+  name: cache
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: nextcloud
+      kalexlab.xyz/component: cache
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: nextcloud
+              kalexlab.xyz/component: nextcloud
+      ports:
+        - protocol: TCP
+          port: 6379
