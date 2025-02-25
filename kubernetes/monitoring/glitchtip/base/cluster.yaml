@@ -1,0 +1,35 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cluster
+  namespace: glitchtip
+spec:
+  inheritedMetadata:
+    labels:
+      kalexlab.xyz/app: glitchtip
+      kalexlab.xyz/component: cluster
+
+  instances: 1
+
+  storage:
+    storageClass: longhorn
+    size: 1Gi
+
+  monitoring:
+    enablePodMonitor: true
+
+  backup:
+    volumeSnapshot:
+      className: longhorn-snapshot-vsc
+      snapshotOwnerReference: none
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: cluster-backup
+spec:
+  schedule: "0 0 */6 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: cluster

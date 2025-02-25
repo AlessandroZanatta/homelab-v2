@@ -1,20 +1,4 @@
 ---
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   namespace: glitchtip
-#   name: worker
-#   labels:
-#     kalexlab.xyz/app: glitchtip
-#     kalexlab.xyz/component: worker
-# spec:
-#   type: ClusterIP
-#   ports: []
-#   selector:
-#     kalexlab.xyz/app: glitchtip
-#     kalexlab.xyz/component: worker
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -80,7 +64,7 @@ spec:
             [
               "sh",
               "-c",
-              "for i in $(seq 1 300); do nc -zvw1 database 5432 && exit 0 || sleep 3; done; exit 1",
+              "for i in $(seq 1 300); do nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1",
             ]
       containers:
         - name: worker
@@ -117,8 +101,8 @@ spec:
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
-                  name: glitchtip-secrets
-                  key: DATABASE_URL
+                  name: cluster-app
+                  key: uri
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
