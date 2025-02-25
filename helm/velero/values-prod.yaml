@@ -13,7 +13,7 @@ configuration:
 schedules:
   full:
     schedule: "0 */6 * * *"
-    useOwnerReferencesInBackup: false
+    useOwnerReferencesInBackup: true
     template:
       csiSnapshotTimeout: 2h0m0s
       ttl: 744h0m0s
