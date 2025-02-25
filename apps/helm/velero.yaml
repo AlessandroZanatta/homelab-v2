@@ -12,17 +12,6 @@ spec:
   template:
     metadata:
       name: velero
-      annotations:
-        # argocd-image-updater.argoproj.io/image-list: "docker.io/library/alpine:3.x, minio=quay.io/minio/minio:latest"
-        # argocd-image-updater.argoproj.io/minio.update-strategy: newest-build
-        # argocd-image-updater.argoproj.io/minio.allow-tags: "regexp:^latest$"
-        # argocd-image-updater.argoproj.io/write-back-method: git
-        # argocd-image-updater.argoproj.io/write-back-target: kustomization
-        #
-        # # As we also use a Helm chart, argocd-image-updater requires
-        # # specifying the repository, as well as the branch
-        # argocd-image-updater.argoproj.io/git-repository: "https://github.com/AlessandroZanatta/homelab-v2.git"
-        # argocd-image-updater.argoproj.io/git-branch: master
     spec:
       project: default
       sources:
@@ -37,7 +26,6 @@ spec:
               - "secrets://https://raw.githubusercontent.com/AlessandroZanatta/homelab-v2/master/helm/velero/secrets.yaml"
         - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
           targetRevision: master
-          path: "helm/velero/extra/overlays/{{ .metadata.labels.env }}"
           ref: values
       destination:
         server: "{{ .server }}"

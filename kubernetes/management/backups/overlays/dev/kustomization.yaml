@@ -11,4 +11,4 @@ patches:
       version: v1alpha1
       kind: IngressRoute
       name: backups-ingress
-      namespace: velero
+      namespace: backups

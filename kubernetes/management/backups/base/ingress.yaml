@@ -3,7 +3,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: backups-certificate
-  namespace: velero
+  namespace: backups
 spec:
   commonName: backups.kalexlab.xyz
   secretName: backups-ingress-certificate-secret
@@ -18,7 +18,7 @@ apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: backups-ingress
-  namespace: velero
+  namespace: backups
   annotations:
     external-dns.alpha.kubernetes.io/target: 192.168.10.20
 spec:
