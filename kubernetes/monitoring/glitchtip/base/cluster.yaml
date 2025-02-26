@@ -31,5 +31,6 @@ metadata:
 spec:
   schedule: "0 0 */6 * * *"
   backupOwnerReference: self
+  method: volumeSnapshot
   cluster:
     name: cluster
