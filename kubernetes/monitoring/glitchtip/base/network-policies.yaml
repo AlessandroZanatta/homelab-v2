@@ -1,2 +1,183 @@
 ---
-# TODO: may be harder to set strict network policies without breaking glitchtip
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: glitchtip
+  name: default-deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: glitchtip
+  name: allow-egress-cluster-dns
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: coredns
+      ports:
+        - protocol: UDP
+          port: 53
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: glitchtip
+  name: web
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: glitchtip
+      kalexlab.xyz/component: web
+  policyTypes:
+    - Egress
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: 8000
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: glitchtip
+              kalexlab.xyz/component: cluster
+      ports:
+        - protocol: TCP
+          port: 5432
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: glitchtip
+              kalexlab.xyz/component: cache
+      ports:
+        - protocol: TCP
+          port: 6379
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: glitchtip
+  name: worker
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: glitchtip
+      kalexlab.xyz/component: worker
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: glitchtip
+              kalexlab.xyz/component: cluster
+      ports:
+        - protocol: TCP
+          port: 5432
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: glitchtip
+              kalexlab.xyz/component: cache
+      ports:
+        - protocol: TCP
+          port: 6379
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: glitchtip
+  name: cache
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: glitchtip
+      kalexlab.xyz/component: cache
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: glitchtip
+              kalexlab.xyz/component: web
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: glitchtip
+              kalexlab.xyz/component: worker
+      ports:
+        - protocol: TCP
+          port: 6379
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: glitchtip
+  name: cluster
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: glitchtip
+      kalexlab.xyz/component: cluster
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: adminerevo
+          podSelector:
+            matchLabels:
+              kalexlab.xyz/app: adminerevo
+
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: glitchtip
+              kalexlab.xyz/component: web
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: glitchtip
+              kalexlab.xyz/component: worker
+      ports:
+        - protocol: TCP
+          port: 5432
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: prometheus
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: 9187
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: cnpg-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: cloudnative-pg
+      ports:
+        - protocol: TCP
+          port: 8000
