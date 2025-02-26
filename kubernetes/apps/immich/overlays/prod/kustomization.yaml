@@ -4,7 +4,7 @@ resources:
   - ../../base
 images:
   - name: ghcr.io/immich-app/immich-server
-    newTag: v1.126.1
+    newTag: v1.127.0
   - name: ghcr.io/immich-app/immich-machine-learning
     newTag: v1.127.0
   - name: docker.io/valkey/valkey
