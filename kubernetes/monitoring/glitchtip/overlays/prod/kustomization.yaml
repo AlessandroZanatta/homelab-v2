@@ -1,4 +1,3 @@
----
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
@@ -9,4 +8,4 @@ images:
   - name: docker.io/library/alpine
     newTag: 3.21.3
   - name: docker.io/glitchtip/glitchtip
-    newTag: v4.2.4
+    newTag: v4.2.5
