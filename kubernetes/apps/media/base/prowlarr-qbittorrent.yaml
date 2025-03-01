@@ -189,14 +189,13 @@ spec:
             - containerPort: 8191
               protocol: TCP
 
-          # TODO
-          # resources:
-          #   requests:
-          #     memory: 150Mi
-          #     cpu: 20m
-          #   limits:
-          #     memory: 500Mi
-          #     cpu: 1000m
+          resources:
+            requests:
+              memory: 100Mi
+              cpu: 20m
+            limits:
+              memory: 500Mi
+              cpu: 1000m
 
           readinessProbe:
             httpGet:
@@ -233,14 +232,13 @@ spec:
             - containerPort: 9696
               protocol: TCP
 
-          # TODO
-          # resources:
-          #   requests:
-          #     memory: 150Mi
-          #     cpu: 20m
-          #   limits:
-          #     memory: 500Mi
-          #     cpu: 1000m
+          resources:
+            requests:
+              memory: 100Mi
+              cpu: 5m
+            limits:
+              memory: 250Mi
+              cpu: 200m
 
           readinessProbe:
             httpGet:
@@ -283,14 +281,13 @@ spec:
             - name: WEBUI_PORT
               value: "8080"
 
-          # TODO
-          # resources:
-          #   requests:
-          #     memory: 150Mi
-          #     cpu: 20m
-          #   limits:
-          #     memory: 500Mi
-          #     cpu: 1000m
+          resources:
+            requests:
+              memory: 100Mi
+              cpu: 5m
+            limits:
+              memory: 250Mi
+              cpu: 200m
 
           readinessProbe:
             httpGet:

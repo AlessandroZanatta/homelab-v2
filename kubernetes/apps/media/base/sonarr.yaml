@@ -49,12 +49,6 @@ spec:
             - containerPort: 8989
               protocol: TCP
 
-          env:
-            - name: PUID
-              value: "1000"
-            - name: PGID
-              value: "1000"
-
           resources:
             requests:
               memory: 100Mi
