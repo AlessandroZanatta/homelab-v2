@@ -59,17 +59,8 @@ spec:
               protocol: TCP
 
           env:
-            - name: DB_URL
-              valueFrom:
-                secretKeyRef:
-                  name: immich-secrets
-                  key: DB_URL
-            - name: REDIS_HOSTNAME
-              value: cache
             - name: MPLCONFIGDIR
               value: "/tmp/mpl"
-            - name: REDIS_PORT
-              value: "6379"
 
           resources:
             requests:
