@@ -16,7 +16,9 @@ l2announcements:
 ipam:
   mode: kubernetes
 
-# In dev, kube proxy replacement did not appear to work
+# Enable local redirects
+localRedirectPolicy: true
+
 kubeProxyReplacement: true
 
 securityContext:
