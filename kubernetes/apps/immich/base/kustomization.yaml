@@ -5,8 +5,7 @@ resources:
   - namespace.yaml
   - network-policies.yaml
   - conf.yaml
-  - secrets.yaml
-  - postgres.yaml
+  - cluster.yaml
   - valkey.yaml
   - immich.yaml
   - machine-learning.yaml

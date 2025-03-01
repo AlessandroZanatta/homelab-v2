@@ -1,1 +1,168 @@
 ---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: immich
+  name: default-deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: immich
+  name: allow-egress-cluster-dns
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: coredns
+      ports:
+        - protocol: UDP
+          port: 53
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: immich
+  name: immich
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: immich
+      kalexlab.xyz/component: immich
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: 2283
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: immich
+              kalexlab.xyz/component: machine-learning
+      ports:
+        - protocol: TCP
+          port: 3003
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: immich
+              kalexlab.xyz/component: cache
+      ports:
+        - protocol: TCP
+          port: 6379
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: immich
+              kalexlab.xyz/component: cluster
+      ports:
+        - protocol: TCP
+          port: 5432
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: immich
+  name: machine-learning
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: immich
+      kalexlab.xyz/component: machine-learning
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: immich
+              kalexlab.xyz/component: immich
+      ports:
+        - protocol: TCP
+          port: 3003
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: immich
+  name: cache
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: immich
+      kalexlab.xyz/component: cache
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: immich
+              kalexlab.xyz/component: immich
+      ports:
+        - protocol: TCP
+          port: 6379
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: immich
+  name: cluster
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: immich
+      kalexlab.xyz/component: cluster
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: immich
+              kalexlab.xyz/component: immich
+      ports:
+        - protocol: TCP
+          port: 5432
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: prometheus
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: 9187
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: cnpg-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: cloudnative-pg
+      ports:
+        - protocol: TCP
+          port: 8000

@@ -25,9 +25,6 @@ metadata:
   labels:
     kalexlab.xyz/app: media
     kalexlab.xyz/component: radarr
-  annotations:
-    ignore-check.kube-linter.io/no-read-only-root-fs: "Uses lots of directories"
-    ignore-check.kube-linter.io/run-as-non-root: "Runs with lower privileges after startup"
 spec:
   serviceName: radarr
   replicas: 1
@@ -45,7 +42,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: app
-          image: "docker.io/linuxserver/radarr:5.17.2"
+          image: "ghcr.io/onedr0p/radarr:5.19.3"
           imagePullPolicy: Always
 
           ports:
@@ -79,9 +76,13 @@ spec:
             periodSeconds: 30
 
           securityContext:
-            # uses a LOT of directories
-            # readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
 
           volumeMounts:
             - mountPath: /data
@@ -93,10 +94,9 @@ spec:
       automountServiceAccountToken: false
 
       securityContext:
-        # Will run with lower privileges after startup anyway
-        # runAsNonRoot: true
-        # runAsUser: 1000
-        # runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
         fsGroup: 1000
         fsGroupChangePolicy: "OnRootMismatch"
 

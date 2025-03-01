@@ -25,9 +25,6 @@ metadata:
   labels:
     kalexlab.xyz/app: media
     kalexlab.xyz/component: jellyfin
-  annotations:
-    ignore-check.kube-linter.io/no-read-only-root-fs: "Uses lots of directories"
-    ignore-check.kube-linter.io/run-as-non-root: "Runs with lower privileges after startup"
 spec:
   serviceName: jellyfin
   replicas: 1
@@ -45,7 +42,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: app
-          image: "docker.io/linuxserver/jellyfin:10.10.3"
+          image: "docker.io/jellyfin/jellyfin:10.10.6"
           imagePullPolicy: Always
 
           ports:
@@ -53,17 +50,15 @@ spec:
               protocol: TCP
 
           env:
-            - name: PUID
-              value: "1000"
-            - name: PGID
-              value: "1000"
+            - name: JELLYFIN_PublishedServerUrl
+              value: "http://jellyfin.kalexlab.xyz"
 
           resources:
             requests:
               memory: 150Mi
               cpu: 20m
             limits:
-              memory: 500Mi
+              memory: 3Gi
               cpu: 3000m
 
           readinessProbe:
@@ -79,7 +74,13 @@ spec:
             periodSeconds: 30
 
           securityContext:
+            readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
 
           volumeMounts:
             - mountPath: /data/media
@@ -89,11 +90,16 @@ spec:
               name: jellyfin-conf-pvc
             - mountPath: /cache
               name: jellyfin-cache
+            - mountPath: /tmp
+              name: tmp
 
       enableServiceLinks: false
       automountServiceAccountToken: false
 
       securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
         fsGroup: 1000
         fsGroupChangePolicy: "OnRootMismatch"
 
@@ -103,6 +109,10 @@ spec:
             claimName: media-data-pvc
         - name: jellyfin-cache
           emptyDir:
+            sizeLimit: 1Gi
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
 
   volumeClaimTemplates:
     - metadata:

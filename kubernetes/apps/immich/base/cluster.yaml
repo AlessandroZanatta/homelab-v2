@@ -1,0 +1,50 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cluster
+  namespace: immich
+spec:
+  inheritedMetadata:
+    labels:
+      kalexlab.xyz/app: immich
+      kalexlab.xyz/component: cluster
+
+  imageName: "ghcr.io/tensorchord/cloudnative-pgvecto.rs:14-v0.2.0"
+
+  postgresql:
+    shared_preload_libraries:
+      - "vectors.so"
+
+  instances: 1
+
+  storage:
+    storageClass: longhorn
+    size: 2Gi
+
+  # Immich requires superuser role to run some
+  # "create extensions" and other commands
+  managed:
+    roles:
+      - name: app
+        superuser: true
+        login: true
+
+  monitoring:
+    enablePodMonitor: true
+
+  backup:
+    volumeSnapshot:
+      className: longhorn-snapshot-vsc
+      snapshotOwnerReference: none
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: cluster-backup
+spec:
+  schedule: "0 0 */6 * * *"
+  backupOwnerReference: self
+  method: volumeSnapshot
+  cluster:
+    name: cluster

@@ -43,6 +43,7 @@ spec:
       kalexlab.xyz/component: jellyfin
   policyTypes:
     - Ingress
+    - Egress
   ingress:
     - from:
         - namespaceSelector:
@@ -54,6 +55,15 @@ spec:
       ports:
         - protocol: TCP
           port: 8096
+  egress:
+    # Allow jellyfin to fetch metadata from external services
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 192.168.0.0/16
+              - 172.16.0.0/20
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

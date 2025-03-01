@@ -16,9 +16,6 @@ l2announcements:
 ipam:
   mode: kubernetes
 
-# Enable local redirects
-localRedirectPolicy: true
-
 kubeProxyReplacement: true
 
 securityContext:
