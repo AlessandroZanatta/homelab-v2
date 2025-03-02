@@ -19,6 +19,17 @@ configs:
       secrets, secrets+literal,
       https
 
+    # Ignore VolumeSnapshot and VolumeSnapshotContent resources
+    # Previously, pruning of these could fail a backup with Velero
+    resource.exclusions: |
+      - apiGroups:
+          - snapshot.storage.k8s.io
+        kinds:
+          - VolumeSnapshot
+          - VolumeSnapshotContent
+        clusters:
+          - "*"
+
 repoServer:
   env:
     - name: HELM_PLUGINS
