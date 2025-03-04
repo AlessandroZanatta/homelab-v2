@@ -1,43 +1,24 @@
 ---
 configuration:
   backupStorageLocation:
-    - name: ENC[AES256_GCM,data:KY1jLp5ZaQ==,iv:KrzjNEMzdjCFfuX4VA+1wDKkx68CUS/kHIegrFeu688=,tag:3NvGeTrM0js6/TXMWHzseg==,type:str]
-      provider: ENC[AES256_GCM,data:Ru3p,iv:C51YKFGZCcEEHkl2IgEIKcvAjxqd+L7jkqGBVj4d0iM=,tag:hjKTH/SU1iKMG/fhDWeb2g==,type:str]
-      bucket: ENC[AES256_GCM,data:2WkyqgOa,iv:wdNaLcEI7TROSl/rXDRskrTE1gENEyH+WR4IO3jhIMo=,tag:EzhrGLTdFGmJCN4gKZjDEg==,type:str]
+    - name: default
+      provider: aws
+      bucket: velero
       config:
-        region: ENC[AES256_GCM,data:jWqToME=,iv:WwaAL/c5Qn/PoeeGsCsLKpSN9403NYS0Z/vDKQJMSqs=,tag:1Q5Giw1mW4MKOJj+gxTtUQ==,type:str]
-        s3ForcePathStyle: ENC[AES256_GCM,data:akhc7g==,iv:ECXly2WzfEIyTlXo//Vgqz4CMCyDP3aEHKT/P6om9IQ=,tag:g/lj4w4q5iVf22NHr41m3g==,type:bool]
-        s3Url: ENC[AES256_GCM,data:QyYj0Oj+HiCE0hJ3yoa5z/JQRUf8yeag/xiZtw==,iv:AMnAk0BAhm7ZyAenK5L3kfBoxT6GwMdDHC0uiq2Rmfs=,tag:n/onHD/A9NYgkQDdS8DNqQ==,type:str]
-        publicUrl: ENC[AES256_GCM,data:ZRvu8uHg3TA97oW3wL1kd23KzNugwHT2xs1XFw==,iv:tpVrOAcxJ+1eKl2ulTrTApnCLAzU14Yb5FZJm46S7OI=,tag:NO0x36ejjaDDqndfiFnsGw==,type:str]
+        region: dummy
+        s3ForcePathStyle: true
+        s3Url: "https://backups.kalexlab.xyz"
+        publicUrl: "https://backups.kalexlab.xyz"
+
 schedules:
-  full:
-    schedule: ENC[AES256_GCM,data:QqAbXO2WV6txqdg=,iv:ksXq8b8gK2BwjprrcRcN3qpMf5SzY7BWLmFHek+8Ow0=,tag:E7WzPACyXmMBqO8wXBeE2Q==,type:str]
-    useOwnerReferencesInBackup: ENC[AES256_GCM,data:rTUz3w==,iv:uybzwHvVHxdH5bgCMOeOAldWId099GtxOSEB4qPBa8U=,tag:hLeqoq7irfp1crpuFgnBCg==,type:bool]
+  every-six-hours:
+    schedule: "0 */6 * * *"
+    useOwnerReferencesInBackup: true
     template:
-      csiSnapshotTimeout: ENC[AES256_GCM,data:CIufeM3a,iv:ntfF61ZwhwisnqZCPPy3JIE/boPOW4nlxhwDVk89Z6Y=,tag:6MDbjNeSiJo9zUs+RAKN6w==,type:str]
-      ttl: ENC[AES256_GCM,data:RLhr6q+mzmo=,iv:eref2c7uFO+rOrv9++ZJ+CZykF0BY5s3asQ9pAHEAcA=,tag:z6R2A99tQh5mWTPM/74Dpw==,type:str]
-      storageLocation: ENC[AES256_GCM,data:pi1zNfRtKA==,iv:4dndnxk2kyJEmIghGQgjgQrZP5JGLcBnQBs5XdiQwTA=,tag:OPEfn0iuXZErm+yOnRBnUw==,type:str]
+      csiSnapshotTimeout: 2h0m0s
+      ttl: 744h0m0s
+      storageLocation: default
       excludedNamespaces:
-        - ENC[AES256_GCM,data:48B0RrOy8RdPutU=,iv:vRE0BfwXJjqOJun1rCT4IfyWCc1cLLtK8SO1kiCiWHM=,tag:7dor1BWY9v+Dh/IobWUGGw==,type:str]
-        - ENC[AES256_GCM,data:uMBoON5H,iv:jE+8eZfTsm6p+RaTbJVZnSkUyTVwCRwso+ZnNdBu8O0=,tag:CPlpO/AWYqFXy43PZppPiA==,type:str]
-        - ENC[AES256_GCM,data:0Rc2AX1Znw==,iv:ElwAgGu27cshcqFXoxRAWuRAcchdQ+rdFsAajc2X2Mo=,tag:m9FxA8TRPClD9QrZYap+ag==,type:str]
-sops:
-  kms: []
-  gcp_kms: []
-  azure_kv: []
-  hc_vault: []
-  age:
-    - recipient: age1ff26etr9n8nsp2ve2lkh7w4dqd9g9m9u3y8aw77ureu639mrfatqmuqnhv
-      enc: |
-        -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA0QlBGdjhCVGZwTktZV3ZG
-        R2RuMVNmL05aaDVxMFMzcGhUTXR1Rk4rV2xJCjl2a2JKM2JCUG8wYnBIS1ZEVTly
-        ZGYxR2F4MG4xbGQyRXhiaHM5NENHWVEKLS0tIHEzMXY2TSsrajcyOHE1TEFvVlBK
-        UVRnOHR2ckx0YWV6M3BiMHNYMEZCbGMKwzxMRSBveg2VSIdb8jfkR8ekxDSJU+T2
-        zhahrXx4v+/WHS54vlMWyt4WfuivOamhVZ69QCaZ4dSCQ+xbQw/sZw==
-        -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2025-02-25T09:14:47Z"
-  mac: ENC[AES256_GCM,data:v//tvKinNaNylnVqTepPkD3er49dua0vo7Ij4bQSK9mpnzafy98FFWBeSAEzbYvhhwXLbzur3HIEtoUzcdNcIj3F6zyzH0PDneqeGxgxw9Nc8XGvBOnc1CPZQ2p96TVgzJye4rCTVPix/ZUcPITT36kefnxp1DYn/1E6W871Yi8=,iv:oH2lCX7xMJIgzckdU4iJ++SpDo1bCjAbuHpDwW4ZkeE=,tag:BMZbg58Su/bO+iyKXFx/tA==,type:str]
-  pgp: []
-  unencrypted_suffix: _unencrypted
-  version: 3.9.1
+        - kube-system
+        - velero
+        - backups

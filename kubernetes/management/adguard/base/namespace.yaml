@@ -3,3 +3,6 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: adguard
+  # Adguard requires NET_BIND_SERVICE to bind to port 53
+  labels:
+    pod-security.kubernetes.io/warn: privileged

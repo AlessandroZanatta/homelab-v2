@@ -74,8 +74,6 @@ spec:
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
-            seccompProfile:
-              type: RuntimeDefault
             capabilities:
               drop:
                 - ALL
@@ -95,6 +93,8 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
         fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
 
       volumes:
         - name: tmp

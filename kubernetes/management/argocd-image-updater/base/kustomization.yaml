@@ -4,9 +4,9 @@ kind: Kustomization
 resources:
   - "https://github.com/argoproj-labs/argocd-image-updater/manifests/base?ref=stable"
   - secrets.yaml
-patchesStrategicMerge:
-  - conf.yaml
-  - deployment.yaml
+patches:
+  - path: conf.yaml
+  - path: deployment.yaml
 images:
   - name: quay.io/argoprojlabs/argocd-image-updater
     newName: registry.kalexlab.xyz/argocd-image-updater

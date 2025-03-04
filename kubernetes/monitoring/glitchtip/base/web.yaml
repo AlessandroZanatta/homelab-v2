@@ -41,7 +41,7 @@ spec:
     spec:
       restartPolicy: Always
       initContainers:
-        - name: wait-valkey
+        - name: wait-deps
           image: "docker.io/library/alpine:3.17"
           imagePullPolicy: IfNotPresent
 
@@ -56,34 +56,15 @@ spec:
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
 
           command:
             [
               "sh",
               "-c",
-              "for i in $(seq 1 300); do nc -zvw1 cache 6379 && exit 0 || sleep 3; done; exit 1",
-            ]
-        - name: wait-cluster
-          image: "docker.io/library/alpine:3.17"
-          imagePullPolicy: IfNotPresent
-
-          resources:
-            requests:
-              memory: 30Mi
-              cpu: 1m
-            limits:
-              memory: 300Mi
-              cpu: 20m
-
-          securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-
-          command:
-            [
-              "sh",
-              "-c",
-              "for i in $(seq 1 300); do nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1",
+              "for i in $(seq 1 300); do nc -zvw1 cache 6379 && nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1",
             ]
       containers:
         - name: web
@@ -157,12 +138,15 @@ spec:
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
 
           volumeMounts:
-            - mountPath: /tmp
-              name: tmp
             - mountPath: /code/uploads
               name: uploads-pvc
+            - mountPath: /tmp
+              name: tmp
 
       enableServiceLinks: false
       automountServiceAccountToken: false
@@ -173,11 +157,13 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
         fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
 
       volumes:
-        - name: tmp
-          emptyDir:
-            sizeLimit: 1Gi
         - name: uploads-pvc
           persistentVolumeClaim:
             claimName: uploads-pvc
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi

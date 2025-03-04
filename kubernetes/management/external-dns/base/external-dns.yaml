@@ -20,7 +20,7 @@ spec:
       serviceAccountName: external-dns
       containers:
         - name: external-dns
-          image: registry.k8s.io/external-dns/external-dns:v0.15.1
+          image: "registry.k8s.io/external-dns/external-dns:v0.15.1"
           args:
             - --log-level=info
             - --source=traefik-proxy
@@ -32,6 +32,9 @@ spec:
           securityContext:
             readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
 
           ports:
             - containerPort: 7979
@@ -82,6 +85,9 @@ spec:
           securityContext:
             readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
 
           resources:
             requests:
@@ -108,3 +114,9 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
         fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+
+      # Requires access to the Kubernetes API
+      enableServiceLinks: true
+      automountServiceAccountToken: true
