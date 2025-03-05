@@ -180,4 +180,20 @@ spec:
               app.kubernetes.io/name: cloudnative-pg
       ports:
         - protocol: TCP
+          port: 5432
+        - protocol: TCP
           port: 8000
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  namespace: glitchtip
+  name: cluster-to-apiserver
+spec:
+  endpointSelector:
+    matchLabels:
+      kalexlab.xyz/app: glitchtip
+      kalexlab.xyz/component: cluster
+  egress:
+    - toEntities:
+        - kube-apiserver

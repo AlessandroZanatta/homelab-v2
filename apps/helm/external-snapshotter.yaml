@@ -15,7 +15,7 @@ spec:
       path: client/config/crd
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: external-snapshotter
+    namespace: kube-system
   syncPolicy:
     automated:
       prune: true
