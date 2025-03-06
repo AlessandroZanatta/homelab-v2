@@ -1,6 +1,6 @@
 ---
 - name: Generate Talos configuration with talhelper
-  command: "talhelper genconfig -s talsecret.yaml -c talconfig.yaml -e talenv.{{ ansible_environment|quote }}.yaml"
+  command: "talhelper genconfig -c talconfig.yaml -s talsecret.{{ ansible_environment|quote }}.yaml -e talenv.{{ ansible_environment|quote }}.yaml"
   args:
     chdir: "{{ talos_path }}"
   environment:

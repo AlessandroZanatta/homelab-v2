@@ -99,11 +99,12 @@ The [longhorn](helm/longhorn) Helm values are then structured as following:
 ### Creating the development cluster
 
 > [!NOTE]
-> The following steps assume you have replaced **ALL** the encrypted secrets with your own generated `sops.agekey` in the root of this repository
-> Note that, at the very least, you should generate a new [talsecret.yaml](talos/talsecret.yaml) file
+> The following steps assume you have replaced **ALL** the encrypted secrets with your own generated `sops.agekey` in the root of this repository.
+>
+> At the very least, you should generate a new [talsecret.dev.yaml](talos/talsecret.dev.yaml) file.
 
 > [!IMPORTANT]
-> The development environment requires quite a bit of RAM (~16GB)
+> The development environment requires quite a bit of RAM (~16GB).
 
 Prerequisites:
 
@@ -130,7 +131,3 @@ kubectl apply -f ./bootstrap/app-of-apps.yaml
 ```
 
 Then all you need to do is... wait. Eventually, all the cluster's applications should be up and running!
-
-> [!WARNING]
-> Currently, spinning the development environment causes Talos discovery to join the development and production nodes, which could end up badly.
-> I still need to find a solution, but using a different talsecrets.yaml file should be sufficient.
