@@ -1,7 +1,7 @@
 ---
 clusterName: homelab
 endpoint: "https://${CONTROL_PLANE_VIP}:6443"
-talosVersion: v1.9.2
+talosVersion: v1.9.4
 kubernetesVersion: v1.31.5
 
 nodes:

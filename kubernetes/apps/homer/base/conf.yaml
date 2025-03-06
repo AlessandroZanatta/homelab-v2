@@ -161,12 +161,6 @@ data:
             tag: "healthcheck"
             url: "https://uptime.kalexlab.xyz?external=true"
             target: "_blank"
-          - name: "Speedtest tracker"
-            subtitle: "Internet speed tracker"
-            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/speedtest-tracker.png"
-            tag: "speedtest"
-            url: "https://speed.kalexlab.xyz?external=true"
-            target: "_blank"
 
       - name: "Networking"
         icon: "fas fa-network-wired"
