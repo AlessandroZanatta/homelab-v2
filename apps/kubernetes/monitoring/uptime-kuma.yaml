@@ -8,7 +8,13 @@ spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
   generators:
-    - clusters: {}
+    # Only create an ArgoCD application for uptime-kuma on the production cluster
+    # Handling the uptime-kuma configuration for two environments is cumbersome, basically futile,
+    # and very likely to get out-of-sync over time
+    - clusters:
+        selector:
+          matchLabels:
+            env: prod
   template:
     metadata:
       name: uptime-kuma

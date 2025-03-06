@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - ../../base
 patches:
+  - path: cluster-backup.yaml
   - path: gluetun.yaml
     target:
       group: apps
