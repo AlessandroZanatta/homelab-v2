@@ -4,4 +4,4 @@ apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
 metadata:
   name: cluster-backup
-  namespace: glitchtir
+  namespace: glitchtip
