@@ -110,8 +110,10 @@ Prerequisites:
 
 - `vagrant` with the `vagrant-libvirt` plugin
 - `justfile`
+- `ansible`
 - `talhelper`
 - `talosctl`
+- `helm` with the `helm-secrets` plugin
 - `kubectl`
 
 To spin up two VMs it is sufficient to execute the following commands:
