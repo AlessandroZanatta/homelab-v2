@@ -1,0 +1,283 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: music
+  name: helper-backend
+  labels:
+    kalexlab.xyz/app: music
+    kalexlab.xyz/component: helper-backend
+spec:
+  type: ClusterIP
+  ports:
+    - name: helper-backend
+      port: 8000
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: music
+    kalexlab.xyz/component: helper-backend
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: music
+  name: helper-backend
+  labels:
+    kalexlab.xyz/app: music
+    kalexlab.xyz/component: helper-backend
+spec:
+  serviceName: helper
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: music
+      kalexlab.xyz/component: helper-backend
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: music
+        kalexlab.xyz/component: helper-backend
+    spec:
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: registry-credentials
+      containers:
+        - name: music
+          image: "registry.kalexlab.xyz/navidrome-helper/backend:latest"
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+
+          env:
+            - name: MUSIC_DIRECTORY
+              value: /music
+            - name: BEET_CONFIG_PATH
+              value: /config.yaml
+            - name: BEET_LIBRARY_PATH
+              value: /library/library.db
+
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 10m
+            limits:
+              memory: 1Gi
+              cpu: 2000m
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            failureThreshold: 3
+            periodSeconds: 30
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          volumeMounts:
+            - mountPath: /library
+              name: beet-library-pvc
+            - mountPath: /config.yaml
+              name: beet-secrets
+              subPath: config.yaml
+            - mountPath: /music
+              name: music-pvc
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /.cache
+              name: cache
+            - mountPath: /.config
+              name: config
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+
+      volumes:
+        - name: music-pvc
+          persistentVolumeClaim:
+            claimName: music-pvc
+        - name: beet-secrets
+          secret:
+            secretName: beet-secrets
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: cache
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: config
+          emptyDir:
+            sizeLimit: 1Gi
+
+  volumeClaimTemplates:
+    - metadata:
+        name: beet-library-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 100Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: music
+  name: helper-frontend
+  labels:
+    kalexlab.xyz/app: music
+    kalexlab.xyz/component: helper-frontend
+spec:
+  type: ClusterIP
+  ports:
+    - name: helper-frontend
+      port: 80
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: music
+    kalexlab.xyz/component: helper-frontend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: music
+  name: helper-frontend
+  labels:
+    kalexlab.xyz/app: music
+    kalexlab.xyz/component: helper-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: music
+      kalexlab.xyz/component: helper-frontend
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: music
+        kalexlab.xyz/component: helper-frontend
+    spec:
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: registry-credentials
+
+      initContainers:
+        - name: copy-nginx
+          image: "registry.kalexlab.xyz/navidrome-helper/frontend:latest"
+          imagePullPolicy: Always
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
+          resources:
+            requests:
+              memory: 20Mi
+              cpu: 5m
+            limits:
+              memory: 200Mi
+              cpu: 100m
+
+          command: ["sh", "-c", "cp -r /etc/nginx/* /mnt/nginx"]
+
+          volumeMounts:
+            - mountPath: /mnt/nginx
+              name: nginx
+
+      containers:
+        - name: music
+          image: "registry.kalexlab.xyz/navidrome-helper/frontend:latest"
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 80
+              protocol: TCP
+
+          resources:
+            requests:
+              memory: 10Mi
+              cpu: 1m
+            limits:
+              memory: 50Mi
+              cpu: 20m
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            failureThreshold: 3
+            periodSeconds: 30
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /etc/nginx
+              name: nginx
+            - mountPath: /var/cache/nginx
+              name: nginx-cache
+            - mountPath: /var/run
+              name: run
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: nginx
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: nginx-cache
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: run
+          emptyDir:
+            sizeLimit: 1Gi

@@ -1,0 +1,12 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - network-policies.yaml
+  - conf.yaml
+  - secrets.yaml
+  - pvc.yaml
+  - helper.yaml
+  - navidrome.yaml
+  - ingress.yaml

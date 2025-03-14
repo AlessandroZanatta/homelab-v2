@@ -1,0 +1,45 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: music
+  name: music-certificate
+spec:
+  commonName: music.kalexlab.xyz
+  secretName: music-ingress-certificate-secret
+  dnsNames:
+    - music.kalexlab.xyz
+    - helper.music.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  namespace: music
+  name: music-ingress
+  annotations:
+    external-dns.alpha.kubernetes.io/target: 192.168.10.20
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`music.kalexlab.xyz`)
+      services:
+        - name: navidrome
+          port: 4533
+    - kind: Rule
+      match: "Host(`helper.music.kalexlab.xyz`) && PathPrefix(`/api`)"
+      services:
+        - name: helper-backend
+          port: 8000
+    - kind: Rule
+      match: Host(`helper.music.kalexlab.xyz`)
+      services:
+        - name: helper-frontend
+          port: 80
+  tls:
+    secretName: music-ingress-certificate-secret

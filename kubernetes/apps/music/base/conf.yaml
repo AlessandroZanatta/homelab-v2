@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: navidrome-conf
+  namespace: music
+data:
+  navidrome.toml: |
+    LogLevel = 'INFO'
+    MusicFolder = '/music'
+    DataFolder = '/data'
+    CacheFolder = '/cache'
+    BaseUrl = 'https://music.kalexlab.xyz'
+
+    EnableInsightsCollector = false
