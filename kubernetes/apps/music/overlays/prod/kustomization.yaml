@@ -3,3 +3,10 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ../../base
+images:
+  - name: docker.io/deluan/navidrome
+    newTag: 0.55.1
+  - name: registry.kalexlab.xyz/navidrome-helper/backend
+    digest: sha256:47e68530735c25ea16322072c67fea838d1a30e411f17bc20a7173a736f9fe30
+  - name: registry.kalexlab.xyz/navidrome-helper/frontend
+    digest: sha256:557f5fbdbbb71000e243cf24233db9e324a8c38e85a44c85f8dc196d8e66472a
