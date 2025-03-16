@@ -25,9 +25,6 @@ metadata:
   labels:
     kalexlab.xyz/app: nextcloud
     kalexlab.xyz/component: nextcloud
-  annotations:
-    ignore-check.kube-linter.io/no-read-only-root-fs: "Apache is a nightmare"
-    ignore-check.kube-linter.io/run-as-non-root: "Nextcloud drops privs (+ it is a nightmare)"
 spec:
   serviceName: nextcloud
   replicas: 1
