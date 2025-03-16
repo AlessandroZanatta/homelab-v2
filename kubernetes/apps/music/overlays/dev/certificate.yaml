@@ -1,0 +1,11 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: music
+  name: music-certificate
+spec:
+  commonName: music.dev.kalexlab.xyz
+  dnsNames:
+    - music.dev.kalexlab.xyz
+    - helper.music.dev.kalexlab.xyz

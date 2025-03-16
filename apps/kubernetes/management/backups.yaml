@@ -18,8 +18,7 @@ spec:
       name: backups
       annotations:
         argocd-image-updater.argoproj.io/image-list: "docker.io/library/alpine:3.x, minio=quay.io/minio/minio:latest"
-        argocd-image-updater.argoproj.io/minio.update-strategy: newest-build
-        argocd-image-updater.argoproj.io/minio.allow-tags: "regexp:^latest$"
+        argocd-image-updater.argoproj.io/minio.update-strategy: digest
         argocd-image-updater.argoproj.io/write-back-method: git
         argocd-image-updater.argoproj.io/write-back-target: kustomization
     spec:

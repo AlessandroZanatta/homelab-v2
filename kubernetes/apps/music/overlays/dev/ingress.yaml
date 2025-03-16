@@ -1,0 +1,27 @@
+---
+- op: test
+  path: /spec/routes/0/match
+  value: Host(`music.kalexlab.xyz`)
+
+- op: replace
+  path: /spec/routes/0/match
+  value: Host(`music.dev.kalexlab.xyz`)
+
+- op: test
+  path: /spec/routes/1/match
+  value: "Host(`helper.music.kalexlab.xyz`) && PathPrefix(`/api`)"
+
+- op: replace
+  path: /spec/routes/1/match
+  value: "Host(`helper.music.dev.kalexlab.xyz`) && PathPrefix(`/api`)"
+
+- op: test
+  path: /spec/routes/2/match
+  value: Host(`helper.music.kalexlab.xyz`)
+
+- op: replace
+  path: /spec/routes/2/match
+  value: Host(`helper.music.dev.kalexlab.xyz`)
+
+- op: remove
+  path: /metadata/annotations/external-dns.alpha.kubernetes.io~1target
