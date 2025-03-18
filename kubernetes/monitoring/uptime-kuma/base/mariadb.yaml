@@ -90,7 +90,7 @@ spec:
                   "mysqladmin ping -hlocalhost -u$MARIADB_USER -p$MARIADB_PASSWORD",
                 ]
             periodSeconds: 10
-            failureThreshold: 3
+            failureThreshold: 12
 
           resources:
             requests:
