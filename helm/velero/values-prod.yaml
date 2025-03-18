@@ -11,12 +11,12 @@ configuration:
         publicUrl: "https://backups.kalexlab.xyz"
 
 schedules:
-  every-six-hours:
-    schedule: "0 */6 * * *"
+  daily:
+    schedule: "0 4 * * *"
     useOwnerReferencesInBackup: true
     template:
       csiSnapshotTimeout: 2h0m0s
-      ttl: 744h0m0s
+      ttl: 336h0m0s
       storageLocation: default
       excludedNamespaces:
         - kube-system

@@ -6,9 +6,9 @@ metadata:
   namespace: longhorn-system
 spec:
   name: snapshot-delete
-  cron: "0 1 * * *"
+  cron: "0 2 * * *"
   task: snapshot-delete
-  retain: 8
+  retain: 2
   concurrency: 1
   groups:
     - default
