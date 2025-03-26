@@ -181,6 +181,8 @@ data:
           answer: "192.168.10.2"
         - domain: "hermes.kalexlab.xyz"
           answer: "192.168.10.3"
+        - domain: "zeus.kalexlab.xyz"
+          answer: "192.168.10.4"
         - domain: "switch.kalexlab.xyz"
           answer: "192.168.10.10"
 
