@@ -7,7 +7,7 @@ images:
   - name: ghcr.io/immich-app/immich-server
     newTag: v1.131.0
   - name: ghcr.io/immich-app/immich-machine-learning
-    newTag: v1.130.3
+    newTag: v1.131.0
   - name: docker.io/valkey/valkey
     newTag: 8.1.0-rc2-alpine
   - name: docker.io/library/alpine
