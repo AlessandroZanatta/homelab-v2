@@ -1,0 +1,6 @@
+---
+machine:
+  certSANs:
+    - athena.kalexlab.xyz
+    - hermes.kalexlab.xyz
+    - zeus.kalexlab.xyz

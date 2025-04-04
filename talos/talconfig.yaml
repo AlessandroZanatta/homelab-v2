@@ -16,6 +16,26 @@ nodes:
     controlPlane: true
 
   # Real nodes for prod
+  - hostname: athena
+    ipAddress: 192.168.10.2
+    installDisk: /dev/mmcblk0
+    controlPlane: false
+    # Currently getting permission errors, taint is required to be set manually:
+    #  user: warning: [2025-03-26T17:56:42.505619856Z]: [talos] controller failed {"component": "controller-runtime", "controller": "k8s.NodeApplyController", "error": "2 error(s) occurred:\n\tnodes \"athena\" is forbidden: node \"athena\" is not allowed to modify taints\n\tclient rate limiter Wait returned an error: rate: Wait(n=1) would exceed context deadline"}
+    # nodeTaints:
+    #   vpn: "true:NoSchedule"
+    schematic:
+      overlay:
+        image: siderolabs/sbc-raspberrypi
+        name: rpi_generic
+      customization:
+        extraKernelArgs:
+          - talos.platform=metal
+        systemExtensions:
+          officialExtensions:
+            - siderolabs/iscsi-tools
+            - siderolabs/util-linux-tools
+
   - hostname: hermes
     ipAddress: 192.168.10.3
     installDisk: /dev/nvme0n1
@@ -58,6 +78,7 @@ patches:
   - "@./patches/machine/kubelet.yaml"
   - "@./patches/machine/longhorn.yaml"
   - "@./patches/machine/features.yaml"
+  - "@./patches/machine/certsans.yaml"
   - "@./patches/cluster/coredns.yaml"
   - "@./patches/cluster/admission_control.yaml"
   - "@./patches/cluster/env.yaml"

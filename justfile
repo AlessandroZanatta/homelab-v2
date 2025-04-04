@@ -13,6 +13,10 @@ tal *ARGS:
 tal-genconfig TALENV='prod':
   SOPS_AGE_KEY_FILE=./sops.agekey talhelper genconfig  -c talos/talconfig.yaml -s "talos/talsecret.{{ TALENV }}.yaml" -e "talos/talenv.{{ TALENV }}.yaml" -o talos/clusterconfig
 
+tal-gencommand-upgrade TALENV='prod':
+  SOPS_AGE_KEY_FILE=./sops.agekey talhelper gencommand upgrade -c talos/talconfig.yaml --env-file "talos/talenv.{{ TALENV }}.yaml"
+
+
 vagrant_run:
   #!/bin/bash
 
