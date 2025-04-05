@@ -5,7 +5,7 @@ resources:
   - ../../base
 images:
   - name: docker.io/deluan/navidrome
-    newTag: 0.55.1
+    newTag: 0.55.2
   - name: registry.kalexlab.xyz/navidrome-helper/backend
     digest: sha256:754de3e7faf276fb91efc24f2d18b02114287b5435f157d0e8dbc58c149bc36e
   - name: registry.kalexlab.xyz/navidrome-helper/frontend
