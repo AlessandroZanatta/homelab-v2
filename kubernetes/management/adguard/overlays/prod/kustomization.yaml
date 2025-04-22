@@ -5,6 +5,6 @@ resources:
   - ../../base
 images:
   - name: docker.io/adguard/adguardhome
-    newTag: v0.107.60
+    newTag: v0.107.61
   - name: docker.io/library/alpine
     newTag: 3.21.3
