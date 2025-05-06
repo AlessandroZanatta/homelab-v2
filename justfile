@@ -27,7 +27,13 @@ vagrant_run:
     exit 1
   fi
 
-  RUN=$(sudo -u "$SUDO_USER" vagrant up 2>&1)
+  if command -v vagrant > /dev/null; then
+    VAGRANT=$(command -v vagrant)
+  else
+    VAGRANT=$(find "$HOME/.local/share/gem/ruby" -type f -name vagrant -executable -print -quit)
+  fi
+
+  RUN=$($VAGRANT up)
   if [[ "$RUN" =~ "already provisioned" ]]; then
     echo "Already running, stop first with 'vagrant destroy'"
     exit 1

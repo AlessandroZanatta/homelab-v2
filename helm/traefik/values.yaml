@@ -62,6 +62,14 @@ ports:
     ## -- The port protocol (TCP/UDP)
     protocol: TCP
 
+    # -- See [upstream documentation](https://doc.traefik.io/traefik/routing/entrypoints/#transport)
+    transport:
+      respondingTimeouts:
+        # Immich requires being able to upload big files (> ~700MB),
+        # and hangs with the default readTimeout (60s).
+        # Currently, it does not appear to be possible to modify this value on a per-route basis
+        readTimeout: 300s
+
     ## Set TLS at the entrypoint
     ## https://doc.traefik.io/traefik/routing/entrypoints/#tls
     tls:
