@@ -5,6 +5,6 @@ resources:
   - ../../base
 images:
   - name: docker.io/b4bz/homer
-    newTag: v25.04.1
+    newTag: v25.05.1
   - name: docker.io/library/alpine
     newTag: 3.21.3
