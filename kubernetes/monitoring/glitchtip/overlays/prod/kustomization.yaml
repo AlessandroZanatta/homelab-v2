@@ -3,10 +3,3 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ../../base
-images:
-  - name: docker.io/library/postgres
-    newTag: 17.4-alpine
-  - name: docker.io/library/alpine
-    newTag: 3.21.3
-  - name: docker.io/glitchtip/glitchtip
-    newTag: v4.2.10

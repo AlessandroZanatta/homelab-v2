@@ -9,7 +9,7 @@ spec:
   sources:
     - repoURL: "https://coredns.github.io/helm"
       chart: coredns
-      targetRevision: 1.*
+      targetRevision: 1.42.0 # TODO: allow updates
       helm:
         releaseName: coredns
         valueFiles:

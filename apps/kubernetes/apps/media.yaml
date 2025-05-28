@@ -15,7 +15,7 @@ spec:
       annotations:
         argocd-image-updater.argoproj.io/image-list: "docker.io/jellyfin/jellyfin:10.x, docker.io/qmcgaw/gluetun:v3.x, ghcr.io/flaresolverr/flaresolverr:v3.x, ghcr.io/onedr0p/prowlarr:1.x, ghcr.io/onedr0p/qbittorrent:5.x, ghcr.io/onedr0p/radarr:5.x, ghcr.io/onedr0p/sonarr:4.x"
         argocd-image-updater.argoproj.io/write-back-method: git
-        argocd-image-updater.argoproj.io/write-back-target: kustomization
+        argocd-image-updater.argoproj.io/write-back-target: "kustomization:../../base"
     spec:
       project: default
       sources:

@@ -16,7 +16,7 @@ spec:
         argocd-image-updater.argoproj.io/image-list: "adminerevo=registry.kalexlab.xyz/adminerevo:latest"
         argocd-image-updater.argoproj.io/adminerevo.update-strategy: digest
         argocd-image-updater.argoproj.io/write-back-method: git
-        argocd-image-updater.argoproj.io/write-back-target: kustomization
+        argocd-image-updater.argoproj.io/write-back-target: "kustomization:../../base"
     spec:
       project: default
       sources:

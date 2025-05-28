@@ -8,3 +8,6 @@ resources:
   - secrets.yaml
   - adminerevo.yaml
   - ingress.yaml
+images:
+  - digest: sha256:bbcc830dab4383e03b2883656650857ef4eaacaa917343246ab64eca36985aed
+    name: registry.kalexlab.xyz/adminerevo

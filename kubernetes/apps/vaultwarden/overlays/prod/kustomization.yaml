@@ -3,8 +3,3 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ../../base
-images:
-  - name: docker.io/library/postgres
-    newTag: 16.8-alpine
-  - name: docker.io/vaultwarden/server
-    newTag: 1.34.1-alpine

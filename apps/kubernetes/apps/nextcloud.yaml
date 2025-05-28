@@ -13,11 +13,10 @@ spec:
     metadata:
       name: nextcloud
       annotations:
-        argocd-image-updater.argoproj.io/image-list: "postgres=docker.io/library/postgres:16.x-0, nextcloud=docker.io/library/nextcloud:30.x-0"
-        argocd-image-updater.argoproj.io/postgres.allow-tags: "regexp:^.*-alpine$"
+        argocd-image-updater.argoproj.io/image-list: "nextcloud=docker.io/library/nextcloud:30.x-0"
         argocd-image-updater.argoproj.io/nextcloud.allow-tags: "regexp:^.*-apache$"
         argocd-image-updater.argoproj.io/write-back-method: git
-        argocd-image-updater.argoproj.io/write-back-target: kustomization
+        argocd-image-updater.argoproj.io/write-back-target: "kustomization:../../base"
     spec:
       project: default
       sources:

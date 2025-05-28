@@ -8,3 +8,6 @@ resources:
   - pv.yaml
   - minio.yaml
   - ingress.yaml
+images:
+  - name: docker.io/library/alpine
+    newTag: 3.21.3

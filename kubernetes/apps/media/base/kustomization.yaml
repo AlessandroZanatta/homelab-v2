@@ -11,3 +11,18 @@ resources:
   - radarr.yaml
   - sonarr.yaml
   - ingress.yaml
+images:
+  - name: docker.io/qmcgaw/gluetun
+    newTag: v3.40.0
+  - name: ghcr.io/flaresolverr/flaresolverr
+    newTag: v3.3.21
+  - name: docker.io/jellyfin/jellyfin
+    newTag: 10.10.7
+  - name: ghcr.io/onedr0p/prowlarr
+    newTag: 1.32.2
+  - name: ghcr.io/onedr0p/qbittorrent
+    newTag: 5.0.4
+  - name: ghcr.io/onedr0p/radarr
+    newTag: 5.19.3
+  - name: ghcr.io/onedr0p/sonarr
+    newTag: 4.0.13

@@ -17,7 +17,7 @@ spec:
         argocd-image-updater.argoproj.io/helper-backend.update-strategy: digest
         argocd-image-updater.argoproj.io/helper-frontend.update-strategy: digest
         argocd-image-updater.argoproj.io/write-back-method: git
-        argocd-image-updater.argoproj.io/write-back-target: kustomization
+        argocd-image-updater.argoproj.io/write-back-target: "kustomization:../../base"
     spec:
       project: default
       sources:

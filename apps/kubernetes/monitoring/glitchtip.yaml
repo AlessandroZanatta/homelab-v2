@@ -13,11 +13,10 @@ spec:
     metadata:
       name: glitchtip
       annotations:
-        argocd-image-updater.argoproj.io/image-list: "postgres=docker.io/library/postgres:17.x-0, valkey=docker.io/valkey/valkey:8.x-0, docker.io/library/alpine:3.x, docker.io/glitchtip/glitchtip:v4.x"
-        argocd-image-updater.argoproj.io/postgres.allow-tags: "regexp:^.*-alpine$"
+        argocd-image-updater.argoproj.io/image-list: "valkey=docker.io/valkey/valkey:8.x-0, docker.io/library/alpine:3.x, docker.io/glitchtip/glitchtip:v4.x"
         argocd-image-updater.argoproj.io/valkey.allow-tags: "regexp:^.*-alpine$"
         argocd-image-updater.argoproj.io/write-back-method: git
-        argocd-image-updater.argoproj.io/write-back-target: kustomization
+        argocd-image-updater.argoproj.io/write-back-target: "kustomization:../../base"
     spec:
       project: default
       sources:

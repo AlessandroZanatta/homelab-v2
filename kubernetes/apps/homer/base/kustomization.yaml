@@ -7,3 +7,8 @@ resources:
   - conf.yaml
   - homer.yaml
   - ingress.yaml
+images:
+  - name: docker.io/b4bz/homer
+    newTag: v25.05.2
+  - name: docker.io/library/alpine
+    newTag: 3.21.3
