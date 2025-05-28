@@ -8,7 +8,7 @@ spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
   generators:
-    # It doesn't really make sense to have backups on a local development cluster imo
+    # No need to backup a local-only development cluster
     - clusters:
         selector:
           matchLabels:
@@ -17,8 +17,7 @@ spec:
     metadata:
       name: backups
       annotations:
-        argocd-image-updater.argoproj.io/image-list: "docker.io/library/alpine:3.x, minio=quay.io/minio/minio:latest"
-        argocd-image-updater.argoproj.io/minio.update-strategy: digest
+        argocd-image-updater.argoproj.io/image-list: "docker.io/library/alpine:3.x"
         argocd-image-updater.argoproj.io/write-back-method: git
         argocd-image-updater.argoproj.io/write-back-target: kustomization
     spec:
