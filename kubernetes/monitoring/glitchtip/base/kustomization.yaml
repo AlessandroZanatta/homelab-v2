@@ -13,8 +13,6 @@ resources:
   - worker.yaml
   - ingress.yaml
 images:
-  - name: docker.io/library/postgres
-    newTag: 17.4-alpine
   - name: docker.io/library/alpine
     newTag: 3.21.3
   - name: docker.io/glitchtip/glitchtip

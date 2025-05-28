@@ -10,7 +10,5 @@ resources:
   - anime.yaml
   - ingress.yaml
 images:
-  - name: docker.io/library/postgres
-    newTag: 16.8-alpine
   - name: docker.io/qmcgaw/gluetun
     newTag: v3.40.0
