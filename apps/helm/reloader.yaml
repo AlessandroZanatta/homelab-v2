@@ -9,7 +9,7 @@ spec:
   sources:
     - repoURL: "https://stakater.github.io/stakater-charts"
       chart: reloader
-      targetRevision: 1.x
+      targetRevision: 2.x
       helm:
         releaseName: reloader
         valueFiles:
