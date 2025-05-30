@@ -188,7 +188,7 @@ spec:
               memory: 100Mi
               cpu: 20m
             limits:
-              memory: 500Mi
+              memory: 2Gi
               cpu: 1000m
 
           readinessProbe:
