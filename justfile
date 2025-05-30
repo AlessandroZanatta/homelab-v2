@@ -16,6 +16,33 @@ tal-genconfig TALENV='prod':
 tal-gencommand-upgrade TALENV='prod':
   SOPS_AGE_KEY_FILE=./sops.agekey talhelper gencommand upgrade -c talos/talconfig.yaml --env-file "talos/talenv.{{ TALENV }}.yaml"
 
+pvc-pod NAMESPACE PVC:
+  #!/bin/bash
+
+  set -e
+
+  cat <<EOF | kubectl apply -f -
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      namespace: {{ NAMESPACE }}
+      name: debug
+    spec:
+      containers:
+        - name: debug
+          image: alpine:latest
+          command:
+            - sleep
+            - infinity
+          volumeMounts:
+            - name: pvc
+              mountPath: /mnt
+      volumes:
+        - name: pvc
+          persistentVolumeClaim:
+            claimName: {{ PVC }}
+      restartPolicy: Never
+  EOF
 
 vagrant_run:
   #!/bin/bash
