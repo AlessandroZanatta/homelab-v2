@@ -81,6 +81,8 @@ spec:
               name: media-data-pvc
             - mountPath: /config
               name: radarr-conf-pvc
+            - mountPath: /tmp
+              name: radarr-tmp
 
       enableServiceLinks: false
       automountServiceAccountToken: false
@@ -98,6 +100,10 @@ spec:
         - name: media-data-pvc
           persistentVolumeClaim:
             claimName: media-data-pvc
+        - name: radarr-tmp
+          emptyDir:
+            sizeLimit: 1Gi
+
   volumeClaimTemplates:
     - metadata:
         name: radarr-conf-pvc

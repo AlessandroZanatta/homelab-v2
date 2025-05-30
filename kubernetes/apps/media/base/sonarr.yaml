@@ -81,6 +81,8 @@ spec:
               name: media-data-pvc
             - mountPath: /config
               name: sonarr-conf-pvc
+            - mountPath: /tmp
+              name: sonarr-tmp
 
       enableServiceLinks: false
       automountServiceAccountToken: false
@@ -98,6 +100,9 @@ spec:
         - name: media-data-pvc
           persistentVolumeClaim:
             claimName: media-data-pvc
+        - name: sonarr-tmp
+          emptyDir:
+            sizeLimit: 1Gi
 
   volumeClaimTemplates:
     - metadata:

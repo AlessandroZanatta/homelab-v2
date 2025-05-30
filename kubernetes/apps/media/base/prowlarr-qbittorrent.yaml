@@ -254,6 +254,8 @@ spec:
           volumeMounts:
             - mountPath: /config
               name: prowlarr-conf-pvc
+            - mountPath: /tmp
+              name: prowlarr-tmp
 
         - name: qbittorrent
           image: "ghcr.io/onedr0p/qbittorrent:5.0.4"
@@ -337,6 +339,9 @@ spec:
           emptyDir:
             sizeLimit: 1Gi
         - name: flaresolverr-app
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: prowlarr-tmp
           emptyDir:
             sizeLimit: 1Gi
 
