@@ -1,0 +1,138 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: manga
+  name: tranga-web
+  labels:
+    kalexlab.xyz/app: manga
+    kalexlab.xyz/component: tranga-web
+spec:
+  type: ClusterIP
+  ports:
+    - name: tranga-web
+      port: 80
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: manga
+    kalexlab.xyz/component: tranga-web
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: manga
+  name: tranga-web
+  labels:
+    kalexlab.xyz/app: manga
+    kalexlab.xyz/component: tranga-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: manga
+      kalexlab.xyz/component: tranga-web
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: manga
+        kalexlab.xyz/component: tranga-web
+    spec:
+      restartPolicy: Always
+      initContainers:
+        - name: copy-nginx
+          image: "docker.io/glax/tranga-website:latest"
+          imagePullPolicy: Always
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
+          resources:
+            requests:
+              memory: 20Mi
+              cpu: 5m
+            limits:
+              memory: 200Mi
+              cpu: 100m
+
+          command: ["sh", "-c", "cp -r /etc/nginx/* /mnt/nginx"]
+
+          volumeMounts:
+            - mountPath: /mnt/nginx
+              name: nginx
+
+      containers:
+        - name: manga
+          # Tranga does not provide any tagging, must use one of latest, cuttingedge, dev
+          image: "docker.io/glax/tranga-website:latest"
+          imagePullPolicy: Always
+
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
+          ports:
+            - containerPort: 80
+              protocol: TCP
+
+          resources:
+            requests:
+              memory: 10Mi
+              cpu: 1m
+            limits:
+              memory: 100Mi
+              cpu: 10m
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            failureThreshold: 3
+            periodSeconds: 30
+
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /etc/nginx
+              name: nginx
+            - mountPath: /var/cache/nginx
+              name: nginx-cache
+            - mountPath: /var/run
+              name: run
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: nginx
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: nginx-cache
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: run
+          emptyDir:
+            sizeLimit: 1Gi

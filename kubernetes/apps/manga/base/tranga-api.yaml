@@ -1,0 +1,117 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: manga
+  name: tranga-api
+  labels:
+    kalexlab.xyz/app: manga
+    kalexlab.xyz/component: tranga-api
+spec:
+  type: ClusterIP
+  ports:
+    - name: tranga-api
+      port: 6531
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: manga
+    kalexlab.xyz/component: tranga-api
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: manga
+  name: tranga-api
+  labels:
+    kalexlab.xyz/app: manga
+    kalexlab.xyz/component: tranga-api
+spec:
+  serviceName: tranga-api
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: manga
+      kalexlab.xyz/component: tranga-api
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: manga
+        kalexlab.xyz/component: tranga-api
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: manga
+          # Tranga does not provide any tagging, must use one of latest, cuttingedge, dev
+          image: "docker.io/glax/tranga-api:latest"
+          imagePullPolicy: Always
+
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
+          ports:
+            - containerPort: 6531
+              protocol: TCP
+
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 10m
+            limits:
+              memory: 1Gi
+              cpu: 500m
+
+          readinessProbe:
+            httpGet:
+              path: /Ping
+              port: 6531
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /Ping
+              port: 6531
+            failureThreshold: 3
+            periodSeconds: 30
+
+          volumeMounts:
+            - mountPath: /Manga
+              name: manga-data-pvc
+            - mountPath: /usr/share/tranga-api
+              name: tranga-settings-pvc
+            - mountPath: /tmp
+              name: tmp
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      volumes:
+        - name: manga-data-pvc
+          persistentVolumeClaim:
+            claimName: manga-data-pvc
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+
+  volumeClaimTemplates:
+    - metadata:
+        name: tranga-settings-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 2Gi

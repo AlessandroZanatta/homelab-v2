@@ -1,0 +1,69 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: manga
+  name: manga-certificate
+spec:
+  commonName: manga.kalexlab.xyz
+  secretName: manga-ingress-certificate-secret
+  dnsNames:
+    - manga.kalexlab.xyz
+    - tranga.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  namespace: manga
+  name: strip-api-prefix
+spec:
+  stripPrefix:
+    prefixes:
+      - /api
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  namespace: manga
+  name: tranga-basic-auth
+spec:
+  basicAuth:
+    secret: tranga-auth-secret
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  namespace: manga
+  name: manga-ingress
+  annotations:
+    external-dns.alpha.kubernetes.io/target: 192.168.10.20
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`manga.kalexlab.xyz`)
+      services:
+        - name: komga
+          port: 25600
+    - kind: Rule
+      match: Host(`tranga.kalexlab.xyz`)
+      services:
+        - name: tranga-web
+          port: 80
+      middlewares:
+        - name: tranga-basic-auth
+    - kind: Rule
+      match: "Host(`tranga.kalexlab.xyz`) && PathPrefix(`/api/`)"
+      services:
+        - name: tranga-api
+          port: 6531
+      middlewares:
+        - name: strip-api-prefix
+        - name: tranga-basic-auth
+  tls:
+    secretName: manga-ingress-certificate-secret

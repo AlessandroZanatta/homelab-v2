@@ -1,0 +1,120 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: manga
+  name: komga
+  labels:
+    kalexlab.xyz/app: manga
+    kalexlab.xyz/component: komga
+spec:
+  type: ClusterIP
+  ports:
+    - name: komga
+      port: 25600
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: manga
+    kalexlab.xyz/component: komga
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: manga
+  name: komga
+  labels:
+    kalexlab.xyz/app: manga
+    kalexlab.xyz/component: komga
+spec:
+  serviceName: komga
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: manga
+      kalexlab.xyz/component: komga
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: manga
+        kalexlab.xyz/component: komga
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: manga
+          image: "docker.io/gotson/komga:1.21.3"
+          imagePullPolicy: Always
+
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
+          ports:
+            - containerPort: 25600
+              protocol: TCP
+
+          resources:
+            requests:
+              memory: 400Mi
+              cpu: 10m
+            # Startup can be pretty slow with low limits,
+            # but the application actually runs with much less afterwards
+            limits:
+              memory: 1Gi
+              cpu: 1500m
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 25600
+            initialDelaySeconds: 90
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 25600
+            failureThreshold: 3
+            periodSeconds: 30
+            initialDelaySeconds: 90
+
+          volumeMounts:
+            - mountPath: /data
+              name: manga-data-pvc
+            - mountPath: /config
+              name: komga-config-pvc
+            - mountPath: /tmp
+              name: tmp
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      volumes:
+        - name: manga-data-pvc
+          persistentVolumeClaim:
+            claimName: manga-data-pvc
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+
+  volumeClaimTemplates:
+    - metadata:
+        name: komga-config-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 100Mi

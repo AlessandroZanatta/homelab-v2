@@ -1,0 +1,35 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: manga
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - clusters: {}
+  template:
+    metadata:
+      name: manga
+      annotations:
+        argocd-image-updater.argoproj.io/image-list: "docker.io/gotson/komga:1.x, tranga-api=docker.io/glax/tranga-api:latest, tranga-web=docker.io/glax/tranga-website:latest"
+        argocd-image-updater.argoproj.io/tranga-api.update-strategy: digest
+        argocd-image-updater.argoproj.io/tranga-web.update-strategy: digest
+        argocd-image-updater.argoproj.io/write-back-method: git
+        argocd-image-updater.argoproj.io/write-back-target: "kustomization:../../base"
+    spec:
+      project: default
+      sources:
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          path: "kubernetes/apps/manga/overlays/{{ .metadata.labels.env }}"
+      destination:
+        server: "{{ .server }}"
+        namespace: manga
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
