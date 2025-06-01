@@ -16,6 +16,9 @@ tal-genconfig TALENV='prod':
 tal-gencommand-upgrade TALENV='prod':
   SOPS_AGE_KEY_FILE=./sops.agekey talhelper gencommand upgrade -c talos/talconfig.yaml --env-file "talos/talenv.{{ TALENV }}.yaml"
 
+debug-pod NAMESPACE:
+  kubectl run -n {{ NAMESPACE }} -it --rm --restart=Never --image=infoblox/dnstools:latest debug
+
 pvc-pod NAMESPACE PVC:
   #!/bin/bash
 
