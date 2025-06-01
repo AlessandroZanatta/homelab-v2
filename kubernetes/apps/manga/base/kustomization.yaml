@@ -10,3 +10,10 @@ resources:
   - tranga-web.yaml
   - komga.yaml
   - ingress.yaml
+images:
+  - name: docker.io/gotson/komga
+    newTag: 1.21.3
+  - name: docker.io/glax/tranga-api
+    digest: sha256:2aa8b36818f6df6c63aa45168482e871efa238ca2f291ee6ea91fec52f8d7314
+  - name: docker.io/glax/tranga-website
+    digest: sha256:483113e03a91bbb09c343f861065c8adb0097555c3a299120d376558a9e63e4f
