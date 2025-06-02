@@ -56,6 +56,10 @@ spec:
             - containerPort: 25600
               protocol: TCP
 
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: -Xmx2g
+
           resources:
             requests:
               memory: 400Mi
@@ -63,7 +67,7 @@ spec:
             # Startup can be pretty slow with low limits,
             # but the application actually runs with much less afterwards
             limits:
-              memory: 1Gi
+              memory: 2Gi
               cpu: 1500m
 
           readinessProbe:
