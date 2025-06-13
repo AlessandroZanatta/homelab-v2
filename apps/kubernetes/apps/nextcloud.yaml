@@ -13,7 +13,7 @@ spec:
     metadata:
       name: nextcloud
       annotations:
-        argocd-image-updater.argoproj.io/image-list: "nextcloud=docker.io/library/nextcloud:30.x-0"
+        argocd-image-updater.argoproj.io/image-list: "nextcloud=docker.io/library/nextcloud:31.0.5-0"
         argocd-image-updater.argoproj.io/nextcloud.allow-tags: "regexp:^.*-apache$"
         argocd-image-updater.argoproj.io/write-back-method: git
         argocd-image-updater.argoproj.io/write-back-target: "kustomization:../../base"
