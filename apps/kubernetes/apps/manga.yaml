@@ -13,9 +13,7 @@ spec:
     metadata:
       name: manga
       annotations:
-        argocd-image-updater.argoproj.io/image-list: "docker.io/gotson/komga:1.x, tranga-api=docker.io/glax/tranga-api:latest, tranga-web=docker.io/glax/tranga-website:latest"
-        argocd-image-updater.argoproj.io/tranga-api.update-strategy: digest
-        argocd-image-updater.argoproj.io/tranga-web.update-strategy: digest
+        argocd-image-updater.argoproj.io/image-list: "docker.io/gotson/komga:1.x"
         argocd-image-updater.argoproj.io/write-back-method: git
         argocd-image-updater.argoproj.io/write-back-target: "kustomization:../../base"
     spec:
