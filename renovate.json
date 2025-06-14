@@ -1,5 +1,11 @@
 {
   "argocd": {
     "managerFilePatterns": ["apps/**/*.yaml"]
-  }
+  },
+  "packageRules": [
+      {
+        "matchManagers": ["argocd", "ansible", "helm-values"],
+        "enabled": true
+      }
+    ]
 }
