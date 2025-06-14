@@ -6,6 +6,11 @@
     {
       "matchManagers": ["argocd", "ansible", "helm-values"],
       "enabled": true
+    },
+    {
+      "description": "Only allow major updates",
+      "matchUpdateTypes": ["minor", "patch", "pin"],
+      "enabled": false
     }
   ]
 }
