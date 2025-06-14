@@ -3,9 +3,9 @@
     "managerFilePatterns": ["apps/**/*.yaml"]
   },
   "packageRules": [
-      {
-        "matchManagers": ["argocd", "ansible", "helm-values"],
-        "enabled": true
-      }
-    ]
+    {
+      "matchManagers": ["argocd", "ansible", "helm-values"],
+      "enabled": true
+    }
+  ]
 }
