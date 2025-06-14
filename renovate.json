@@ -1,43 +1,5 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base"],
-
   "argocd": {
     "managerFilePatterns": ["apps/**/*.yaml"]
-  },
-
-  "packageRules": [
-    {
-      "matchUpdateTypes": ["patch", "minor"],
-      "enabled": false
-    },
-
-    {
-      "matchDatasources": ["helm"],
-      "matchUpdateTypes": ["major"],
-      "separateMajorReleases": true,
-      "automerge": false,
-      "addLabels": [
-        "renovate/helm",
-        "renovate/major",
-        "renovate/breaking-change"
-      ],
-      "prHeader": "chore(helm): update {{depName}} to major version {{newVersion}}",
-      "prBody": "This PR updates the Helm chart `{{depName}}` to a new major version. Please review for potential breaking changes."
-    },
-
-    {
-      "matchDatasources": ["docker"],
-      "matchUpdateTypes": ["major"],
-      "separateMajorReleases": true,
-      "automerge": false,
-      "addLabels": [
-        "renovate/image",
-        "renovate/major",
-        "renovate/breaking-change"
-      ],
-      "prHeader": "chore(image): update {{depName}} to major version {{newVersion}}",
-      "prBody": "This PR updates the Docker image `{{depName}}` to a new major version. Please review for potential breaking changes."
-    }
-  ]
+  }
 }
