@@ -1,16 +1,32 @@
 {
-  "argocd": {
-    "managerFilePatterns": ["apps/**/*.yaml"]
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "argocd": { "managerFilePatterns": ["apps/**/*.yaml"] },
+  "kustomize": {
+    "managerFilePatterns": ["kubernetes/**/*.yaml", "helm/**/*.yaml"]
   },
   "packageRules": [
     {
-      "matchManagers": ["argocd", "ansible", "helm-values"],
-      "enabled": true
+      "description": "Ignore images from registry.kalexlab.xyz since it is not exposed",
+      "matchDatasources": ["docker"],
+      "enabled": false,
+      "matchPackageNames": ["registry.kalexlab.xyz{/,}**"]
     },
     {
-      "description": "Only allow major updates",
-      "matchUpdateTypes": ["minor", "patch", "pin"],
-      "enabled": false
+      "description": "Auto-merge minor and patch releases automatically",
+      "matchDatasources": ["helm", "docker"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "automerge": true,
+      "platformAutomerge": true,
+      "automergeType": "branch",
+      "groupName": "non-breaking-changes"
+    },
+    {
+      "description": "Open PRs for ",
+      "matchDatasources": ["helm", "docker"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "addLabels": ["renovate/major"]
     }
   ]
 }
