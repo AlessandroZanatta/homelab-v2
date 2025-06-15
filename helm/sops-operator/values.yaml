@@ -5,14 +5,6 @@ replicaCount: 1
 # -- If set operator will watch SopsSecret resources only in operator namespace
 namespaced: false
 
-image:
-  # -- Operator image name
-  repository: isindir/sops-secrets-operator
-  # -- Operator image tag
-  tag: 0.12.6
-  # -- Operator image pull policy
-  pullPolicy: Always
-
 metrics:
   # -- Enable prometheus metrics
   enabled: false
