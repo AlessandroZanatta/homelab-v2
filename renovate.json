@@ -7,6 +7,12 @@
   },
   "packageRules": [
     {
+      "description": "Ignore Git repository updates for AlessandroZanatta/homelab-v2",
+      "matchDatasources": ["git-refs"],
+      "matchPackageNames": ["https://github.com/AlessandroZanatta/homelab-v2.git"],
+      "enabled": false
+    },
+    {
       "description": "Ignore images from registry.kalexlab.xyz since it is not exposed",
       "matchDatasources": ["docker"],
       "enabled": false,
