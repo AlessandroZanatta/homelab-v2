@@ -74,21 +74,11 @@ spec:
 
           livenessProbe:
             exec:
-              command:
-                [
-                  "sh",
-                  "-c",
-                  "mariadb-admin ping -hlocalhost -u$MARIADB_USER -p$MARIADB_PASSWORD",
-                ]
+              command: ["sh", "-c", "healthcheck.sh --connect"]
             periodSeconds: 30
           readinessProbe:
             exec:
-              command:
-                [
-                  "sh",
-                  "-c",
-                  "mariadb-admin ping -hlocalhost -u$MARIADB_USER -p$MARIADB_PASSWORD",
-                ]
+              command: ["sh", "-c", "healthcheck.sh --connect"]
             periodSeconds: 10
             failureThreshold: 12
 
