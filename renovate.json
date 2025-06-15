@@ -22,11 +22,12 @@
       "groupName": "non-breaking-changes"
     },
     {
-      "description": "Open PRs for ",
+      "description": "Open PRs for major releases",
       "matchDatasources": ["helm", "docker"],
       "matchUpdateTypes": ["major"],
       "automerge": false,
-      "addLabels": ["renovate/major"]
+      "addLabels": ["renovate/major"],
+      "schedule": ["* * * * 0,6"]
     }
   ]
 }
