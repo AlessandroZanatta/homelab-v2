@@ -24,9 +24,9 @@ providers:
     enabled: false
 
 # -- Global command arguments to be passed to all traefik's pods
-globalArguments:
-  - "--global.checknewversion"
-  - "--global.sendanonymoususage=false"
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: false
 
 ports:
   web:
@@ -45,8 +45,10 @@ ports:
     # Port Redirections
     # Added in 2.2, you can make permanent redirects via entrypoints.
     # https://docs.traefik.io/routing/entrypoints/#redirection
-    redirectTo:
-      port: websecure
+    redirections:
+      entryPoint:
+        to: websecure
+        scheme: https
 
   websecure:
     ## -- Enable this entrypoint as a default entrypoint. When a service doesn't explicitly set an entrypoint it will only use this entrypoint.
