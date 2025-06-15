@@ -7,10 +7,9 @@
   },
   "packageRules": [
     {
-      "description": "Ignore Renovate proposing updates for this repo on Helm charts",
-      "matchFiles": ["**/*.yaml"],
-      "matchDatasources": ["git"],
-      "matchStrings": ["https://github.com/AlessandroZanatta/homelab-v2.git"],
+      "description": "Ignore Renovate proposing updates for our this repo when used as an Argo CD source.",
+      "matchManagers": ["argocd"],
+      "matchDepNames": ["https://github.com/AlessandroZanatta/homelab-v2.git"],
       "enabled": false
     },
     {
