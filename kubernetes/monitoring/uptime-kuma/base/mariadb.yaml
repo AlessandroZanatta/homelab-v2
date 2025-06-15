@@ -78,7 +78,7 @@ spec:
                 [
                   "sh",
                   "-c",
-                  "mysqladmin ping -hlocalhost -u$MARIADB_USER -p$MARIADB_PASSWORD",
+                  "mariadb-admin ping -hlocalhost -u$MARIADB_USER -p$MARIADB_PASSWORD",
                 ]
             periodSeconds: 30
           readinessProbe:
@@ -87,7 +87,7 @@ spec:
                 [
                   "sh",
                   "-c",
-                  "mysqladmin ping -hlocalhost -u$MARIADB_USER -p$MARIADB_PASSWORD",
+                  "mariadb-admin ping -hlocalhost -u$MARIADB_USER -p$MARIADB_PASSWORD",
                 ]
             periodSeconds: 10
             failureThreshold: 12
