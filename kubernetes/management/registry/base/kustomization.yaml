@@ -11,6 +11,6 @@ resources:
   - ingress.yaml
 images:
   - name: docker.io/library/registry
-    newTag: 2.8.3
+    newTag: 3.0.0
   - name: docker.io/joxit/docker-registry-ui
     newTag: 2.5.7
