@@ -39,7 +39,7 @@
     
     {
       "description": "Exclude sops-secrets-operator Helm chart from updates",
-      "matchManagers": ["helm"],
+      "matchManagers": ["argocd"],
       "matchPackageNames": ["sops-secrets-operator"],
       "enabled": false
     }
