@@ -3,6 +3,8 @@ crds:
   enabled: true
   upgradeJob:
     enabled: true
+    # Conflicts with ArgoCD, force it, ArgoCD will fix it later
+    forceConflicts: true
 
 sidecar:
   dashboards:
