@@ -35,6 +35,13 @@
       "automerge": false,
       "addLabels": ["renovate/major"],
       "schedule": ["* * * * 0,6"]
+    },
+    
+    {
+      "description": "Exclude sops-secrets-operator Helm chart from updates",
+      "matchManagers": ["helm"],
+      "matchPackageNames": ["sops-secrets-operator"],
+      "enabled": false
     }
   ]
 }
