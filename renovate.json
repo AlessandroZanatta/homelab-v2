@@ -23,8 +23,6 @@
       "description": "Auto-merge minor and patch releases automatically",
       "matchUpdateTypes": ["patch", "minor"],
       "automerge": true,
-      "platformAutomerge": true,
-      "automergeType": "branch",
       "groupName": "non-breaking-changes"
     },
     {
