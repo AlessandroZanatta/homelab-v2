@@ -21,7 +21,6 @@
     },
     {
       "description": "Auto-merge minor and patch releases automatically",
-      "matchDatasources": ["helm", "docker"],
       "matchUpdateTypes": ["patch", "minor"],
       "automerge": true,
       "platformAutomerge": true,
@@ -30,13 +29,12 @@
     },
     {
       "description": "Open PRs for major releases",
-      "matchDatasources": ["helm", "docker"],
       "matchUpdateTypes": ["major"],
       "automerge": false,
-      "addLabels": ["renovate/major"],
+      "addLabels": ["renovate/major", "breaking"],
       "schedule": ["* * * * 0,6"]
     },
-    
+
     {
       "description": "Exclude sops-secrets-operator Helm chart from updates",
       "matchManagers": ["argocd"],
