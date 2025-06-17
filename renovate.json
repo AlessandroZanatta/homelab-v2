@@ -1,43 +1,36 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
-  "prHourlyLimit": 10,
+  "extends": [
+    "config:recommended",
+    ":automergeMinor",
+    ":semanticCommits",
+    ":dependencyDashboard",
+    ":assignee(AlessandroZanatta)",
+    ":disableRateLimiting",
+    ":automergeBranch",
+    ":timezone(Europe/Rome)"
+  ],
   "argocd": { "managerFilePatterns": ["apps/**/*.yaml"] },
   "kustomize": {
-    "managerFilePatterns": ["kubernetes/**/*.yaml", "helm/**/*.yaml"]
+    "managerFilePatterns": [
+      "kubernetes/**/kustomization.yaml",
+      "helm/**/kustomization.yaml"
+    ]
   },
   "packageRules": [
     {
-      "description": "Ignore Renovate proposing updates for our this repo when used as an Argo CD source.",
-      "matchManagers": ["argocd"],
-      "matchDepNames": ["https://github.com/AlessandroZanatta/homelab-v2.git"],
-      "enabled": false
-    },
-    {
       "description": "Ignore images from registry.kalexlab.xyz since it is not exposed",
       "matchDatasources": ["docker"],
-      "enabled": false,
-      "matchPackageNames": ["registry.kalexlab.xyz{/,}**"]
+      "matchPackageNames": ["registry.kalexlab.xyz{/,}**"],
+      "enabled": false
     },
-    {
-      "description": "Auto-merge minor and patch releases automatically",
-      "matchUpdateTypes": ["patch", "minor"],
-      "automerge": true,
-      "groupName": "non-breaking-changes"
-    },
-    {
-      "description": "Open PRs for major releases",
-      "matchUpdateTypes": ["major"],
-      "automerge": false,
-      "addLabels": ["renovate/major", "breaking"],
-      "schedule": ["* * * * 0,6"]
-    },
-
     {
       "description": "Exclude sops-secrets-operator Helm chart from updates",
       "matchManagers": ["argocd"],
       "matchPackageNames": ["sops-secrets-operator"],
       "enabled": false
     }
-  ]
+  ],
+
+  "dependencyDashboardTitle": "Renovate Dashboard 🤖"
 }
