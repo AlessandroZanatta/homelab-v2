@@ -1,8 +1,8 @@
 ---
 clusterName: homelab
 endpoint: "https://${CONTROL_PLANE_VIP}:6443"
-talosVersion: v1.9.4
-kubernetesVersion: v1.31.5
+talosVersion: v1.10.4
+kubernetesVersion: v1.32.4
 
 nodes:
   # Test nodes on Vagrant
