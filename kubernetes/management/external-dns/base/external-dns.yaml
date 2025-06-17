@@ -20,7 +20,7 @@ spec:
       serviceAccountName: external-dns
       containers:
         - name: external-dns
-          image: "registry.k8s.io/external-dns/external-dns:v0.15.1"
+          image: "registry.k8s.io/external-dns/external-dns:v0.14.0"
           args:
             - --log-level=info
             - --source=traefik-proxy
@@ -60,7 +60,7 @@ spec:
             periodSeconds: 60
 
         - name: external-dns-webhook-provider
-          image: ghcr.io/alessandrozanatta/external-dns-porkbun-webhook:main
+          image: ghcr.io/alessandrozanatta/external-dns-porkbun-webhook:1.0.0
           imagePullPolicy: Always
           args:
             - --log-level=info
