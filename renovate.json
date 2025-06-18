@@ -3,6 +3,7 @@
   "extends": [
     "config:recommended",
     ":automergeMinor",
+    ":automergeDigest",
     ":semanticCommits",
     ":dependencyDashboard",
     ":assignee(AlessandroZanatta)",
