@@ -4,6 +4,7 @@
     "config:recommended",
     ":automergeMinor",
     ":automergeDigest",
+    ":skipStatusChecks",
     ":semanticCommits",
     ":dependencyDashboard",
     ":assignee(AlessandroZanatta)",
