@@ -8,6 +8,6 @@ resources:
   - ./external-dns.yaml
 images:
   - name: registry.k8s.io/external-dns/external-dns
-    newTag: v0.17.0
+    newTag: v0.18.0
   - digest: sha256:aebd8195ac2e7addfde5626465e3b14ad0b7223ced7b1ea98cde3fbf6c7fd7b9
     name: ghcr.io/alessandrozanatta/external-dns-porkbun-webhook
