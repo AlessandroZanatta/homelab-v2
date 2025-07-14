@@ -8,7 +8,7 @@ lint *ARGS:
   kube-linter lint --exclude latest-tag kubernetes {{ ARGS }}
 
 tal *ARGS:
-  talosctl -e {{ DEFAULT_TALOS_ENDPOINT }} {{ ARGS }}
+  talosctl --talosconfig talos/clusterconfig/talosconfig {{ ARGS }}
 
 tal-genconfig TALENV='prod':
   SOPS_AGE_KEY_FILE=./sops.agekey talhelper genconfig  -c talos/talconfig.yaml -s "talos/talsecret.{{ TALENV }}.yaml" -e "talos/talenv.{{ TALENV }}.yaml" -o talos/clusterconfig
