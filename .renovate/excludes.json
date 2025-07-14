@@ -1,0 +1,23 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "packageRules": [
+    {
+      "description": "Ignore images from registry.kalexlab.xyz since it is not exposed",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["registry.kalexlab.xyz{/,}**"],
+      "enabled": false
+    },
+    {
+      "description": "Exclude sops-secrets-operator Helm chart from updates",
+      "matchManagers": ["argocd"],
+      "matchPackageNames": ["sops-secrets-operator"],
+      "enabled": false
+    },
+    {
+      "description": "Exclude Kubernetes minor (and major) updates until officially supported by the majority of tools",
+      "matchDepNames": ["siderolabs/kubelet"],
+      "matchUpdateTypes": ["major", "minor"],
+      "enabled": false
+    }
+  ]
+}

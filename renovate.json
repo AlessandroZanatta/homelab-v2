@@ -10,7 +10,10 @@
     ":assignee(AlessandroZanatta)",
     ":disableRateLimiting",
     ":automergeBranch",
-    ":timezone(Europe/Rome)"
+    ":timezone(Europe/Rome)",
+
+    "github>alessandrozanatta/homelab-v2//.renovate/labels.json",
+    "github>alessandrozanatta/homelab-v2//.renovate/excludes.json"
   ],
   "argocd": { "managerFilePatterns": ["apps/**/*.yaml"] },
   "kustomize": {
@@ -21,18 +24,20 @@
   },
   "packageRules": [
     {
-      "description": "Ignore images from registry.kalexlab.xyz since it is not exposed",
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["registry.kalexlab.xyz{/,}**"],
-      "enabled": false
-    },
-    {
-      "description": "Exclude sops-secrets-operator Helm chart from updates",
-      "matchManagers": ["argocd"],
-      "matchPackageNames": ["sops-secrets-operator"],
-      "enabled": false
+      "description": "Do not automerge Talos and Kubernetes version upgrades. Using siderolabs/kubelet instead of kubernetes/kubernetes as dependency to ensure workers can be updated correctly.",
+      "matchDepNames": ["siderolabs/talos", "siderolabs/kubelet"],
+      "automerge": false
     }
   ],
-
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update Talos and Kubernetes versions in talconfig.yaml",
+      "managerFilePatterns": ["talos/talconfig.yaml"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\s\\S+:\\W?v?(?<currentValue>\\S+)"
+      ]
+    }
+  ],
   "dependencyDashboardTitle": "Renovate Dashboard 🤖"
 }
