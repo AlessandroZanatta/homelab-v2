@@ -11,4 +11,4 @@ images:
   - name: docker.io/b4bz/homer
     newTag: v25.05.2
   - name: docker.io/library/alpine
-    newTag: 3.22.0
+    newTag: 3.22.1

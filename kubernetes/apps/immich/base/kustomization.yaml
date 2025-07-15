@@ -18,4 +18,4 @@ images:
   - name: docker.io/valkey/valkey
     newTag: 8.1.3-alpine
   - name: docker.io/library/alpine
-    newTag: 3.22.0
+    newTag: 3.22.1
