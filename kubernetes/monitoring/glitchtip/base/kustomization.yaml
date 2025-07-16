@@ -16,4 +16,4 @@ images:
   - name: docker.io/library/alpine
     newTag: 3.22.1
   - name: docker.io/glitchtip/glitchtip
-    newTag: v5.0.8
+    newTag: v5.0.9
