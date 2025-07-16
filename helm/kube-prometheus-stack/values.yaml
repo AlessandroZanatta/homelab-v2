@@ -14,6 +14,45 @@ grafana:
   enabled: true
   defaultDashboardsTimezone: Europe/Rome
 
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: "default"
+          orgId: 1
+          folder: ""
+          type: file
+          disableDeletion: true
+          editable: false
+          options:
+            path: /var/lib/grafana/dashboards/default
+
+  dashboards:
+    default:
+      cloudnative-pg:
+        gnetId: 20417
+        revision: 4
+        datasource: Prometheus
+      smartctl-exporter-2:
+        url: "https://raw.githubusercontent.com/blesswinsamuel/grafana-dashboards/refs/heads/main/dashboards/dist/dashboards/smartctl.json"
+        datasource: Prometheus
+      velero:
+        gnetId: 16829
+        revision: 5
+        datasource: Prometheus
+      kubernetes-views-global:
+        gnetId: 15757
+        revision: 43
+        datasource: Prometheus
+      longhorn:
+        gnetId: 16888
+        revision: 9
+        datasource: Prometheus
+      node-exporter-temperature:
+        gnetId: 15202
+        revision: 1
+        datasource: Prometheus
+
 prometheusOperator:
   tls:
     enabled: false
