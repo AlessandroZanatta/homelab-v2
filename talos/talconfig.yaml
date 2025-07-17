@@ -7,6 +7,39 @@ talosVersion: v1.10.5
 # renovate: datasource=github-releases depName=siderolabs/kubelet
 kubernetesVersion: v1.32.6
 
+controlPlane:
+  patches:
+    - "@./patches/machine/vip.yaml"
+    - "@./patches/cluster/kube-proxy.yaml"
+    - "@./patches/cluster/metrics.yaml"
+
+  schematic: &schematic
+    customization:
+      extraKernelArgs: &extraKernelArgs
+        - talos.platform=metal
+      systemExtensions: &systemExtensions
+        officialExtensions:
+          - siderolabs/intel-ucode
+          - siderolabs/iscsi-tools
+          - siderolabs/util-linux-tools
+
+worker:
+  schematic: *schematic
+
+allowSchedulingOnControlPlanes: true
+
+cniConfig:
+  name: none
+
+patches:
+  - "@./patches/machine/kubelet.yaml"
+  - "@./patches/machine/longhorn.yaml"
+  - "@./patches/machine/features.yaml"
+  - "@./patches/machine/certsans.yaml"
+  - "@./patches/cluster/coredns.yaml"
+  - "@./patches/cluster/admission_control.yaml"
+  - "@./patches/cluster/env.yaml"
+
 nodes:
   # Test nodes on Vagrant
   - hostname: worker
@@ -32,8 +65,7 @@ nodes:
         image: siderolabs/sbc-raspberrypi
         name: rpi_generic
       customization:
-        extraKernelArgs:
-          - talos.platform=metal
+        extraKernelArgs: *extraKernelArgs
         systemExtensions:
           officialExtensions:
             - siderolabs/iscsi-tools
@@ -66,48 +98,4 @@ nodes:
           # ASPM gives PCIe errors on this node
           # Power efficiency looks OK even without ASPM (~7-10W idle)
           - pcie_aspm=off
-        systemExtensions:
-          officialExtensions:
-            - siderolabs/intel-ucode
-            - siderolabs/iscsi-tools
-            - siderolabs/util-linux-tools
-
-allowSchedulingOnControlPlanes: true
-
-cniConfig:
-  name: none
-
-patches:
-  - "@./patches/machine/kubelet.yaml"
-  - "@./patches/machine/longhorn.yaml"
-  - "@./patches/machine/features.yaml"
-  - "@./patches/machine/certsans.yaml"
-  - "@./patches/cluster/coredns.yaml"
-  - "@./patches/cluster/admission_control.yaml"
-  - "@./patches/cluster/env.yaml"
-
-controlPlane:
-  patches:
-    - "@./patches/machine/vip.yaml"
-    - "@./patches/cluster/kube-proxy.yaml"
-
-  schematic:
-    customization:
-      extraKernelArgs:
-        - talos.platform=metal
-      systemExtensions:
-        officialExtensions:
-          - siderolabs/intel-ucode
-          - siderolabs/iscsi-tools
-          - siderolabs/util-linux-tools
-
-worker:
-  schematic:
-    customization:
-      extraKernelArgs:
-        - talos.platform=metal
-      systemExtensions:
-        officialExtensions:
-          - siderolabs/intel-ucode
-          - siderolabs/iscsi-tools
-          - siderolabs/util-linux-tools
+        systemExtensions: *systemExtensions

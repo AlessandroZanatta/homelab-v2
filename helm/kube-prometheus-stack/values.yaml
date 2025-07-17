@@ -18,7 +18,7 @@ grafana:
     dashboardproviders.yaml:
       apiVersion: 1
       providers:
-        - name: "default"
+        - name: default
           orgId: 1
           folder: ""
           type: file
@@ -33,7 +33,7 @@ grafana:
         gnetId: 20417
         revision: 4
         datasource: Prometheus
-      smartctl-exporter-2:
+      smartctl-exporter:
         url: "https://raw.githubusercontent.com/blesswinsamuel/grafana-dashboards/refs/heads/main/dashboards/dist/dashboards/smartctl.json"
         datasource: Prometheus
       velero:
@@ -73,6 +73,10 @@ prometheus:
     ## which will also match the podmonitors created
     podMonitorSelectorNilUsesHelmValues: false
 
+    ## External URL at which Prometheus will be reachable.
+    ##
+    externalUrl: "https://prometheus.kalexlab.xyz"
+
     storageSpec:
       volumeClaimTemplate:
         metadata:
@@ -89,3 +93,33 @@ prometheus:
 
     thanosServiceMonitor:
       enabled: true
+
+alertmanager:
+  enabled: true
+  config:
+    global:
+      resolve_timeout: 5m
+
+    route:
+      receiver: "telegram"
+      group_by: ["alertname", "severity"]
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 24h
+
+kubeEtcd:
+  # Control plane virtual IP from talos/machine/vip.yaml and talos/talenv.prod.yaml
+  endpoints:
+    - 192.168.10.9
+
+  service:
+    enabled: true
+    port: 2381
+    targetPort: 2381
+
+kubeProxy:
+  enabled: false
+
+defaultRules:
+  rules:
+    kubeProxy: false

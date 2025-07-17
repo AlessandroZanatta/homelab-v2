@@ -5,10 +5,17 @@ resources:
   - ../../base
 patches:
   - path: certificate.yaml
-  - path: ingress.yaml
+  - path: ingress-grafana.yaml
     target:
       group: traefik.io
       version: v1alpha1
       kind: IngressRoute
       name: grafana-dashboard-ingress
+      namespace: prometheus
+  - path: ingress-prometheus.yaml
+    target:
+      group: traefik.io
+      version: v1alpha1
+      kind: IngressRoute
+      name: prometheus-dashboard-ingress
       namespace: prometheus
