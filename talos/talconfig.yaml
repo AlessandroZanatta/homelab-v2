@@ -58,8 +58,11 @@ nodes:
     controlPlane: false
     # Currently getting permission errors, taint is required to be set manually:
     #  user: warning: [2025-03-26T17:56:42.505619856Z]: [talos] controller failed {"component": "controller-runtime", "controller": "k8s.NodeApplyController", "error": "2 error(s) occurred:\n\tnodes \"athena\" is forbidden: node \"athena\" is not allowed to modify taints\n\tclient rate limiter Wait returned an error: rate: Wait(n=1) would exceed context deadline"}
+
+    #   ref: https://github.com/kubernetes/kubernetes/issues/95159
+    #   ref: https://github.com/kubernetes/kubernetes/issues/95159
     # nodeTaints:
-    #   vpn: "true:NoSchedule"
+    #   kalexlab.xyz/vpn: "enabled:NoSchedule"
     schematic:
       overlay:
         image: siderolabs/sbc-raspberrypi
@@ -70,6 +73,11 @@ nodes:
           officialExtensions:
             - siderolabs/iscsi-tools
             - siderolabs/util-linux-tools
+    # Due to NodeApplyController, it is only possible to taint
+    # a node when it is first registered
+    #   ref: https://github.com/siderolabs/talos/discussions/9895
+    patches:
+      - "@./patches/machine/taint.yaml"
 
   - hostname: hermes
     ipAddress: 192.168.10.3

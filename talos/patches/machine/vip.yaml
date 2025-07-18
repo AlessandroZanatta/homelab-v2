@@ -1,4 +1,5 @@
 ---
+# Virtual load-balancer IP
 machine:
   network:
     interfaces:

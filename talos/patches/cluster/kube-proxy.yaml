@@ -1,4 +1,5 @@
 ---
+# Disables kube-proxy (replaced by Cilium)
 cluster:
   proxy:
     disabled: true

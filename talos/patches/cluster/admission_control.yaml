@@ -1,4 +1,6 @@
 ---
+# Relax default PodSecurity by removing enforcement of restricted,
+# but keeping the warnings
 cluster:
   apiServer:
     admissionControl:
@@ -16,7 +18,6 @@ cluster:
             namespaces:
               - longhorn-system # required for raw storage access
               - kube-prometheus-stack # required by node exporter
-              - scrutiny # required by collector to access physical disks
             runtimeClasses: []
             usernames: []
           kind: PodSecurityConfiguration

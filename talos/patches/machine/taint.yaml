@@ -1,0 +1,10 @@
+---
+# Taint nodes that should only be used to route egress VPN traffic (coming soon)
+machine:
+  kubelet:
+    extraConfig:
+      registerNode: true
+      registerWithTaints:
+        - effect: NoSchedule
+          key: kalexlab.xyz/taint
+          value: vpn

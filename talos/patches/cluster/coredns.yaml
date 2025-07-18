@@ -1,4 +1,5 @@
 ---
+# Disables coreDNS, manually deployed
 cluster:
   coreDNS:
     disabled: true
