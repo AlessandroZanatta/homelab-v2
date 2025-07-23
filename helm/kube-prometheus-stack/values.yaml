@@ -48,9 +48,7 @@ grafana:
         revision: 43
         datasource: Prometheus
       longhorn:
-        gnetId: 16888
-        revision: 9
-        datasource: Prometheus
+        url: "https://raw.githubusercontent.com/onzack/grafana-dashboards/refs/heads/main/grafana/longhorn/onzack-longhorn-monitoring.json"
       node-exporter-temperature:
         gnetId: 15202
         revision: 1
