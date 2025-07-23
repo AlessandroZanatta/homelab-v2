@@ -8,3 +8,8 @@ crds:
   enabled: true
 
 enableCertificateOwnerRef: true
+
+prometheus:
+  enabled: true
+  servicemonitor:
+    enabled: false

@@ -30,6 +30,14 @@ configs:
         clusters:
           - "*"
 
+# Enable metrics
+controller:
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
+# Setup Helm Secrets plugin
 repoServer:
   env:
     - name: HELM_PLUGINS

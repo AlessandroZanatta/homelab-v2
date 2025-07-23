@@ -77,6 +77,14 @@ ports:
     tls:
       enabled: true
 
+  metrics:
+    port: 9100
+    # Do not expose metrics to outside the cluster
+    expose:
+      default: false
+    exposedPort: 9100
+    protocol: TCP
+
 service:
   enabled: true
   ## -- Single service is using `MixedProtocolLBService` feature gate.
@@ -85,3 +93,14 @@ service:
   type: LoadBalancer
   labels:
     kalexlab.xyz/ip-pool: traefik
+
+metrics:
+  prometheus:
+    # -- Entry point used to expose metrics.
+    entryPoint: metrics
+    service:
+      # -- Create a dedicated metrics service to use with ServiceMonitor
+      enabled: true
+    serviceMonitor:
+      # -- Enable optional CR for Prometheus Operator. See EXAMPLES.md for more details.
+      enabled: true
