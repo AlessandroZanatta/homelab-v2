@@ -79,13 +79,6 @@ spec:
     - Ingress
   ingress:
     - from:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: adminerevo
-          podSelector:
-            matchLabels:
-              kalexlab.xyz/app: adminerevo
-
         - podSelector:
             matchLabels:
               kalexlab.xyz/app: vaultwarden
