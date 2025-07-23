@@ -5,7 +5,7 @@ additionalPrometheusRulesMap:
       - name: CertManager
         rules:
           - alert: CertManagerAbsent
-            expr: absent(up{job="cert-manager"})
+            expr: absent(up{job="cert-manager" == 1})
             for: 10m
             labels:
               severity: critical
