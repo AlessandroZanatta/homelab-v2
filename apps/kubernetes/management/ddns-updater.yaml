@@ -12,10 +12,6 @@ spec:
   template:
     metadata:
       name: ddns-updater
-      annotations:
-        argocd-image-updater.argoproj.io/image-list: "ghcr.io/qdm12/ddns-updater:2.x"
-        argocd-image-updater.argoproj.io/write-back-method: git
-        argocd-image-updater.argoproj.io/write-back-target: "kustomization:../../base"
     spec:
       project: default
       sources:

@@ -12,11 +12,6 @@ spec:
   template:
     metadata:
       name: external-dns
-      annotations:
-        argocd-image-updater.argoproj.io/image-list: "registry.k8s.io/external-dns/external-dns:v0.x, porkbun-webhook=ghcr.io/alessandrozanatta/external-dns-porkbun-webhook:main"
-        argocd-image-updater.argoproj.io/porkbun-webhook.update-strategy: digest
-        argocd-image-updater.argoproj.io/write-back-method: git
-        argocd-image-updater.argoproj.io/write-back-target: "kustomization:../../base"
     spec:
       project: default
       sources:

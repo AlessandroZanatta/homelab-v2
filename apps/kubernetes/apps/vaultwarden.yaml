@@ -12,11 +12,6 @@ spec:
   template:
     metadata:
       name: vaultwarden
-      annotations:
-        argocd-image-updater.argoproj.io/image-list: "vaultwarden=docker.io/vaultwarden/server:1.x-0"
-        argocd-image-updater.argoproj.io/vaultwarden.allow-tags: "regexp:^.*-alpine$"
-        argocd-image-updater.argoproj.io/write-back-method: git
-        argocd-image-updater.argoproj.io/write-back-target: "kustomization:../../base"
     spec:
       project: default
       sources:

@@ -12,12 +12,6 @@ spec:
   template:
     metadata:
       name: music
-      annotations:
-        argocd-image-updater.argoproj.io/image-list: "docker.io/deluan/navidrome:0.*, helper-backend=registry.kalexlab.xyz/navidrome-helper/backend:latest, helper-frontend=registry.kalexlab.xyz/navidrome-helper/frontend:latest"
-        argocd-image-updater.argoproj.io/helper-backend.update-strategy: digest
-        argocd-image-updater.argoproj.io/helper-frontend.update-strategy: digest
-        argocd-image-updater.argoproj.io/write-back-method: git
-        argocd-image-updater.argoproj.io/write-back-target: "kustomization:../../base"
     spec:
       project: default
       sources:

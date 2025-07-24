@@ -12,10 +12,6 @@ spec:
   template:
     metadata:
       name: adguard
-      annotations:
-        argocd-image-updater.argoproj.io/image-list: "docker.io/adguard/adguardhome:0.x, docker.io/library/alpine:3.x"
-        argocd-image-updater.argoproj.io/write-back-method: git
-        argocd-image-updater.argoproj.io/write-back-target: "kustomization:../../base"
     spec:
       project: default
       sources:

@@ -12,11 +12,6 @@ spec:
   template:
     metadata:
       name: immich
-      annotations:
-        argocd-image-updater.argoproj.io/image-list: "ghcr.io/immich-app/immich-server:v1.x, ghcr.io/immich-app/immich-machine-learning:v1.x, valkey=docker.io/valkey/valkey:8.x-0, docker.io/library/alpine:3.x"
-        argocd-image-updater.argoproj.io/valkey.allow-tags: "regexp:^.*-alpine$"
-        argocd-image-updater.argoproj.io/write-back-method: git
-        argocd-image-updater.argoproj.io/write-back-target: "kustomization:../../base"
     spec:
       project: default
       sources:

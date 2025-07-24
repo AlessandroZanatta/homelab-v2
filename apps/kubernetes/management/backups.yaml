@@ -16,10 +16,6 @@ spec:
   template:
     metadata:
       name: backups
-      annotations:
-        argocd-image-updater.argoproj.io/image-list: "docker.io/library/alpine:3.x"
-        argocd-image-updater.argoproj.io/write-back-method: git
-        argocd-image-updater.argoproj.io/write-back-target: "kustomization:../../base"
     spec:
       project: default
       sources:
