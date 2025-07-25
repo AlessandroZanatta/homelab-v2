@@ -1,0 +1,34 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: 3d
+  name: 3d-ingress-certificate
+spec:
+  commonName: 3d.kalexlab.xyz
+  secretName: 3d-ingress-certificate-secret
+  dnsNames:
+    - 3d.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  namespace: 3d
+  name: 3d-ingress
+  annotations:
+    external-dns.alpha.kubernetes.io/target: 192.168.10.20
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`3d.kalexlab.xyz`)
+      services:
+        - name: printer
+          port: 80
+  tls:
+    secretName: 3d-ingress-certificate-secret

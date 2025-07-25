@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: 3d
+  name: printer
+  labels:
+    kalexlab.xyz/app: 3d
+    kalexlab.xyz/component: printer
+spec:
+  type: ExternalName
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 80
+  externalName: 192.168.10.105
