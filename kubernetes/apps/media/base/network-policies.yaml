@@ -229,6 +229,17 @@ spec:
         - protocol: TCP
           port: 8989
     - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: flaresolverr
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: flaresolverr
+              kalexlab.xyz/component: flaresolverr
+      ports:
+        - protocol: TCP
+          port: 8191
+    - to:
         - ipBlock:
             cidr: 0.0.0.0/0
             except:
@@ -285,14 +296,6 @@ spec:
       ports:
         - protocol: TCP
           port: 8989
-    - to:
-        - podSelector:
-            matchLabels:
-              kalexlab.xyz/app: flaresolverr
-              kalexlab.xyz/component: flaresolverr
-      ports:
-        - protocol: TCP
-          port: 8191
     - to:
         - ipBlock:
             cidr: 0.0.0.0/0
