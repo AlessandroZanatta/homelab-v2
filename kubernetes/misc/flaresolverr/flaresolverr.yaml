@@ -14,7 +14,7 @@ spec:
       port: 8191
       protocol: TCP
   selector:
-    kalexlab.xyz/app: media
+    kalexlab.xyz/app: flaresolverr
     kalexlab.xyz/component: flaresolverr
 ---
 apiVersion: apps/v1
