@@ -6,7 +6,8 @@ resources:
   - network-policies.yaml
   - pvc.yaml
   - jellyfin.yaml
-  - prowlarr-qbittorrent.yaml
+  - prowlarr.yaml
+  - qbittorrent.yaml
   - radarr.yaml
   - sonarr.yaml
   - ingress.yaml
