@@ -1,0 +1,128 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: media
+  name: qbittorrent
+  labels:
+    kalexlab.xyz/app: media
+    kalexlab.xyz/component: qbittorrent
+spec:
+  type: ClusterIP
+  ports:
+    - name: qbittorrent
+      port: 8080
+      protocol: TCP
+    - name: qbittorrent-bt-tcp
+      port: 6881
+      protocol: TCP
+    - name: qbittorrent-bt-udp
+      port: 6881
+      protocol: UDP
+  selector:
+    kalexlab.xyz/app: media
+    kalexlab.xyz/component: qbittorrent
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: media
+  name: qbittorrent
+  labels:
+    kalexlab.xyz/app: media
+    kalexlab.xyz/component: qbittorrent
+spec:
+  serviceName: qbittorrent
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: media
+      kalexlab.xyz/component: bittorrent
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: media
+        kalexlab.xyz/component: qbittorrent
+        egress.kalexlab.xyz/policy: vpn
+    spec:
+      restartPolicy: Always
+
+      containers:
+        - name: qbittorrent
+          image: "ghcr.io/onedr0p/qbittorrent:5.0.4"
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 6881
+              protocol: TCP
+            - containerPort: 6881
+              protocol: UDP
+
+          env:
+            - name: WEBUI_PORT
+              value: "8080"
+
+          resources:
+            requests:
+              memory: 100Mi
+              cpu: 5m
+            limits:
+              memory: 500Mi
+              cpu: 200m
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            failureThreshold: 3
+            periodSeconds: 30
+
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
+          volumeMounts:
+            - mountPath: /data/torrents
+              name: media-data-pvc
+              subPath: torrents
+            - mountPath: /config
+              name: qbittorrent-conf-pvc
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+
+      volumes:
+        - name: media-data-pvc
+          persistentVolumeClaim:
+            claimName: media-data-pvc
+
+  volumeClaimTemplates:
+    - metadata:
+        name: qbittorrent-conf-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 100Mi

@@ -11,6 +11,15 @@ hubble:
 l2announcements:
   enabled: true
 
+# Enable EgressGateway support
+# Note: also requires kubeProxyReplacement: true
+#   ref: https://docs.cilium.io/en/stable/network/egress-gateway/egress-gateway/
+egressGateway:
+  enabled: true
+
+bpf:
+  masquerade: true
+
 # Values from the Talos docs
 #   ref: https://www.talos.dev/v1.9/kubernetes-guides/network/deploying-cilium/#method-1-helm-install
 ipam:

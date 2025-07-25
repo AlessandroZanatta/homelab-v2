@@ -1,0 +1,192 @@
+---
+- name: Setup egress VPN
+  roles:
+    - openwrt
+  hosts: routers
+  become: true
+
+  vars:
+    interface: egressvpn
+
+  tasks:
+    - name: Install packages
+      opkg:
+        name: wireguard-tools,kmod-wireguard,pbr
+        state: present
+
+    - name: Create firewall zone and add interface to it
+      block:
+        - name: Delete zone
+          uci:
+            command: absent
+            key: "firewall.{{ interface }}"
+
+        - name: Create zone
+          uci:
+            command: set
+            key: "firewall.{{ interface }}"
+            value: zone
+
+        - name: Setup zone
+          uci:
+            command: set
+            key: "firewall.{{ interface }}"
+            value:
+              name: "{{ interface }}"
+              input: DROP
+              output: ACCEPT
+              forward: DROP
+              masq: "1"
+              mtu_fix: "1"
+
+        - name: Add list to zone
+          uci:
+            command: add_list
+            key: "firewall.{{ interface }}.network"
+            value: "{{ interface }}"
+
+        - name: Delete forwarding from LAN to {{ interface }}
+          uci:
+            command: absent
+            key: "firewall.lan_to_{{ interface }}"
+
+        - name: Create forwarding from LAN to {{ interface }}
+          uci:
+            command: set
+            key: "firewall.lan_to_{{ interface }}"
+            value: forwarding
+
+        - name: Setup forwarding from LAN to {{ interface }}
+          uci:
+            command: set
+            key: "firewall.lan_to_{{ interface }}"
+            value:
+              src: lan
+              dest: "{{ interface }}"
+
+        - name: Commit changes
+          uci:
+            command: commit
+
+        - name: Restart firewall
+          service:
+            name: firewall
+            state: restarted
+
+    - name: Create interface
+      block:
+        - name: Delete interface {{ interface }}
+          uci:
+            command: absent
+            key: "network.{{ interface }}"
+
+        - name: Create interface {{ interface }}
+          uci:
+            command: set
+            key: "network.{{ interface }}"
+            value: interface
+
+        - name: Setup interface
+          uci:
+            command: set
+            key: "network.{{ interface }}"
+            value:
+              proto: wireguard
+              private_key: "{{ mullvad_private_key }}"
+
+        - name: Add addresses to interface
+          uci:
+            command: add_list
+            key: "network.{{ interface }}.addresses"
+            value: "{{ mullvad_ip[0] }}"
+        - name: Add addresses to interface
+          uci:
+            command: add_list
+            key: "network.{{ interface }}.addresses"
+            value: "{{ mullvad_ip[1] }}"
+
+        - name: Add DNS to interface
+          uci:
+            command: add_list
+            key: "network.{{ interface }}.dns"
+            value: "{{ mullvad_dns }}"
+
+        - name: Add Wireguard peer
+          block:
+            - name: Delete peer configuration
+              uci:
+                command: absent
+                key: "network.{{ interface }}_peer"
+
+            - name: Create peer configuration
+              uci:
+                command: set
+                key: "network.{{ interface }}_peer"
+                value: "wireguard_{{ interface }}"
+
+            - name: Setup peer configuration
+              uci:
+                command: set
+                key: "network.{{ interface }}_peer"
+                value:
+                  public_key: "{{ mullvad_public_key }}"
+                  endpoint_host: "{{ mullvad_endpoint }}"
+                  endpoint_port: "{{ mullvad_port }}"
+                  persistent_keepalive: "15"
+
+            - name: Add allowed_ips to peer configuration
+              uci:
+                command: add_list
+                key: "network.{{ interface }}_peer.allowed_ips"
+                value: "0.0.0.0/0"
+            - name: Add allowed_ips to peer configuration
+              uci:
+                command: add_list
+                key: "network.{{ interface }}_peer.allowed_ips"
+                value: "::0/0"
+
+        - name: Commit
+          uci:
+            command: commit
+
+        - name: Restart network
+          service:
+            name: network
+            state: restarted
+
+    - name: Configure policy-based routing
+      block:
+        - name: Enable PBR
+          uci:
+            command: set
+            key: pbr.config.enabled
+            value: "1"
+
+        - name: Delete policy
+          uci:
+            command: absent
+            key: "pbr.egressvpn"
+
+        - name: Create policy
+          uci:
+            command: set
+            key: "pbr.egressvpn"
+            value: policy
+
+        - name: Setup policy
+          uci:
+            command: set
+            key: "pbr.egressvpn"
+            value:
+              src_addr: 192.168.10.2
+              dest_addr: "0.0.0.0/0 !10.0.0.0/8 !172.16.0.0/12 !192.168.10.0/24"
+              interface: "{{ interface }}"
+
+        - name: Commit
+          uci:
+            command: commit
+
+        - name: Restart PBR
+          service:
+            name: pbr
+            state: restarted

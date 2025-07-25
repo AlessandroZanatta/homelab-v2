@@ -43,69 +43,9 @@ spec:
       labels:
         kalexlab.xyz/app: anime
         kalexlab.xyz/component: app
+        egress.kalexlab.xyz/policy: vpn
     spec:
       restartPolicy: Always
-      initContainers:
-        - name: gluetun
-          image: "docker.io/qmcgaw/gluetun:v3.40.0"
-          restartPolicy: Always
-
-          securityContext:
-            capabilities:
-              add:
-                - NET_ADMIN
-
-          env:
-            # - name: PPROF_ENABLED
-            #   value: "yes"
-            - name: DNS_KEEP_NAMESERVER
-              value: "on"
-            - name: BLOCK_MALICIOUS
-              value: "off"
-            - name: BLOCK_SURVEILLANCE
-              value: "off"
-            - name: BLOCK_ADS
-              value: "off"
-            # - name: FIREWALL
-            #   value: "off"
-            - name: FIREWALL_INPUT_PORTS
-              value: "8080,9000,6060"
-            # Bypass tun0 interface for:
-            #  - Cluster VPN subnet
-            #  - Pods subnet
-            #  - Services subnet
-            #  - Local subnet
-            - name: FIREWALL_OUTBOUND_SUBNETS
-              value: "10.0.0.0/8,192.168.0.0/16"
-            - name: VPN_SERVICE_PROVIDER
-              value: "mullvad"
-            - name: VPN_TYPE
-              value: "wireguard"
-            - name: WIREGUARD_PRIVATE_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: gluetun-secrets
-                  key: WIREGUARD_PRIVATE_KEY
-            - name: WIREGUARD_ADDRESSES
-              valueFrom:
-                secretKeyRef:
-                  name: gluetun-secrets
-                  key: WIREGUARD_ADDRESSES
-            - name: SERVER_COUNTRIES
-              valueFrom:
-                secretKeyRef:
-                  name: gluetun-secrets
-                  key: SERVER_COUNTRIES
-            - name: SERVER_CITIES
-              valueFrom:
-                secretKeyRef:
-                  name: gluetun-secrets
-                  key: SERVER_CITIES
-            - name: SERVER_HOSTNAMES
-              valueFrom:
-                secretKeyRef:
-                  name: gluetun-secrets
-                  key: SERVER_HOSTNAMES
 
       imagePullSecrets:
         - name: registry-credentials

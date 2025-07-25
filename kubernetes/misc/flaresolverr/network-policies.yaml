@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  namespace: homer
+  namespace: flaresolverr
   name: default-deny-all
 spec:
   podSelector: {}
@@ -13,7 +13,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  namespace: homer
+  namespace: flaresolverr
   name: allow-egress-cluster-dns
 spec:
   podSelector: {}
@@ -34,26 +34,24 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  namespace: homer
-  name: homer
+  namespace: flaresolverr
+  name: flaresolverr
 spec:
   podSelector:
     matchLabels:
-      kalexlab.xyz/app: homer
+      kalexlab.xyz/app: flaresolverr
+      kalexlab.xyz/component: flaresolverr
   policyTypes:
     - Ingress
-    # - Egress
+    - Egress
   ingress:
+    # Accept requests from any pod
     - from:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: traefik
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: traefik
+        - namespaceSelector: {}
+          podSelector: {}
       ports:
         - protocol: TCP
-          port: 8080
+          port: 8191
   egress:
     - to:
         - ipBlock:

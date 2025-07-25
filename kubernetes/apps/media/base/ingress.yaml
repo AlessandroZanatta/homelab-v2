@@ -37,12 +37,12 @@ spec:
     - kind: Rule
       match: Host(`prowlarr.kalexlab.xyz`)
       services:
-        - name: prowlarr-qbittorrent
+        - name: prowlarr
           port: 9696
     - kind: Rule
       match: Host(`torrent.kalexlab.xyz`)
       services:
-        - name: prowlarr-qbittorrent
+        - name: qbittorrent
           port: 8080
     - kind: Rule
       match: Host(`radarr.kalexlab.xyz`)

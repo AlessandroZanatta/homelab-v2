@@ -1,0 +1,116 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: media
+  name: prowlarr
+  labels:
+    kalexlab.xyz/app: media
+    kalexlab.xyz/component: prowlarr
+spec:
+  type: ClusterIP
+  ports:
+    - name: prowlarr
+      port: 9696
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: media
+    kalexlab.xyz/component: prowlarr
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: media
+  name: prowlarr
+  labels:
+    kalexlab.xyz/app: media
+    kalexlab.xyz/component: prowlarr
+spec:
+  serviceName: prowlarr
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: media
+      kalexlab.xyz/component: prowlarr
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: media
+        kalexlab.xyz/component: prowlarr
+        egress.kalexlab.xyz/policy: vpn
+    spec:
+      restartPolicy: Always
+
+      containers:
+        - name: prowlarr
+          image: "ghcr.io/onedr0p/prowlarr:1.31.2"
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 9696
+              protocol: TCP
+
+          resources:
+            requests:
+              memory: 100Mi
+              cpu: 5m
+            limits:
+              memory: 250Mi
+              cpu: 200m
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 9696
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 9696
+            failureThreshold: 3
+            periodSeconds: 30
+
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
+          volumeMounts:
+            - mountPath: /config
+              name: prowlarr-conf-pvc
+            - mountPath: /tmp
+              name: prowlarr-tmp
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+
+      volumes:
+        - name: media-data-pvc
+          persistentVolumeClaim:
+            claimName: media-data-pvc
+        - name: prowlarr-tmp
+          emptyDir:
+            sizeLimit: 1Gi
+
+  volumeClaimTemplates:
+    - metadata:
+        name: prowlarr-conf-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 100Mi

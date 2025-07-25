@@ -1,0 +1,28 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumEgressGatewayPolicy
+metadata:
+  name: vpn-egress
+spec:
+  # Match any pod with the "egress.kalexlab.xyz/policy: vpn" label
+  selectors:
+    - podSelector:
+        matchLabels:
+          egress.kalexlab.xyz/policy: vpn
+
+  # Everything but local addresses should be routed through the VPN
+  destinationCIDRs:
+    - "0.0.0.0/0"
+  excludedCIDRs:
+    - "192.168.0.0/16"
+    - "172.16.0.0/12"
+    - "10.0.0.0/8"
+
+  # Egress is through a node with the kalexlab.xyz/node: vpn label
+  # and through the 192.168.10.2 IP address
+  egressGateway:
+    nodeSelector:
+      matchLabels:
+        kalexlab.xyz/node: vpn
+
+    egressIP: 192.168.10.2

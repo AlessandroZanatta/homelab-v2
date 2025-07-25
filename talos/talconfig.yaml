@@ -63,6 +63,8 @@ nodes:
     #   ref: https://github.com/kubernetes/kubernetes/issues/95159
     # nodeTaints:
     #   kalexlab.xyz/vpn: "enabled:NoSchedule"
+    nodeLabels:
+      kalexlab.xyz/node: vpn
     schematic:
       overlay:
         image: siderolabs/sbc-raspberrypi

@@ -6,6 +6,7 @@ This repository keeps all the Infrastructure as Code (IaC) for my homelab, compo
 
 - HP EliteDesk 800 G3M i7-6700T and 16G DDR4 (192.168.10.4)
 - Dell Optiplex 3050M with i5-6600T and 16G DDR4 (192.168.10.3)
+- Raspberry PI4B 4G (192.168.10.2)
 - TP-Link Archer AX23
 
 The TP-Link router has OpenWRT installed, and is also used for remote access via Wireguard.
@@ -133,3 +134,17 @@ kubectl apply -f ./bootstrap/app-of-apps.yaml
 ```
 
 Then all you need to do is... wait. Eventually, all the cluster's applications should be up and running!
+
+## Cluster VPN
+
+For increases privacy, it is possible to ensure selected pods route their egress traffic through a VPN.
+
+In order for a pod to be routed through the vpn, it needs to have the following label: `egress.kalexlab.xyz/policy: vpn`.
+
+The VPN is implemented as following:
+
+- Cilium's [EgressGateway](https://docs.cilium.io/en/stable/network/egress-gateway/egress-gateway/), configured in `./kubernetes/misc/egress-vpn/egress-gateway.yaml`, redirects the egress traffic from pods with the above label through the `athena` node.
+- On the router, a Mullvad WG interface is configured
+- Finally, still on the router, Policy-based Routing is applied to the `athena` node's IP. The rule tells to route all the non-local traffic to the VPN interface
+
+Note that the VPN interface must use masquerading, and allow receiving traffic from the LAN zone. The automated configuration is entirely defined via [Ansible](./ansible/playbooks/openwrt/egress-vpn.yaml).
