@@ -37,7 +37,7 @@ spec:
   selector:
     matchLabels:
       kalexlab.xyz/app: media
-      kalexlab.xyz/component: bittorrent
+      kalexlab.xyz/component: qbittorrent
   minReadySeconds: 5
   template:
     metadata:
