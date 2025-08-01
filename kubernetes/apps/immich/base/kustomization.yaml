@@ -12,7 +12,7 @@ resources:
   - ingress.yaml
 images:
   - name: ghcr.io/immich-app/immich-server
-    newTag: v1.136.0
+    newTag: v1.137.1
   - name: ghcr.io/immich-app/immich-machine-learning
     newTag: v1.137.1
   - name: docker.io/valkey/valkey
