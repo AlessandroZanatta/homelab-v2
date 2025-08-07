@@ -9,6 +9,6 @@ resources:
   - ingress.yaml
 images:
   - name: docker.io/b4bz/homer
-    newTag: v25.05.2
+    newTag: v25.08.1
   - name: docker.io/library/alpine
     newTag: 3.22.1
