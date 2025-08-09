@@ -9,7 +9,7 @@ spec:
   sources:
     - repoURL: "https://isindir.github.io/sops-secrets-operator/"
       chart: sops-secrets-operator
-      targetRevision: 0.20.4
+      targetRevision: 0.22.0
       helm:
         releaseName: sops
         valueFiles:
