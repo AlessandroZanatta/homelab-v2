@@ -8,10 +8,10 @@ spec:
   project: default
   sources:
     - repoURL: "https://github.com/kubernetes-csi/external-snapshotter.git"
-      targetRevision: 8.*
+      targetRevision: 8.2.1
       path: deploy/kubernetes/snapshot-controller
     - repoURL: "https://github.com/kubernetes-csi/external-snapshotter.git"
-      targetRevision: 8.*
+      targetRevision: 8.2.1
       path: client/config/crd
   destination:
     server: "https://kubernetes.default.svc"

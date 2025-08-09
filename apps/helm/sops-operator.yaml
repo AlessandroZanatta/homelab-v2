@@ -9,8 +9,6 @@ spec:
   sources:
     - repoURL: "https://isindir.github.io/sops-secrets-operator/"
       chart: sops-secrets-operator
-      # Keep this version for k8s v1.31.x
-      #   ref: https://github.com/isindir/sops-secrets-operator?tab=readme-ov-file#versioning
       targetRevision: 0.20.4
       helm:
         releaseName: sops
