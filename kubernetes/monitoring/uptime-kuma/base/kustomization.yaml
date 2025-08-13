@@ -14,6 +14,6 @@ resources:
   - ingress.yaml
 images:
   - name: docker.io/library/mariadb
-    newTag: 11.8.3
+    newTag: 12.0.2
   - name: docker.io/library/alpine
     newTag: 3.22.1
