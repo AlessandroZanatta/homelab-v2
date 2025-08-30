@@ -11,4 +11,4 @@ resources:
   - ingress.yaml
 images:
   - name: docker.io/library/nextcloud
-    newTag: 31.0.7-apache
+    newTag: 31.0.8-apache

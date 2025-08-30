@@ -12,8 +12,8 @@ resources:
   - ingress.yaml
 images:
   - name: docker.io/gotson/komga
-    newTag: 1.23.1
+    newTag: 1.23.3
   - name: docker.io/glax/tranga-api
-    digest: sha256:15f6730842a2f792aa7000ead577159c31ed9f72e439bb760f5745611eed88f5
+    digest: sha256:5b0fd0d2bb3f2898797cea7df0522fea548ed0a5137cabfb97b771bc9978ef4b
   - name: docker.io/glax/tranga-website
     digest: sha256:a86c9014bb48f4f2af06b6cb2d9c9b8a7ac9a24527cffd6f8e4d73c9a1db2c74
