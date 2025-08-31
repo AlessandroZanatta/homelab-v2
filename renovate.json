@@ -37,6 +37,14 @@
       "matchStrings": [
         "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\s\\S+:\\W?v?(?<currentValue>\\S+)"
       ]
+    },
+    {
+      "customType": "regex",
+      "description": "Update Helm dependencies in cluster bootstrap playbook",
+      "managerFilePatterns": ["ansible/playbooks/cluster/bootstrap.yaml"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.*?)\\s+repo_url:\\W?\"?(?<registryUrl>.*?)\"?\\s+chart_name:\\W?[^\\/]*\\/(?<depName>.*?)\\s+chart_version:\\W?v?(?<currentValue>\\S+)"
+      ]
     }
   ],
   "dependencyDashboardTitle": "Renovate Dashboard 🤖"

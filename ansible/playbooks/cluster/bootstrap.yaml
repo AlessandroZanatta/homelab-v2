@@ -11,28 +11,31 @@
     helm_values_path: "{{ repo_root }}/helm"
     bootstrap_helm_charts:
       - name: cilium
+        # renovate: datasource=helm
         repo_url: "https://helm.cilium.io/"
-        release_name: cilium
         chart_name: cilium/cilium
         chart_version: 1.17.0
+        release_name: cilium
         namespace: kube-system
         values_files:
           - "{{ helm_values_path }}/cilium/values.yaml"
 
       - name: coredns
+        # renovate: datasource=helm
         repo_url: "https://coredns.github.io/helm"
-        release_name: coredns
         chart_name: coredns/coredns
         chart_version: 1.30.0
+        release_name: coredns
         namespace: kube-system
         values_files:
           - "{{ helm_values_path }}/coredns/values.yaml"
 
       - name: argocd
+        # renovate: datasource=helm
         repo_url: "https://argoproj.github.io/argo-helm"
-        release_name: argocd
         chart_name: argocd/argo-cd
         chart_version: 7.7.22
+        release_name: argocd
         namespace: argocd
         values_files:
           - "{{ helm_values_path }}/argocd/values.yaml"
