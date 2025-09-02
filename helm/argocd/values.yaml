@@ -46,8 +46,6 @@ repoServer:
       value: /gitops-tools/curl
     - name: HELM_SECRETS_SOPS_PATH
       value: /gitops-tools/sops
-    - name: HELM_SECRETS_VALS_PATH
-      value: /gitops-tools/vals
     - name: HELM_SECRETS_KUBECTL_PATH
       value: /gitops-tools/kubectl
     - name: HELM_SECRETS_BACKEND
@@ -65,13 +63,11 @@ repoServer:
       value: "true"
     - name: HELM_SECRETS_HELM_PATH
       value: /usr/local/bin/helm
-
     - name: SOPS_AGE_KEY_FILE
       value: /helm-secrets-private-keys/sops.agekey
   volumes:
     - name: gitops-tools
       emptyDir: {}
-    # kubectl create secret generic helm-secrets-private-keys --from-file=key.asc=assets/gpg/private2.gpg
     - name: helm-secrets-private-keys
       secret:
         secretName: helm-secrets-private-keys
@@ -85,18 +81,16 @@ repoServer:
       name: helm-secrets-private-keys
   initContainers:
     - name: download-tools
-      image: "alpine:latest"
+      image: alpine:latest
       imagePullPolicy: IfNotPresent
       command: [sh, -ec]
       env:
         - name: HELM_SECRETS_VERSION
-          value: "4.6.0"
+          value: "4.6.6"
         - name: KUBECTL_VERSION
-          value: "1.29.4"
-        - name: VALS_VERSION
-          value: "0.37.3"
+          value: "1.33.4"
         - name: SOPS_VERSION
-          value: "3.9.1"
+          value: "3.10.2"
       args:
         - |
           mkdir -p /gitops-tools/helm-plugins
@@ -107,7 +101,6 @@ repoServer:
           GO_ARCH=$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/') && \
           wget -qO /gitops-tools/kubectl https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/${GO_ARCH}/kubectl
           wget -qO /gitops-tools/sops https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux.${GO_ARCH}
-          wget -qO- https://github.com/helmfile/vals/releases/download/v${VALS_VERSION}/vals_${VALS_VERSION}_linux_${GO_ARCH}.tar.gz | tar zxv -C /gitops-tools vals
           wget -qO- https://github.com/jkroepke/helm-secrets/releases/download/v${HELM_SECRETS_VERSION}/helm-secrets.tar.gz | tar -C /gitops-tools/helm-plugins -xzf-
 
           chmod +x /gitops-tools/*
@@ -118,6 +111,7 @@ repoServer:
 
 # NOTE: keep this extraObjects here!
 # Sops key must be a "normal" secret, cannot be a SopsSecret as ArgoCD is deployed first
+# This secret is then mounted above
 extraObjects:
   - apiVersion: v1
     kind: Secret
