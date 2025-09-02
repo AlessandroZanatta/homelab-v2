@@ -3,7 +3,7 @@ clusterName: homelab
 endpoint: "https://${CONTROL_PLANE_VIP}:6443"
 
 # renovate: datasource=github-releases depName=siderolabs/talos
-talosVersion: v1.10.7
+talosVersion: v1.11.0
 # renovate: datasource=github-releases depName=siderolabs/kubelet
 kubernetesVersion: v1.33.4
 
