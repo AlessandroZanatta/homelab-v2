@@ -24,7 +24,6 @@ spec:
           args:
             - --log-level=info
             - --source=traefik-proxy
-            - --traefik-disable-legacy
             - --provider=webhook
             - --registry=txt
             - --txt-owner-id=external-dns
