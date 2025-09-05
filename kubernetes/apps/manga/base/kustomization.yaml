@@ -16,4 +16,4 @@ images:
   - name: docker.io/glax/tranga-api
     digest: sha256:c21a054708086eb76900e8ef484c76b59fb91b11cd5f28a853fdfe2bc66bc966
   - name: docker.io/glax/tranga-website
-    digest: sha256:a86c9014bb48f4f2af06b6cb2d9c9b8a7ac9a24527cffd6f8e4d73c9a1db2c74
+    digest: sha256:162316b8057c8831d96c141356c2bb7138e48d409b766d10764ff5e57db9835f
