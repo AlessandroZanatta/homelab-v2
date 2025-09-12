@@ -21,3 +21,9 @@ configuration:
         region: dummy
 
   features: EnableCSI
+
+# Workaround while waiting for the resolution of https://github.com/vmware-tanzu/helm-charts/issues/698
+kubectl:
+  image:
+    repository: docker.io/bitnamilegacy/kubectl
+    tag: latest
