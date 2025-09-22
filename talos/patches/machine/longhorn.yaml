@@ -9,3 +9,10 @@ machine:
           - bind
           - rshared
           - rw
+      - destination: /var/mnt/longhorn
+        type: bind
+        source: /var/mnt/longhorn
+        options:
+          - bind
+          - rshared
+          - rw

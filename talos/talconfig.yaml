@@ -56,13 +56,6 @@ nodes:
     ipAddress: 192.168.10.2
     installDisk: /dev/mmcblk0
     controlPlane: false
-    # Currently getting permission errors, taint is required to be set manually:
-    #  user: warning: [2025-03-26T17:56:42.505619856Z]: [talos] controller failed {"component": "controller-runtime", "controller": "k8s.NodeApplyController", "error": "2 error(s) occurred:\n\tnodes \"athena\" is forbidden: node \"athena\" is not allowed to modify taints\n\tclient rate limiter Wait returned an error: rate: Wait(n=1) would exceed context deadline"}
-
-    #   ref: https://github.com/kubernetes/kubernetes/issues/95159
-    #   ref: https://github.com/kubernetes/kubernetes/issues/95159
-    # nodeTaints:
-    #   kalexlab.xyz/vpn: "enabled:NoSchedule"
     nodeLabels:
       kalexlab.xyz/node: vpn
     schematic:
@@ -85,22 +78,31 @@ nodes:
     ipAddress: 192.168.10.3
     installDisk: /dev/nvme0n1
     controlPlane: false
-    machineDisks:
-      - device: /dev/disk/by-id/ata-CT1000MX500SSD1_2406E89658C0
-        partitions:
-          - mountpoint: /var/mnt/longhorn
-      - device: "/dev/disk/by-id/usb-WD_Elements_2620_575841324134314E33564B52-0:0"
-        partitions:
-          - mountpoint: /var/mnt/backups
+    userVolumes:
+      - name: longhorn
+        provisioning:
+          diskSelector:
+            match: "'/dev/disk/by-id/ata-CT1000MX500SSD1_2406E89658C0' in disk.symlinks"
+          minSize: "900GiB" # Talos will autogrow the size if more is available
+          grow: true
+      - name: backups
+        provisioning:
+          diskSelector:
+            match: "'/dev/disk/by-id/ata-WDC_WD10SDRW-34A0XS1_WD-WXA2A41N3VKR' in disk.symlinks"
+          minSize: "900GiB"
+          grow: true
 
   - hostname: zeus
     ipAddress: 192.168.10.4
     installDisk: /dev/nvme0n1
     controlPlane: true
-    machineDisks:
-      - device: /dev/disk/by-id/ata-CT1000MX500SSD1_2434E988FA39
-        partitions:
-          - mountpoint: /var/mnt/longhorn
+    userVolumes:
+      - name: longhorn
+        provisioning:
+          diskSelector:
+            match: "'/dev/disk/by-id/ata-CT1000MX500SSD1_2434E988FA39' in disk.symlinks"
+          minSize: "900GiB" # Talos will autogrow the size if more is available
+          grow: true
     schematic:
       customization:
         extraKernelArgs:
