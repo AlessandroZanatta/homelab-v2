@@ -45,10 +45,11 @@ spec:
         - CREATE EXTENSION IF NOT EXISTS cube WITH SCHEMA pg_catalog;
         - CREATE EXTENSION IF NOT EXISTS earthdistance WITH SCHEMA pg_catalog;
 
-  backup:
-    volumeSnapshot:
-      className: longhorn-snapshot-vsc
-      snapshotOwnerReference: none
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: backups
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
@@ -56,8 +57,10 @@ metadata:
   name: cluster-backup
   namespace: immich
 spec:
-  schedule: "0 0 */6 * * *"
-  backupOwnerReference: self
-  method: volumeSnapshot
   cluster:
     name: cluster
+  schedule: "0 0 0 * * *"
+  backupOwnerReference: self
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
