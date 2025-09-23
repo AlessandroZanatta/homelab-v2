@@ -1,0 +1,19 @@
+---
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: backups
+spec:
+  configuration:
+    destinationPath: "s3://cnpg/"
+    endpointURL: "https://backups.kalexlab.xyz"
+    s3Credentials:
+      accessKeyId:
+        name: minio-credentials
+        key: MINIO_ROOT_USER
+      secretAccessKey:
+        name: minio-credentials
+        key: MINIO_ROOT_PASSWORD
+    wal:
+      compression: gzip
+  retentionPolicy: 14d

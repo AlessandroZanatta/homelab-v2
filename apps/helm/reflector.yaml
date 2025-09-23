@@ -1,0 +1,36 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: reflector
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - clusters: {}
+  template:
+    metadata:
+      name: reflector
+    spec:
+      project: default
+      sources:
+        - repoURL: "https://emberstack.github.io/helm-charts"
+          chart: reflector
+          targetRevision: 9.1.31
+          helm:
+            releaseName: reflector
+            valueFiles:
+              - $values/helm/reflector/values.yaml
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          ref: values
+      destination:
+        server: "{{ .server }}"
+        namespace: reflector
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

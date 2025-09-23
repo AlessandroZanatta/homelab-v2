@@ -1,29 +1,41 @@
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: cloudnative-pg
   namespace: argocd
 spec:
-  project: default
-  sources:
-    - repoURL: "https://cloudnative-pg.github.io/charts"
-      chart: cloudnative-pg
-      targetRevision: 0.26.0
-      helm:
-        releaseName: cloudnative-pg
-        valueFiles:
-          - $values/helm/cloudnative-pg/values.yaml
-    - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
-      targetRevision: master
-      ref: values
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: cnpg-system
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - clusters: {}
+  template:
+    metadata:
+      name: cloudnative-pg
+    spec:
+      project: default
+      sources:
+        - repoURL: "https://cloudnative-pg.github.io/charts"
+          chart: cloudnative-pg
+          targetRevision: 0.26.0
+          helm:
+            releaseName: cloudnative-pg
+            valueFiles:
+              - $values/helm/cloudnative-pg/values.yaml
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          path: "helm/cloudnative-pg/extra/overlays/{{ .metadata.labels.env }}"
+          ref: values
+        - repoURL: "https://github.com/cloudnative-pg/plugin-barman-cloud"
+          targetRevision: v0.6.0
+          path: "kubernetes"
+      destination:
+        server: "https://kubernetes.default.svc"
+        namespace: cnpg-system
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true

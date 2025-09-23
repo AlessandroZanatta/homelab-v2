@@ -19,10 +19,11 @@ spec:
   monitoring:
     enablePodMonitor: true
 
-  backup:
-    volumeSnapshot:
-      className: longhorn-snapshot-vsc
-      snapshotOwnerReference: none
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: backups
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
@@ -30,8 +31,10 @@ metadata:
   name: cluster-backup
   namespace: anime
 spec:
-  schedule: "0 0 */6 * * *"
-  backupOwnerReference: self
-  method: volumeSnapshot
   cluster:
     name: cluster
+  schedule: "0 0 0 * * *"
+  backupOwnerReference: self
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
