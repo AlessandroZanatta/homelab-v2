@@ -1,11 +1,4 @@
 ---
-# Needed while waiting for https://github.com/longhorn/longhorn/issues/10303
-# Need to wait for longhorn 1.8.1 release or maybe there is a backport??
-image:
-  manager:
-    repository: phanle1010/longhorn-manager
-    tag: v1.8.0-10303
-
 defaultSettings:
   # -- Percentage of disk space that is not allocated to the default disk on each new Longhorn node.
   storageReservedPercentageForDefaultDisk: 15
