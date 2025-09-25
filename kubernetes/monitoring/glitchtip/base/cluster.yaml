@@ -1,4 +1,35 @@
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: minio-secrets
+  namespace: glitchtip
+  annotations:
+    reflector.v1.k8s.emberstack.com/reflects: backups/minio-secrets
+data: null
+---
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: backups
+  namespace: glitchtip
+spec:
+  configuration:
+    destinationPath: "s3://cnpg/glitchtip"
+    endpointURL: "http://minio.backups.svc.cluster.local:9000"
+    s3Credentials:
+      accessKeyId:
+        name: minio-secrets
+        key: MINIO_ROOT_USER
+      secretAccessKey:
+        name: minio-secrets
+        key: MINIO_ROOT_PASSWORD
+    wal:
+      compression: bzip2
+    data:
+      compression: bzip2
+  retentionPolicy: 14d
+---
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:

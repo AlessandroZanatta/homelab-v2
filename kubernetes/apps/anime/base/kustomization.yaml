@@ -9,6 +9,3 @@ resources:
   - cluster.yaml
   - anime.yaml
   - ingress.yaml
-images:
-  - name: docker.io/qmcgaw/gluetun
-    newTag: v3.40.0

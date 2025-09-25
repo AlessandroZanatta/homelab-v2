@@ -50,6 +50,10 @@ spec:
           podSelector:
             matchLabels:
               app.kubernetes.io/name: traefik
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              kalexlab.xyz/component: cluster
       ports:
         - protocol: TCP
           port: 9000

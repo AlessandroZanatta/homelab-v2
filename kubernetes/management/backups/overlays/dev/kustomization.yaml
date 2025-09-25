@@ -12,3 +12,4 @@ patches:
       kind: IngressRoute
       name: backups-ingress
       namespace: backups
+  - patch: pv.yaml
