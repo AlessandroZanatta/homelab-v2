@@ -1,7 +1,7 @@
 ---
 defaultSettings:
   # -- Percentage of disk space that is not allocated to the default disk on each new Longhorn node.
-  storageReservedPercentageForDefaultDisk: 15
+  storageReservedPercentageForDefaultDisk: "15"
 
 preUpgradeChecker:
   # -- Setting that allows Longhorn to perform pre-upgrade checks. Disable this setting when installing Longhorn using Argo CD or other GitOps solutions.
