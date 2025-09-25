@@ -8,11 +8,7 @@ spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
   generators:
-    # No need to backup a local-only development cluster
-    - clusters:
-        selector:
-          matchLabels:
-            env: prod
+    - clusters: {}
   template:
     metadata:
       name: backups
