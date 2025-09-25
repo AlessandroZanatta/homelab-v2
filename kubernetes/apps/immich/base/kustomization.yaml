@@ -5,6 +5,7 @@ resources:
   - namespace.yaml
   - network-policies.yaml
   - conf.yaml
+  - secrets.yaml
   - cluster.yaml
   - valkey.yaml
   - immich.yaml
