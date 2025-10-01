@@ -29,13 +29,13 @@ jobs:
           set -euo pipefail
 
           mkdir secrets
-          yq eval '.cluster.inlineManifests[1].contents' -r talos/patches/cluster/env.yaml | yq '.metadata.labels.env = "dev"' > secrets/cluster.yaml
+          yq eval '.cluster.inlineManifests[1].contents' -r ${{ github.base_ref }}/talos/patches/cluster/env.yaml | yq '.metadata.labels.env = "dev"' > secrets/cluster.yaml
 
       - name: Prepare ArgoCD values
         run: |
           set -euo pipefail
 
-          yq '.extraObjects[0].data."sops.agekey" = "${{ secrets.SOPS_SECRET }}"' helm/argocd/values.yaml > values.yaml
+          yq '.extraObjects[0].data."sops.agekey" = "${{ secrets.SOPS_SECRET }}"' ${{ github.base_ref }}/helm/argocd/values.yaml > values.yaml
 
       - name: Generate Diff
         run: |
