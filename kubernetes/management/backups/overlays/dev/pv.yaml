@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: minio-data-pvc
+  name: minio-data-pv
 spec:
   capacity:
     storage: 5Gi
