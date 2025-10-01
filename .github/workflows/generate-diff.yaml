@@ -24,7 +24,7 @@ jobs:
           ref: ${{ github.base_ref }}
           path: ${{ github.base_ref }}
 
-      - name: Prepare secrets
+      - name: Prepare cluster secrets
         run: |
           set -euo pipefail
 
@@ -35,7 +35,8 @@ jobs:
         run: |
           set -euo pipefail
 
-          yq '.extraObjects[0].data."sops.agekey" = "${{ secrets.SOPS_SECRET }}"' ${{ github.base_ref }}/helm/argocd/values.yaml > values.yaml
+          ENCODED_SOPS_SECRET=$(echo -n "${{ secrets.SOPS_SECRET }}" | base64 -w0)
+          yq ".extraObjects[0].data.\"sops.agekey\" = \"$ENCODED_SOPS_SECRET\"" ${{ github.base_ref }}/helm/argocd/values.yaml > values.yaml
 
       - name: Generate Diff
         run: |
