@@ -129,6 +129,12 @@ sops SECRET_FILE:
     SOPS_AGE_KEY_FILE=./sops.agekey sops --decrypt --in-place "{{ SECRET_FILE }}"
   fi
 
+  if ! head -n 1 "{{ SECRET_FILE }}" | grep -q '^---$'; then
+    (echo "---"; cat "{{ SECRET_FILE }}") > "{{ SECRET_FILE }}.tmp"
+    mv "{{ SECRET_FILE }}.tmp" "{{ SECRET_FILE }}"
+  fi
+  # ------------------------------------------------------------------
+
 ensure-sops SECRET_FILE:
   #!/bin/bash
 
