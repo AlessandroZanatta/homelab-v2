@@ -8,7 +8,7 @@ on:
       - master
 
 jobs:
-  build:
+  diff:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -21,17 +21,32 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
-          ref: master
-          path: master
+          ref: ${{ github.base_ref }}
+          path: ${{ github.base_ref }}
+
+      - name: Prepare secrets
+        run: |
+          set -euo pipefail
+
+          mkdir secrets
+          yq eval '.cluster.inlineManifests[1].contents' -r talos/patches/cluster/env.yaml | yq '.metadata.labels.env = "dev"' > secrets/cluster.yaml
+
+      - name: Prepare ArgoCD values
+        run: |
+          set -euo pipefail
+
+          yq '.extraObjects[0].data."sops.agekey" = "${{ secrets.SOPS_SECRET }}"' helm/argocd/values.yaml > values.yaml
 
       - name: Generate Diff
         run: |
           docker run \
             --network=host \
             -v /var/run/docker.sock:/var/run/docker.sock \
-            -v $(pwd)/master:/base-branch \
+            -v $(pwd)/${{ github.base_ref }}:/base-branch \
             -v $(pwd)/pull-request:/target-branch \
             -v $(pwd)/output:/output \
+            -v $(pwd)/secrets:/secrets \
+            -v $(pwd)/values.yaml:/argocd-config/values.yaml \
             -e TARGET_BRANCH=refs/pull/${{ github.event.number }}/merge \
             -e REPO=${{ github.repository }} \
             dagandersen/argocd-diff-preview:v0.1.17
