@@ -1,15 +1,7 @@
 ---
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: minio-data-pv
-spec:
-  capacity:
-    storage: 5Gi
-  accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: manual
-  hostPath:
-    path: "/var/mnt/backups"
-    type: DirectoryOrCreate
+- op: replace
+  path: /spec/capacity/storage
+  value: 5Gi
+
+- op: remove
+  path: /spec/nodeAffinity
