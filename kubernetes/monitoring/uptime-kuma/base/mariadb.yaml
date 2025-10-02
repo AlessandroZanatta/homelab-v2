@@ -46,7 +46,7 @@ spec:
       containers:
         - name: database
           image: "docker.io/library/mariadb:10.6.20"
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
 
           ports:
             - name: mariadb
