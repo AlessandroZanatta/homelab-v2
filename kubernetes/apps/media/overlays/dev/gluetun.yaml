@@ -1,7 +1,0 @@
----
-- op: test
-  path: /spec/template/spec/initContainers/0/name
-  value: gluetun
-
-- op: remove
-  path: /spec/template/spec/initContainers/0

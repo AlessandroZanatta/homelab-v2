@@ -12,8 +12,6 @@ resources:
   - sonarr.yaml
   - ingress.yaml
 images:
-  - name: docker.io/qmcgaw/gluetun
-    newTag: v3.40.0
   - name: ghcr.io/flaresolverr/flaresolverr
     newTag: v3.4.1
   - name: docker.io/jellyfin/jellyfin
