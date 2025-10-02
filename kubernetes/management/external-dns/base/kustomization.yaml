@@ -9,5 +9,5 @@ resources:
 images:
   - name: registry.k8s.io/external-dns/external-dns
     newTag: v0.19.0
-  - digest: sha256:7c53e5305c72a84dda5e9d6169e8e49f462d17df78cacebe381ee51478637b0d
+  - digest: sha256:4e94052ff6b37a26a5de902e206919f199b5bf3576b35b0a6bddd86cf2682115
     name: ghcr.io/alessandrozanatta/external-dns-porkbun-webhook
