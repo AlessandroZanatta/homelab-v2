@@ -35,8 +35,9 @@ jobs:
         run: |
           set -euo pipefail
 
-          ENCODED_SOPS_SECRET=$(echo -n "${{ secrets.SOPS_SECRET }}" | base64 -w0)
-          yq ".extraObjects[0].data.\"sops.agekey\" = \"$ENCODED_SOPS_SECRET\"" ${{ github.base_ref }}/helm/argocd/values.yaml > values.yaml
+          ENCODED_SOPS_SECRET=$(echo -ne "${{ secrets.SOPS_SECRET }}" | base64 -w0)
+          yq ".extraObjects[0].data.\"sops.agekey\" = \"$ENCODED_SOPS_SECRET\"" ${{ github.base_ref }}/helm/argocd/values.yaml |
+            yq '.configs.params."server.insecure" = false' > values.yaml
 
       - name: Generate Diff
         run: |
