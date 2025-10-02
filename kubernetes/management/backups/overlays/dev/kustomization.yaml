@@ -13,3 +13,7 @@ patches:
       name: backups-ingress
       namespace: backups
   - path: pv.yaml
+    target:
+      version: v1
+      kind: PersistentVolume
+      name: minio-data-pv
