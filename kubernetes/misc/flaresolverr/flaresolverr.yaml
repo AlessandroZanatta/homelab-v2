@@ -44,7 +44,7 @@ spec:
       initContainers:
         - name: copy-flaresolverr-app
           image: "ghcr.io/flaresolverr/flaresolverr:v3.3.21"
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
 
           resources:
             requests:

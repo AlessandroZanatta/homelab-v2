@@ -38,7 +38,7 @@ spec:
       initContainers:
         - name: copy-config-and-theme
           image: "docker.io/library/alpine:3.17"
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           command: [
               "sh",
               "-c",

@@ -43,7 +43,7 @@ spec:
       initContainers:
         - name: wait-cluster
           image: "docker.io/library/alpine:3.17"
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
 
           resources:
             requests:

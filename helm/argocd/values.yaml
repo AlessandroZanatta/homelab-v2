@@ -82,7 +82,7 @@ repoServer:
   initContainers:
     - name: download-tools
       image: alpine:latest
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: Always
       command: [sh, -ec]
       env:
         - name: HELM_SECRETS_VERSION

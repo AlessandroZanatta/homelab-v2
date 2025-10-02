@@ -46,7 +46,7 @@ spec:
       containers:
         - name: cache
           image: "valkey/valkey:8-alpine"
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
 
           ports:
             - name: valkey

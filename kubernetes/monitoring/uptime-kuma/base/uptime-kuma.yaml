@@ -48,7 +48,7 @@ spec:
       initContainers:
         - name: wait-mariadb
           image: "docker.io/library/alpine:3.17"
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
 
           resources:
             requests:

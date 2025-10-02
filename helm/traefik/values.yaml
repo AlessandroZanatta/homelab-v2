@@ -94,6 +94,10 @@ service:
   labels:
     kalexlab.xyz/ip-pool: traefik
 
+  spec:
+    # Preserve client IP address
+    externalTrafficPolicy: Local
+
 metrics:
   prometheus:
     # -- Entry point used to expose metrics.
