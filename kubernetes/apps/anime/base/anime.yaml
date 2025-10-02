@@ -13,9 +13,6 @@ spec:
     - name: anime
       port: 9000
       protocol: TCP
-    - name: gluetun-pprof
-      port: 6060
-      protocol: TCP
   selector:
     kalexlab.xyz/app: anime
     kalexlab.xyz/component: app
