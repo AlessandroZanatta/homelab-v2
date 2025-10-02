@@ -4,6 +4,9 @@ kind: Certificate
 metadata:
   namespace: prometheus
   name: grafana-dashboard-certificate
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
 spec:
   secretName: grafana-ingress-certificate-secret
   dnsNames:
@@ -19,6 +22,9 @@ metadata:
   namespace: prometheus
   name: grafana-dashboard-ingress
   annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+
     external-dns.alpha.kubernetes.io/target: 192.168.10.20
 spec:
   entryPoints:
@@ -38,6 +44,9 @@ kind: Middleware
 metadata:
   namespace: prometheus
   name: prometheus-auth
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
 spec:
   basicAuth:
     secret: prometheus-auth-secret
@@ -47,6 +56,9 @@ kind: Certificate
 metadata:
   namespace: prometheus
   name: prometheus-dashboard-certificate
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
 spec:
   secretName: prometheus-ingress-certificate-secret
   dnsNames:
@@ -62,6 +74,9 @@ metadata:
   namespace: prometheus
   name: prometheus-ingress
   annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+
     external-dns.alpha.kubernetes.io/target: 192.168.10.20
 spec:
   entryPoints:
