@@ -24,7 +24,7 @@
         # renovate: datasource=helm
         repo_url: "https://coredns.github.io/helm"
         chart_name: coredns/coredns
-        chart_version: 1.43.3
+        chart_version: 1.44.3
         release_name: coredns
         namespace: kube-system
         values_files:
