@@ -30,5 +30,8 @@ spec:
       services:
         - name: homer
           port: 8080
+      middlewares:
+        - name: authelia-forward-auth
+          namespace: sso
   tls:
     secretName: homer-ingress-certificate-secret

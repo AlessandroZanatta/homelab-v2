@@ -37,6 +37,7 @@ spec:
       labels:
         kalexlab.xyz/app: flaresolverr
         kalexlab.xyz/component: flaresolverr
+        kalexlab.xyz/monitoring: "true"
         egress.kalexlab.xyz/policy: vpn
     spec:
       restartPolicy: Always

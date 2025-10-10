@@ -38,6 +38,7 @@ spec:
       labels:
         kalexlab.xyz/app: media
         kalexlab.xyz/component: sonarr
+        kalexlab.xyz/monitoring: "true"
     spec:
       restartPolicy: Always
       containers:

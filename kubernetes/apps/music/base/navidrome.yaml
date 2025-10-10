@@ -38,6 +38,7 @@ spec:
       labels:
         kalexlab.xyz/app: music
         kalexlab.xyz/component: navidrome
+        kalexlab.xyz/monitoring: "true"
     spec:
       restartPolicy: Always
       containers:

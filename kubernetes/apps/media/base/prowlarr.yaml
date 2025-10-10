@@ -38,6 +38,7 @@ spec:
       labels:
         kalexlab.xyz/app: media
         kalexlab.xyz/component: prowlarr
+        kalexlab.xyz/monitoring: "true"
         egress.kalexlab.xyz/policy: vpn
     spec:
       restartPolicy: Always

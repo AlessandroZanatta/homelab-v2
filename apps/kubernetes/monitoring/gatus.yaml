@@ -2,31 +2,30 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: uptime-kuma
+  name: gatus
   namespace: argocd
 spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
   generators:
-    # Only create an ArgoCD application for uptime-kuma on the production cluster
-    # Handling the uptime-kuma configuration for two environments is cumbersome, basically futile,
-    # and very likely to get out-of-sync over time
+    # Only deploy endpoint monitoring on production cluster
+    # since development cluster is local and ephemeral
     - clusters:
         selector:
           matchLabels:
             env: prod
   template:
     metadata:
-      name: uptime-kuma
+      name: gatus
     spec:
       project: default
       sources:
         - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
           targetRevision: master
-          path: "kubernetes/monitoring/uptime-kuma/overlays/{{ .metadata.labels.env }}"
+          path: "kubernetes/monitoring/gatus/overlays/{{ .metadata.labels.env }}"
       destination:
         server: "{{ .server }}"
-        namespace: uptime-kuma
+        namespace: gatus
       syncPolicy:
         automated:
           prune: true

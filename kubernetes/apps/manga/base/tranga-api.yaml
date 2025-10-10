@@ -38,6 +38,7 @@ spec:
       labels:
         kalexlab.xyz/app: manga
         kalexlab.xyz/component: tranga-api
+        kalexlab.xyz/monitoring: "true"
         egress.kalexlab.xyz/policy: vpn
     spec:
       restartPolicy: Always

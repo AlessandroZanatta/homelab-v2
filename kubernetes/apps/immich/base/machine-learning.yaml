@@ -38,6 +38,7 @@ spec:
       labels:
         kalexlab.xyz/app: immich
         kalexlab.xyz/component: machine-learning
+        kalexlab.xyz/monitoring: "true"
     spec:
       restartPolicy: Always
       containers:

@@ -23,6 +23,7 @@ spec:
             valueFiles:
               - $values/helm/argocd/values.yaml
               - "secrets://https://raw.githubusercontent.com/AlessandroZanatta/homelab-v2/master/helm/argocd/secrets.yaml"
+              - "secrets://https://raw.githubusercontent.com/AlessandroZanatta/homelab-v2/master/helm/argocd/secrets-{{ .metadata.labels.env }}.yaml"
         - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
           targetRevision: master
           path: "helm/argocd/extra/overlays/{{ .metadata.labels.env }}"

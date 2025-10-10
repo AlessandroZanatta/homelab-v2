@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - ../../base
 patches:
+  - path: conf.yaml
   - path: cluster-backup.yaml
   - path: certificate.yaml
   - path: ingress.yaml

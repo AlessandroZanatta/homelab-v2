@@ -37,6 +37,7 @@ spec:
       labels:
         kalexlab.xyz/app: registry
         kalexlab.xyz/component: ui
+        kalexlab.xyz/monitoring: "true"
     spec:
       initContainers:
         - name: copy-nginx

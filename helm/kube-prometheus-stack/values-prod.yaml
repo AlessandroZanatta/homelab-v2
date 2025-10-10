@@ -1,0 +1,7 @@
+---
+grafana:
+  grafana.ini:
+    auth.generic_oauth:
+      auth_url: https://auth.kalexlab.xyz/api/oidc/authorization
+      token_url: https://auth.kalexlab.xyz/api/oidc/token
+      api_url: https://auth.kalexlab.xyz/api/oidc/userinfo

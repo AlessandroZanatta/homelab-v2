@@ -7,6 +7,11 @@ hubble:
   ui:
     enabled: true
 
+  export:
+    static:
+      enabled: true
+      filePath: /var/run/cilium/hubble/events.log
+
 # Enable support for L2 Announcements
 l2announcements:
   enabled: true

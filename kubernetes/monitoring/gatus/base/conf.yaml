@@ -1,0 +1,249 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gatus-conf
+  namespace: gatus
+data:
+  config.yaml: |
+    security:
+      oidc:
+        issuer-url: "https://auth.kalexlab.xyz"
+        redirect-url: "https://status.kalexlab.xyz/authorization-code/callback"
+        client-id: DckOx_vcEnOlhRWpBk81VJqHAiKZ0rd2R1MCt4zmV28SSndNeS2z5ZlDBgQK..FDjytZd0_g
+        client-secret: "${OIDC_CLIENT_SECRET}"
+        scopes: [openid, profile, email]
+
+    storage:
+      type: postgres
+      path: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable"
+
+    alerting:
+      telegram:
+        token: "${TELEGRAM_TOKEN}"
+        id: "${KALEX_TELEGRAM_ID}"
+
+        default-alert:
+          send-on-resolved: true
+          failure-threshold: 3
+          success-threshold: 3
+
+    ui:
+      default-sort-by: group
+
+    connectivity:
+      checker:
+        target: 1.1.1.1:53
+        interval: 1m
+
+    default-http: &default-http
+      interval: 1m
+      conditions:
+        - "[STATUS] == 200"
+      alerts:
+        - type: telegram
+        - type: telegram
+          provider-override:
+            id: "${LAETITIA_TELEGRAM_ID}"
+
+    default-tcp: &default-tcp
+      interval: 1m
+      conditions:
+        - "[CONNECTED] == true"
+      alerts:
+        - type: telegram
+        - type: telegram
+          provider-override:
+            id: "${LAETITIA_TELEGRAM_ID}"
+
+    endpoints:
+      - name: ArgoCD
+        <<: *default-http
+        url: "http://argocd-server.argocd.svc.cluster.local:80"
+
+      - name: Hubble
+        <<: *default-http
+        url: "http://hubble-ui.kube-system.svc.cluster.local:80"
+
+      - name: Prometheus
+        <<: *default-http
+        url: "http://prometheus-kube-prometheus-prometheus.prometheus.svc.cluster.local:9090"
+      - name: Grafana
+        <<: *default-http
+        url: "http://prometheus-grafana.prometheus.svc.cluster.local:80"
+
+      - name: Longhorn UI
+        <<: *default-http
+        url: "http://longhorn-frontend.longhorn-system.svc.cluster.local:80"
+
+      # TODO: add kalexlab.xyz/monitoring: "true" label
+      # when network policies are added
+      - name: Frontend
+        <<: *default-http
+        group: Anime
+        url: "http://app.anime.svc.cluster.local:9000"
+      - name: Backend
+        <<: *default-http
+        group: Anime
+        url: "http://app.anime.svc.cluster.local:9000/health"
+      - name: Cluster
+        <<: *default-tcp
+        group: Anime
+        url: "tcp://cluster-rw.anime.svc.cluster.local:5432"
+
+      - name: Homer
+        <<: *default-http
+        group: Homer
+        url: "http://homer.homer.svc.cluster.local:8080"
+
+      - name: Immich
+        <<: *default-http
+        group: Immich
+        url: "http://immich.immich.svc.cluster.local:2283"
+      - name: Machine learning
+        <<: *default-http
+        group: Immich
+        url: "http://machine-learning.immich.svc.cluster.local:3003"
+      - name: Cluster
+        <<: *default-tcp
+        group: Immich
+        url: "tcp://cluster-rw.immich.svc.cluster.local:5432"
+      - name: Cache
+        <<: *default-tcp
+        group: Immich
+        url: "tcp://cache.immich.svc.cluster.local:6379"
+
+      - name: Komga
+        <<: *default-http
+        group: Manga
+        url: "http://komga.manga.svc.cluster.local:25600"
+      - name: Tranga API
+        <<: *default-http
+        group: Manga
+        url: "http://tranga-api.manga.svc.cluster.local:6531/Ping"
+      - name: Tranga web
+        <<: *default-http
+        group: Manga
+        url: "http://tranga-web.manga.svc.cluster.local:80"
+
+      - name: Jellyfin
+        <<: *default-http
+        group: Media
+        url: "http://jellyfin.media.svc.cluster.local:8096"
+      - name: Prowlarr
+        <<: *default-http
+        group: Media
+        url: "http://prowlarr.media.svc.cluster.local:9696"
+      - name: QBitTorrent
+        <<: *default-http
+        group: Media
+        url: "http://qbittorrent.media.svc.cluster.local:8080"
+      - name: Radarr
+        <<: *default-http
+        group: Media
+        url: "http://radarr.media.svc.cluster.local:7878"
+      - name: Sonarr
+        <<: *default-http
+        group: Media
+        url: "http://sonarr.media.svc.cluster.local:8989"
+
+      - name: Navidrome
+        <<: *default-http
+        group: Music
+        url: "http://navidrome.music.svc.cluster.local:4533"
+      - name: Helper backend
+        <<: *default-http
+        group: Music
+        url: "http://helper-backend.music.svc.cluster.local:8000/health"
+      - name: Helper frontend
+        <<: *default-http
+        group: Music
+        url: "http://helper-frontend.music.svc.cluster.local:80"
+
+      - name: Nextcloud
+        <<: *default-http
+        group: Nextcloud
+        url: "http://nextcloud.nextcloud.svc.cluster.local:80/status.php"
+      - name: Cluster
+        <<: *default-tcp
+        group: Nextcloud
+        url: "tcp://cluster-rw.nextcloud.svc.cluster.local:5432"
+      - name: Cache
+        <<: *default-tcp
+        group: Nextcloud
+        url: "tcp://cache.nextcloud.svc.cluster.local:6379"
+
+      - name: Vaultwarden
+        <<: *default-http
+        group: Vaultwarden
+        url: "http://vaultwarden.vaultwarden.svc.cluster.local:8080"
+      - name: Cluster
+        <<: *default-tcp
+        group: Vaultwarden
+        url: "tcp://cluster-rw.vaultwarden.svc.cluster.local:5432"
+
+      - name: Adguard
+        <<: *default-http
+        group: Adguard
+        url: "http://adguard.adguard.svc.cluster.local:80"
+
+      - name: Minio UI
+        <<: *default-http
+        group: Backups
+        url: "http://minio.backups.svc.cluster.local:9001"
+      - name: Minio
+        <<: *default-http
+        group: Backups
+        url: "http://minio.backups.svc.cluster.local:9000/minio/health/live"
+
+      - name: DDNS updater
+        <<: *default-http
+        group: DDNS
+        url: "http://ddns-updater.ddns-updater.svc.cluster.local:8000"
+
+      - name: UI
+        <<: *default-http
+        group: Registry
+        url: "http://ui.registry.svc.cluster.local:8080"
+      - name: Registry
+        <<: *default-http
+        group: Registry
+        url: "http://registry.registry.svc.cluster.local:5000"
+
+      - name: Authelia
+        <<: *default-http
+        group: Single Sign-On
+        url: "http://authelia.sso.svc.cluster.local:9091"
+      - name: Cluster
+        <<: *default-tcp
+        group: Single Sign-On
+        url: "tcp://cluster-rw.sso.svc.cluster.local:5432"
+      - name: Cache
+        <<: *default-tcp
+        group: Single Sign-On
+        url: "tcp://cache.sso.svc.cluster.local:6379"
+
+      - name: Flaresolverr
+        <<: *default-http
+        group: Flaresolverr
+        url: "http://flaresolverr.flaresolverr.svc.cluster.local:8191"
+
+      - name: Glitchtip
+        <<: *default-http
+        group: Glitchtip
+        url: "http://web.glitchtip.svc.cluster.local:8000"
+      - name: Cluster
+        <<: *default-tcp
+        group: Glitchtip
+        url: "tcp://cluster-rw.glitchtip.svc.cluster.local:5432"
+      - name: Cache
+        <<: *default-tcp
+        group: Glitchtip
+        url: "tcp://cache.glitchtip.svc.cluster.local:6379"
+
+      - name: External connectivity check
+        <<: *default-http
+        url: "https://example.org"
+        interval: 5m
+
+    announcements: []

@@ -44,6 +44,7 @@ spec:
       labels:
         kalexlab.xyz/app: media
         kalexlab.xyz/component: qbittorrent
+        kalexlab.xyz/monitoring: "true"
         egress.kalexlab.xyz/policy: vpn
     spec:
       restartPolicy: Always

@@ -1,0 +1,343 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: sso
+  name: authelia-config
+data:
+  # TODO: currently this configuration is shared as-is with the DEV environment,
+  # which of course does NOT work properly. Need to find a way to modify it
+  # for DEV, while keeping it DRY and consistent (i.e. cannot just duplicate
+  # it since it is fairly big and may change relatively frequently)
+  configuration.yml: |
+    ---
+    theme: dark
+    server:
+      address: tcp://:9091
+      endpoints:
+        authz:
+          forward-auth:
+            implementation: ForwardAuth
+            authn_strategies:
+              - name: 'HeaderAuthorization'
+                schemes:
+                  - 'Basic'
+                scheme_basic_cache_lifespan: 0
+              - name: 'CookieSession'
+      disable_healthcheck: true
+
+    identity_validation:
+      reset_password:
+        jwt_secret: '{{ env "RESET_PASSWORD_JWT_SECRET" }}'
+
+    definitions:
+      user_attributes:
+        is_nextcloud_admin:
+          ## Expression to evaluate admin privilege for Nextcloud.
+          expression: '"admins" in groups'
+
+    identity_providers:
+      oidc:
+        hmac_secret: '{{ env "OIDC_HMAC_SECRET" }}'
+
+        jwks:
+          - key: {{ secret "/config/secrets/oidc/jwks/rsa.4096.key" | mindent 10 "|" | msquote }}
+
+        claims_policies:
+          nextcloud_userinfo:
+            custom_claims:
+              is_nextcloud_admin: {}
+
+        scopes:
+          nextcloud_userinfo:
+            claims:
+              - 'is_nextcloud_admin'
+
+        authorization_policies:
+          home:
+            default_policy: deny
+            rules:
+              - policy: one_factor
+                subject: group:home
+              - policy: one_factor
+                subject: group:admins
+          devs:
+            default_policy: deny
+            rules:
+              - policy: one_factor
+                subject: group:devs
+              - policy: one_factor
+                subject: group:admins
+          admins:
+            default_policy: deny
+            rules:
+              - policy: two_factor
+                subject: group:admins
+
+        clients:
+          - client_id: epeYecAgBGxlMfdl58elE2BygSshHmQxT2-g~8rgJpfujUUNo1PaBc~SVPbB1C4wLdxANoIR
+            client_name: Argo CD
+            client_secret: "$pbkdf2-sha512$310000$WWAVgNLT70YVd2XSjLN42g$0MEZCXecFebxpSK0j5csR6oPYNnnfh7JoDyxhgFVz7m2p7czrbKHZae2YIiU8zHyUVs/EJLVK6i0YQ0mZoKIvA"
+            public: false
+            consent_mode: implicit
+            authorization_policy: admins
+            require_pkce: false
+            pkce_challenge_method: ""
+            redirect_uris:
+              - 'https://argocd.kalexlab.xyz/auth/callback'
+            scopes:
+              - openid
+              - groups
+              - email
+            response_types:
+              - code
+            grant_types:
+              - authorization_code
+            access_token_signed_response_alg: none
+            userinfo_signed_response_alg: none
+            token_endpoint_auth_method: client_secret_post
+
+          - client_id: vP36vqAl-kDRRlq0~88S1u-2jdyyktDkLDuPsHmwHp0oDnuBRg-KH4DeJXaAWXBXU4.uL7YK
+            client_name: Grafana
+            client_secret: "$pbkdf2-sha512$310000$mN2TwNhamWVyMyFVSWy8Tw$aRwMlFbx6JgjnZslU/7VOSB1B8EG1uqCtCDS2D3InQAW3EXGB7.Tfje2pD8tvz0jEQA9MV34PpAYP2xxCXNtrg"
+            public: false
+            consent_mode: implicit
+            authorization_policy: admins
+            require_pkce: true
+            pkce_challenge_method: S256
+            redirect_uris:
+              - 'https://grafana.kalexlab.xyz/login/generic_oauth'
+            scopes:
+              - openid
+              - profile
+              - groups
+              - email
+            response_types:
+              - code
+            grant_types:
+              - authorization_code
+            access_token_signed_response_alg: none
+            userinfo_signed_response_alg: none
+            token_endpoint_auth_method: client_secret_basic
+
+          - client_id: KQzhxem-sMm2aEW8PLl.RXx7Psc722OslxCYI3ec3rJS7RELsBvVz.yWislD2vJzQo5lwrhf
+            client_name: Immich
+            client_secret: "$pbkdf2-sha512$310000$TMrxzqqCtRBxdB4/HAoffw$v9/5/ZTOjnGCIIVH0iGJCiAVuCBs1iE.9X6J8q2YU1ZS0qwYXX9xGUCntdp2Ivc/yRpcP/T0dpNB.gVDPY72lg"
+            public: false
+            consent_mode: implicit
+            authorization_policy: home
+            require_pkce: false
+            pkce_challenge_method: ''
+            redirect_uris:
+              - "https://immich.kalexlab.xyz/auth/login"
+              - "https://immich.kalexlab.xyz/user-settings"
+              - "app.immich:///oauth-callback"
+            scopes:
+              - openid
+              - profile
+              - email
+            response_types:
+              - code
+            grant_types:
+              - authorization_code
+            access_token_signed_response_alg: none
+            userinfo_signed_response_alg: none
+            token_endpoint_auth_method: client_secret_post
+
+          - client_id: ZDfsqsQ~6TXykslXKj.6KrgWmUPhR~bP4jegQW23XC6haqbNf2j1HWhN-TbbIUrj0omunAcR
+            client_name: Komga
+            client_secret: "$pbkdf2-sha512$310000$HzLAEYdJIZpqG9auMGX9nw$odFwJP/tRZkzNpv5eyHD8FvSNNZEui9WOhQGTGYmCBXuVsxSMkNgRcNqEbzjqS2XfDmY8AVvZZdB/Rj8WVDO4w"
+            public: false
+            consent_mode: implicit
+            authorization_policy: home
+            require_pkce: false
+            pkce_challenge_method: ""
+            redirect_uris:
+              - "https://manga.kalexlab.xyz/login/oauth2/code/authelia"
+            scopes:
+              - openid
+              - profile
+              - email
+            response_types:
+              - code
+            grant_types:
+              - authorization_code
+            access_token_signed_response_alg: none
+            userinfo_signed_response_alg: none
+            token_endpoint_auth_method: client_secret_basic
+
+          - client_id: dGILUkZSpLvgfsoRg0ibTte0ekGQHYu2zFsYdvtiAwhMTrohKcDpuE4CEJHBmX_-l5QAQE6V
+            client_name: Jellyfin
+            client_secret: "$pbkdf2-sha512$310000$DKPjDKM9h/Rp.3XYGHxlxA$gynKHmxduKpGw635AcLocFymLwtcLdPdXnVU5mGEY8H29D3zYdnEy48PpZ6ASv7kZPd93HfdP.L2eZIQVG6Zww"
+            public: false
+            consent_mode: implicit
+            authorization_policy: home
+            require_pkce: true
+            pkce_challenge_method: S256
+            redirect_uris:
+              - 'https://jellyfin.kalexlab.xyz/sso/OID/redirect/authelia'
+            scopes:
+              - openid
+              - profile
+              - groups
+            response_types:
+              - code
+            grant_types:
+              - authorization_code
+            access_token_signed_response_alg: none
+            userinfo_signed_response_alg: none
+            token_endpoint_auth_method: client_secret_post
+
+          - client_id: 1LDwBk.lsBIq4UKju1xTtErbtJO4wzN.3u1~BB0y0V65zRn.VITLv3Qk2jNlhSYAy7wNvs80
+            client_name: NextCloud
+            client_secret: "$pbkdf2-sha512$310000$h4FdHvkuAnvHKIv755Nvyw$U83QNB6diLonA2KcrlhuOsHXhz6jvdkMWera6yjkW6JXrBEqUOoQCt7wdTdkoU1082ZVeJf03TqDIGY0u5UyNw"
+            public: false
+            consent_mode: implicit
+            authorization_policy: home
+            require_pkce: true
+            pkce_challenge_method: S256
+            claims_policy: nextcloud_userinfo
+            redirect_uris:
+              - 'https://cloud.kalexlab.xyz/apps/oidc_login/oidc'
+            scopes:
+              - openid
+              - profile
+              - email
+              - groups
+              - nextcloud_userinfo
+            response_types:
+              - code
+            grant_types:
+              - authorization_code
+            access_token_signed_response_alg: none
+            userinfo_signed_response_alg: none
+            token_endpoint_auth_method: client_secret_basic
+
+          - client_id: kUpqS-h-Qoq_gfQcBXF4EvlnLnZFJQgZoDLRejn_8rPj6kOW6ev71NknCdOcIK0Cz-8xBoEN
+            client_name: Glitchtip
+            client_secret: "$pbkdf2-sha512$310000$4RvT.4d6x9517cCwSBazkQ$U26o1L2wmp2Dczw.l0PH.MyMF3zaZofpOfStpk8wY9UCXzKu6GuJKpPjXQoMHHZXn3w2LqCEygENXelwxnXsNg"
+            public: false
+            consent_mode: implicit
+            authorization_policy: devs
+            require_pkce: false
+            pkce_challenge_method: ""
+            redirect_uris:
+              - "https://glitchtip.kalexlab.xyz/accounts/oidc/authelia/login/callback/"
+            scopes:
+              - openid
+              - email
+              - profile
+            response_types:
+              - code
+            grant_types:
+              - authorization_code
+            access_token_signed_response_alg: none
+            userinfo_signed_response_alg: none
+            token_endpoint_auth_method: client_secret_basic
+
+          - client_id: DckOx_vcEnOlhRWpBk81VJqHAiKZ0rd2R1MCt4zmV28SSndNeS2z5ZlDBgQK..FDjytZd0_g
+            client_name: Gatus
+            client_secret: "$pbkdf2-sha512$310000$q0DtM1NtPfFJEtkJgU1u2w$SmjE2wBQgFLvq5zk4QyihTC1Ib4oXet/xxbyzQMpXyaRF7sZll.8qt1xKs0FnFdiS25ghNhJSaZzerpcVoubHA"
+            public: false
+            consent_mode: implicit
+            authorization_policy: home
+            require_pkce: false
+            pkce_challenge_method: ""
+            redirect_uris:
+              - "https://status.kalexlab.xyz/authorization-code/callback"
+            scopes:
+              - openid
+              - profile
+              - email
+            response_types:
+              - code
+            grant_types:
+              - authorization_code
+            access_token_signed_response_alg: none
+            userinfo_signed_response_alg: none
+            token_endpoint_auth_method: client_secret_basic
+
+    authentication_backend:
+      file:
+        path: /config/users.yml
+
+    totp:
+      issuer: auth.kalexlab.xyz
+      period: 30
+
+    access_control:
+      default_policy: deny
+      rules:
+        - domain:
+            - anime.kalexlab.xyz
+            - homer.kalexlab.xyz
+            - tranga.kalexlab.xyz
+            - torrent.kalexlab.xyz
+            - sonarr.kalexlab.xyz
+            - radarr.kalexlab.xyz
+            - prowlarr.kalexlab.xyz
+            - music.kalexlab.xyz
+            - helper.music.kalexlab.xyz
+          policy: one_factor
+          subject:
+            - ["group:home"]
+            - ["group:admins"]
+
+        - domain:
+            - traefik.kalexlab.xyz
+            - prometheus.kalexlab.xyz
+            - longhorn.kalexlab.xyz
+            - adguard.dns.kalexlab.xyz
+            - ddns.kalexlab.xyz
+          policy: two_factor
+          subject:
+            - ["group:admins"]
+
+    session:
+      secret: '{{ env "SESSION_SECRET" }}'
+      redis:
+        host: cache
+        port: 6379
+
+      cookies:
+        - name: authelia_session
+          domain: kalexlab.xyz
+          authelia_url: "https://auth.kalexlab.xyz"
+          expiration: 1h
+          inactivity: 10m
+          remember_me: 1M
+          default_redirection_url: "https://homer.kalexlab.xyz"
+
+    regulation:
+      max_retries: 3
+      find_time: 2m
+      ban_time: 5m
+
+    storage:
+      encryption_key: '{{ env "STORAGE_ENCRYPTION_KEY" }}'
+      postgres:
+        address: 'tcp://cluster-rw:5432'
+        database: app
+        username: app
+        password: '{{ env "STORAGE_PASSWORD" }}'
+
+    notifier:
+      filesystem:
+        filename: /tmp/notification.txt
+  users.yml: |
+    ---
+    users:
+      kalex:
+        displayname: Alessandro Zanatta
+        password: "$argon2id$v=19$m=65536,t=3,p=4$okUMZclzLYx0f/ok2oarTg$oy16tx2MpkwpVGlkbaTuQNFI4K9zNo9Qbxk8sriKyGA"
+        email: alessandro.zanatta.lav@gmail.com
+        groups:
+          - admins
+          - devs
+          - home
+      laetitia:
+        displayname: Letizia Polla
+        password: "$argon2id$v=19$m=65536,t=3,p=4$206hAjzpn5hd6IrUHpyFNQ$6zVWJS/AzOR0vjneyPZ9CZJDcDmeTBHsJIdykhjdy1U"
+        email: letiziapolla@gmail.com
+        groups:
+          - home

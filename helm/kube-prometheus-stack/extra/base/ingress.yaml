@@ -33,15 +33,6 @@ spec:
   tls:
     secretName: grafana-ingress-certificate-secret
 ---
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  namespace: prometheus
-  name: prometheus-auth
-spec:
-  basicAuth:
-    secret: prometheus-auth-secret
----
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -71,7 +62,8 @@ spec:
     - kind: Rule
       match: Host(`prometheus.kalexlab.xyz`)
       middlewares:
-        - name: prometheus-auth
+        - name: authelia-forward-auth
+          namespace: sso
       services:
         - name: prometheus-kube-prometheus-prometheus
           port: 9090

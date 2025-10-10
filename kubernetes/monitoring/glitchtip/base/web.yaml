@@ -38,6 +38,7 @@ spec:
       labels:
         kalexlab.xyz/app: glitchtip
         kalexlab.xyz/component: web
+        kalexlab.xyz/monitoring: "true"
     spec:
       restartPolicy: Always
       initContainers:

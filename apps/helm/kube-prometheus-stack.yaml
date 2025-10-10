@@ -22,13 +22,14 @@ spec:
             releaseName: prometheus
             valueFiles:
               - $values/helm/kube-prometheus-stack/values.yaml
+              - $values/helm/kube-prometheus-stack/values-{{ .metadata.labels.env }}.yaml
+              - "secrets://https://raw.githubusercontent.com/AlessandroZanatta/homelab-v2/master/helm/kube-prometheus-stack/secrets.yaml"
               - $values/helm/kube-prometheus-stack/alerts/argocd.yaml
               - $values/helm/kube-prometheus-stack/alerts/cert-manager.yaml
               - $values/helm/kube-prometheus-stack/alerts/coredns.yaml
               - $values/helm/kube-prometheus-stack/alerts/longhorn.yaml
               - $values/helm/kube-prometheus-stack/alerts/smartctl.yaml
               - $values/helm/kube-prometheus-stack/alerts/traefik.yaml
-              - "secrets://https://raw.githubusercontent.com/AlessandroZanatta/homelab-v2/master/helm/kube-prometheus-stack/secrets.yaml"
         - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
           targetRevision: master
           path: "helm/kube-prometheus-stack/extra/overlays/{{ .metadata.labels.env }}"
@@ -43,4 +44,3 @@ spec:
         syncOptions:
           - CreateNamespace=true
           - ServerSideApply=true
-          - SkipDryRunOnMissingResource=true

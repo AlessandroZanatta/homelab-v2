@@ -31,6 +31,7 @@ spec:
     labels:
       kalexlab.xyz/app: nextcloud
       kalexlab.xyz/component: cluster
+      kalexlab.xyz/monitoring: "true"
 
   instances: 1
 
