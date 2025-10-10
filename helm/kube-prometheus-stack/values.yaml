@@ -10,6 +10,15 @@ sidecar:
   dashboards:
     enabled: true
 
+extraManifests:
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      name: grafana-oidc-client-secret
+      namespace: prometheus
+    data:
+      client_secret: "{{ .Values.secrets.client_secret | b64enc }}"
+
 grafana:
   enabled: true
 
@@ -23,12 +32,9 @@ grafana:
       enabled: true
       name: Authelia
       client_id: vP36vqAl-kDRRlq0~88S1u-2jdyyktDkLDuPsHmwHp0oDnuBRg-KH4DeJXaAWXBXU4.uL7YK
-      client_secret: $__file{/etc/secrets/grafana_oidc_client_secret/client_secret}
+      client_secret: "$__file{/etc/secrets/grafana_oidc_client_secret/client_secret}"
       scopes: openid profile email groups
       empty_scopes: false
-      auth_url: https://auth.kalexlab.xyz/api/oidc/authorization
-      token_url: https://auth.kalexlab.xyz/api/oidc/token
-      api_url: https://auth.kalexlab.xyz/api/oidc/userinfo
       login_attribute_path: preferred_username
       groups_attribute_path: groups
       name_attribute_path: name
