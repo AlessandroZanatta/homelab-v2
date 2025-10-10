@@ -13,7 +13,7 @@ resources:
   - ingress.yaml
 images:
   - name: ghcr.io/flaresolverr/flaresolverr
-    newTag: v3.4.1
+    newTag: v3.4.2
   - name: docker.io/jellyfin/jellyfin
     newTag: 10.10.7
   - name: ghcr.io/onedr0p/prowlarr
