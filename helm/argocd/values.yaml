@@ -6,6 +6,10 @@ configs:
   params:
     server.insecure: true
 
+  rbac:
+    policy.csv: |
+      g, admins, role:admin
+
   repositories:
     homelab:
       url: "https://github.com/AlessandroZanatta/homelab-v2"
