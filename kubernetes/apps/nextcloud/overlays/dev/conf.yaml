@@ -1,0 +1,12 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nextcloud-config
+  namespace: nextcloud
+data:
+  oidc_provider_url.config.php: |
+    <?php
+      $CONFIG = array(
+        'oidc_login_provider_url' => 'https://auth.dev.kalexlab.xyz'
+      );

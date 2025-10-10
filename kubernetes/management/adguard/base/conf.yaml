@@ -12,9 +12,7 @@ data:
         enabled: false
       address: 0.0.0.0:80
       session_ttl: 720h
-    users:
-      - name: kalex
-        password: $2b$12$AfGIlK8yt92fc3zik9grxObDy.5SpiKcji5c.6/MxMwNJuiZ8DnMK
+    users: []
     auth_attempts: 5
     block_auth_min: 15
     http_proxy: ""

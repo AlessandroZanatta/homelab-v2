@@ -38,6 +38,7 @@ spec:
       labels:
         kalexlab.xyz/app: nextcloud
         kalexlab.xyz/component: nextcloud
+        kalexlab.xyz/monitoring: "true"
     spec:
       restartPolicy: Always
       initContainers:
@@ -79,12 +80,8 @@ spec:
               protocol: TCP
 
           env:
-            - name: TRUSTED_PROXIES
-              value: "10.0.0.0/8"
-            - name: NEXTCLOUD_TRUSTED_DOMAINS
-              value: "cloud.kalexlab.xyz nextcloud.nextcloud.svc.cluster.local"
-            - name: OVERWRITEPROTOCOL
-              value: "https"
+            # Keep NEXTCLOUD_ADMIN_* env variables here,
+            # even though they are only used on the initial setup
             - name: NEXTCLOUD_ADMIN_USER
               valueFrom:
                 secretKeyRef:
@@ -95,6 +92,19 @@ spec:
                 secretKeyRef:
                   name: nextcloud-secrets
                   key: NEXTCLOUD_ADMIN_PASSWORD
+
+            - name: SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-secrets
+                  key: SECRET
+
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-secrets
+                  key: OIDC_CLIENT_SECRET
+
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
@@ -110,6 +120,11 @@ spec:
                 secretKeyRef:
                   name: cluster-app
                   key: host
+            - name: POSTGRES_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: cluster-app
+                  key: port
             - name: POSTGRES_DB
               valueFrom:
                 secretKeyRef:
@@ -121,7 +136,7 @@ spec:
               memory: 200Mi
               cpu: 10m
             limits:
-              memory: 1Gi
+              memory: 2Gi
               cpu: 2000m
 
           readinessProbe:
@@ -155,6 +170,8 @@ spec:
             - mountPath: /var/www/html/data
               name: nextcloud-data-pvc
               subPath: data
+            - mountPath: /var/www/html/config
+              name: nextcloud-config
             - mountPath: /tmp
               name: tmp
             - mountPath: /var/run
@@ -173,6 +190,9 @@ spec:
           type: RuntimeDefault
 
       volumes:
+        - name: nextcloud-config
+          configMap:
+            name: nextcloud-config
         - name: tmp
           emptyDir:
             sizeLimit: 1Gi

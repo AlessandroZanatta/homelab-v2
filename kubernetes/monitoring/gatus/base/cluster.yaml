@@ -1,0 +1,62 @@
+---
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: backups
+  namespace: gatus
+spec:
+  configuration:
+    destinationPath: "s3://cnpg/gatus"
+    endpointURL: "http://minio.backups.svc.cluster.local:9000"
+    s3Credentials:
+      accessKeyId:
+        name: minio-secrets
+        key: MINIO_ROOT_USER
+      secretAccessKey:
+        name: minio-secrets
+        key: MINIO_ROOT_PASSWORD
+    wal:
+      compression: bzip2
+    data:
+      compression: bzip2
+  retentionPolicy: 14d
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cluster
+  namespace: gatus
+spec:
+  inheritedMetadata:
+    labels:
+      kalexlab.xyz/app: gatus
+      kalexlab.xyz/component: cluster
+
+  instances: 1
+
+  storage:
+    storageClass: longhorn
+    size: 6Gi
+
+  monitoring:
+    enablePodMonitor: true
+
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: backups
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: cluster-backup
+  namespace: gatus
+spec:
+  cluster:
+    name: cluster
+  schedule: "0 0 0 * * *"
+  backupOwnerReference: self
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io

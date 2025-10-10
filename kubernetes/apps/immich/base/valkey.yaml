@@ -41,6 +41,7 @@ spec:
       labels:
         kalexlab.xyz/app: immich
         kalexlab.xyz/component: cache
+        kalexlab.xyz/monitoring: "true"
     spec:
       restartPolicy: Always
       containers:

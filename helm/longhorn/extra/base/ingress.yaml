@@ -14,15 +14,6 @@ spec:
     name: letsencrypt
 ---
 apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  namespace: longhorn-system
-  name: longhorn-basic-auth
-spec:
-  basicAuth:
-    secret: longhorn-auth-secrets
----
-apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: longhorn-ingress
@@ -40,6 +31,7 @@ spec:
         - name: longhorn-frontend
           port: 80
       middlewares:
-        - name: longhorn-basic-auth
+        - name: authelia-forward-auth
+          namespace: sso
   tls:
     secretName: longhorn-ingress-certificate-secret

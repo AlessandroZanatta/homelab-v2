@@ -5,7 +5,7 @@ metadata:
   namespace: glitchtip
   name: glitchtip-config
 data:
-  ENABLE_SOCIAL_AUTH: "false"
+  ENABLE_SOCIAL_AUTH: "true"
   GLITCHTIP_DOMAIN: "https://glitchtip.kalexlab.xyz"
   CELERY_WORKER_AUTOSCALE: "1,2"
   CELERY_WORKER_MAX_TASKS_PER_CHILD: "10000"

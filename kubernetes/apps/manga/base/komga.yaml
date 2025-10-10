@@ -38,6 +38,7 @@ spec:
       labels:
         kalexlab.xyz/app: manga
         kalexlab.xyz/component: komga
+        kalexlab.xyz/monitoring: "true"
     spec:
       restartPolicy: Always
       containers:
@@ -89,6 +90,9 @@ spec:
               name: manga-data-pvc
             - mountPath: /config
               name: komga-config-pvc
+            - mountPath: /config/application.yml
+              subPath: application.yml
+              name: manga-conf
             - mountPath: /tmp
               name: tmp
 
@@ -99,6 +103,9 @@ spec:
         - name: manga-data-pvc
           persistentVolumeClaim:
             claimName: manga-data-pvc
+        - name: manga-conf
+          secret:
+            secretName: manga-conf
         - name: tmp
           emptyDir:
             sizeLimit: 1Gi

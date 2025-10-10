@@ -12,7 +12,28 @@ sidecar:
 
 grafana:
   enabled: true
+
   defaultDashboardsTimezone: Europe/Rome
+
+  grafana.ini:
+    server:
+      root_url: "https://grafana.kalexlab.xyz"
+
+    auth.generic_oauth:
+      enabled: true
+      name: Authelia
+      client_id: vP36vqAl-kDRRlq0~88S1u-2jdyyktDkLDuPsHmwHp0oDnuBRg-KH4DeJXaAWXBXU4.uL7YK
+      client_secret: $__file{/etc/secrets/grafana_oidc_client_secret/client_secret}
+      scopes: openid profile email groups
+      empty_scopes: false
+      auth_url: https://auth.kalexlab.xyz/api/oidc/authorization
+      token_url: https://auth.kalexlab.xyz/api/oidc/token
+      api_url: https://auth.kalexlab.xyz/api/oidc/userinfo
+      login_attribute_path: preferred_username
+      groups_attribute_path: groups
+      name_attribute_path: name
+      role_attribute_path: contains(groups[*], 'admins') && 'Admin' || 'Viewer'
+      use_pkce: true
 
   dashboardProviders:
     dashboardproviders.yaml:
@@ -53,6 +74,11 @@ grafana:
         gnetId: 15202
         revision: 1
         datasource: Prometheus
+
+  extraSecretMounts:
+    - name: grafana-oidc-client-secret
+      secretName: grafana-oidc-client-secret
+      mountPath: /etc/secrets/grafana_oidc_client_secret
 
 prometheusOperator:
   tls:

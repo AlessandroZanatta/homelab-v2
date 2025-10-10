@@ -72,6 +72,18 @@ spec:
       ports:
         - protocol: TCP
           port: 6379
+
+    # Allow Nextcloud to reach Authelia for OIDC
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: 8443
     - to:
         - ipBlock:
             cidr: 0.0.0.0/0

@@ -1,0 +1,119 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nextcloud-config
+  namespace: nextcloud
+data:
+  config.php: |
+    <?php
+
+    $CONFIG = array (
+      'config_is_read_only' => true,
+      'version' => '32.0.0.13',
+      'htaccess.RewriteBase' => '/',
+      'apps_paths' =>
+         array (
+           0 =>
+           array (
+             'path' => '/var/www/html/apps',
+             'url' => '/apps',
+             'writable' => false,
+           ),
+           1 =>
+           array (
+             'path' => '/var/www/html/custom_apps',
+             'url' => '/custom_apps',
+             'writable' => true,
+           ),
+         ),
+      'upgrade.disable-web' => true,
+      'passwordsalt' => 'ThB9iKBy3lRGIbcYyNAI2pzglFhMpL',
+      'secret' => getenv('SECRET'),
+      'trusted_domains' =>
+        array (
+          0 => 'localhost',
+          1 => 'cloud.kalexlab.xyz',
+          2 => 'nextcloud.nextcloud.svc.cluster.local',
+        ),
+      'trusted_proxies' =>
+        array (
+          0 => '10.0.0.0/8',
+        ),
+      'app_install_overwrite' =>
+        array (
+          0 => 'oidc_login',
+        ),
+      'datadirectory' => '/var/www/html/data',
+      'installed' => true,
+      'instanceid' => 'oc7ql9mxohqu',
+      'overwriteprotocol' => 'https',
+      'loglevel' => 0,
+      'maintenance' => false
+    );
+  redis.config.php: |
+    <?php
+
+    $CONFIG = array (
+      'memcache.locking' => '\\OC\\Memcache\\Redis',
+      'memcache.distributed' => '\\OC\\Memcache\\Redis',
+      'memcache.local' => '\\OC\\Memcache\\APCu',
+      'redis' =>
+         array (
+           'host' => 'cache',
+           'port' => '6379',
+         )
+    );
+  database.config.php: |
+    <?php
+
+    $CONFIG = array (
+      'dbtype' => 'pgsql',
+      'dbname' => getenv('POSTGRES_DB'),
+      'dbhost' => getenv('POSTGRES_HOST'),
+      'dbport' => getenv('POSTGRES_PORT'),
+      'dbtableprefix' => 'oc_',
+      'dbuser' => getenv('POSTGRES_USER'),
+      'dbpassword' => getenv('POSTGRES_PASSWORD')
+    );
+  oidc_provider_url.config.php: |
+    <?php
+
+    $CONFIG = array(
+      'oidc_login_provider_url' => 'https://auth.kalexlab.xyz'
+    );
+  oidc.config.php: |
+    <?php
+
+    $CONFIG = array(
+      'allow_user_to_change_display_name' => false,
+      'lost_password_link' => 'disabled',
+      'oidc_login_client_id' => '1LDwBk.lsBIq4UKju1xTtErbtJO4wzN.3u1~BB0y0V65zRn.VITLv3Qk2jNlhSYAy7wNvs80',
+      'oidc_login_client_secret' => getenv("OIDC_CLIENT_SECRET"),
+      'oidc_login_auto_redirect' => true,
+      'oidc_login_end_session_redirect' => false,
+      'oidc_login_button_text' => 'Log in with Authelia',
+      'oidc_login_hide_password_form' => false,
+      'oidc_login_attributes' => array (
+          'id' => 'preferred_username',
+          'name' => 'name',
+          'mail' => 'email',
+          'groups' => 'groups',
+          'is_admin' => 'is_nextcloud_admin',
+      ),
+      'oidc_login_default_group' => 'oidc',
+      'oidc_login_use_external_storage' => false,
+      'oidc_login_scope' => 'openid profile email groups nextcloud_userinfo',
+      'oidc_login_proxy_ldap' => false,
+      'oidc_login_disable_registration' => true,
+      'oidc_login_redir_fallback' => false,
+      'oidc_login_tls_verify' => true,
+      'oidc_create_groups' => false,
+      'oidc_login_webdav_enabled' => false,
+      'oidc_login_password_authentication' => false,
+      'oidc_login_public_key_caching_time' => 86400,
+      'oidc_login_min_time_between_jwks_requests' => 10,
+      'oidc_login_well_known_caching_time' => 86400,
+      'oidc_login_update_avatar' => false,
+      'oidc_login_code_challenge_method' => 'S256'
+    );

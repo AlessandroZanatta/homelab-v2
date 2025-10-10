@@ -1,13 +1,4 @@
 ---
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  namespace: traefik
-  name: traefik-dashboard-auth
-spec:
-  basicAuth:
-    secret: traefik-dashboard-auth-secret
----
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -38,7 +29,8 @@ spec:
     - kind: Rule
       match: Host(`traefik.kalexlab.xyz`)
       middlewares:
-        - name: traefik-dashboard-auth
+        - name: authelia-forward-auth
+          namespace: sso
       services:
         - kind: TraefikService
           name: api@internal

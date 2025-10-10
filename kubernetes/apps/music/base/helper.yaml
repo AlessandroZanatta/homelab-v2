@@ -38,6 +38,7 @@ spec:
       labels:
         kalexlab.xyz/app: music
         kalexlab.xyz/component: helper-backend
+        kalexlab.xyz/monitoring: "true"
     spec:
       restartPolicy: Always
       imagePullSecrets:
@@ -180,6 +181,7 @@ spec:
       labels:
         kalexlab.xyz/app: music
         kalexlab.xyz/component: helper-frontend
+        kalexlab.xyz/monitoring: "true"
     spec:
       restartPolicy: Always
       imagePullSecrets:

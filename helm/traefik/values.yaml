@@ -17,6 +17,8 @@ ingressRoute:
 providers:
   kubernetesCRD:
     enabled: true
+    # -- Allows IngressRoute to reference resources in namespace other than theirs
+    allowCrossNamespace: true
     # -- Allows to reference ExternalName services in IngressRoute
     allowExternalNameServices: true
 

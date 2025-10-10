@@ -34,25 +34,43 @@ spec:
       services:
         - name: jellyfin
           port: 8096
-    - kind: Rule
-      match: Host(`prowlarr.kalexlab.xyz`)
-      services:
-        - name: prowlarr
-          port: 9696
+    # QBitTorrent configured to not require authentication when logging
+    # from 0.0.0.0. Authentication enforced via forward auth on Authelia
     - kind: Rule
       match: Host(`torrent.kalexlab.xyz`)
       services:
         - name: qbittorrent
           port: 8080
+      middlewares:
+        - name: authelia-forward-auth
+          namespace: sso
+    # The following are set to allow without authentication local IPs
+    # and are then protected using Authelia forward auth to have SSO
+    # Currently not possible to disable authentication/use OIDC.
+    #   ref: https://github.com/Sonarr/Sonarr/issues/2477
+    - kind: Rule
+      match: Host(`prowlarr.kalexlab.xyz`)
+      services:
+        - name: prowlarr
+          port: 9696
+      middlewares:
+        - name: authelia-forward-auth
+          namespace: sso
     - kind: Rule
       match: Host(`radarr.kalexlab.xyz`)
       services:
         - name: radarr
           port: 7878
+      middlewares:
+        - name: authelia-forward-auth
+          namespace: sso
     - kind: Rule
       match: Host(`sonarr.kalexlab.xyz`)
       services:
         - name: sonarr
           port: 8989
+      middlewares:
+        - name: authelia-forward-auth
+          namespace: sso
   tls:
     secretName: media-ingress-certificate-secret

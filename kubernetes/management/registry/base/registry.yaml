@@ -38,6 +38,7 @@ spec:
       labels:
         kalexlab.xyz/app: registry
         kalexlab.xyz/component: registry
+        kalexlab.xyz/monitoring: "true"
     spec:
       restartPolicy: Always
       containers:

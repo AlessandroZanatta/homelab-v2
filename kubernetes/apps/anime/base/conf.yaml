@@ -56,6 +56,10 @@ data:
           proxy_pass http://backend;
         }
 
+        location ~ ^/health {
+          proxy_pass http://backend;
+        }
+
         location ~ ^/debug/ {
           proxy_pass http://backend;
         }

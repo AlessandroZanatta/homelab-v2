@@ -30,5 +30,8 @@ spec:
       services:
         - name: adguard
           port: 80
+      middlewares:
+        - name: authelia-forward-auth
+          namespace: sso
   tls:
     secretName: adguard-ingress-certificate-secret

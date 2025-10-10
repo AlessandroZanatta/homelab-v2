@@ -30,5 +30,8 @@ spec:
       services:
         - name: app
           port: 9000
+      # middlewares:
+      #   - name: authelia-forward-auth
+      #     namespace: sso
   tls:
     secretName: anime-ingress-certificate-secret

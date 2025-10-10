@@ -2,13 +2,13 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  namespace: uptime-kuma
-  name: uptime-certificate
+  name: gatus-certificate
+  namespace: gatus
 spec:
-  commonName: uptime.kalexlab.xyz
-  secretName: uptime-ingress-certificate-secret
+  commonName: status.kalexlab.xyz
+  secretName: gatus-ingress-certificate-secret
   dnsNames:
-    - uptime.kalexlab.xyz
+    - status.kalexlab.xyz
   issuerRef:
     kind: ClusterIssuer
     name: letsencrypt
@@ -16,8 +16,8 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  namespace: uptime-kuma
-  name: uptime-ingress
+  name: gatus-ingress
+  namespace: gatus
   annotations:
     external-dns.alpha.kubernetes.io/target: 192.168.10.20
 spec:
@@ -26,9 +26,9 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`uptime.kalexlab.xyz`)
+      match: Host(`status.kalexlab.xyz`)
       services:
-        - name: uptime-kuma
-          port: 3001
+        - name: gatus
+          port: 8080
   tls:
-    secretName: uptime-ingress-certificate-secret
+    secretName: gatus-ingress-certificate-secret

@@ -43,6 +43,7 @@ spec:
     metadata:
       labels:
         kalexlab.xyz/app: adguard
+        kalexlab.xyz/monitoring: "true"
     spec:
       restartPolicy: Always
       initContainers:

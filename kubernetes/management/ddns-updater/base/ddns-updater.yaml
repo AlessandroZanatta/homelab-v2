@@ -33,6 +33,7 @@ spec:
     metadata:
       labels:
         kalexlab.xyz/app: ddns-updater
+        kalexlab.xyz/monitoring: "true"
     spec:
       restartPolicy: Always
       containers:

@@ -38,6 +38,7 @@ spec:
       labels:
         kalexlab.xyz/app: vaultwarden
         kalexlab.xyz/component: vaultwarden
+        kalexlab.xyz/monitoring: "true"
     spec:
       restartPolicy: Always
       initContainers:

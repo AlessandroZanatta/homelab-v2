@@ -37,6 +37,7 @@ spec:
       labels:
         kalexlab.xyz/app: manga
         kalexlab.xyz/component: tranga-web
+        kalexlab.xyz/monitoring: "true"
     spec:
       restartPolicy: Always
       initContainers:

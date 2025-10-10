@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - ../../base
 patches:
+  - path: secrets.yaml
   - path: certificate.yaml
   - path: ingress.yaml
     target:
