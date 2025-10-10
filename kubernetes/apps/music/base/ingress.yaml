@@ -31,9 +31,10 @@ spec:
       services:
         - name: navidrome
           port: 4533
-      middlewares:
-        - name: authelia-forward-auth
-          namespace: sso
+      # Navidrome is somehow making Authelia crash, disable SSO for now
+      # middlewares:
+      #   - name: authelia-forward-auth
+      #     namespace: sso
     - kind: Rule
       match: "Host(`helper.music.kalexlab.xyz`) && PathPrefix(`/api`)"
       services:

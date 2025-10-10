@@ -26,6 +26,9 @@ data:
               - name: 'CookieSession'
       disable_healthcheck: true
 
+    log:
+      level: info
+
     identity_validation:
       reset_password:
         jwt_secret: '{{ env "RESET_PASSWORD_JWT_SECRET" }}'
@@ -276,7 +279,6 @@ data:
             - sonarr.kalexlab.xyz
             - radarr.kalexlab.xyz
             - prowlarr.kalexlab.xyz
-            - music.kalexlab.xyz
             - helper.music.kalexlab.xyz
           policy: one_factor
           subject:
@@ -292,11 +294,6 @@ data:
           policy: two_factor
           subject:
             - ["group:admins"]
-
-        - domain: music.kalexlab.xyz
-          policy: bypass
-          resources:
-             - "^/rest.*$"
 
     session:
       secret: '{{ env "SESSION_SECRET" }}'
