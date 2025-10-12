@@ -107,7 +107,7 @@ data:
       - name: Cluster
         <<: *default-tcp
         group: Immich
-        url: "tcp://cluster-rw.immich.svc.cluster.local:5432"
+        url: "tcp://cluster-vchord-rw.immich.svc.cluster.local:5432"
       - name: Cache
         <<: *default-tcp
         group: Immich

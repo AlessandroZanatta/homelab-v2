@@ -65,7 +65,7 @@ spec:
             [
               "sh",
               "-c",
-              "for i in $(seq 1 300); do nc -zvw1 cache 6379 && nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1",
+              "for i in $(seq 1 300); do nc -zvw1 cache 6379 && nc -zvw1 cluster-vchord-rw 5432 && exit 0 || sleep 3; done; exit 1",
             ]
       containers:
         - name: immich
@@ -87,7 +87,7 @@ spec:
             - name: DB_URL
               valueFrom:
                 secretKeyRef:
-                  name: cluster-app
+                  name: cluster-vchord-app
                   key: uri
             - name: REDIS_HOSTNAME
               value: cache
@@ -96,10 +96,10 @@ spec:
 
           resources:
             requests:
-              memory: 200Mi
+              memory: 1Gi
               cpu: 10m
             limits:
-              memory: 1Gi
+              memory: 2.5Gi
               cpu: 2000m
 
           readinessProbe:
