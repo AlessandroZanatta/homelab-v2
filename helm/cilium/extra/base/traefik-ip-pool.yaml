@@ -17,8 +17,6 @@ metadata:
   name: l2policy-traefik
   namespace: kube-system
 spec:
-  # interfaces:
-  #   - "^eth[0-9]+"
   loadBalancerIPs: true
   serviceSelector:
     matchLabels:

@@ -1,0 +1,16 @@
+---
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumL2AnnouncementPolicy
+metadata:
+  name: l2policy-traefik
+  namespace: kube-system
+spec:
+  # L2 Announcement is now required to be elected on a node running a Traefik pod
+  # since we're using "externalTrafficPolicy: Local" on Traefik's loadbalancer
+  #   ref: https://docs.cilium.io/en/latest/network/l2-announcements/#limitations
+  nodeSelector:
+    matchExpressions:
+      - key: ingress.kalexlab.xyz/type
+        operator: In
+        values:
+          - traefik

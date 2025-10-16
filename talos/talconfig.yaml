@@ -91,6 +91,8 @@ nodes:
             match: "'/dev/disk/by-id/ata-WDC_WD10SDRW-34A0XS1_WD-WXA2A41N3VKR' in disk.symlinks"
           minSize: "900GiB"
           grow: true
+    nodeLabels: &traefik-nodelabel
+      ingress.kalexlab.xyz/type: traefik
 
   - hostname: zeus
     ipAddress: 192.168.10.4
@@ -111,3 +113,4 @@ nodes:
           # Power efficiency looks OK even without ASPM (~7-10W idle)
           - pcie_aspm=off
         systemExtensions: *systemExtensions
+    nodeLabels: *traefik-nodelabel

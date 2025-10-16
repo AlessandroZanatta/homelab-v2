@@ -10,6 +10,29 @@ deployment:
   # -- Number of pods of the deployment (only applies when kind == Deployment)
   replicas: 2
 
+  # Ensure that the two replicas are scheduled one per node
+  # In particular, due to L2 Announcement requiring a pod on the leader,
+  # these two nodes must be those tagged with a given label.
+  #   ref: helm/cilium/extra/overlays/prod/traefik-ip-pool.yaml
+  #   ref: https://docs.cilium.io/en/latest/network/l2-announcements/#limitations
+  affinity:
+    # Ensure that only nodes with the correct label get a Traefik pod
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: ingress.kalexlab.xyz/type
+                operator: In
+                values:
+                  - traefik
+    # Ensure that the replicas are not scheduled on the same node
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+          topologyKey: kubernetes.io/hostname
+
 ingressRoute:
   dashboard:
     enabled: false
