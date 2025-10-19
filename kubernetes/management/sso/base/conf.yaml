@@ -216,6 +216,29 @@ data:
             userinfo_signed_response_alg: none
             token_endpoint_auth_method: client_secret_basic
 
+          - client_id: bJ2zDPf59PXUFWeaiUsM_Okjf5rQwWhHFcrKeJAWoLDua0sgqYq1Gt7En8wgxGz18yGBweFb
+            client_name: Reciept
+            client_secret: "$pbkdf2-sha512$310000$2bQ7MNuT.nuvD8rcwdhePg$0j3NuBxeSwtMKBNnliD5N2X8wUz9AYef25deVCDdUQThBKw1ffDe7Neq1t3.UADUNRaXvribaiGGWSvEJhgMnA"
+            public: false
+            consent_mode: implicit
+            authorization_policy: home
+            require_pkce: false
+            pkce_challenge_method: S256
+            redirect_uris:
+              - "xyz.kalexlab.reciept://oauth"
+            scopes:
+              - openid
+              - profile
+              - email
+              - groups
+            response_types:
+              - code
+            grant_types:
+              - authorization_code
+            access_token_signed_response_alg: none
+            userinfo_signed_response_alg: none
+            token_endpoint_auth_method: client_secret_post
+
           - client_id: kUpqS-h-Qoq_gfQcBXF4EvlnLnZFJQgZoDLRejn_8rPj6kOW6ev71NknCdOcIK0Cz-8xBoEN
             client_name: Glitchtip
             client_secret: "$pbkdf2-sha512$310000$4RvT.4d6x9517cCwSBazkQ$U26o1L2wmp2Dczw.l0PH.MyMF3zaZofpOfStpk8wY9UCXzKu6GuJKpPjXQoMHHZXn3w2LqCEygENXelwxnXsNg"
