@@ -15,7 +15,7 @@ images:
   - name: ghcr.io/flaresolverr/flaresolverr
     newTag: v3.4.2
   - name: docker.io/jellyfin/jellyfin
-    newTag: 10.10.7
+    newTag: 10.11.0
   - name: ghcr.io/onedr0p/prowlarr
     newTag: 1.32.2
   - name: ghcr.io/onedr0p/qbittorrent
