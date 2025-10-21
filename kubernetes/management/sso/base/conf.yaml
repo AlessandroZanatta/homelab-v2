@@ -222,7 +222,7 @@ data:
             public: false
             consent_mode: implicit
             authorization_policy: home
-            require_pkce: false
+            require_pkce: true
             pkce_challenge_method: S256
             redirect_uris:
               - "xyz.kalexlab.reciept://oauth"
