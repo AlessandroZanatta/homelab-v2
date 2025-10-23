@@ -14,6 +14,6 @@ images:
   - name: docker.io/gotson/komga
     newTag: 1.23.5
   - name: docker.io/glax/tranga-api
-    digest: sha256:60ae31548fc0bf766decce11b818b31768ff174476df075fef99d74ed882e56f
+    digest: sha256:0f9fa335f634fdc093e7ffda7bb2dd2c1eba8f817b12295767d344b51b2c9ed8
   - name: docker.io/glax/tranga-website
     digest: sha256:df2e0dfa456b9e894e2c8a3fbd63e8938071676a6981507aad28daf0ff51fa9b
