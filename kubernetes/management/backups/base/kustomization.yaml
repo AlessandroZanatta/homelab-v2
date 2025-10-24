@@ -4,9 +4,12 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - network-policies.yaml
+  - conf.yaml
   - secrets.yaml
   - pv.yaml
-  - minio.yaml
+  - garagehq.yaml
+  - garage-webui.yaml
+  - job.yaml
   - ingress.yaml
 images:
   - name: docker.io/library/alpine

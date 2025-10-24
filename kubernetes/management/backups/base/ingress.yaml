@@ -8,8 +8,8 @@ spec:
   commonName: backups.kalexlab.xyz
   secretName: backups-ingress-certificate-secret
   dnsNames:
-    - ui.backups.kalexlab.xyz
     - backups.kalexlab.xyz
+    - "*.backups.kalexlab.xyz"
   issuerRef:
     kind: ClusterIssuer
     name: letsencrypt
@@ -27,14 +27,23 @@ spec:
     - websecure
   routes:
     - kind: Rule
+      match: Host(`ui.backups.kalexlab.xyz`)
+      priority: 100
+      services:
+        - name: garage-webui
+          port: 3909
+    - kind: Rule
       match: Host(`backups.kalexlab.xyz`)
       services:
-        - name: minio
-          port: 9000
+        - name: garage
+          port: 3900
+
+    # TODO: does not currently work with external-dns
+    # since it requires a wildcard DNS entry
     - kind: Rule
-      match: Host(`ui.backups.kalexlab.xyz`)
+      match: HostRegexp(`^.+\.backups\.kalexlab\.xyz$`)
       services:
-        - name: minio
-          port: 9001
+        - name: garage
+          port: 3900
   tls:
     secretName: backups-ingress-certificate-secret

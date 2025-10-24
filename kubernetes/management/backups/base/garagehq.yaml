@@ -1,0 +1,157 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: backups
+  name: garage
+  labels:
+    kalexlab.xyz/app: backups
+    kalexlab.xyz/component: garage
+spec:
+  type: ClusterIP
+  ports:
+    - name: s3-api
+      port: 3900
+      protocol: TCP
+    - name: rpc
+      port: 3901
+      protocol: TCP
+    - name: web
+      port: 3902
+      protocol: TCP
+    - name: admin
+      port: 3903
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: backups
+    kalexlab.xyz/component: garage
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: backups
+  name: garage
+  labels:
+    kalexlab.xyz/app: backups
+    kalexlab.xyz/component: garage
+spec:
+  replicas: 1
+  serviceName: garage
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: backups
+      kalexlab.xyz/component: garage
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: backups
+        kalexlab.xyz/component: garage
+        kalexlab.xyz/monitoring: "true"
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: hermes
+
+      initContainers:
+        - name: chown-pv
+          image: "docker.io/library/alpine:3.17"
+          imagePullPolicy: Always
+
+          resources:
+            requests:
+              memory: 30Mi
+              cpu: 1m
+            limits:
+              memory: 300Mi
+              cpu: 20m
+
+          securityContext:
+            # Required to chown a possibly root:root directory
+            runAsNonRoot: false
+            runAsUser: 0
+            runAsGroup: 0
+
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            # Must not drop capabilities to chown successfully
+
+          command: ["sh", "-c", "chown 10000:10000 /data"]
+
+          volumeMounts:
+            - mountPath: /data
+              name: s3-data-pvc
+
+      containers:
+        - name: garage
+          image: "docker.io/dxflrs/garage:v2.1.0"
+          imagePullPolicy: Always
+
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
+          ports:
+            - containerPort: 3900
+              protocol: TCP
+            - containerPort: 3901
+              protocol: TCP
+            - containerPort: 3902
+              protocol: TCP
+            - containerPort: 3903
+              protocol: TCP
+
+          env:
+            - name: GARAGE_RPC_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: garage-secrets
+                  key: GARAGE_RPC_SECRET
+            - name: GARAGE_ADMIN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: garage-secrets
+                  key: GARAGE_ADMIN_TOKEN
+
+          resources:
+            requests:
+              memory: 10Mi
+              cpu: 5m
+            limits:
+              memory: 500Mi
+              cpu: 500m
+
+          livenessProbe:
+            exec:
+              command: ["/garage", "status"]
+            periodSeconds: 30
+          readinessProbe:
+            exec:
+              command: ["/garage", "status"]
+            periodSeconds: 10
+            failureThreshold: 3
+
+          volumeMounts:
+            - name: s3-data-pvc
+              mountPath: /var/lib/garage
+            - name: garage-conf
+              mountPath: /etc/garage.toml
+              subPath: garage.toml
+
+      volumes:
+        - name: garage-conf
+          configMap:
+            name: garage-conf
+        - name: s3-data-pvc
+          persistentVolumeClaim:
+            claimName: s3-data-pvc
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10000
+        runAsGroup: 10000
+        fsGroup: 10000
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault

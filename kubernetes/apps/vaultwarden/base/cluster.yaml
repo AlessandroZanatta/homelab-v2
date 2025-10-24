@@ -7,14 +7,17 @@ metadata:
 spec:
   configuration:
     destinationPath: "s3://cnpg/vaultwarden"
-    endpointURL: "http://minio.backups.svc.cluster.local:9000"
+    endpointURL: "http://garage.backups.svc.cluster.local:3900"
     s3Credentials:
+      region:
+        name: s3-secrets
+        key: REGION
       accessKeyId:
-        name: minio-secrets
-        key: MINIO_ROOT_USER
+        name: s3-secrets
+        key: ACCESS_KEY
       secretAccessKey:
-        name: minio-secrets
-        key: MINIO_ROOT_PASSWORD
+        name: s3-secrets
+        key: SECRET_KEY
     wal:
       compression: bzip2
     data:

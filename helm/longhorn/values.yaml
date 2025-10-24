@@ -35,7 +35,7 @@ longhornUI:
 # -- Setting that allows you to update the default backupstore.
 defaultBackupStore:
   # -- Endpoint used to access the default backupstore. (Options: "NFS", "CIFS", "AWS", "GCP", "AZURE")
-  backupTarget: "s3://longhorn@dummyregion/"
+  backupTarget: "s3://longhorn@default/"
   # -- Name of the Kubernetes secret associated with the default backup target.
   backupTargetCredentialSecret: backups-secrets
 

@@ -77,7 +77,6 @@ spec:
       kalexlab.xyz/component: cluster
   policyTypes:
     - Ingress
-    - Egress
   ingress:
     - from:
         - podSelector:
@@ -109,17 +108,6 @@ spec:
           port: 5432
         - protocol: TCP
           port: 8000
-  egress:
-    - to:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: backups
-          podSelector:
-            matchLabels:
-              kalexlab.xyz/app: backups
-      ports:
-        - protocol: TCP
-          port: 9000
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy

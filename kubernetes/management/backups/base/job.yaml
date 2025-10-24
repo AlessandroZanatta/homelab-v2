@@ -1,0 +1,60 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: garage-cluster-setup
+  namespace: backups
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  backoffLimit: 4
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: backups
+        kalexlab.xyz/component: garage-setup
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: hermes
+
+      restartPolicy: OnFailure
+
+      containers:
+        - name: setup-script
+          image: "docker.io/library/python:3.14.0-alpine"
+          command: ["/bin/sh", "-c"]
+
+          env:
+            - name: GARAGE_ADMIN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: garage-secrets
+                  key: GARAGE_ADMIN_TOKEN
+            - name: ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: ACCESS_KEY
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: SECRET_KEY
+
+          args:
+            - |
+              apk update && apk add git
+              pip3 install 'git+https://git.deuxfleurs.fr/garage-sdk/garage-admin-sdk-python' httpx
+
+              python3 /setup.py
+
+          volumeMounts:
+            - name: garage-conf
+              mountPath: /setup.py
+              subPath: setup.py
+
+      volumes:
+        - name: garage-conf
+          configMap:
+            name: garage-conf

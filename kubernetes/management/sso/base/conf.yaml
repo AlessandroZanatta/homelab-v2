@@ -354,6 +354,9 @@ data:
     users:
       kalex:
         displayname: Alessandro Zanatta
+        given_name: Alessandro
+        family_name: Zanatta
+        picture: https://cdn.discordapp.com/avatars/260044372811186176/c83538847142e8018a9c0d6d9a8bc265.webp
         password: "$argon2id$v=19$m=65536,t=3,p=4$okUMZclzLYx0f/ok2oarTg$oy16tx2MpkwpVGlkbaTuQNFI4K9zNo9Qbxk8sriKyGA"
         email: alessandro.zanatta.lav@gmail.com
         groups:
@@ -362,6 +365,8 @@ data:
           - home
       laetitia:
         displayname: Letizia Polla
+        given_name: Letizia
+        family_name: Polla
         password: "$argon2id$v=19$m=65536,t=3,p=4$206hAjzpn5hd6IrUHpyFNQ$6zVWJS/AzOR0vjneyPZ9CZJDcDmeTBHsJIdykhjdy1U"
         email: letiziapolla@gmail.com
         groups:

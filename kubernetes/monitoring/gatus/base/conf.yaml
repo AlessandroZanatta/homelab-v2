@@ -187,14 +187,14 @@ data:
         group: Adguard
         url: "http://adguard.adguard.svc.cluster.local:80"
 
-      - name: Minio UI
+      - name: Garage WebUI
         <<: *default-http
         group: Backups
-        url: "http://minio.backups.svc.cluster.local:9001"
-      - name: Minio
+        url: "http://garage-webui.backups.svc.cluster.local:3909"
+      - name: Garage
         <<: *default-http
         group: Backups
-        url: "http://minio.backups.svc.cluster.local:9000/minio/health/live"
+        url: "http://garage.backups.svc.cluster.local:3903/health"
 
       - name: DDNS updater
         <<: *default-http
