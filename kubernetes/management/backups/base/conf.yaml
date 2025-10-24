@@ -8,24 +8,17 @@ data:
   garage.toml: |
     replication_factor = 1
     consistency_mode = "consistent"
-    db_engine = "sqlite"
+    db_engine = "lmdb"
 
     metadata_dir = "/var/lib/garage/meta"
     data_dir = "/var/lib/garage/data"
-    # metadata_snapshots_dir = "/var/lib/garage/snapshots"
-    # metadata_auto_snapshot_interval = "6h"
-    metadata_fsync = true
-    data_fsync = true
-    disable_scrub = false
+    metadata_snapshots_dir = "/var/lib/garage/snapshots"
+    metadata_auto_snapshot_interval = "6h"
+    # metadata_fsync = true
+    # data_fsync = true
     use_local_tz = true
 
-    block_size = "1M"
-    block_ram_buffer_max = "256MiB"
-    block_max_concurrent_reads = 16
-
     rpc_bind_addr = "0.0.0.0:3901"
-    # rpc_public_addr = "garage.backups.svc.cluster.local:3901"
-
     bootstrap_peers = []
 
     [s3_api]

@@ -11,6 +11,7 @@ resources:
   - garage-webui.yaml
   - job.yaml
   - ingress.yaml
+  - service-monitor.yaml
 images:
   - name: docker.io/library/alpine
     newTag: 3.22.2

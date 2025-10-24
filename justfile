@@ -47,6 +47,36 @@ pvc-pod NAMESPACE PVC:
       restartPolicy: Never
   EOF
 
+psql-pod NAMESPACE PVC:
+  #!/bin/bash
+
+  set -e
+
+  cat <<EOF | kubectl apply -f -
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      namespace: {{ NAMESPACE }}
+      name: postgres-debug
+    spec:
+      containers:
+        - name: debug
+          image: postgres:17-bookworm
+          env:
+            - name: POSTGRES_PASSWORD
+              value: password
+            - name: PGDATA
+              value: /var/lib/postgres/pgdata
+          volumeMounts:
+            - name: pvc
+              mountPath: /var/lib/postgres/
+      volumes:
+        - name: pvc
+          persistentVolumeClaim:
+            claimName: {{ PVC }}
+      restartPolicy: Never
+  EOF
+
 vagrant_run:
   #!/bin/bash
 

@@ -191,10 +191,10 @@ data:
         <<: *default-http
         group: Backups
         url: "http://garage-webui.backups.svc.cluster.local:3909"
-      - name: Garage
-        <<: *default-http
-        group: Backups
-        url: "http://garage.backups.svc.cluster.local:3903/health"
+      # - name: Garage
+      #   <<: *default-http
+      #   group: Backups
+      #   url: "http://garage.backups.svc.cluster.local:3903/health"
 
       - name: DDNS updater
         <<: *default-http

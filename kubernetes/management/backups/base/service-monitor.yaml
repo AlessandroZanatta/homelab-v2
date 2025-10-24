@@ -1,0 +1,14 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  namespace: backups
+  name: garage
+spec:
+  endpoints:
+    - port: admin
+      path: /metrics
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: backups
+      kalexlab.xyz/component: garage

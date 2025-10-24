@@ -34,12 +34,13 @@ spec:
     labels:
       kalexlab.xyz/app: anime
       kalexlab.xyz/component: cluster
+      kalexlab.xyz/monitoring: "true"
 
   instances: 1
 
   storage:
     storageClass: longhorn
-    size: 2Gi
+    size: 4Gi
 
   monitoring:
     enablePodMonitor: true

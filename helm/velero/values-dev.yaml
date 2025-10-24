@@ -6,7 +6,7 @@ configuration:
       bucket: velero
       accessMode: ReadOnly
       config:
-        region: dummy
+        region: default
         s3ForcePathStyle: true
         s3Url: "https://backups.kalexlab.xyz"
         publicUrl: "https://backups.kalexlab.xyz"

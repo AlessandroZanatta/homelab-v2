@@ -120,17 +120,19 @@ spec:
               cpu: 5m
             limits:
               memory: 500Mi
-              cpu: 500m
+              cpu: 1000m
 
-          livenessProbe:
-            exec:
-              command: ["/garage", "status"]
-            periodSeconds: 30
-          readinessProbe:
-            exec:
-              command: ["/garage", "status"]
-            periodSeconds: 10
-            failureThreshold: 3
+          # readinessProbe:
+          #   httpGet:
+          #     path: /health
+          #     port: 3903
+          #   periodSeconds: 10
+          # livenessProbe:
+          #   httpGet:
+          #     path: /health
+          #     port: 3903
+          #   failureThreshold: 3
+          #   periodSeconds: 30
 
           volumeMounts:
             - name: s3-data-pvc

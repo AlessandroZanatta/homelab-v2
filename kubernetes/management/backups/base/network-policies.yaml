@@ -73,6 +73,12 @@ spec:
             matchLabels:
               kalexlab.xyz/app: backups
               kalexlab.xyz/component: garage-webui
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: prometheus
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
       ports:
         - protocol: TCP
           port: 3903

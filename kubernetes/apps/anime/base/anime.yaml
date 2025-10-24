@@ -40,6 +40,7 @@ spec:
       labels:
         kalexlab.xyz/app: anime
         kalexlab.xyz/component: app
+        kalexlab.xyz/monitoring: "true"
         egress.kalexlab.xyz/policy: vpn
     spec:
       restartPolicy: Always

@@ -17,8 +17,6 @@ configuration:
   volumeSnapshotLocation:
     - name: default
       provider: aws
-      config:
-        region: default
 
   features: EnableCSI
 
