@@ -1,0 +1,184 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: backups
+  name: rustfs
+  labels:
+    kalexlab.xyz/app: backups
+    kalexlab.xyz/component: rustfs
+spec:
+  type: ClusterIP
+  ports:
+    - name: rustfs
+      port: 9000
+      protocol: TCP
+      targetPort: 9000
+    - name: rustfs-ui
+      port: 9001
+      protocol: TCP
+      targetPort: 9001
+  selector:
+    kalexlab.xyz/app: backups
+    kalexlab.xyz/component: rustfs
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: backups
+  name: rustfs
+  labels:
+    kalexlab.xyz/app: backups
+    kalexlab.xyz/component: rustfs
+spec:
+  replicas: 1
+  serviceName: rustfs
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: backups
+      kalexlab.xyz/component: rustfs
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: backups
+        kalexlab.xyz/component: rustfs
+        # kalexlab.xyz/monitoring: "true"
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: hermes
+      restartPolicy: Always
+      initContainers:
+        - name: chown-pv
+          image: "docker.io/library/alpine:3.17"
+          imagePullPolicy: Always
+
+          resources:
+            requests:
+              memory: 30Mi
+              cpu: 1m
+            limits:
+              memory: 300Mi
+              cpu: 20m
+
+          securityContext:
+            # Required to chown a possibly root:root directory
+            runAsNonRoot: false
+            runAsUser: 0
+            runAsGroup: 0
+
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            # Must not drop capabilities to chown successfully
+
+          command: ["sh", "-c", "chown 1000:1000 /data"]
+
+          volumeMounts:
+            - mountPath: /data
+              name: s3-data-pvc
+
+      containers:
+        - name: rustfs
+          image: "docker.io/rustfs/rustfs:1.0.0-alpha.65"
+          imagePullPolicy: Always
+
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
+          ports:
+            - containerPort: 9000
+              protocol: TCP
+            - containerPort: 9001
+              protocol: TCP
+
+          env:
+            - name: RUSTFS_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: ACCESS_KEY
+            - name: RUSTFS_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: SECRET_KEY
+            - name: RUSTFS_CONSOLE_ENABLE
+              value: "true"
+
+          # resources:
+          #   requests:
+          #     memory: 100Mi
+          #     cpu: 5m
+          #   limits:
+          #     memory: 2Gi
+          #     cpu: 500m
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 9000
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 9000
+            periodSeconds: 60
+
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /data
+              name: s3-data-pvc
+
+          # lifecycle:
+          #   postStart:
+          #     exec:
+          #       command: [
+          #           "/bin/bash",
+          #           "-c",
+          #           '
+          #           until (/usr/bin/mc alias set myminio http://localhost:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD"); do
+          #           sleep 3;
+          #           done;
+          #
+          #           if [[ $(/usr/bin/mc ls myminio) ]]; then
+          #           exit 0;
+          #           fi;
+          #
+          #           /usr/bin/mc mb myminio/velero;
+          #           /usr/bin/mc mb myminio/longhorn;
+          #           /usr/bin/mc mb myminio/restic;
+          #           /usr/bin/mc mb myminio/cnpg;
+          #           exit 0;',
+          #         ]
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
+
+  volumeClaimTemplates:
+    - metadata:
+        name: s3-data-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: ""
+        resources:
+          requests:
+            storage: 1Ti

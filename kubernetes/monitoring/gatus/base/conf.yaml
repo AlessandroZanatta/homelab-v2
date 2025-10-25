@@ -187,14 +187,10 @@ data:
         group: Adguard
         url: "http://adguard.adguard.svc.cluster.local:80"
 
-      - name: Garage WebUI
+      - name: Rustfs
         <<: *default-http
         group: Backups
-        url: "http://garage-webui.backups.svc.cluster.local:3909"
-      # - name: Garage
-      #   <<: *default-http
-      #   group: Backups
-      #   url: "http://garage.backups.svc.cluster.local:3903/health"
+        url: "http://rustfs.backups.svc.cluster.local:9000/health"
 
       - name: DDNS updater
         <<: *default-http

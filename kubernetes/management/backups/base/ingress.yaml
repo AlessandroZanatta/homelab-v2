@@ -9,7 +9,7 @@ spec:
   secretName: backups-ingress-certificate-secret
   dnsNames:
     - backups.kalexlab.xyz
-    - "*.backups.kalexlab.xyz"
+    - ui.backups.kalexlab.xyz
   issuerRef:
     kind: ClusterIssuer
     name: letsencrypt
@@ -27,23 +27,14 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`ui.backups.kalexlab.xyz`)
-      priority: 100
-      services:
-        - name: garage-webui
-          port: 3909
-    - kind: Rule
       match: Host(`backups.kalexlab.xyz`)
       services:
-        - name: garage
-          port: 3900
-
-    # TODO: does not currently work with external-dns
-    # since it requires a wildcard DNS entry
+        - name: rustfs
+          port: 9000
     - kind: Rule
-      match: HostRegexp(`^.+\.backups\.kalexlab\.xyz$`)
+      match: Host(`ui.backups.kalexlab.xyz`)
       services:
-        - name: garage
-          port: 3900
+        - name: rustfs
+          port: 9001
   tls:
     secretName: backups-ingress-certificate-secret

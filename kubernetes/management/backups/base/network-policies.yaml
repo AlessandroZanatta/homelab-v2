@@ -35,12 +35,12 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   namespace: backups
-  name: garage
+  name: rustfs
 spec:
   podSelector:
     matchLabels:
       kalexlab.xyz/app: backups
-      kalexlab.xyz/component: garage
+      kalexlab.xyz/component: rustfs
   policyTypes:
     - Ingress
   ingress:
@@ -51,37 +51,11 @@ spec:
           podSelector:
             matchLabels:
               app.kubernetes.io/name: traefik
-        - namespaceSelector: {}
-          podSelector:
-            matchLabels:
-              kalexlab.xyz/component: cluster
-        - podSelector:
-            matchLabels:
-              kalexlab.xyz/app: backups
-              kalexlab.xyz/component: garage-webui
       ports:
         - protocol: TCP
-          port: 3900
+          port: 9000
         - protocol: TCP
-          port: 3902
-    - from:
-        - podSelector:
-            matchLabels:
-              kalexlab.xyz/app: backups
-              kalexlab.xyz/component: garage-setup
-        - podSelector:
-            matchLabels:
-              kalexlab.xyz/app: backups
-              kalexlab.xyz/component: garage-webui
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: prometheus
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: prometheus
-      ports:
-        - protocol: TCP
-          port: 3903
+          port: 9001
 ---
 apiVersion: cilium.io/v2
 kind: CiliumClusterwideNetworkPolicy
@@ -92,74 +66,8 @@ spec:
     matchLabels:
       kalexlab.xyz/component: cluster
   egress:
-    # Allow traffic from all cnpg clusters to garage
+    # Allow traffic from all cnpg clusters to s3 storage
     - toEndpoints:
         - matchLabels:
-            k8s:io.kubernetes.pod.namespace: backups
-            kalexlab.xyz/app: backups
-            kalexlab.xyz/component: garage
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  namespace: backups
-  name: garage-setup
-spec:
-  podSelector:
-    matchLabels:
-      kalexlab.xyz/app: backups
-      kalexlab.xyz/component: garage-setup
-  policyTypes:
-    - Egress
-  egress:
-    - to:
-        - podSelector:
-            matchLabels:
-              kalexlab.xyz/app: backups
-              kalexlab.xyz/component: garage
-      ports:
-        - protocol: TCP
-          port: 3903
-    - to:
-        - ipBlock:
-            cidr: 0.0.0.0/0
-            except:
-              - 10.0.0.0/8
-              - 172.16.0.0/12
-              - 192.168.0.0/16
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  namespace: backups
-  name: garage-webui
-spec:
-  podSelector:
-    matchLabels:
-      kalexlab.xyz/app: backups
-      kalexlab.xyz/component: garage-webui
-  policyTypes:
-    - Ingress
-    - Egress
-  ingress:
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: traefik
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: traefik
-      ports:
-        - protocol: TCP
-          port: 3909
-  egress:
-    - to:
-        - podSelector:
-            matchLabels:
-              kalexlab.xyz/app: backups
-              kalexlab.xyz/component: garage
-      ports:
-        - protocol: TCP
-          port: 3900
-        - protocol: TCP
-          port: 3903
+            k8s:io.kubernetes.pod.namespace: traefik
+            app.kubernetes.io/name: traefik

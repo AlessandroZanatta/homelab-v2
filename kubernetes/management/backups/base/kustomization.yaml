@@ -4,14 +4,10 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - network-policies.yaml
-  - conf.yaml
   - secrets.yaml
   - pv.yaml
-  - garagehq.yaml
-  - garage-webui.yaml
-  - job.yaml
+  - rustfs.yaml
   - ingress.yaml
-  - service-monitor.yaml
 images:
   - name: docker.io/library/alpine
     newTag: 3.22.2

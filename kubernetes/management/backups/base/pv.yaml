@@ -22,16 +22,3 @@ spec:
   hostPath:
     path: "/var/mnt/backups"
     type: DirectoryOrCreate
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  namespace: backups
-  name: s3-data-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: ""
-  resources:
-    requests:
-      storage: 1Ti
