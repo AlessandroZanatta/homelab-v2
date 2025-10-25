@@ -46,7 +46,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: cache
-          image: "docker.io/valkey/valkey:8.0.2-alpine"
+          image: "docker.io/valkey/valkey:8.1.4-alpine"
           imagePullPolicy: Always
 
           ports:
