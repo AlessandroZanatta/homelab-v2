@@ -42,7 +42,7 @@ spec:
       labels:
         kalexlab.xyz/app: backups
         kalexlab.xyz/component: rustfs
-        # kalexlab.xyz/monitoring: "true"
+        kalexlab.xyz/monitoring: "true"
     spec:
       nodeSelector:
         kubernetes.io/hostname: hermes
