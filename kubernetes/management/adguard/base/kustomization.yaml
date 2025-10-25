@@ -7,8 +7,3 @@ resources:
   - conf.yaml
   - adguard.yaml
   - ingress.yaml
-images:
-  - name: docker.io/adguard/adguardhome
-    newTag: v0.107.68
-  - name: docker.io/library/alpine
-    newTag: 3.22.2

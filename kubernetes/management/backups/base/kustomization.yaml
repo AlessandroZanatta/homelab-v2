@@ -8,6 +8,3 @@ resources:
   - pv.yaml
   - rustfs.yaml
   - ingress.yaml
-images:
-  - name: docker.io/library/alpine
-    newTag: 3.22.2

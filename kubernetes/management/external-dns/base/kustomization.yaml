@@ -6,8 +6,3 @@ resources:
   - ./secrets.yaml
   - ./rbac.yaml
   - ./external-dns.yaml
-images:
-  - name: registry.k8s.io/external-dns/external-dns
-    newTag: v0.19.0
-  - name: ghcr.io/alessandrozanatta/external-dns-porkbun-webhook
-    newTag: 1.0.3

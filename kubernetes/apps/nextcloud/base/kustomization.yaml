@@ -10,6 +10,3 @@ resources:
   - valkey.yaml
   - nextcloud.yaml
   - ingress.yaml
-images:
-  - name: docker.io/library/nextcloud
-    newTag: 32.0.1-apache
