@@ -78,7 +78,7 @@ spec:
               subPath: config.yml
       containers:
         - name: app
-          image: "docker.io/b4bz/homer:v24.12.1"
+          image: "docker.io/b4bz/homer:v25.10.1"
           imagePullPolicy: Always
 
           ports:
