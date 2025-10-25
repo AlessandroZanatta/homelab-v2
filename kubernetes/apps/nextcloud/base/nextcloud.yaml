@@ -101,7 +101,7 @@ spec:
 
       containers:
         - name: nextcloud
-          image: "docker.io/library/nextcloud:30.0.17-apache"
+          image: "docker.io/library/nextcloud:32.0.1-apache"
           imagePullPolicy: Always
 
           ports:
