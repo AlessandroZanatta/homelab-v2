@@ -42,6 +42,35 @@ spec:
     spec:
       restartPolicy: Always
       initContainers:
+        - name: copy-conf
+          image: "docker.io/library/alpine:3.17"
+          imagePullPolicy: Always
+
+          resources:
+            requests:
+              memory: 30Mi
+              cpu: 1m
+            limits:
+              memory: 300Mi
+              cpu: 20m
+
+          securityContext:
+            runAsUser: 33
+            runAsGroup: 33
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          command: ["sh", "-c", "cp -rL /config-map/* /config-dir"]
+
+          volumeMounts:
+            - mountPath: /config-map
+              name: nextcloud-configmap
+            - mountPath: /config-dir
+              name: nextcloud-config
+
         - name: wait-deps
           image: "docker.io/library/alpine:3.17"
           imagePullPolicy: Always
@@ -191,6 +220,9 @@ spec:
 
       volumes:
         - name: nextcloud-config
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: nextcloud-configmap
           configMap:
             name: nextcloud-config
         - name: tmp

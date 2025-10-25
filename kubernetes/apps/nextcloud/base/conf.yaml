@@ -9,8 +9,7 @@ data:
     <?php
 
     $CONFIG = array (
-      'config_is_read_only' => true,
-      'version' => '32.0.1',
+      'version' => '32.0.0.13',
       'htaccess.RewriteBase' => '/',
       'apps_paths' =>
          array (
@@ -27,7 +26,6 @@ data:
              'writable' => true,
            ),
          ),
-      'upgrade.disable-web' => true,
       'passwordsalt' => 'ThB9iKBy3lRGIbcYyNAI2pzglFhMpL',
       'secret' => getenv('SECRET'),
       'trusted_domains' =>
