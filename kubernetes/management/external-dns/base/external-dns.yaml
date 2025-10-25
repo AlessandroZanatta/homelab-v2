@@ -59,7 +59,7 @@ spec:
             periodSeconds: 60
 
         - name: external-dns-webhook-provider
-          image: ghcr.io/alessandrozanatta/external-dns-porkbun-webhook:1.0.0
+          image: ghcr.io/alessandrozanatta/external-dns-porkbun-webhook:1.0.3
           imagePullPolicy: Always
           args:
             - --log-level=info
