@@ -1,51 +1,48 @@
 {
-	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
-	"extends": [
-		"config:recommended",
-		":automergeMinor",
-		":automergeDigest",
-		":skipStatusChecks",
-		":semanticCommits",
-		":dependencyDashboard",
-		":assignee(AlessandroZanatta)",
-		":disableRateLimiting",
-		":automergeBranch",
-		":timezone(Europe/Rome)",
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":automergeMinor",
+    ":automergeDigest",
+    ":skipStatusChecks",
+    ":semanticCommits",
+    ":dependencyDashboard",
+    ":assignee(AlessandroZanatta)",
+    ":disableRateLimiting",
+    ":automergeBranch",
+    ":timezone(Europe/Rome)",
 
-		"github>alessandrozanatta/homelab-v2//.renovate/labels.json",
-		"github>alessandrozanatta/homelab-v2//.renovate/excludes.json"
-	],
-	"argocd": { "managerFilePatterns": ["apps/**/*.yaml"] },
-	"kustomize": {
-		"enabled": false
-	},
-	"kubernetes": {
-		"managerFilePatterns": ["kubernetes/**/*.yaml", "helm/**/extra/**/*.yaml"]
-	},
-	"packageRules": [
-		{
-			"description": "Do not automerge Talos and Kubernetes version upgrades. Using siderolabs/kubelet instead of kubernetes/kubernetes as dependency to ensure workers can be updated correctly.",
-			"matchDepNames": ["siderolabs/talos", "siderolabs/kubelet"],
-			"automerge": false
-		}
-	],
-	"customManagers": [
-		{
-			"customType": "regex",
-			"description": "Update Talos and Kubernetes versions in talconfig.yaml",
-			"managerFilePatterns": ["talos/talconfig.yaml"],
-			"matchStrings": [
-				"# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\s\\S+:\\W?v?(?<currentValue>\\S+)"
-			]
-		},
-		{
-			"customType": "regex",
-			"description": "Update Helm dependencies in cluster bootstrap playbook",
-			"managerFilePatterns": ["ansible/playbooks/cluster/bootstrap.yaml"],
-			"matchStrings": [
-				"# renovate: datasource=(?<datasource>.*?)\\s+repo_url:\\W?\"?(?<registryUrl>.*?)\"?\\s+chart_name:\\W?[^\\/]*\\/(?<depName>.*?)\\s+chart_version:\\W?v?(?<currentValue>\\S+)"
-			]
-		}
-	],
-	"dependencyDashboardTitle": "Renovate Dashboard 🤖"
+    "github>alessandrozanatta/homelab-v2//.renovate/labels.json",
+    "github>alessandrozanatta/homelab-v2//.renovate/excludes.json"
+  ],
+  "argocd": { "managerFilePatterns": ["apps/**/*.yaml"] },
+  "kubernetes": {
+    "managerFilePatterns": ["kubernetes/**/*.yaml", "helm/**/extra/**/*.yaml"]
+  },
+  "packageRules": [
+    {
+      "description": "Do not automerge Talos and Kubernetes version upgrades. Using siderolabs/kubelet instead of kubernetes/kubernetes as dependency to ensure workers can be updated correctly.",
+      "matchDepNames": ["siderolabs/talos", "siderolabs/kubelet"],
+      "automerge": false
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update Talos and Kubernetes versions in talconfig.yaml",
+      "managerFilePatterns": ["talos/talconfig.yaml"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\s\\S+:\\W?v?(?<currentValue>\\S+)"
+      ]
+    },
+    {
+      "customType": "regex",
+      "description": "Update Helm dependencies in cluster bootstrap playbook",
+      "managerFilePatterns": ["ansible/playbooks/cluster/bootstrap.yaml"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.*?)\\s+repo_url:\\W?\"?(?<registryUrl>.*?)\"?\\s+chart_name:\\W?[^\\/]*\\/(?<depName>.*?)\\s+chart_version:\\W?v?(?<currentValue>\\S+)"
+      ]
+    }
+  ],
+  "dependencyDashboardTitle": "Renovate Dashboard 🤖"
 }
