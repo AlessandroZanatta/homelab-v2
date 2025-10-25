@@ -70,7 +70,7 @@ spec:
             ]
       containers:
         - name: app
-          image: "ghcr.io/authelia/authelia:4.39.11"
+          image: "ghcr.io/authelia/authelia:4.39.13"
           imagePullPolicy: Always
 
           ports:
