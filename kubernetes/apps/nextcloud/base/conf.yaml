@@ -10,7 +10,7 @@ data:
 
     $CONFIG = array (
       'config_is_read_only' => true,
-      'version' => '32.0.0.13',
+      'version' => '32.0.1',
       'htaccess.RewriteBase' => '/',
       'apps_paths' =>
          array (
