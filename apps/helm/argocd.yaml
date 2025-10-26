@@ -28,6 +28,9 @@ spec:
           targetRevision: master
           path: "helm/argocd/extra/overlays/{{ .metadata.labels.env }}"
           ref: values
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          path: "helm/argocd/patches/base"
       destination:
         server: "{{ .server }}"
         namespace: argocd
