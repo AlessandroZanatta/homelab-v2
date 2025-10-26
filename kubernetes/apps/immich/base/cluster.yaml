@@ -80,7 +80,7 @@ metadata:
   namespace: immich
 spec:
   cluster:
-    name: cluster
+    name: cluster-vchord
   schedule: "0 0 0 * * *"
   backupOwnerReference: self
   method: plugin
