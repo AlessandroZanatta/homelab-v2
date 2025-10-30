@@ -16,4 +16,4 @@ patches:
     target:
       version: v1
       kind: PersistentVolume
-      name: minio-data-pv
+      name: s3-data-pv
