@@ -43,7 +43,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: immich
-          image: "ghcr.io/immich-app/immich-machine-learning:v2.1.0"
+          image: "ghcr.io/immich-app/immich-machine-learning:v2.2.0"
           imagePullPolicy: Always
 
           securityContext:
