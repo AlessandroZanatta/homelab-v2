@@ -115,6 +115,16 @@ spec:
           port: 8000
   egress:
     - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: 8443
+    - to:
         - ipBlock:
             cidr: 0.0.0.0/0
             except:
