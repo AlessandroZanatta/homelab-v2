@@ -10,11 +10,6 @@ deployment:
   # -- Number of pods of the deployment (only applies when kind == Deployment)
   replicas: 2
 
-  podAnnotations:
-    observability.kalexlab.xyz/port: "9100"
-    observability.kalexlab.xyz/path: /metrics
-    observability.kalexlab.xyz/scrape: "true"
-
   # Ensure that the two replicas are scheduled one per node
   # In particular, due to L2 Announcement requiring a pod on the leader,
   # these two nodes must be those tagged with a given label.
@@ -142,3 +137,11 @@ metrics:
   prometheus:
     # -- Entry point used to expose metrics.
     entryPoint: metrics
+    service:
+      # -- Create a dedicated metrics service to use with ServiceMonitor
+      enabled: true
+
+    # ServiceMonitor created by kube-prometheus-stack to avoid dependency loops
+    serviceMonitor:
+      # -- Enable optional CR for Prometheus Operator. See EXAMPLES.md for more details.
+      enabled: false

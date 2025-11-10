@@ -80,6 +80,10 @@ grafana:
         gnetId: 15202
         revision: 1
         datasource: Prometheus
+      traefik:
+        gnetId: 17346
+        revision: 9
+        datasource: Prometheus
 
   extraSecretMounts:
     - name: grafana-oidc-client-secret
@@ -126,6 +130,46 @@ prometheus:
 
     thanosServiceMonitor:
       enabled: true
+
+    # Bugged, not added to prometheus.monitoring.coreos.com/prometheus-kube-prometheus-prometheus even though it really should
+    # additionalScrapeConfigs:
+    #   - job_name: "kubernetes-pods"
+    #     honor_labels: true
+    #
+    #     kubernetes_sd_configs:
+    #       - role: pod
+    #
+    #     relabel_configs:
+    #       - source_labels:
+    #           [
+    #             __meta_kubernetes_pod_annotation_observability_kalexlab_xyz_scrape,
+    #           ]
+    #         action: keep
+    #         regex: true
+    #       - source_labels:
+    #           [
+    #             __meta_kubernetes_pod_annotation_observability_kalexlab_xyz_scrape,
+    #           ]
+    #         action: replace
+    #         regex: (https?)
+    #         target_label: __scheme__
+    #       - source_labels:
+    #           [__meta_kubernetes_pod_annotation_observability_kalexlab_xyz_path]
+    #         action: replace
+    #         target_label: __metrics_path__
+    #         regex: (.+)
+    #       - source_labels:
+    #           [
+    #             __address__,
+    #             __meta_kubernetes_pod_annotation_observability_kalexlab_xyz_port,
+    #           ]
+    #         action: replace
+    #         regex: (.+?)(?::\d+)?;(\d+)
+    #         replacement: $1:$2
+    #         target_label: __address__
+    #       - source_labels: [__meta_kubernetes_pod_phase]
+    #         regex: Pending|Succeeded|Failed|Completed
+    #         action: drop
 
 alertmanager:
   enabled: true
