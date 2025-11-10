@@ -318,7 +318,6 @@ data:
       rules:
         - domain:
             - anime.kalexlab.xyz
-            - homer.kalexlab.xyz
             - tranga.kalexlab.xyz
             - torrent.kalexlab.xyz
             - sonarr.kalexlab.xyz
@@ -331,6 +330,7 @@ data:
             - ["group:admins"]
 
         - domain:
+            - hubble.kalexlab.xyz
             - traefik.kalexlab.xyz
             - prometheus.kalexlab.xyz
             - longhorn.kalexlab.xyz
