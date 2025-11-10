@@ -19,11 +19,11 @@ data:
           forward-auth:
             implementation: ForwardAuth
             authn_strategies:
-              - name: 'HeaderAuthorization'
+              - name: HeaderAuthorization
                 schemes:
-                  - 'Basic'
+                  - Basic
                 scheme_basic_cache_lifespan: 0
-              - name: 'CookieSession'
+              - name: CookieSession
       disable_healthcheck: true
 
     log:
@@ -54,7 +54,7 @@ data:
         scopes:
           nextcloud_userinfo:
             claims:
-              - 'is_nextcloud_admin'
+              - is_nextcloud_admin
 
         authorization_policies:
           home:
@@ -87,7 +87,7 @@ data:
             require_pkce: false
             pkce_challenge_method: ""
             redirect_uris:
-              - 'https://argocd.kalexlab.xyz/auth/callback'
+              - "https://argocd.kalexlab.xyz/auth/callback"
             scopes:
               - openid
               - groups
@@ -109,7 +109,7 @@ data:
             require_pkce: true
             pkce_challenge_method: S256
             redirect_uris:
-              - 'https://grafana.kalexlab.xyz/login/generic_oauth'
+              - "https://grafana.kalexlab.xyz/login/generic_oauth"
             scopes:
               - openid
               - profile
@@ -123,6 +123,28 @@ data:
             userinfo_signed_response_alg: none
             token_endpoint_auth_method: client_secret_basic
 
+          - client_id: MgXzgDC8slQiJXUqFhp2dvO-z3bcCxIh9jiykGzusicWxWcW-jwHN9LascJ_dc.ypoZ8-Owh
+            client_name: Home Assistant
+            client_secret: "$pbkdf2-sha512$310000$5wZIbWI2.C70n8skq6cYCQ$pTnx9cJJ6o1FwD45Zk4pXXnlSfH7vxF/21g2KCRyrKQnjuoAm0D5gwwxuOKwnswJNpDBRF7kPgBRzmm6UvnLnQ"
+            public: false
+            consent_mode: implicit
+            authorization_policy: home
+            require_pkce: true
+            pkce_challenge_method: S256
+            redirect_uris:
+              - "https://ha.kalexlab.xyz/auth/oidc/callback"
+            scopes:
+              - openid
+              - profile
+              - groups
+            response_types:
+              - code
+            grant_types:
+              - authorization_code
+            access_token_signed_response_alg: none
+            userinfo_signed_response_alg: none
+            token_endpoint_auth_method: client_secret_post
+
           - client_id: KQzhxem-sMm2aEW8PLl.RXx7Psc722OslxCYI3ec3rJS7RELsBvVz.yWislD2vJzQo5lwrhf
             client_name: Immich
             client_secret: "$pbkdf2-sha512$310000$TMrxzqqCtRBxdB4/HAoffw$v9/5/ZTOjnGCIIVH0iGJCiAVuCBs1iE.9X6J8q2YU1ZS0qwYXX9xGUCntdp2Ivc/yRpcP/T0dpNB.gVDPY72lg"
@@ -130,7 +152,7 @@ data:
             consent_mode: implicit
             authorization_policy: home
             require_pkce: false
-            pkce_challenge_method: ''
+            pkce_challenge_method: ""
             redirect_uris:
               - "https://immich.kalexlab.xyz/auth/login"
               - "https://immich.kalexlab.xyz/user-settings"
@@ -178,7 +200,7 @@ data:
             require_pkce: true
             pkce_challenge_method: S256
             redirect_uris:
-              - 'https://jellyfin.kalexlab.xyz/sso/OID/redirect/authelia'
+              - "https://jellyfin.kalexlab.xyz/sso/OID/redirect/authelia"
             scopes:
               - openid
               - profile
@@ -201,7 +223,7 @@ data:
             pkce_challenge_method: S256
             claims_policy: nextcloud_userinfo
             redirect_uris:
-              - 'https://cloud.kalexlab.xyz/apps/oidc_login/oidc'
+              - "https://cloud.kalexlab.xyz/apps/oidc_login/oidc"
             scopes:
               - openid
               - profile
@@ -341,7 +363,7 @@ data:
     storage:
       encryption_key: '{{ env "STORAGE_ENCRYPTION_KEY" }}'
       postgres:
-        address: 'tcp://cluster-rw:5432'
+        address: "tcp://cluster-rw:5432"
         database: app
         username: app
         password: '{{ env "STORAGE_PASSWORD" }}'

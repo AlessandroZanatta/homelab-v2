@@ -25,13 +25,11 @@ spec:
     - web
     - websecure
   routes:
+    # No need to add forward-auth to homer
     - kind: Rule
       match: Host(`homer.kalexlab.xyz`)
       services:
         - name: homer
           port: 8080
-      middlewares:
-        - name: authelia-forward-auth
-          namespace: sso
   tls:
     secretName: homer-ingress-certificate-secret

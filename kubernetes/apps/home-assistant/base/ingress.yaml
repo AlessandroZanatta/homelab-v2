@@ -1,0 +1,64 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: home-assistant
+  name: home-assistant-certificate
+spec:
+  commonName: ha.kalexlab.xyz
+  secretName: home-assistant-ingress-certificate-secret
+  dnsNames:
+    - ha.kalexlab.xyz
+    - mqtt.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  namespace: home-assistant
+  name: home-assistant-ingress
+  annotations:
+    external-dns.alpha.kubernetes.io/target: 192.168.10.20
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`ha.kalexlab.xyz`)
+      services:
+        - name: home-assistant
+          port: 8123
+  tls:
+    secretName: home-assistant-ingress-certificate-secret
+---
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransportTCP
+metadata:
+  namespace: home-assistant
+  name: mosquitto
+spec:
+  proxyProtocol:
+    version: 2
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  namespace: home-assistant
+  name: mosquitto
+  annotations:
+    external-dns.alpha.kubernetes.io/target: 192.168.10.20
+spec:
+  entryPoints:
+    - mqtt
+  routes:
+    - match: HostSNI(`mqtt.kalexlab.xyz`)
+      # TODO: uncomment this when on Mosquitto 2.1, which should add support for proxy protocol
+      # serversTransport: default
+      services:
+        - name: mosquitto
+          port: 1883
+  tls:
+    secretName: certificate-secret

@@ -1,0 +1,127 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: home-assistant
+  name: home-assistant
+  labels:
+    kalexlab.xyz/app: home-assistant
+    kalexlab.xyz/component: home-assistant
+spec:
+  type: ClusterIP
+  ports:
+    - name: home-assistant
+      port: 8123
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: home-assistant
+    kalexlab.xyz/component: home-assistant
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: home-assistant
+  name: home-assistant
+  labels:
+    kalexlab.xyz/app: home-assistant
+    kalexlab.xyz/component: home-assistant
+spec:
+  serviceName: home-assistant
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: home-assistant
+      kalexlab.xyz/component: home-assistant
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: home-assistant
+        kalexlab.xyz/component: home-assistant
+
+        # TODO: re-add when network policies are in place
+        # kalexlab.xyz/monitoring: "true"
+    spec:
+      restartPolicy: Always
+
+      # Maybe?
+      # hostNetwork: true
+
+      containers:
+        - name: app
+          image: "docker.io/homeassistant/home-assistant:2025.11.0"
+          imagePullPolicy: Always
+
+          env:
+            - name: S6_READ_ONLY_ROOT
+              value: "1"
+
+          ports:
+            - containerPort: 8123
+              protocol: TCP
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          # resources:
+          #   requests:
+          #     memory: 300Mi
+          #     cpu: 1m
+          #   limits:
+          #     memory: 1Gi
+          #     cpu: 100m
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8123
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8123
+            failureThreshold: 3
+            periodSeconds: 30
+
+          volumeMounts:
+            - mountPath: /config
+              name: home-assistant-config-pvc
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /run
+              name: run
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10000
+        runAsGroup: 10000
+        fsGroup: 10000
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: run
+          emptyDir:
+            sizeLimit: 1Gi
+
+  volumeClaimTemplates:
+    - metadata:
+        name: home-assistant-config-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 1Gi

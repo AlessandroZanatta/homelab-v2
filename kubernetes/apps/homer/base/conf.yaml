@@ -106,6 +106,22 @@ data:
             target: "_blank"
 
 
+      - name: Automation
+        icon: "fas fa-robot"
+        items:
+          - name: Home Assistant
+            subtitle: Home automation
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/home-assistant.svg"
+            tag: "iot automation"
+            url: "https://ha.kalexlab.xyz/auth/oidc/redirect?external=true"
+            target: "_blank"
+          - name: Mosquitto
+            subtitle: MQTT broker
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/mosquitto.svg"
+            tag: "mqtt broker"
+            url: "https://mqtt.kalexlab.xyz?external=true"
+            target: "_blank"
+
       - name: "Management"
         icon: "fas fa-server"
         items:

@@ -91,6 +91,15 @@ data:
         group: Anime
         url: "tcp://cluster-rw.anime.svc.cluster.local:5432"
 
+      - name: Home Assistant
+        <<: *default-http
+        group: Home Assistant
+        url: "http://home-assistant.home-assistant.svc.cluster.local:8123"
+      - name: Mosquitto
+        <<: *default-tcp
+        group: Home Assistant
+        url: "tcp://mosquitto.home-assistant.svc.cluster.local:1883"
+
       - name: Homer
         <<: *default-http
         group: Homer

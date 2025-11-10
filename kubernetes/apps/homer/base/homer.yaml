@@ -6,7 +6,6 @@ metadata:
   name: homer
   labels:
     kalexlab.xyz/app: homer
-    kalexlab.xyz/monitoring: "true"
 spec:
   type: ClusterIP
   ports:
@@ -23,7 +22,6 @@ metadata:
   name: homer
   labels:
     kalexlab.xyz/app: homer
-    kalexlab.xyz/monitoring: "true"
 spec:
   replicas: 1
   selector:
