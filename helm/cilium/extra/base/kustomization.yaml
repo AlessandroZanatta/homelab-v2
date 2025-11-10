@@ -4,5 +4,4 @@ kind: Kustomization
 resources:
   - adguard-ip-pool.yaml
   - hubble-ingress.yaml
-  - hubble-secrets.yaml
   - traefik-ip-pool.yaml
