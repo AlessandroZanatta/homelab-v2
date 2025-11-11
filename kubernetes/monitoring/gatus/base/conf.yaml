@@ -76,8 +76,6 @@ data:
         <<: *default-http
         url: "http://longhorn-frontend.longhorn-system.svc.cluster.local:80"
 
-      # TODO: add kalexlab.xyz/monitoring: "true" label
-      # when network policies are added
       - name: Frontend
         <<: *default-http
         group: Anime
