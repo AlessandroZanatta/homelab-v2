@@ -14,7 +14,7 @@
         # renovate: datasource=helm
         repo_url: "https://helm.cilium.io/"
         chart_name: cilium/cilium
-        chart_version: 1.18.3
+        chart_version: 1.18.4
         release_name: cilium
         namespace: kube-system
         values_files:
