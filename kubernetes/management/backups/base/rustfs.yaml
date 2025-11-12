@@ -45,7 +45,8 @@ spec:
         kalexlab.xyz/monitoring: "true"
     spec:
       nodeSelector:
-        kubernetes.io/hostname: hermes
+        # Use feature label from node-feature-discovery
+        feature.node.kubernetes.io/usb-08_1058_2620.present: "true"
       restartPolicy: Always
       initContainers:
         - name: chown-pv

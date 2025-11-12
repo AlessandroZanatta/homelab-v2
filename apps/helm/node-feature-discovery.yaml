@@ -1,0 +1,28 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: node-feature-discovery
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: "oci://registry.k8s.io/nfd/charts/node-feature-discovery"
+      chart: node-feature-discovery
+      targetRevision: 0.18.3
+      helm:
+        releaseName: node-feature-discovery
+        valueFiles:
+          - $values/helm/node-feature-discovery/values.yaml
+    - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+      targetRevision: master
+      ref: values
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: node-feature-discovery
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

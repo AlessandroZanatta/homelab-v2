@@ -1,0 +1,13 @@
+---
+worker:
+  config:
+    sources:
+      usb:
+        deviceClassWhitelist:
+          - "0e"
+          - "ef"
+          - "fe"
+          - "ff"
+          # Detect USB storage devices too
+          # Used to schedule backups S3 pod to the correct node
+          - "08"
