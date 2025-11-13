@@ -34,7 +34,7 @@
         # renovate: datasource=helm
         repo_url: "https://argoproj.github.io/argo-helm"
         chart_name: argocd/argo-cd
-        chart_version: 9.1.1
+        chart_version: 9.1.2
         release_name: argocd
         namespace: argocd
         values_files:
