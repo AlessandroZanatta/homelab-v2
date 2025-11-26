@@ -100,10 +100,29 @@ spec:
         - podSelector:
             matchLabels:
               kalexlab.xyz/app: manga
+              kalexlab.xyz/component: cluster
+      ports:
+        - protocol: TCP
+          port: 5432
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: manga
               kalexlab.xyz/component: komga
       ports:
         - protocol: TCP
           port: 25600
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: flaresolverr
+          podSelector:
+            matchLabels:
+              kalexlab.xyz/app: flaresolverr
+              kalexlab.xyz/component: flaresolverr
+      ports:
+        - protocol: TCP
+          port: 8191
     - to:
         - ipBlock:
             cidr: 0.0.0.0/0
@@ -136,3 +155,61 @@ spec:
       ports:
         - protocol: TCP
           port: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: manga
+  name: cluster
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: manga
+      kalexlab.xyz/component: cluster
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: manga
+              kalexlab.xyz/component: tranga-api
+      ports:
+        - protocol: TCP
+          port: 5432
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: prometheus
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: 9187
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: cnpg-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: cloudnative-pg
+      ports:
+        - protocol: TCP
+          port: 5432
+        - protocol: TCP
+          port: 8000
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  namespace: manga
+  name: cluster-to-apiserver
+spec:
+  endpointSelector:
+    matchLabels:
+      kalexlab.xyz/app: manga
+      kalexlab.xyz/component: cluster
+  egress:
+    - toEntities:
+        - kube-apiserver

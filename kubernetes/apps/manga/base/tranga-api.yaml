@@ -48,6 +48,38 @@ spec:
           image: "docker.io/glax/tranga-api:latest"
           imagePullPolicy: Always
 
+          env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: cluster-app
+                  key: host
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: cluster-app
+                  key: port
+            - name: POSTGRES_HOST
+              value: "$(DB_HOST):$(DB_PORT)"
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: cluster-app
+                  key: user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cluster-app
+                  key: password
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: cluster-app
+                  key: dbname
+
+            - name: FLARESOLVERR_URL
+              value: http://flaresolverr.flaresolverr.svc.cluster.local:8191
+
           securityContext:
             readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
