@@ -6,6 +6,7 @@ resources:
   - network-policies.yaml
   - secrets.yaml
   - pvc.yaml
+  - cluster.yaml
   - tranga-api.yaml
   - tranga-web.yaml
   - komga.yaml
