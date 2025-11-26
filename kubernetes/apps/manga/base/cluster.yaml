@@ -3,7 +3,7 @@ apiVersion: barmancloud.cnpg.io/v1
 kind: ObjectStore
 metadata:
   name: backups
-  namespace: anime
+  namespace: manga
 spec:
   configuration:
     destinationPath: "s3://cnpg/tranga"
@@ -28,11 +28,11 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: cluster
-  namespace: anime
+  namespace: manga
 spec:
   inheritedMetadata:
     labels:
-      kalexlab.xyz/app: anime
+      kalexlab.xyz/app: manga
       kalexlab.xyz/component: cluster
       kalexlab.xyz/monitoring: "true"
 
@@ -55,7 +55,7 @@ apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
 metadata:
   name: cluster-backup
-  namespace: anime
+  namespace: manga
 spec:
   cluster:
     name: cluster
