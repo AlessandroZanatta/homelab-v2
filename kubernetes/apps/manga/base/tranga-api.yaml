@@ -101,12 +101,12 @@ spec:
 
           readinessProbe:
             httpGet:
-              path: /Ping
+              path: /v2/Stats
               port: 6531
             periodSeconds: 10
           livenessProbe:
             httpGet:
-              path: /Ping
+              path: /v2/Stats
               port: 6531
             failureThreshold: 3
             periodSeconds: 30
