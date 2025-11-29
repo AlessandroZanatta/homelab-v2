@@ -61,4 +61,4 @@ spec:
         - name: mosquitto
           port: 1883
   tls:
-    secretName: certificate-secret
+    secretName: home-assistant-ingress-certificate-secret
