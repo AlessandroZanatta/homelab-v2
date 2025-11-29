@@ -23,6 +23,7 @@ spec:
   stripPrefix:
     prefixes:
       - /api
+      - /_ipx/_/api
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
@@ -50,7 +51,7 @@ spec:
         - name: authelia-forward-auth
           namespace: sso
     - kind: Rule
-      match: "Host(`tranga.kalexlab.xyz`) && PathPrefix(`/api/`)"
+      match: "Host(`tranga.kalexlab.xyz`) && (PathPrefix(`/api/`) || PathPrefix(`/_ipx/_/api/`))"
       services:
         - name: tranga-api
           port: 6531

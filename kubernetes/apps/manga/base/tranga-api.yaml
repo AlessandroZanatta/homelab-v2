@@ -42,6 +42,32 @@ spec:
         egress.kalexlab.xyz/policy: vpn
     spec:
       restartPolicy: Always
+      initContainers:
+        - name: wait-db
+          image: "docker.io/library/alpine:3.22"
+          imagePullPolicy: Always
+
+          resources:
+            requests:
+              memory: 30Mi
+              cpu: 1m
+            limits:
+              memory: 300Mi
+              cpu: 20m
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          command:
+            [
+              "sh",
+              "-c",
+              "for i in $(seq 1 300); do nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1",
+            ]
       containers:
         - name: manga
           # Tranga does not provide any tagging, must use one of latest, cuttingedge, dev
