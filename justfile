@@ -163,7 +163,6 @@ sops SECRET_FILE:
     (echo "---"; cat "{{ SECRET_FILE }}") > "{{ SECRET_FILE }}.tmp"
     mv "{{ SECRET_FILE }}.tmp" "{{ SECRET_FILE }}"
   fi
-  # ------------------------------------------------------------------
 
 ensure-sops SECRET_FILE:
   #!/bin/bash
