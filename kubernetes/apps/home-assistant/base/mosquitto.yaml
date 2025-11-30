@@ -38,8 +38,7 @@ spec:
       labels:
         kalexlab.xyz/app: home-assistant
         kalexlab.xyz/component: mosquitto
-        # TODO: re-add when network policies are in place
-        # kalexlab.xyz/monitoring: "true"
+        kalexlab.xyz/monitoring: "true"
     spec:
       restartPolicy: Always
 
@@ -59,14 +58,13 @@ spec:
               drop:
                 - ALL
 
-          # TODO:
-          # resources:
-          #   requests:
-          #     memory: 300Mi
-          #     cpu: 1m
-          #   limits:
-          #     memory: 1Gi
-          #     cpu: 100m
+          resources:
+            requests:
+              memory: 3Mi
+              cpu: 1m
+            limits:
+              memory: 20Mi
+              cpu: 5m
 
           readinessProbe:
             tcpSocket:
