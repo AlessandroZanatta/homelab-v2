@@ -89,6 +89,15 @@ data:
         group: Anime
         url: "tcp://cluster-rw.anime.svc.cluster.local:5432"
 
+      - name: Downloader
+        <<: *default-http
+        group: Books
+        url: "http://cwa-downloader.books.svc.cluster.local:8084/api/status"
+      - name: Autocaliweb
+        <<: *default-http
+        group: Books
+        url: "http://acw.books.svc.cluster.local:8083/health"
+
       - name: Home Assistant
         <<: *default-http
         group: Home Assistant

@@ -1,0 +1,128 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: books
+  name: cwa-downloader
+  labels:
+    kalexlab.xyz/app: books
+    kalexlab.xyz/component: cwa-downloader
+spec:
+  type: ClusterIP
+  ports:
+    - name: cwa-downloader
+      port: 8084
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: books
+    kalexlab.xyz/component: cwa-downloader
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: books
+  name: cwa-downloader
+  labels:
+    kalexlab.xyz/app: books
+    kalexlab.xyz/component: cwa-downloader
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: books
+      kalexlab.xyz/component: cwa-downloader
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: books
+        kalexlab.xyz/component: cwa-downloader
+        # kalexlab.xyz/monitoring: "true"
+        egress.kalexlab.xyz/policy: vpn
+    spec:
+      restartPolicy: Always
+
+      containers:
+        - name: books
+          image: "ghcr.io/calibrain/calibre-web-automated-book-downloader:0.2.4"
+          imagePullPolicy: Always
+          # Bypass entrypoint, bloated
+          command:
+            - gunicorn
+            - -t300
+            - -b
+            - 0.0.0.0:8084
+            - app:app
+
+          ports:
+            - containerPort: 8084
+              protocol: TCP
+
+          env:
+            - name: BOOK_LANGUAGE
+              value: it
+            - name: USE_BOOK_TITLE
+              value: "true"
+
+            - name: ENABLE_LOGGING
+              value: "false"
+
+            - name: USING_EXTERNAL_BYPASSER
+              value: "true"
+            - name: EXT_BYPASSER_URL
+              value: http://flaresolverr.flaresolverr.svc.cluster.local:8191
+            - name: EXT_BYPASSER_TIMEOUT
+              value: "300000"
+
+          resources:
+            requests:
+              memory: 30Mi
+              cpu: 10m
+            limits:
+              memory: 300Mi
+              cpu: 200m
+
+          readinessProbe:
+            httpGet:
+              path: /api/status
+              port: 8084
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/status
+              port: 8084
+            failureThreshold: 3
+            periodSeconds: 30
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          volumeMounts:
+            - mountPath: /cwa-book-ingest
+              name: books-ingest-pvc
+            - mountPath: /tmp
+              name: tmp
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10000
+        runAsGroup: 10000
+        fsGroup: 10000
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+
+      volumes:
+        - name: books-ingest-pvc
+          persistentVolumeClaim:
+            claimName: books-ingest-pvc
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi

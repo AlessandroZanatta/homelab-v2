@@ -1,0 +1,141 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: books
+  name: acw
+  labels:
+    kalexlab.xyz/app: books
+    kalexlab.xyz/component: acw
+spec:
+  type: ClusterIP
+  ports:
+    - name: acw
+      port: 8083
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: books
+    kalexlab.xyz/component: acw
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: books
+  name: acw
+  labels:
+    kalexlab.xyz/app: books
+    kalexlab.xyz/component: acw
+spec:
+  replicas: 1
+  serviceName: acw
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: books
+      kalexlab.xyz/component: acw
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: books
+        kalexlab.xyz/component: acw
+        # kalexlab.xyz/monitoring: "true"
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: books
+          image: "docker.io/gelbphoenix/autocaliweb:v0.11.0"
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 8083
+              protocol: TCP
+
+          env:
+            - name: PUID
+              value: "10000"
+            - name: GUID
+              value: "10000"
+            # - name: S6_READ_ONLY_ROOT
+            #   value: "1"
+
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 5m
+            limits:
+              memory: 500Mi
+              cpu: 300m
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8083
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8083
+            failureThreshold: 3
+            periodSeconds: 30
+
+          # securityContext:
+          #   allowPrivilegeEscalation: false
+          #   readOnlyRootFilesystem: true
+          #   capabilities:
+          #     drop:
+          #       - ALL
+
+          volumeMounts:
+            - mountPath: /acw-book-ingest
+              name: books-ingest-pvc
+            - mountPath: /config
+              name: acw-config-pvc
+            - mountPath: /calibre-library
+              name: acw-library-pvc
+            # - mountPath: /tmp
+            #   name: tmp
+            # - mountPath: /run
+            #   name: run
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        # runAsNonRoot: true
+        # runAsUser: 10000
+        # runAsGroup: 10000
+        fsGroup: 10000
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+
+      volumes:
+        - name: books-ingest-pvc
+          persistentVolumeClaim:
+            claimName: books-ingest-pvc
+        # - name: tmp
+        #   emptyDir:
+        #     sizeLimit: 1Gi
+        # - name: run
+        #   emptyDir:
+        #     sizeLimit: 1Gi
+
+  volumeClaimTemplates:
+    - metadata:
+        name: acw-config-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 100Mi
+    - metadata:
+        name: acw-library-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 10Gi

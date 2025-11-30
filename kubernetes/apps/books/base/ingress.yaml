@@ -1,0 +1,43 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: books
+  name: books-certificate
+spec:
+  commonName: books.kalexlab.xyz
+  secretName: books-ingress-certificate-secret
+  dnsNames:
+    - books.kalexlab.xyz
+    - get.books.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  namespace: books
+  name: books-ingress
+  annotations:
+    external-dns.alpha.kubernetes.io/target: 192.168.10.20
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`books.kalexlab.xyz`)
+      services:
+        - name: acw
+          port: 8083
+    - kind: Rule
+      match: Host(`get.books.kalexlab.xyz`)
+      services:
+        - name: cwa-downloader
+          port: 8084
+      middlewares:
+        - name: authelia-forward-auth
+          namespace: sso
+  tls:
+    secretName: books-ingress-certificate-secret
