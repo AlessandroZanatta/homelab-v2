@@ -38,7 +38,7 @@ spec:
       labels:
         kalexlab.xyz/app: books
         kalexlab.xyz/component: acw
-        # kalexlab.xyz/monitoring: "true"
+        kalexlab.xyz/monitoring: "true"
     spec:
       restartPolicy: Always
       containers:

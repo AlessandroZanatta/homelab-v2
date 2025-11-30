@@ -37,7 +37,7 @@ spec:
       labels:
         kalexlab.xyz/app: books
         kalexlab.xyz/component: cwa-downloader
-        # kalexlab.xyz/monitoring: "true"
+        kalexlab.xyz/monitoring: "true"
         egress.kalexlab.xyz/policy: vpn
     spec:
       restartPolicy: Always
