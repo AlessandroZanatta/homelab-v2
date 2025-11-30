@@ -136,7 +136,7 @@ data:
       - name: Tranga API
         <<: *default-http
         group: Manga
-        url: "http://tranga-api.manga.svc.cluster.local:6531/Ping"
+        url: "http://tranga-api.manga.svc.cluster.local:6531/v2/Stats"
       - name: Tranga web
         <<: *default-http
         group: Manga
