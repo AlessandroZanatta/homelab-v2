@@ -43,7 +43,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: app
-          image: "docker.io/jellyfin/jellyfin:10.11.3"
+          image: "docker.io/jellyfin/jellyfin:10.11.4"
           imagePullPolicy: Always
 
           ports:
