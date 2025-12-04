@@ -43,7 +43,7 @@ spec:
       restartPolicy: Always
       initContainers:
         - name: wait-deps
-          image: "docker.io/library/alpine:3.22"
+          image: "docker.io/library/alpine:3.23"
           imagePullPolicy: Always
 
           resources:
