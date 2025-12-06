@@ -345,6 +345,9 @@ data:
             - prowlarr.kalexlab.xyz
             - helper.music.kalexlab.xyz
             - get.books.kalexlab.xyz
+
+            # Move to OIDC when possible
+            - tasks.kalexlab.xyz
           policy: one_factor
           subject:
             - ["group:home"]

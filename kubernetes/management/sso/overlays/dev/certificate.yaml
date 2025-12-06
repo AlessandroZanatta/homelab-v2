@@ -7,4 +7,4 @@ metadata:
 spec:
   commonName: auth.dev.kalexlab.xyz
   dnsNames:
-    - auth.kalexlab.xyz
+    - auth.dev.kalexlab.xyz
