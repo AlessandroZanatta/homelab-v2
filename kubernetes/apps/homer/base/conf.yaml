@@ -59,6 +59,23 @@ data:
             tag: "torrent"
             url: "https://torrent.kalexlab.xyz?external=true"
             target: "_blank"
+
+      - name: "Reading"
+        icon: "fas fa-book-open"
+        items:
+          - name: CWA downloader
+            subtitle: "eBooks downloader"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/calibre-web-automated-book-downloader.png"
+            tag: "downloader"
+            url: "https://get.books.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: Autocaliweb
+            subtitle: "eBooks management"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/calibre-web.svg"
+            tag: "library books"
+            url: "https://books.kalexlab.xyz?external=true"
+            target: "_blank"
+
           - name: "Tranga"
             subtitle: "Manga downloader"
             logo: "https://raw.githubusercontent.com/C9Glax/tranga-website/46729bade38211e795299a788301f0c95183bc63/Website/media/blahaj.png"
@@ -71,6 +88,7 @@ data:
             tag: "manga books"
             url: "https://manga.kalexlab.xyz?external=true"
             target: "_blank"
+
 
       - name: "Media"
         icon: "fas fa-play"
