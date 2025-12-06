@@ -235,6 +235,19 @@ data:
         group: Single Sign-On
         url: "tcp://cache.sso.svc.cluster.local:6379"
 
+      - name: Kaneo
+        <<: *default-http
+        group: Tasks
+        url: "http://kaneo-web.tasks.svc.cluster.local:5137"
+      - name: Kaneo API
+        <<: *default-http
+        group: Tasks
+        url: "http://kaneo-api.tasks.svc.cluster.local:1337/api/health"
+      - name: Cluster
+        <<: *default-tcp
+        group: Tasks
+        url: "tcp://cluster-rw.tasks.svc.cluster.local:5432"
+
       - name: Flaresolverr
         <<: *default-http
         group: Flaresolverr

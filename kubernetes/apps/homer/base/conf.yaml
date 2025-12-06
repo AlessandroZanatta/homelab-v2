@@ -122,6 +122,16 @@ data:
             url: "https://prowlarr.kalexlab.xyz?external=true"
             target: "_blank"
 
+      - name: Project management
+        icon: "fas fa-tasks"
+        items:
+          - name: Kaneo
+            subtitle: Kanban tasks management
+            logo: "https://avatars.githubusercontent.com/u/192649426?s=200&v=4"
+            tag: "kanban"
+            url: "https://tasks.kalexlab.xyz?external=true"
+            target: "_blank"
+
       - name: Automation
         icon: "fas fa-robot"
         items:

@@ -37,7 +37,7 @@ spec:
       labels:
         kalexlab.xyz/app: tasks
         kalexlab.xyz/component: kaneo-web
-        # kalexlab.xyz/monitoring: "true"
+        kalexlab.xyz/monitoring: "true"
     spec:
       restartPolicy: Always
       initContainers:
@@ -60,7 +60,7 @@ spec:
               memory: 200Mi
               cpu: 100m
 
-          command: ["sh", "-c", "cp -r /usr/share/nginx/html/* /mnt/nginx"]
+          command: ["sh", "-c", "cp -r /usr/share/nginx/html* /mnt/nginx"]
 
           volumeMounts:
             - mountPath: /mnt/nginx
