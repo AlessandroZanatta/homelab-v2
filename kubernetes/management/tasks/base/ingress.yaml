@@ -1,0 +1,45 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: tasks-certificate
+  namespace: tasks
+spec:
+  commonName: tasks.kalexlab.xyz
+  secretName: tasks-ingress-certificate-secret
+  dnsNames:
+    - tasks.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: tasks-ingress
+  namespace: tasks
+  annotations:
+    external-dns.alpha.kubernetes.io/target: 192.168.10.20
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`tasks.kalexlab.xyz`)
+      services:
+        - name: kaneo-web
+          port: 5173
+      middlewares:
+        - name: authelia-forward-auth
+          namespace: sso
+    - kind: Rule
+      match: "Host(`tasks.kalexlab.xyz`) && PathPrefix(`/api`)"
+      services:
+        - name: kaneo-api
+          port: 1337
+      middlewares:
+        - name: authelia-forward-auth
+          namespace: sso
+  tls:
+    secretName: tasks-ingress-certificate-secret

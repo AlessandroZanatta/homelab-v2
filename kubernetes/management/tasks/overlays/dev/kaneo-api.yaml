@@ -1,0 +1,14 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: tasks
+  name: kaneo-api
+spec:
+  template:
+    spec:
+      containers:
+        - name: app
+          env:
+            - name: KANEO_CLIENT_URL
+              value: "https://tasks.dev.kalexlab.xyz"

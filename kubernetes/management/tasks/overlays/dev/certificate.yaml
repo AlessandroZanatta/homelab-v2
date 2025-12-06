@@ -1,0 +1,10 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: tasks-certificate
+  namespace: tasks
+spec:
+  commonName: tasks.dev.kalexlab.xyz
+  dnsNames:
+    - tasks.dev.kalexlab.xyz
