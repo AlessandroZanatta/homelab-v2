@@ -9,6 +9,8 @@ crds:
 sidecar:
   dashboards:
     enabled: true
+  datasources:
+    watchMethod: "SLEEP"
 
 extraManifests:
   - apiVersion: v1
@@ -23,6 +25,15 @@ grafana:
   enabled: true
 
   defaultDashboardsTimezone: Europe/Rome
+
+  additionalDataSources:
+    - access: proxy
+      isDefault: false
+      name: loki
+      orgId: 1
+      type: loki
+      url: http://loki.loki.svc.cluster.local:3100
+      version: 1
 
   grafana.ini:
     server:
