@@ -238,7 +238,7 @@ data:
       - name: Kaneo
         <<: *default-http
         group: Tasks
-        url: "http://kaneo-web.tasks.svc.cluster.local:5137"
+        url: "http://kaneo-web.tasks.svc.cluster.local:5173"
       - name: Kaneo API
         <<: *default-http
         group: Tasks
