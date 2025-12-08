@@ -6,12 +6,6 @@ crds:
     # Conflicts with ArgoCD, force it, ArgoCD will fix it later
     forceConflicts: true
 
-sidecar:
-  dashboards:
-    enabled: true
-  datasources:
-    watchMethod: "SLEEP"
-
 extraManifests:
   - apiVersion: v1
     kind: Secret
@@ -23,6 +17,12 @@ extraManifests:
 
 grafana:
   enabled: true
+
+  sidecar:
+    dashboards:
+      enabled: true
+    datasources:
+      watchMethod: "SLEEP"
 
   defaultDashboardsTimezone: Europe/Rome
 
