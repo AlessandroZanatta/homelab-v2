@@ -43,7 +43,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: books
-          image: "docker.io/gelbphoenix/autocaliweb:v0.11.2"
+          image: "docker.io/gelbphoenix/autocaliweb:v0.11.3"
           imagePullPolicy: Always
 
           ports:
