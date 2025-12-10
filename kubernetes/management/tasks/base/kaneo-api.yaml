@@ -68,7 +68,7 @@ spec:
             ]
       containers:
         - name: app
-          image: "ghcr.io/usekaneo/api:2.0.7"
+          image: "ghcr.io/usekaneo/api:2.0.8"
           imagePullPolicy: Always
 
           ports:
@@ -76,8 +76,54 @@ spec:
               protocol: TCP
 
           env:
+            - name: KANEO_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: kaneo-conf
+                  key: KANEO_API_URL
             - name: KANEO_CLIENT_URL
-              value: "https://tasks.kalexlab.xyz"
+              valueFrom:
+                configMapKeyRef:
+                  name: kaneo-conf
+                  key: KANEO_CLIENT_URL
+
+            - name: AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: kaneo-secrets
+                  key: AUTH_SECRET
+
+            - name: DISABLE_REGISTRATION
+              valueFrom:
+                configMapKeyRef:
+                  name: kaneo-conf
+                  key: DISABLE_REGISTRATION
+            - name: CUSTOM_OAUTH_CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: kaneo-conf
+                  key: CUSTOM_OAUTH_CLIENT_ID
+            - name: CUSTOM_OAUTH_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: kaneo-secrets
+                  key: CUSTOM_OAUTH_CLIENT_SECRET
+            - name: CUSTOM_OAUTH_DISCOVERY_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: kaneo-conf
+                  key: CUSTOM_OAUTH_DISCOVERY_URL
+            - name: CUSTOM_OAUTH_SCOPES
+              valueFrom:
+                configMapKeyRef:
+                  name: kaneo-conf
+                  key: CUSTOM_OAUTH_SCOPES
+            - name: CUSTOM_AUTH_PKCE
+              valueFrom:
+                configMapKeyRef:
+                  name: kaneo-conf
+                  key: CUSTOM_AUTH_PKCE
+
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:

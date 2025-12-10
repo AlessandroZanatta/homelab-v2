@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: tasks
+  name: kaneo-conf
+data:
+  KANEO_API_URL: "https://tasks.kalexlab.xyz"
+  KANEO_CLIENT_URL: "https://tasks.kalexlab.xyz"
+  CUSTOM_OAUTH_CLIENT_ID: RdUORroUTQ7dCFZ8bqqIhp2zCFXRc5tKj.YA2WJwEMzFyYjyreXGkgQRKMdbKL2.UlK8xTIP
+  CUSTOM_OAUTH_DISCOVERY_URL: "https://auth.kalexlab.xyz/.well-known/openid-configuration"
+  CUSTOM_OAUTH_SCOPES: openid,profile,email
+  CUSTOM_AUTH_PKCE: "true"
+  DISABLE_REGISTRATION: "true"

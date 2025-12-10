@@ -42,7 +42,7 @@ spec:
       restartPolicy: Always
       initContainers:
         - name: copy-nginx
-          image: "ghcr.io/usekaneo/web:2.0.5"
+          image: "ghcr.io/usekaneo/web:2.0.8"
           imagePullPolicy: Always
 
           securityContext:
@@ -76,8 +76,15 @@ spec:
 
           env:
             - name: KANEO_API_URL
-              value: "https://tasks.kalexlab.xyz"
-
+              valueFrom:
+                configMapKeyRef:
+                  name: kaneo-conf
+                  key: KANEO_API_URL
+            - name: KANEO_CLIENT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: kaneo-conf
+                  key: KANEO_CLIENT_URL
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true

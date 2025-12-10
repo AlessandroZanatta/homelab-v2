@@ -30,16 +30,10 @@ spec:
       services:
         - name: kaneo-web
           port: 5173
-      middlewares:
-        - name: authelia-forward-auth
-          namespace: sso
     - kind: Rule
       match: "Host(`tasks.kalexlab.xyz`) && PathPrefix(`/api`)"
       services:
         - name: kaneo-api
           port: 1337
-      middlewares:
-        - name: authelia-forward-auth
-          namespace: sso
   tls:
     secretName: tasks-ingress-certificate-secret
