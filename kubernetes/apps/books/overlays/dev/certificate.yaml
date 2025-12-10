@@ -1,0 +1,11 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: books
+  name: books-certificate
+spec:
+  commonName: books.dev.kalexlab.xyz
+  dnsNames:
+    - books.dev.kalexlab.xyz
+    - get.books.dev.kalexlab.xyz

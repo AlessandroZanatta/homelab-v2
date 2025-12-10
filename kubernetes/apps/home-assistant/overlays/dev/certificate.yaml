@@ -1,0 +1,11 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: home-assistant
+  name: home-assistant-certificate
+spec:
+  commonName: ha.dev.kalexlab.xyz
+  dnsNames:
+    - ha.dev.kalexlab.xyz
+    - mqtt.dev.kalexlab.xyz

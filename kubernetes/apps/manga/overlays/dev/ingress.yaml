@@ -17,11 +17,11 @@
 
 - op: test
   path: /spec/routes/2/match
-  value: "Host(`tranga.kalexlab.xyz`) && PathPrefix(`/api/`)"
+  value: "Host(`tranga.kalexlab.xyz`) && (PathPrefix(`/api/`) || PathPrefix(`/_ipx/_/api/`))"
 
 - op: replace
   path: /spec/routes/2/match
-  value: "Host(`tranga.dev.kalexlab.xyz`) && PathPrefix(`/api/`)"
+  value: "Host(`tranga.dev.kalexlab.xyz`) && (PathPrefix(`/api/`) || PathPrefix(`/_ipx/_/api/`))"
 
 - op: remove
   path: /metadata/annotations/external-dns.alpha.kubernetes.io~1target
