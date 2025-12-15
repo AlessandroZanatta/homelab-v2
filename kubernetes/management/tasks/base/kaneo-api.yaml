@@ -98,6 +98,11 @@ spec:
                 configMapKeyRef:
                   name: kaneo-conf
                   key: DISABLE_REGISTRATION
+            - name: DISABLE_GUEST_ACCESS
+              valueFrom:
+                configMapKeyRef:
+                  name: kaneo-conf
+                  key: DISABLE_GUEST_ACCESS
             - name: CUSTOM_OAUTH_CLIENT_ID
               valueFrom:
                 configMapKeyRef:

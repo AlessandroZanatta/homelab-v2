@@ -85,6 +85,11 @@ spec:
                 configMapKeyRef:
                   name: kaneo-conf
                   key: KANEO_CLIENT_URL
+            - name: DISABLE_GUEST_ACCESS
+              valueFrom:
+                configMapKeyRef:
+                  name: kaneo-conf
+                  key: DISABLE_GUEST_ACCESS
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true

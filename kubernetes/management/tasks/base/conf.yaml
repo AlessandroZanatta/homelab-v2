@@ -12,3 +12,4 @@ data:
   CUSTOM_OAUTH_SCOPES: openid,profile,email
   CUSTOM_AUTH_PKCE: "true"
   DISABLE_REGISTRATION: "true"
+  DISABLE_GUEST_ACCESS: "true"
