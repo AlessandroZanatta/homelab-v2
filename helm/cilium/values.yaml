@@ -7,6 +7,12 @@ hubble:
   ui:
     enabled: true
 
+  # Fixes out of sync issues with ArgoCD
+  #   ref: https://github.com/cilium/cilium/issues/14550
+  tls:
+    auto:
+      method: cronJob
+
   export:
     static:
       enabled: true
