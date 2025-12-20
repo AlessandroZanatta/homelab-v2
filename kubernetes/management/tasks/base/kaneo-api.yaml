@@ -68,7 +68,7 @@ spec:
             ]
       containers:
         - name: app
-          image: "ghcr.io/usekaneo/api:2.1.5"
+          image: "ghcr.io/usekaneo/api:2.1.6"
           imagePullPolicy: Always
 
           ports:
