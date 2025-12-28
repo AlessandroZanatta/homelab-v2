@@ -1,0 +1,64 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: isbtv
+  name: isponsorblocktv
+  labels:
+    kalexlab.xyz/app: isbtv
+    kalexlab.xyz/component: isponsorblocktv
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: isbtv
+      kalexlab.xyz/component: isponsorblocktv
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: isbtv
+        kalexlab.xyz/component: isponsorblocktv
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: isbtv
+          image: "ghcr.io/dmunozv04/isponsorblocktv:v2.6.1"
+          imagePullPolicy: Always
+
+          resources:
+            requests:
+              memory: 40Mi
+              cpu: 5m
+            limits:
+              memory: 100Mi
+              cpu: 200m
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          volumeMounts:
+            - mountPath: /app/data/config.json
+              name: isbtv-secrets
+              subPath: config.json
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10000
+        runAsGroup: 10000
+        fsGroup: 10000
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+
+      volumes:
+        - name: isbtv-secrets
+          secret:
+            secretName: isbtv-secrets
