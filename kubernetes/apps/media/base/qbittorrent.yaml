@@ -51,7 +51,7 @@ spec:
 
       containers:
         - name: qbittorrent
-          image: "ghcr.io/home-operations/qbittorrent:5.0.4"
+          image: "ghcr.io/home-operations/qbittorrent:5.1.4"
           imagePullPolicy: Always
 
           ports:
