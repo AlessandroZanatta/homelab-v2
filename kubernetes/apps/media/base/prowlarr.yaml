@@ -45,7 +45,7 @@ spec:
 
       containers:
         - name: prowlarr
-          image: "ghcr.io/home-operations/prowlarr:1.33.0"
+          image: "ghcr.io/home-operations/prowlarr:1.37.0"
           imagePullPolicy: Always
 
           ports:
