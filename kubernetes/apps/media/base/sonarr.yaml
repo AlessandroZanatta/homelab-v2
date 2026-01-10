@@ -43,7 +43,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: app
-          image: "ghcr.io/home-operations/sonarr:4.0.13"
+          image: "ghcr.io/home-operations/sonarr:4.0.14"
           imagePullPolicy: Always
 
           ports:
