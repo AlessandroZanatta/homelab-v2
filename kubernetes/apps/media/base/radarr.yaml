@@ -43,7 +43,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: app
-          image: "ghcr.io/home-operations/radarr:5.20.2"
+          image: "ghcr.io/home-operations/radarr:5.28.0"
           imagePullPolicy: Always
 
           ports:
