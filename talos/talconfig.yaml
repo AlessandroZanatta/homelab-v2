@@ -88,7 +88,7 @@ nodes:
       - name: backups
         provisioning:
           diskSelector:
-            match: "'/dev/disk/by-id/ata-WDC_WD10SDRW-34A0XS1_WD-WXA2A41N3VKR' in disk.symlinks"
+            match: "'/dev/disk/by-id/ata-WDC_WD10SPZX-24Z10T0_WD-WX11A77PTL8F' in disk.symlinks"
           minSize: "900GiB"
           grow: true
     nodeLabels: &traefik-nodelabel
