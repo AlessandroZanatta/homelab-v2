@@ -129,18 +129,18 @@ data:
         group: Immich
         url: "tcp://cache.immich.svc.cluster.local:6379"
 
-      - name: Komga
-        <<: *default-http
-        group: Manga
-        url: "http://komga.manga.svc.cluster.local:25600"
-      - name: Tranga API
-        <<: *default-http
-        group: Manga
-        url: "http://tranga-api.manga.svc.cluster.local:6531/v2/Stats"
-      - name: Tranga web
-        <<: *default-http
-        group: Manga
-        url: "http://tranga-web.manga.svc.cluster.local:80"
+      # - name: Komga
+      #   <<: *default-http
+      #   group: Manga
+      #   url: "http://komga.manga.svc.cluster.local:25600"
+      # - name: Tranga API
+      #   <<: *default-http
+      #   group: Manga
+      #   url: "http://tranga-api.manga.svc.cluster.local:6531/v2/Stats"
+      # - name: Tranga web
+      #   <<: *default-http
+      #   group: Manga
+      #   url: "http://tranga-web.manga.svc.cluster.local:80"
 
       - name: Jellyfin
         <<: *default-http
