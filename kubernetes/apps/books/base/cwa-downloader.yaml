@@ -44,7 +44,7 @@ spec:
 
       containers:
         - name: books
-          image: "ghcr.io/calibrain/calibre-web-automated-book-downloader:v0.4.0"
+          image: "ghcr.io/calibrain/calibre-web-automated-book-downloader:v1.0.1"
           imagePullPolicy: Always
           # Bypass entrypoint, bloated
           command:
