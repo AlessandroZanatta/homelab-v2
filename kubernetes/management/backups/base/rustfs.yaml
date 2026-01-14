@@ -46,7 +46,7 @@ spec:
     spec:
       nodeSelector:
         # Use feature label from node-feature-discovery
-        feature.node.kubernetes.io/usb-08_1058_2620.present: "true"
+        feature.node.kubernetes.io/usb-08_152d_1561.present: "true"
       restartPolicy: Always
       initContainers:
         - name: chown-pv
