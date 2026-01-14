@@ -48,11 +48,24 @@ spec:
           imagePullPolicy: Always
           # Bypass entrypoint, bloated
           command:
-            - gunicorn
-            - -t300
-            - -b
-            - 0.0.0.0:8084
-            - cwa_book_downloader.main:app
+            [
+              "gunicorn",
+              "--log-level",
+              "info",
+              "--access-logfile",
+              "-",
+              "--error-logfile",
+              "-",
+              "--worker-class",
+              "geventwebsocket.gunicorn.workers.GeventWebSocketWorker",
+              "--workers",
+              "1",
+              "-t",
+              "300",
+              "-b",
+              "0.0.0.0:8084",
+              "shelfmark.main:app",
+            ]
 
           ports:
             - containerPort: 8084
