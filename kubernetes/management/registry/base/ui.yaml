@@ -41,7 +41,7 @@ spec:
     spec:
       initContainers:
         - name: copy-nginx
-          image: "docker.io/joxit/docker-registry-ui:2.5.7"
+          image: "docker.io/joxit/docker-registry-ui:2.6.0"
           imagePullPolicy: Always
           securityContext:
             readOnlyRootFilesystem: true
