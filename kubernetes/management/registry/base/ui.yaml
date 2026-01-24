@@ -126,6 +126,8 @@ spec:
               name: nginx-cache
             - mountPath: /usr/share/nginx/html
               name: nginx-html
+            - mountPath: /run
+              name: run
 
       securityContext:
         runAsNonRoot: true
@@ -150,5 +152,8 @@ spec:
           emptyDir:
             sizeLimit: 1Gi
         - name: nginx-html
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: run
           emptyDir:
             sizeLimit: 1Gi
