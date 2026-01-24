@@ -67,13 +67,15 @@ ports:
     # targetPort: 80
     # The port protocol (TCP/UDP)
     protocol: TCP
-    # Port Redirections
-    # Added in 2.2, you can make permanent redirects via entrypoints.
-    # https://docs.traefik.io/routing/entrypoints/#redirection
-    redirections:
-      entryPoint:
-        to: websecure
-        scheme: https
+
+    http:
+      # Port Redirections
+      # Added in 2.2, you can make permanent redirects via entrypoints.
+      # https://docs.traefik.io/routing/entrypoints/#redirection
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
 
   websecure:
     ## -- Enable this entrypoint as a default entrypoint. When a service doesn't explicitly set an entrypoint it will only use this entrypoint.
@@ -97,10 +99,11 @@ ports:
         # Currently, it does not appear to be possible to modify this value on a per-route basis
         readTimeout: 300s
 
-    ## Set TLS at the entrypoint
-    ## https://doc.traefik.io/traefik/routing/entrypoints/#tls
-    tls:
-      enabled: true
+    http:
+      ## Set TLS at the entrypoint
+      ## https://doc.traefik.io/traefik/routing/entrypoints/#tls
+      tls:
+        enabled: true
 
   mqtt:
     asDefault: false
@@ -109,8 +112,8 @@ ports:
       default: true
     exposedPort: 8883
     protocol: TCP
-    tls:
-      enabled: true
+    # tls:
+    #   enabled: true
 
   metrics:
     port: 9100
