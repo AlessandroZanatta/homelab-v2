@@ -49,7 +49,7 @@ spec:
             ]
       containers:
         - name: worker
-          image: "docker.io/glitchtip/glitchtip:v5.2"
+          image: "docker.io/glitchtip/glitchtip:v6.0"
           imagePullPolicy: Always
           command: ["./bin/run-celery-with-beat.sh"]
 
