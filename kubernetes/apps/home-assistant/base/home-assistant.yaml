@@ -47,7 +47,7 @@ spec:
 
       containers:
         - name: app
-          image: "docker.io/homeassistant/home-assistant:2026.2.2"
+          image: "docker.io/homeassistant/home-assistant:2026.2.3"
           imagePullPolicy: Always
 
           env:
