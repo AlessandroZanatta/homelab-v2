@@ -44,7 +44,7 @@ spec:
 
       containers:
         - name: books
-          image: "ghcr.io/calibrain/shelfmark:v1.1.2"
+          image: "ghcr.io/calibrain/shelfmark:v1.2.0"
           imagePullPolicy: Always
           # Bypass entrypoint, bloated
           command:
