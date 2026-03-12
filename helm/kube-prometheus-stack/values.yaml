@@ -134,7 +134,7 @@ prometheus:
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
-              storage: 50Gi
+              storage: 75Gi
 
     thanosService:
       enabled: true
