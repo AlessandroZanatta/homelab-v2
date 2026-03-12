@@ -9,6 +9,7 @@ spec:
   secretName: nextcloud-ingress-certificate-secret
   dnsNames:
     - cloud.kalexlab.xyz
+    - collabora-online.kalexlab.xyz
   issuerRef:
     kind: ClusterIssuer
     name: letsencrypt
@@ -30,5 +31,25 @@ spec:
       services:
         - name: nextcloud
           port: 80
+  tls:
+    secretName: nextcloud-ingress-certificate-secret
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  namespace: nextcloud
+  name: collabora-online-ingress
+  annotations:
+    external-dns.alpha.kubernetes.io/target: 192.168.10.20
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`collabora-online.kalexlab.xyz`)
+      services:
+        - name: collabora-online
+          port: 9980
   tls:
     secretName: nextcloud-ingress-certificate-secret

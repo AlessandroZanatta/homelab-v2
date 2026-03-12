@@ -1,0 +1,141 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: nextcloud
+  name: collabora-online
+  labels:
+    kalexlab.xyz/app: nextcloud
+    kalexlab.xyz/component: collabora-online
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9980
+      targetPort: 9980
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: nextcloud
+    kalexlab.xyz/component: collabora-online
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: nextcloud
+  name: collabora-online
+  labels:
+    kalexlab.xyz/app: nextcloud
+    kalexlab.xyz/component: collabora-online
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: nextcloud
+      kalexlab.xyz/component: collabora-online
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: nextcloud
+        kalexlab.xyz/component: collabora-online
+        kalexlab.xyz/monitoring: "true"
+    spec:
+      restartPolicy: Always
+
+      initContainers:
+        - name: copy-conf
+          image: "docker.io/collabora/code:25.04.9.1.1"
+          imagePullPolicy: Always
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          command:
+            [
+              "sh",
+              "-c",
+              "cp -r /etc/coolwsd/* /mnt/coolwsd && cp -r /opt/cool/* /mnt/cool",
+            ]
+
+          volumeMounts:
+            - mountPath: /mnt/coolwsd
+              name: etc-coolwsd
+            - mountPath: /mnt/cool
+              name: opt-cool
+      containers:
+        - name: collabora-online
+          image: "docker.io/collabora/code:25.04.9.1.1"
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 9980
+              protocol: TCP
+
+          env:
+            - name: extra_params
+              value: "--o:ssl.enable=false --o:ssl.termination=true --o:mount_jail_tree=false --o:security.capabilities=false"
+            - name: domain
+              value: cloud.kalexlab.xyz
+            - name: aliasgroup1
+              value: https://cloud.kalexlab.xyz:443
+            - name: username
+              valueFrom:
+                secretKeyRef:
+                  name: collabora-online-secrets
+                  key: username
+            - name: password
+              valueFrom:
+                secretKeyRef:
+                  name: collabora-online-secrets
+                  key: password
+
+          resources: {}
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 9980
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 9980
+            periodSeconds: 10
+            failureThreshold: 4
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          volumeMounts:
+            - name: opt-cool
+              mountPath: /opt/cool
+            - name: etc-coolwsd
+              mountPath: /etc/coolwsd
+            - name: tmp
+              mountPath: /tmp
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65535
+        runAsGroup: 65535
+        fsGroup: 65535
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+
+      volumes:
+        - name: opt-cool
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: etc-coolwsd
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi

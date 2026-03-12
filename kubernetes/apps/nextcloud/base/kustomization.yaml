@@ -8,5 +8,6 @@ resources:
   - secrets.yaml
   - cluster.yaml
   - valkey.yaml
+  - collabora-online.yaml
   - nextcloud.yaml
   - ingress.yaml

@@ -171,3 +171,41 @@ spec:
       ports:
         - protocol: TCP
           port: 6379
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: nextcloud
+  name: collabora-online
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: nextcloud
+      kalexlab.xyz/component: collabora-online
+  policyTypes:
+    - Egress
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: 9980
+  egress:
+    # Probably collabora-online -> nextcloud through Traefik (cloud.kalexlab.xyz)
+    # Could maybe avoid this by configuring it differently (aliasgroup1 or domain)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: 8443
