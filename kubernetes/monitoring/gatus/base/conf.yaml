@@ -180,6 +180,10 @@ data:
         <<: *default-http
         group: Nextcloud
         url: "http://nextcloud.nextcloud.svc.cluster.local:80/status.php"
+      - name: Collabora Online
+        <<: *default-http
+        group: Nextcloud
+        url: "http://collabora-online.nextcloud.svc.cluster.local:9980"
       - name: Cluster
         <<: *default-tcp
         group: Nextcloud
