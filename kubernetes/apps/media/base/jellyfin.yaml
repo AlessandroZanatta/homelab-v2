@@ -110,7 +110,7 @@ spec:
             claimName: media-data-pvc
         - name: jellyfin-cache
           emptyDir:
-            sizeLimit: 1Gi
+            sizeLimit: 5Gi
         - name: tmp
           emptyDir:
             sizeLimit: 1Gi
