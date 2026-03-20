@@ -77,6 +77,24 @@ psql-pod NAMESPACE PVC:
       restartPolicy: Never
   EOF
 
+allow-all-np:
+  #!/bin/bash
+  cat <<EOF | kubectl apply -f -
+    apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: allow-all-ingress-egress
+    spec:
+      podSelector: {}
+      policyTypes:
+        - Ingress
+        - Egress
+      ingress:
+        - {}
+      egress:
+        - {}
+  EOF
+
 vagrant_run:
   #!/bin/bash
 
