@@ -69,7 +69,7 @@ spec:
             ]
       containers:
         - name: web
-          image: "docker.io/glitchtip/glitchtip:v6.0"
+          image: "docker.io/glitchtip/glitchtip:6.1"
           imagePullPolicy: Always
           command: ["/bin/sh", "-c", "./bin/run-migrate.sh && ./bin/start.sh"]
 
