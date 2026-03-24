@@ -1,0 +1,28 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: plants
+  name: hortusfox-conf
+data:
+  DB_HOST: database
+  DB_PORT: "3306"
+  DB_DATABASE: app
+  DB_CHARSET: utf8mb4
+
+  APP_UPDATEDEPS: "false"
+  PROXY_ENABLE: "true"
+  PROXY_HEADER_EMAIL: Remote-Email
+  PROXY_HEADER_USERNAME: Remote-User
+  PROXY_AUTO_SIGNUP: "true"
+  PROXY_HIDE_LOGOUT: "true"
+  PROXY_OVERWRITE_VALUES: "true"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: plants
+  name: database-conf
+data:
+  MARIADB_RANDOM_ROOT_PASSWORD: yes
+  MARIADB_DATABASE: app

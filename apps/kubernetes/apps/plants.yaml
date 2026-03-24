@@ -1,0 +1,29 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: plants
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - clusters: {}
+  template:
+    metadata:
+      name: plants
+    spec:
+      project: default
+      sources:
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          path: "kubernetes/apps/plants/overlays/{{ .metadata.labels.env }}"
+      destination:
+        server: "{{ .server }}"
+        namespace: plants
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

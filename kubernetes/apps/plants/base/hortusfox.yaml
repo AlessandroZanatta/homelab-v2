@@ -1,0 +1,237 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: plants
+  name: hortusfox
+  labels:
+    kalexlab.xyz/app: plants
+    kalexlab.xyz/component: hortusfox
+spec:
+  type: ClusterIP
+  ports:
+    - name: hortusfox
+      port: 80
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: plants
+    kalexlab.xyz/component: hortusfox
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: plants
+  name: hortusfox
+  labels:
+    kalexlab.xyz/app: plants
+    kalexlab.xyz/component: hortusfox
+spec:
+  serviceName: plants
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: plants
+      kalexlab.xyz/component: hortusfox
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: plants
+        kalexlab.xyz/component: hortusfox
+        kalexlab.xyz/monitoring: "true"
+    spec:
+      restartPolicy: Always
+
+      initContainers:
+        - name: copy-var-www-html
+          image: "ghcr.io/danielbrendel/hortusfox-web:v5.7"
+          imagePullPolicy: Always
+
+          resources:
+            requests:
+              memory: 30Mi
+              cpu: 1m
+            limits:
+              memory: 300Mi
+              cpu: 200m
+
+          securityContext:
+            runAsUser: 33
+            runAsGroup: 33
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          command:
+            [
+              "sh",
+              "-c",
+              "cp -r /var/www/html/. /mnt/html && cp -r /tmp/. /mnt/tmp",
+            ]
+
+          volumeMounts:
+            - mountPath: /mnt/html
+              name: html
+            # tmp contains migrations, stock images, ... that are copied at startup
+            - mountPath: /mnt/tmp
+              name: tmp
+
+      containers:
+        - name: plants
+          image: "ghcr.io/danielbrendel/hortusfox-web:v5.7"
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 80
+              protocol: TCP
+
+          envFrom:
+            - configMapRef:
+                name: hortusfox-conf
+            - secretRef:
+                name: hortusfox-secrets
+
+          env:
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: MARIADB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: MARIADB_PASSWORD
+
+          # resources:
+          #   requests:
+          #     memory: 120Mi
+          #     cpu: 20m
+          #   limits:
+          #     memory: 400Mi
+          #     cpu: 600m
+
+          # Proxy auth is required even for / (and there is no /health or /ping endpoint afaik),
+          # hence we add fake (valid) headers here :)
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+              httpHeaders:
+                - name: Remote-Email
+                  value: alessandro.zanatta.lav@gmail.com
+                - name: Remote-User
+                  value: kalex
+            timeoutSeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+              httpHeaders:
+                - name: Remote-Email
+                  value: alessandro.zanatta.lav@gmail.com
+                - name: Remote-User
+                  value: kalex
+            failureThreshold: 3
+            timeoutSeconds: 5
+            periodSeconds: 30
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          volumeMounts:
+            - mountPath: /data
+              name: data-pvc
+            - mountPath: /var/www/html
+              name: html
+            - mountPath: /var/www/html/public/img
+              name: img-pvc
+            - mountPath: /var/www/html/app/migrations
+              name: migrations-pvc
+            - mountPath: /var/www/html/app/themes
+              name: themes-pvc
+            - mountPath: /var/www/html/app/logs
+              name: logs
+            - mountPath: /var/www/html/app/backup
+              name: backup
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /var/run/apache2
+              name: apache2
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 33
+        runAsGroup: 33
+        fsGroup: 33
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: apache2
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: confd
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: logs
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: backup
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: html
+          emptyDir:
+            sizeLimit: 1Gi
+
+  volumeClaimTemplates:
+    - metadata:
+        name: img-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 1Gi
+    - metadata:
+        name: themes-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 1Gi
+    - metadata:
+        name: migrations-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 1Gi
+    - metadata:
+        name: data-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 1Gi

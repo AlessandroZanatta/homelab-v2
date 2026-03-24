@@ -1,0 +1,37 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: plants
+  name: plants-certificate
+spec:
+  commonName: plants.kalexlab.xyz
+  secretName: plants-ingress-certificate-secret
+  dnsNames:
+    - plants.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  namespace: plants
+  name: plants-ingress
+  annotations:
+    external-dns.alpha.kubernetes.io/target: 192.168.10.20
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`plants.kalexlab.xyz`)
+      middlewares:
+        - name: authelia-forward-auth
+          namespace: sso
+      services:
+        - name: hortusfox
+          port: 80
+  tls:
+    secretName: plants-ingress-certificate-secret

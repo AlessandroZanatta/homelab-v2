@@ -1,0 +1,10 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: plants
+  name: plants-certificate
+spec:
+  commonName: plants.dev.kalexlab.xyz
+  dnsNames:
+    - plants.dev.kalexlab.xyz

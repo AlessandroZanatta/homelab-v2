@@ -1,0 +1,119 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: plants
+  name: default-deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: plants
+  name: allow-egress-cluster-dns
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: coredns
+      ports:
+        - protocol: UDP
+          port: 53
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: plants
+  name: hortusfox
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: plants
+      kalexlab.xyz/component: hortusfox
+  policyTypes:
+    - Egress
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: 80
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: plants
+              kalexlab.xyz/component: database
+      ports:
+        - protocol: TCP
+          port: 3306
+
+    # Allow reaching internet on port 443
+    # This is then narrowed down by CNP below
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  namespace: plants
+  name: allow-plantnet-api-egress
+spec:
+  endpointSelector:
+    matchLabels:
+      kalexlab.xyz/app: plants
+      kalexlab.xyz/component: hortusfox
+  egress:
+    - toFQDNs:
+        - matchName: my-api.plantnet.org
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: plants
+  name: database
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: plants
+      kalexlab.xyz/component: database
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: plants
+              kalexlab.xyz/component: hortusfox
+      ports:
+        - protocol: TCP
+          port: 3306

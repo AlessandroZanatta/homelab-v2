@@ -1,0 +1,131 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: plants
+  name: database
+  labels:
+    kalexlab.xyz/app: plants
+    kalexlab.xyz/component: database
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3306
+      targetPort: 3306
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: plants
+    kalexlab.xyz/component: database
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: plants
+  name: database
+  labels:
+    kalexlab.xyz/app: plants
+    kalexlab.xyz/component: database
+spec:
+  replicas: 1
+  serviceName: database
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: plants
+      kalexlab.xyz/component: database
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: plants
+        kalexlab.xyz/component: database
+        kalexlab.xyz/monitoring: "true"
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: mysql
+          image: "docker.io/library/mariadb:12.2.2"
+          imagePullPolicy: Always
+
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
+          ports:
+            - containerPort: 3306
+              protocol: TCP
+
+          envFrom:
+            - configMapRef:
+                name: database-conf
+            - secretRef:
+                name: db-secrets
+
+          readinessProbe:
+            exec:
+              command:
+                [
+                  "/bin/sh",
+                  "-c",
+                  "mariadb-admin ping -u$MARIADB_USER -p$MARIADB_PASSWORD",
+                ]
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command:
+                [
+                  "/bin/sh",
+                  "-c",
+                  "mariadb-admin ping -u$MARIADB_USER -p$MARIADB_PASSWORD",
+                ]
+            failureThreshold: 3
+            periodSeconds: 30
+
+          resources:
+            requests:
+              memory: 100Mi
+              cpu: 1m
+            limits:
+              memory: 500Mi
+              cpu: 300m
+
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /var/run/mysqld
+              name: mysqld-run
+            - mountPath: /var/lib/mysql
+              name: database-pvc
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: mysqld-run
+          emptyDir:
+            sizeLimit: 1Gi
+
+  volumeClaimTemplates:
+    - metadata:
+        name: database-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 1Gi

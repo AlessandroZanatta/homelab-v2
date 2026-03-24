@@ -193,6 +193,20 @@ data:
         group: Nextcloud
         url: "tcp://cache.nextcloud.svc.cluster.local:6379"
 
+      - name: Hortusfox
+        <<: *default-http
+        group: Plants
+        url: "http://hortusfox.plants.svc.cluster.local:80"
+        conditions:
+          # Hortusfox has forward auth and returns 4XX on request
+          # when forward headers are missing
+          - "[STATUS] > 400"
+          - "[STATUS] < 500"
+      - name: Database
+        <<: *default-tcp
+        group: Plants
+        url: "tcp://database.plants.svc.cluster.local:3306"
+
       - name: Vaultwarden
         <<: *default-http
         group: Vaultwarden

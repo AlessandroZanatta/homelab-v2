@@ -59,6 +59,12 @@ data:
             tag: "torrent"
             url: "https://torrent.kalexlab.xyz?external=true"
             target: "_blank"
+          - name: "Hortusfox"
+            subtitle: "Plant management"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/webp/hortusfox.webp"
+            tag: "plants"
+            url: "https://plants.kalexlab.xyz?external=true"
+            target: "_blank"
 
       - name: "Reading"
         icon: "fas fa-book-open"
