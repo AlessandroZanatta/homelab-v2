@@ -115,7 +115,7 @@ spec:
                 - ALL
 
           volumeMounts:
-            - mountPath: /cwa-book-ingest
+            - mountPath: /books
               name: books-ingest-pvc
             - mountPath: /tmp
               name: tmp
