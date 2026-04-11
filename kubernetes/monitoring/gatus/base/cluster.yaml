@@ -39,7 +39,7 @@ spec:
 
   storage:
     storageClass: longhorn
-    size: 40Gi
+    size: 50Gi
 
   monitoring:
     enablePodMonitor: true
