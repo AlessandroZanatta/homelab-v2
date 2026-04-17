@@ -110,7 +110,7 @@ spec:
           #     memory: 120Mi
           #     cpu: 20m
           #   limits:
-          #     memory: 400Mi
+          #     memory: 600Mi
           #     cpu: 600m
 
           # Proxy auth is required even for / (and there is no /health or /ping endpoint afaik),
