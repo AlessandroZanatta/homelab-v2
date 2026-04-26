@@ -123,6 +123,31 @@ data:
             userinfo_signed_response_alg: none
             token_endpoint_auth_method: client_secret_basic
 
+          - client_id: Wz_GlwcKKwH1UHM9aQAk7otNLb8R_D36zHvWQSA~BNQZ0K.rIqTnPa2tnFC0dnL8FbADBX-f
+            client_name: Anime
+            client_secret: "$pbkdf2-sha512$310000$og5AK4jg2Tzh2n4AmGY8DQ$u9Dg8DjcqMmB0saWgoCgXTW6fGcVH4t8PjoC088xGDqtc6nfSc9Lz3F7ans0xmeCziQNjVI6eGyDp/Cq/QD9ZA"
+            public: false
+            consent_mode: implicit
+            authorization_policy: home
+            require_pkce: true
+            pkce_challenge_method: ""
+            redirect_uris:
+              - "http://192.168.10.51:3000/auth/oauth2/callback/oidc" # TODO: remove, dev/testing only
+              - "https://anime.kalexlab.xyz/api/auth/oauth2/callback/oidc"
+              - "xyz.kalexlab.anime://oauth"
+            scopes:
+              - openid
+              - profile
+              - groups
+              - email
+            response_types:
+              - code
+            grant_types:
+              - authorization_code
+            access_token_signed_response_alg: none
+            userinfo_signed_response_alg: none
+            token_endpoint_auth_method: client_secret_post
+
           - client_id: 5WREoY~6NzpJNJVMf43EmuzuNV4uahCjuqOmReV1Iq_0yNG3bSQiJVA3zmIvGFkx23YGMoz9
             client_name: Books
             client_secret: "$pbkdf2-sha512$310000$eAzhAeoYfms6FKxjEibt8g$ujVy6auB.VxUXksnMWQ4n8wtvg5KiJENVjUcZ388QoWCntrpk9sq6hMjY9.mNDPDve6G..teYAcQd65SOjhQDQ"
