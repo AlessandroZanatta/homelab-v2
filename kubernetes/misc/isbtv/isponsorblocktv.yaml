@@ -23,7 +23,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: isbtv
-          image: "ghcr.io/dmunozv04/isponsorblocktv:v2.7.0"
+          image: "ghcr.io/dmunozv04/isponsorblocktv:v2.8.1"
           imagePullPolicy: Always
 
           resources:
