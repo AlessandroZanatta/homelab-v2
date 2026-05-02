@@ -44,7 +44,7 @@ spec:
 
       initContainers:
         - name: copy-var-www-html
-          image: "ghcr.io/danielbrendel/hortusfox-web:v5.7"
+          image: "ghcr.io/danielbrendel/hortusfox-web:v5.8"
           imagePullPolicy: Always
 
           resources:
@@ -80,7 +80,7 @@ spec:
 
       containers:
         - name: plants
-          image: "ghcr.io/danielbrendel/hortusfox-web:v5.7"
+          image: "ghcr.io/danielbrendel/hortusfox-web:v5.8"
           imagePullPolicy: Always
 
           ports:
