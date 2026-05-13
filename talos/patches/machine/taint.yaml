@@ -1,5 +1,5 @@
 ---
-# Taint nodes that should only be used to route egress VPN traffic (coming soon)
+# Taint nodes that should only be used to route egress VPN traffic
 machine:
   kubelet:
     extraConfig:
