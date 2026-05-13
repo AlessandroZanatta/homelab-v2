@@ -134,7 +134,7 @@ data:
             redirect_uris:
               - "http://192.168.10.51:3000/auth/oauth2/callback/oidc" # TODO: remove, dev/testing only
               - "http://10.151.226.170:3000/auth/oauth2/callback/oidc" # TODO: remove, dev/testing only
-              - "https://anime.kalexlab.xyz/api/auth/oauth2/callback/oidc"
+              - "https://anime-v2.kalexlab.xyz/api/auth/oauth2/callback/oidc"
               - "xyz.kalexlab.anime://oauth"
             scopes:
               - openid
