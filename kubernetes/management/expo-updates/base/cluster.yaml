@@ -1,0 +1,75 @@
+---
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: backups
+  namespace: expo-updates
+spec:
+  configuration:
+    destinationPath: "s3://cnpg/expo-updates"
+    endpointURL: "https://backups.kalexlab.xyz"
+    s3Credentials:
+      region:
+        name: s3-secrets
+        key: REGION
+      accessKeyId:
+        name: s3-secrets
+        key: ACCESS_KEY
+      secretAccessKey:
+        name: s3-secrets
+        key: SECRET_KEY
+    wal:
+      compression: bzip2
+    data:
+      compression: bzip2
+  retentionPolicy: 14d
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cluster
+  namespace: expo-updates
+spec:
+  inheritedMetadata:
+    labels:
+      kalexlab.xyz/app: expo-updates
+      kalexlab.xyz/component: cluster
+      kalexlab.xyz/monitoring: "true"
+
+  instances: 1
+
+  bootstrap:
+    initdb:
+      postInitApplicationSQLRefs:
+        configMapRefs:
+          - name: cluster-init
+            key: releases.sql
+          - name: cluster-init
+            key: tracking.sql
+
+  storage:
+    storageClass: longhorn
+    size: 4Gi
+
+  monitoring:
+    enablePodMonitor: true
+
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: backups
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: cluster-backup
+  namespace: expo-updates
+spec:
+  cluster:
+    name: cluster
+  schedule: "0 0 0 * * *"
+  backupOwnerReference: self
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io

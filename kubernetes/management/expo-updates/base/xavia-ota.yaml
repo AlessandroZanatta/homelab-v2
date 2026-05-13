@@ -1,0 +1,149 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: xavia-ota
+  namespace: expo-updates
+  labels:
+    kalexlab.xyz/app: expo-updates
+spec:
+  type: ClusterIP
+  ports:
+    - name: xavia-ota
+      port: 3000
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    kalexlab.xyz/app: expo-updates
+    kalexlab.xyz/component: xavia-ota
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: xavia-ota
+  namespace: expo-updates
+  labels:
+    kalexlab.xyz/app: expo-updates
+    kalexlab.xyz/component: xavia-ota
+spec:
+  serviceName: xavia-ota
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: expo-updates
+      kalexlab.xyz/component: xavia-ota
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: expo-updates
+        kalexlab.xyz/component: xavia-ota
+        kalexlab.xyz/monitoring: "true"
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: xavia-ota
+          image: "docker.io/xaviaio/xavia-ota:2.0.3"
+          imagePullPolicy: Always
+
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+
+          envFrom:
+            - configMapRef:
+                name: xavia-ota-conf
+            - secretRef:
+                name: xavia-ota-secrets
+
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: cluster-app
+                  key: user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cluster-app
+                  key: password
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: cluster-app
+                  key: host
+            - name: POSTGRES_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: cluster-app
+                  key: port
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: cluster-app
+                  key: dbname
+
+          # TODO
+          # resources:
+          #   requests:
+          #     memory: 50Mi
+          #     cpu: 10m
+          #   limits:
+          #     memory: 500Mi
+          #     cpu: 200m
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            periodSeconds: 60
+
+          volumeMounts:
+            - mountPath: /app/local-releases
+              name: xavia-ota-data-pvc
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /app/.next/cache
+              name: next-cache
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65535
+        runAsGroup: 65535
+        fsGroup: 65535
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: next-cache
+          emptyDir:
+            sizeLimit: 1Gi
+
+  volumeClaimTemplates:
+    - metadata:
+        name: xavia-ota-data-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 10Gi

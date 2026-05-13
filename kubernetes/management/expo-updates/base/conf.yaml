@@ -1,0 +1,46 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: expo-updates
+  name: xavia-ota-conf
+data:
+  HOST: https://expo-ota.kalexlab.xyz
+  NEXT_PUBLIC_SITE_URL: https://expo-ota.kalexlab.xyz
+  BLOB_STORAGE_TYPE: local
+  DB_TYPE: postgres
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: expo-updates
+  name: cluster-init
+data:
+  releases.sql: |
+    CREATE TABLE IF NOT EXISTS releases (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      runtime_version VARCHAR(255) NOT NULL,
+      path VARCHAR(255) NOT NULL,
+      timestamp TIMESTAMP NOT NULL,
+      commit_hash VARCHAR(255) NOT NULL,
+      commit_message VARCHAR(255) NOT NULL,
+      update_id VARCHAR(255)
+    );
+    ALTER TABLE releases OWNER TO app;
+  tracking.sql: |
+    CREATE TABLE IF NOT EXISTS releases_tracking (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        release_id UUID NOT NULL REFERENCES releases(id),
+        download_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        platform VARCHAR(50) NOT NULL,
+        CONSTRAINT fk_release
+            FOREIGN KEY(release_id)
+            REFERENCES releases(id)
+            ON DELETE CASCADE
+    );
+
+    -- Index for faster queries on release_id and timestamp
+    CREATE INDEX idx_tracking_release_id ON releases_tracking(release_id);
+    CREATE INDEX idx_tracking_platform ON releases_tracking(platform);
+
+    ALTER TABLE releases_tracking OWNER TO app;
