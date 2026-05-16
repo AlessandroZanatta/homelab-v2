@@ -24,6 +24,7 @@ spec:
               - $values/helm/cloudnative-pg/values.yaml
         - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
           targetRevision: master
+          path: "helm/cloudnative-pg/extra/overlays/{{ .metadata.labels.env }}"
           ref: values
         - repoURL: "https://github.com/cloudnative-pg/plugin-barman-cloud"
           targetRevision: v0.12.0

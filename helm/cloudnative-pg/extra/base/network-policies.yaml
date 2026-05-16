@@ -1,0 +1,47 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: cnpg-cluster-to-apiserver
+spec:
+  endpointSelector:
+    matchLabels:
+      kalexlab.xyz/component: cluster
+  egress:
+    - toEntities:
+        - kube-apiserver
+---
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: cnpg-cluster-allow-kubelet-probe
+spec:
+  endpointSelector:
+    matchLabels:
+      kalexlab.xyz/component: cluster
+  ingress:
+    - fromEntities:
+        - host
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: cnpg-cluster-allow-prometheus
+spec:
+  endpointSelector:
+    matchLabels:
+      kalexlab.xyz/component: cluster
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: prometheus
+            app.kubernetes.io/name: prometheus
+      toPorts:
+        - ports:
+            - port: "9187"
+              protocol: TCP
