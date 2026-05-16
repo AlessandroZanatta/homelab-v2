@@ -132,10 +132,33 @@ data:
             require_pkce: true
             pkce_challenge_method: ""
             redirect_uris:
-              - "http://192.168.10.51:3000/auth/oauth2/callback/oidc" # TODO: remove, dev/testing only
-              - "http://10.151.226.170:3000/auth/oauth2/callback/oidc" # TODO: remove, dev/testing only
               - "https://anime-v2.kalexlab.xyz/api/auth/oauth2/callback/oidc"
               - "xyz.kalexlab.anime://oauth"
+              - "app://-"
+            scopes:
+              - openid
+              - profile
+              - groups
+              - email
+            response_types:
+              - code
+            grant_types:
+              - authorization_code
+            access_token_signed_response_alg: none
+            userinfo_signed_response_alg: none
+            token_endpoint_auth_method: client_secret_post
+          - client_id: z-biaL7Di2YFDuBfWXQbeNmiEJ8lc~VQot_iPN7pNwidX4TE8VuWUGcJvn3mbEOReJvXzBQX
+            client_name: Anime-DEV
+            client_secret: "$pbkdf2-sha512$310000$YR.0FAOM/W161dKYVddyjQ$7EfSFNmZSy/KMm6sehh7r4kOCMzur29OlRd3LnpJykvz.aBCSkQ.wvq7JoFIUHJIOmbt.gJMWqh1qXaT4kChqg"
+            public: false
+            consent_mode: implicit
+            authorization_policy: devs
+            require_pkce: true
+            pkce_challenge_method: ""
+            redirect_uris:
+              - "http://192.168.10.51:3000/auth/oauth2/callback/oidc"
+              - "xyz.kalexlab.anime.dev://oauth"
+              - "app://-"
             scopes:
               - openid
               - profile
