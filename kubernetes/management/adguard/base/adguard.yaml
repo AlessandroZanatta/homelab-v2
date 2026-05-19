@@ -77,7 +77,7 @@ spec:
               subPath: AdGuardHome.yaml
       containers:
         - name: app
-          image: "docker.io/adguard/adguardhome:v0.107.74"
+          image: "docker.io/adguard/adguardhome:v0.107.75"
           imagePullPolicy: Always
 
           ports:
