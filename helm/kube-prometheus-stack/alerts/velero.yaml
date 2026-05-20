@@ -1,0 +1,41 @@
+---
+additionalPrometheusRulesMap:
+  argocd:
+    groups:
+      - name: ArgoCD
+        rules:
+          - alert: VeleroBackupFailures
+            expr: |
+              increase(velero_backup_failure_total{schedule!=""}[1h]) > 0
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Velero backup {{ $labels.schedule }} failed"
+
+          - alert: VeleroBackupPartialFailures
+            expr: |
+              increase(velero_backup_partial_failure_total{schedule!=""}[1h]) > 0
+            for: 5m
+            labels:
+              severity: warning
+
+          - alert: VeleroNoRecentBackup
+            expr: time() - velero_backup_last_successful_timestamp > 172800 # 48h
+            for: 15m
+            labels:
+              severity: critical
+
+          - alert: VeleroRestoreFailed
+            expr: increase(velero_restore_failed_total[30m]) > 0
+            for: 0m
+            labels:
+              severity: critical
+
+          - alert: VeleroBSLUnavailable
+            expr: velero_backup_storage_location_available == 0
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Backup storage location {{ $labels.name }} unavailable"
