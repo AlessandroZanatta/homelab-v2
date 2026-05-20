@@ -14,12 +14,19 @@ spec:
 apiVersion: cilium.io/v2
 kind: CiliumClusterwideNetworkPolicy
 metadata:
-  name: cnpg-cluster-allow-kubelet-probe
+  name: cnpg-cluster-allow-kubelet-and-operator-probe
 spec:
   endpointSelector:
     matchLabels:
       kalexlab.xyz/component: cluster
   ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: cloudnative-pg
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
     - fromEntities:
         - host
         - remote-node
