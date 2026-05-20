@@ -8,6 +8,7 @@ spec:
   commonName: books.kalexlab.xyz
   secretName: books-ingress-certificate-secret
   dnsNames:
+    - books.kalexlab.xyz
     - get.books.kalexlab.xyz
   issuerRef:
     kind: ClusterIssuer
