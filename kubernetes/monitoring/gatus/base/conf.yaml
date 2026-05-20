@@ -92,7 +92,7 @@ data:
       - name: Downloader
         <<: *default-http
         group: Books
-        url: "http://cwa-downloader.books.svc.cluster.local:8084/api/status"
+        url: "http://shelfmark.books.svc.cluster.local:8084/api/status"
       - name: Autocaliweb
         <<: *default-http
         group: Books

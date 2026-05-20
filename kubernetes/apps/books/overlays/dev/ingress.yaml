@@ -1,18 +1,10 @@
 ---
 - op: test
   path: /spec/routes/0/match
-  value: Host(`books.kalexlab.xyz`)
-
-- op: replace
-  path: /spec/routes/0/match
-  value: Host(`books.dev.kalexlab.xyz`)
-
-- op: test
-  path: /spec/routes/1/match
   value: Host(`get.books.kalexlab.xyz`)
 
 - op: replace
-  path: /spec/routes/1/match
+  path: /spec/routes/0/match
   value: Host(`get.books.dev.kalexlab.xyz`)
 
 - op: remove

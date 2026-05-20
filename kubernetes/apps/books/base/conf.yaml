@@ -1,0 +1,45 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shelfmark-conf
+  namespace: books
+data:
+  ENABLE_LOGGING: "false"
+  HIDE_LOCAL_AUTH: "true"
+  DISABLE_LOCAL_AUTH: "true"
+  OIDC_AUTO_REDIRECT: "true"
+  ONBOARDING: "false"
+
+  BOOK_LANGUAGE: "it"
+
+  BOOKS_OUTPUT_MODE: email
+  EMAIL_SMTP_HOST: smtp.gmail.com
+  EMAIL_SMTP_PORT: "587"
+  EMAIL_SMTP_SECURITY: starttls
+
+  AUTH_METHOD: oidc
+  OIDC_DISCOVERY_URL: https://auth.kalexlab.xyz/.well-known/openid-configuration
+  OIDC_CLIENT_ID: W9az.SxyFYPmffn6~TWQIoLvBywXD~5fh-lai8mwzVNM21rkne7XDn_8Z83sfK5mvBQZtLKs
+  OIDC_SCOPES: openid,email,profile,groups
+  OIDC_ADMIN_GROUP: admins
+  OIDC_USE_ADMIN_GROUP: "true"
+  OIDC_AUTO_PROVISION: "true"
+  OIDC_BUTTON_LABEL: Login with Authelia
+
+  METADATA_PROVIDER: hardcover
+
+  HARDCOVER_ENABLED: "true"
+
+  DIRECT_DOWNLOAD_ENABLED: "true"
+
+  USE_CF_BYPASS: "true"
+  USING_EXTERNAL_BYPASSER: "true"
+  EXT_BYPASSER_URL: http://flaresolverr.flaresolverr.svc.cluster.local:8191
+  EXT_BYPASSER_TIMEOUT: "300000"
+
+  AA_BASE_URL: auto
+  AA_MIRROR_URLS: https://annas-archive.li,https://annas-archive.gl,https://software.annas-archive.li
+  LIBGEN_MIRROR_URLS: https://libgen.bz,https://libgen.li,https://libgen.la,https://libgen.vg,https://libgen.gl
+  ZLIB_MIRROR_URLS: https://z-library.sk
+  WELIB_MIRROR_URLS: https://welib.org

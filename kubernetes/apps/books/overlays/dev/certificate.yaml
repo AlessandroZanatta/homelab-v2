@@ -7,5 +7,4 @@ metadata:
 spec:
   commonName: books.dev.kalexlab.xyz
   dnsNames:
-    - books.dev.kalexlab.xyz
     - get.books.dev.kalexlab.xyz

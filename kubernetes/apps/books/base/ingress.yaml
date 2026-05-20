@@ -8,7 +8,6 @@ spec:
   commonName: books.kalexlab.xyz
   secretName: books-ingress-certificate-secret
   dnsNames:
-    - books.kalexlab.xyz
     - get.books.kalexlab.xyz
   issuerRef:
     kind: ClusterIssuer
@@ -27,17 +26,9 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`books.kalexlab.xyz`)
-      services:
-        - name: acw
-          port: 8083
-    - kind: Rule
       match: Host(`get.books.kalexlab.xyz`)
       services:
         - name: shelfmark
           port: 8084
-      middlewares:
-        - name: authelia-forward-auth
-          namespace: sso
   tls:
     secretName: books-ingress-certificate-secret

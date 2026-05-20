@@ -191,6 +191,26 @@ data:
             # access_token_signed_response_alg: none
             # userinfo_signed_response_alg: none
             # token_endpoint_auth_method: client_secret_post
+          - client_id: W9az.SxyFYPmffn6~TWQIoLvBywXD~5fh-lai8mwzVNM21rkne7XDn_8Z83sfK5mvBQZtLKs
+            client_name: Shelfmark
+            client_secret: "$pbkdf2-sha512$310000$mRpFOfdlROWF3XDC5NjdZg$ZxkBt/Fuo/Q.m1EV2onF7eXAbvkot3up4/RUdiXpfMX4YKK.AnMwmOZXxjXMe0fjYXMXGb9rXz/LA.FgboJoaA"
+            public: false
+            consent_mode: implicit
+            authorization_policy: home
+            require_pkce: true
+            pkce_challenge_method: S256
+            redirect_uris:
+              - "https://get.books.kalexlab.xyz/api/auth/oidc/callback"
+            scopes:
+              - openid
+              - profile
+              - email
+              - groups
+            response_types:
+              - code
+            access_token_signed_response_alg: none
+            userinfo_signed_response_alg: none
+            token_endpoint_auth_method: client_secret_basic
 
           - client_id: MgXzgDC8slQiJXUqFhp2dvO-z3bcCxIh9jiykGzusicWxWcW-jwHN9LascJ_dc.ypoZ8-Owh
             client_name: Home Assistant
@@ -415,7 +435,6 @@ data:
             - radarr.kalexlab.xyz
             - prowlarr.kalexlab.xyz
             - helper.music.kalexlab.xyz
-            - get.books.kalexlab.xyz
             - plants.kalexlab.xyz
           policy: one_factor
           subject:

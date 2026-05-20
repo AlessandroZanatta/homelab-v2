@@ -4,7 +4,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - network-policies.yaml
-  - pvc.yaml
+  - conf.yaml
+  - secrets.yaml
   - shelfmark.yaml
-  - acw.yaml
   - ingress.yaml

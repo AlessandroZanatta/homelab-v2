@@ -72,21 +72,11 @@ spec:
             - containerPort: 8084
               protocol: TCP
 
-          env:
-            - name: BOOK_LANGUAGE
-              value: it
-            - name: USE_BOOK_TITLE
-              value: "true"
-
-            - name: ENABLE_LOGGING
-              value: "false"
-
-            - name: USING_EXTERNAL_BYPASSER
-              value: "true"
-            - name: EXT_BYPASSER_URL
-              value: http://flaresolverr.flaresolverr.svc.cluster.local:8191
-            - name: EXT_BYPASSER_TIMEOUT
-              value: "300000"
+          envFrom:
+            - configMapRef:
+                name: shelfmark-conf
+            - secretRef:
+                name: shelfmark-secrets
 
           resources:
             requests:
@@ -98,12 +88,12 @@ spec:
 
           readinessProbe:
             httpGet:
-              path: /api/status
+              path: /
               port: 8084
             periodSeconds: 10
           livenessProbe:
             httpGet:
-              path: /api/status
+              path: /
               port: 8084
             failureThreshold: 3
             periodSeconds: 30
@@ -119,7 +109,7 @@ spec:
             - mountPath: /config
               name: shelfmark-config-pvc
             - mountPath: /books
-              name: books-ingest-pvc
+              name: books
             - mountPath: /tmp
               name: tmp
 
@@ -136,9 +126,9 @@ spec:
           type: RuntimeDefault
 
       volumes:
-        - name: books-ingest-pvc
-          persistentVolumeClaim:
-            claimName: books-ingest-pvc
+        - name: books
+          emptyDir:
+            sizeLimit: 1Gi
         - name: tmp
           emptyDir:
             sizeLimit: 1Gi
