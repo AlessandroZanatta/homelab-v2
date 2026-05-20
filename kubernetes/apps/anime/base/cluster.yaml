@@ -3,10 +3,10 @@ apiVersion: barmancloud.cnpg.io/v1
 kind: ObjectStore
 metadata:
   name: backups
-  namespace: anime
+  namespace: anime-v2
 spec:
   configuration:
-    destinationPath: "s3://cnpg/anime"
+    destinationPath: "s3://cnpg/anime-v2"
     endpointURL: "https://backups.kalexlab.xyz"
     s3Credentials:
       region:
@@ -28,11 +28,11 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: cluster
-  namespace: anime
+  namespace: anime-v2
 spec:
   inheritedMetadata:
     labels:
-      kalexlab.xyz/app: anime
+      kalexlab.xyz/app: anime-v2
       kalexlab.xyz/component: cluster
       kalexlab.xyz/monitoring: "true"
 
@@ -40,7 +40,7 @@ spec:
 
   storage:
     storageClass: longhorn
-    size: 16Gi
+    size: 10Gi
 
   monitoring:
     enablePodMonitor: true
@@ -55,7 +55,7 @@ apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
 metadata:
   name: cluster-backup
-  namespace: anime
+  namespace: anime-v2
 spec:
   cluster:
     name: cluster

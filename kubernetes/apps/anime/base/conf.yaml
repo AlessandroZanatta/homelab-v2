@@ -3,65 +3,33 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: anime-conf
-  namespace: anime
+  namespace: anime-v2
 data:
-  config.yml: |
-    providers_path: "providers"
-    media_path: "/data/anime"
-    cache_path: "/data/cache"
-    watched_threshold: 92
-
+  config.yaml: |
+    base_path: /api
     server:
-      listen_address: "0.0.0.0:8080"
-      debug: false
-
-    database:
-      DSNFile: /etc/secrets/db/dsn
-
-    providers:
-      AnimeSaturn:
-        interval: 86400
-        language: "Italiano"
-        priority: 100
-  nginx.conf: |
-    events {}
-
-    http {
-      upstream backend {
-        server localhost:8080;
-      }
-
-      server {
-        include mime.types;
-        listen 9000;
-
-        access_log off;
-
-        location / {
-          root   /usr/share/nginx/html;
-          index  index.html index.htm;
-          try_files $uri $uri/ /index.html;
-        }
-
-        location ~ ^/api/ {
-          proxy_read_timeout 300;
-          proxy_pass http://backend;
-        }
-
-        location ~ ^/auth/ {
-          proxy_pass http://backend;
-        }
-
-        location ~ ^/media/ {
-          proxy_pass http://backend;
-        }
-
-        location ~ ^/health {
-          proxy_pass http://backend;
-        }
-
-        location ~ ^/debug/ {
-          proxy_pass http://backend;
-        }
-      }
-    }
+      cors_origin:
+        - https://anime-v2.kalexlab.xyz
+        - app://- # electron
+      media_path: /anime
+      log_level: debug
+    redis:
+      host: queue
+      port: 6379
+    flaresolverr:
+      url: http://flaresolverr.flaresolverr.svc.cluster.local:8191
+      timeout_seconds: 300
+    auth:
+      base_url: https://anime-v2.kalexlab.xyz/api/auth
+      trusted_origins:
+        - https://anime-v2.kalexlab.xyz
+        - xyz.kalexlab.anime://
+      email_and_password:
+        enabled: false
+      device_authorization:
+        enabled: true
+        verification_uri: xyz.kalexlab.anime:///device
+      oidc:
+        enabled: true
+        client_id: Wz_GlwcKKwH1UHM9aQAk7otNLb8R_D36zHvWQSA~BNQZ0K.rIqTnPa2tnFC0dnL8FbADBX-f
+        discovery_url: https://auth.kalexlab.xyz/.well-known/openid-configuration

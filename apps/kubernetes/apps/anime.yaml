@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: anime
+  name: anime-v2
   namespace: argocd
 spec:
   goTemplate: true
@@ -11,7 +11,7 @@ spec:
     - clusters: {}
   template:
     metadata:
-      name: anime
+      name: anime-v2
     spec:
       project: default
       sources:
@@ -20,7 +20,7 @@ spec:
           path: "kubernetes/apps/anime/overlays/{{ .metadata.labels.env }}"
       destination:
         server: "{{ .server }}"
-        namespace: anime
+        namespace: anime-v2
       syncPolicy:
         automated:
           prune: true

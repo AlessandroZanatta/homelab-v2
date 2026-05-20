@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  namespace: anime
+  namespace: anime-v2
   name: default-deny-all
 spec:
   podSelector: {}
@@ -13,7 +13,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  namespace: anime
+  namespace: anime-v2
   name: allow-egress-cluster-dns
 spec:
   podSelector: {}
@@ -34,13 +34,38 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  namespace: anime
-  name: anime
+  namespace: anime-v2
+  name: web
 spec:
   podSelector:
     matchLabels:
-      kalexlab.xyz/app: anime
-      kalexlab.xyz/component: app
+      kalexlab.xyz/app: anime-v2
+      kalexlab.xyz/component: web
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: 80
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: anime-v2
+  name: api
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: anime-v2
+      kalexlab.xyz/component: api
   policyTypes:
     - Ingress
     - Egress
@@ -54,16 +79,51 @@ spec:
               app.kubernetes.io/name: traefik
       ports:
         - protocol: TCP
-          port: 9000
+          port: 3000
   egress:
     - to:
         - podSelector:
             matchLabels:
-              kalexlab.xyz/app: anime
+              kalexlab.xyz/app: anime-v2
+              kalexlab.xyz/component: queue
+      ports:
+        - protocol: TCP
+          port: 6379
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: anime-v2
               kalexlab.xyz/component: cluster
       ports:
         - protocol: TCP
           port: 5432
+
+    # Allow OIDC with Authelia
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: 8443
+
+    # Provider search
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: flaresolverr
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: flaresolverr
+              kalexlab.xyz/component: flaresolverr
+      ports:
+        - protocol: TCP
+          port: 8191
+
+    # Metadata search
     - to:
         - ipBlock:
             cidr: 0.0.0.0/0
@@ -75,12 +135,92 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  namespace: anime
+  namespace: anime-v2
+  name: worker
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: anime-v2
+      kalexlab.xyz/component: worker
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: anime-v2
+              kalexlab.xyz/component: queue
+      ports:
+        - protocol: TCP
+          port: 6379
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: anime-v2
+              kalexlab.xyz/component: cluster
+      ports:
+        - protocol: TCP
+          port: 5432
+
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: flaresolverr
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: flaresolverr
+              kalexlab.xyz/component: flaresolverr
+      ports:
+        - protocol: TCP
+          port: 8191
+
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: anime-v2
+  name: queue
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: anime-v2
+      kalexlab.xyz/component: queue
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: anime-v2
+              kalexlab.xyz/component: api
+      ports:
+        - protocol: TCP
+          port: 6379
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: anime-v2
+              kalexlab.xyz/component: worker
+      ports:
+        - protocol: TCP
+          port: 6379
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: anime-v2
   name: cluster
 spec:
   podSelector:
     matchLabels:
-      kalexlab.xyz/app: anime
+      kalexlab.xyz/app: anime-v2
       kalexlab.xyz/component: cluster
   policyTypes:
     - Ingress
@@ -88,8 +228,16 @@ spec:
     - from:
         - podSelector:
             matchLabels:
-              kalexlab.xyz/app: anime
-              kalexlab.xyz/component: app
+              kalexlab.xyz/app: anime-v2
+              kalexlab.xyz/component: api
+      ports:
+        - protocol: TCP
+          port: 5432
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: anime-v2
+              kalexlab.xyz/component: worker
       ports:
         - protocol: TCP
           port: 5432

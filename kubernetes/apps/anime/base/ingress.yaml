@@ -2,7 +2,7 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  namespace: anime
+  namespace: anime-v2
   name: anime-certificate
 spec:
   commonName: anime.kalexlab.xyz
@@ -16,7 +16,7 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  namespace: anime
+  namespace: anime-v2
   name: anime-ingress
   annotations:
     external-dns.alpha.kubernetes.io/target: 192.168.10.20
@@ -26,12 +26,14 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`anime.kalexlab.xyz`)
+      match: "Host(`anime.kalexlab.xyz`) && PathPrefix(`/api`)"
       services:
-        - name: app
-          port: 9000
-      # middlewares:
-      #   - name: authelia-forward-auth
-      #     namespace: sso
+        - name: api
+          port: 3000
+    - kind: Rule
+      match: "Host(`anime.kalexlab.xyz`)"
+      services:
+        - name: web
+          port: 80
   tls:
     secretName: anime-ingress-certificate-secret

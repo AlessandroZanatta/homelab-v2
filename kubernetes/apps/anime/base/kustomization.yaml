@@ -6,6 +6,10 @@ resources:
   - network-policies.yaml
   - conf.yaml
   - secrets.yaml
+  - pvc.yaml
+  - valkey.yaml
   - cluster.yaml
-  - anime.yaml
+  - api.yaml
+  - web.yaml
+  - worker.yaml
   - ingress.yaml

@@ -1,0 +1,101 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: anime-v2
+  name: web
+  labels:
+    kalexlab.xyz/app: anime-v2
+    kalexlab.xyz/component: web
+spec:
+  type: ClusterIP
+  ports:
+    - name: web
+      port: 80
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: anime-v2
+    kalexlab.xyz/component: web
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: anime-v2
+  name: web
+  labels:
+    kalexlab.xyz/app: anime-v2
+    kalexlab.xyz/component: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: anime-v2
+      kalexlab.xyz/component: web
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: anime-v2
+        kalexlab.xyz/component: web
+        kalexlab.xyz/monitoring: "true"
+    spec:
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: registry-credentials
+      containers:
+        - name: api
+          image: "registry.kalexlab.xyz/anime-v2/web:latest"
+          imagePullPolicy: Always
+
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
+          ports:
+            - containerPort: 80
+              protocol: TCP
+
+          # TODO
+          # resources:
+          #   requests:
+          #     memory: 2i
+          #     cpu: 10m
+          #   limits:
+          #     memory: 2.5Gi
+          #     cpu: 2000m
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            failureThreshold: 3
+            periodSeconds: 30
+
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65535
+        runAsGroup: 65535
+        fsGroup: 65535
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi

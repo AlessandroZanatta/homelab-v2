@@ -1,0 +1,149 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: anime-v2
+  name: api
+  labels:
+    kalexlab.xyz/app: anime-v2
+    kalexlab.xyz/component: api
+spec:
+  type: ClusterIP
+  ports:
+    - name: api
+      port: 3000
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: anime-v2
+    kalexlab.xyz/component: api
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: anime-v2
+  name: api
+  labels:
+    kalexlab.xyz/app: anime-v2
+    kalexlab.xyz/component: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: anime-v2
+      kalexlab.xyz/component: api
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: anime-v2
+        kalexlab.xyz/component: api
+        kalexlab.xyz/monitoring: "true"
+    spec:
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: registry-credentials
+      initContainers:
+        - name: wait-deps
+          image: "docker.io/library/alpine:3.23"
+          imagePullPolicy: Always
+
+          resources:
+            requests:
+              memory: 30Mi
+              cpu: 1m
+            limits:
+              memory: 300Mi
+              cpu: 20m
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          command:
+            [
+              "sh",
+              "-c",
+              "for i in $(seq 1 300); do nc -zvw1 queue 6379 && nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1",
+            ]
+      containers:
+        - name: api
+          image: "registry.kalexlab.xyz/anime-v2/api:latest"
+          imagePullPolicy: Always
+
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+
+          envFrom:
+            - secretRef:
+                name: anime-secrets
+
+          env:
+            - name: CONFIG_PATH
+              value: /config.yaml
+            - name: ROLE
+              value: api
+
+            - name: DATABASE__URI
+              valueFrom:
+                secretKeyRef:
+                  name: cluster-app
+                  key: uri
+
+          # TODO
+          # resources:
+          #   requests:
+          #     memory: 2i
+          #     cpu: 10m
+          #   limits:
+          #     memory: 2.5Gi
+          #     cpu: 2000m
+
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            failureThreshold: 3
+            periodSeconds: 30
+
+          volumeMounts:
+            - mountPath: /anime
+              name: anime-data-pvc
+            - mountPath: /config.yaml
+              subPath: config.yaml
+              name: anime-conf
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65535
+        runAsGroup: 65535
+        fsGroup: 65535
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+
+      volumes:
+        - name: anime-conf
+          configMap:
+            name: anime-conf
+        - name: anime-data-pvc
+          persistentVolumeClaim:
+            claimName: anime-data-pvc

@@ -3,7 +3,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: anime-certificate
-  namespace: anime
+  namespace: anime-v2
 spec:
   commonName: anime.dev.kalexlab.xyz
   dnsNames:
