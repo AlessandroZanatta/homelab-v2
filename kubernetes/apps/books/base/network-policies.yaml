@@ -35,12 +35,12 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   namespace: books
-  name: cwa-downloader
+  name: shelfmark
 spec:
   podSelector:
     matchLabels:
       kalexlab.xyz/app: books
-      kalexlab.xyz/component: cwa-downloader
+      kalexlab.xyz/component: shelfmark
   policyTypes:
     - Ingress
     - Egress

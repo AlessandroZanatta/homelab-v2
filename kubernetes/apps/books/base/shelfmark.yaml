@@ -3,40 +3,41 @@ apiVersion: v1
 kind: Service
 metadata:
   namespace: books
-  name: cwa-downloader
+  name: shelfmark
   labels:
     kalexlab.xyz/app: books
-    kalexlab.xyz/component: cwa-downloader
+    kalexlab.xyz/component: shelfmark
 spec:
   type: ClusterIP
   ports:
-    - name: cwa-downloader
+    - name: shelfmark
       port: 8084
       protocol: TCP
   selector:
     kalexlab.xyz/app: books
-    kalexlab.xyz/component: cwa-downloader
+    kalexlab.xyz/component: shelfmark
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   namespace: books
-  name: cwa-downloader
+  name: shelfmark
   labels:
     kalexlab.xyz/app: books
-    kalexlab.xyz/component: cwa-downloader
+    kalexlab.xyz/component: shelfmark
 spec:
+  serviceName: shelfmark
   replicas: 1
   selector:
     matchLabels:
       kalexlab.xyz/app: books
-      kalexlab.xyz/component: cwa-downloader
+      kalexlab.xyz/component: shelfmark
   minReadySeconds: 5
   template:
     metadata:
       labels:
         kalexlab.xyz/app: books
-        kalexlab.xyz/component: cwa-downloader
+        kalexlab.xyz/component: shelfmark
         kalexlab.xyz/monitoring: "true"
         egress.kalexlab.xyz/policy: vpn
     spec:
@@ -115,6 +116,8 @@ spec:
                 - ALL
 
           volumeMounts:
+            - mountPath: /config
+              name: shelfmark-config-pvc
             - mountPath: /books
               name: books-ingest-pvc
             - mountPath: /tmp
@@ -139,3 +142,14 @@ spec:
         - name: tmp
           emptyDir:
             sizeLimit: 1Gi
+
+  volumeClaimTemplates:
+    - metadata:
+        name: shelfmark-config-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 100Mi

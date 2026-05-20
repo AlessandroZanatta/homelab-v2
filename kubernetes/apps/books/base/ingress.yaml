@@ -34,7 +34,7 @@ spec:
     - kind: Rule
       match: Host(`get.books.kalexlab.xyz`)
       services:
-        - name: cwa-downloader
+        - name: shelfmark
           port: 8084
       middlewares:
         - name: authelia-forward-auth
