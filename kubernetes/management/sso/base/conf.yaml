@@ -132,7 +132,7 @@ data:
             require_pkce: true
             pkce_challenge_method: ""
             redirect_uris:
-              - "https://anime-v2.kalexlab.xyz/api/auth/oauth2/callback/oidc"
+              - "https://anime.kalexlab.xyz/api/auth/oauth2/callback/oidc"
               - "xyz.kalexlab.anime://oauth"
               - "app://-"
             scopes:
@@ -428,7 +428,6 @@ data:
       default_policy: deny
       rules:
         - domain:
-            - anime.kalexlab.xyz
             - tranga.kalexlab.xyz
             - torrent.kalexlab.xyz
             - sonarr.kalexlab.xyz
