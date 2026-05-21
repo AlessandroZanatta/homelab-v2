@@ -38,7 +38,13 @@ loki:
     type: filesystem
 
   limits_config:
-    retention_period: 168h # 7 days
+    retention_period: 336h # 14 days
+
+  compactor:
+    working_directory: /var/loki/compactor
+    retention_enabled: true
+    retention_delete_delay: 2h
+    delete_request_store: filesystem
 
 ######################################################################################################################
 #
