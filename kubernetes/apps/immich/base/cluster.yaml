@@ -56,9 +56,6 @@ spec:
         superuser: true
         login: true
 
-  monitoring:
-    enablePodMonitor: true
-
   bootstrap:
     initdb:
       postInitSQL:

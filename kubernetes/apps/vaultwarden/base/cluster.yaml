@@ -42,9 +42,6 @@ spec:
     storageClass: longhorn
     size: 8Gi
 
-  monitoring:
-    enablePodMonitor: true
-
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
