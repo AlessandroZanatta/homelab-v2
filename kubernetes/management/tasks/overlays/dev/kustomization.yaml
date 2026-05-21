@@ -4,6 +4,8 @@ kind: Kustomization
 resources:
   - ../../base
 patches:
+  - path: kaneo-api.yaml
+  - path: kaneo-web.yaml
   - path: cluster-backup.yaml
   - path: certificate.yaml
   - path: ingress.yaml
