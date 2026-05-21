@@ -185,34 +185,31 @@ prometheus:
 alertmanager:
   templateFiles:
     telegram.tmpl: |
-      {{ define "telegram.ctx" -}}
-      {{- $parts := list -}}
-      {{- with .Labels.name }}{{- $parts = append $parts (printf "<code>%s</code>" .) }}{{- end }}
-      {{- with .Labels.cluster }}{{- $parts = append $parts (printf "cluster=<code>%s</code>" .) }}{{- end }}
-      {{- with .Labels.namespace }}{{- $parts = append $parts (printf "ns=<code>%s</code>" .) }}{{- end }}
-      {{- with .Labels.dest_namespace }}{{- $parts = append $parts (printf "→<code>%s</code>" .) }}{{- end }}
-      {{- with .Labels.pod }}{{- $parts = append $parts (printf "<code>%s</code>" .) }}{{- end }}
-      {{- with .Labels.node }}{{- $parts = append $parts (printf "node=<code>%s</code>" .) }}{{- end }}
-      {{- with .Labels.persistentvolumeclaim }}{{- $parts = append $parts (printf "pvc=<code>%s</code>" .) }}{{- end }}
-      {{- with .Labels.job }}{{- if not (or .Labels.pod .Labels.node) }}{{- $parts = append $parts (printf "job=<code>%s</code>" .) }}{{- end }}{{- end }}
-      {{ join " " $parts }}
+      {{- define "telegram.ctx" -}}
+      {{- with .Labels.name }}[<code>{{ . }}</code>]{{ end -}}
+      {{- with .Labels.cluster }} cluster=<code>{{ . }}</code>{{ end -}}
+      {{- with .Labels.namespace }} ns=<code>{{ . }}</code>{{ end -}}
+      {{- with .Labels.dest_namespace }}→<code>{{ . }}</code>{{ end -}}
+      {{- with .Labels.pod }} <code>{{ . }}</code>{{ end -}}
+      {{- with .Labels.node }} node=<code>{{ . }}</code>{{ end -}}
+      {{- with .Labels.persistentvolumeclaim }} pvc=<code>{{ . }}</code>{{ end -}}
       {{- end }}
 
-      {{ define "telegram.message" -}}
+      {{- define "telegram.message" -}}
       {{ if gt (len .Alerts.Firing) 0 -}}
-      🔥 <b>{{ len .Alerts.Firing }} firing</b> — <i>{{ .GroupLabels.SortedPairs.Values | join " " }}</i>
-      {{ range .Alerts.Firing }}
-      {{ if eq .Labels.severity "critical" }}🔴{{ else if eq .Labels.severity "warning" }}🟡{{ else }}🔵{{ end }} <b>{{ .Labels.alertname }}</b>
-      {{ with .Annotations.summary }}{{ . }}{{ end }}
-      {{ template "telegram.ctx" . -}}
+      🔥 <b>{{ len .Alerts.Firing }} firing</b>{{ with .GroupLabels.alertname }} — <i>{{ . }}</i>{{ end }}
+      {{ range .Alerts.Firing -}}
+      {{ if eq .Labels.severity "critical" }}🔴{{ else if eq .Labels.severity "warning" }}🟡{{ else }}🔵{{ end -}}
+      <b>{{ .Labels.alertname }}</b>{{ with .Annotations.summary }} — {{ . }}{{ end }}
+      {{- template "telegram.ctx" . }}
       {{ end -}}
       {{ end -}}
-      {{ if gt (len .Alerts.Resolved) 0 }}
+      {{- if gt (len .Alerts.Resolved) 0 -}}
       ✅ <b>{{ len .Alerts.Resolved }} resolved</b>
       {{ range .Alerts.Resolved -}}
-      • <b>{{ .Labels.alertname }}</b> {{ template "telegram.ctx" . }}
+      • <b>{{ .Labels.alertname }}</b>{{ template "telegram.ctx" . }}
       {{ end -}}
-      {{ end -}}
+      {{- end -}}
       {{- end }}
 
   enabled: true
