@@ -9,7 +9,7 @@ data:
     base_path: /api
     server:
       cors_origin:
-        - https://anime-v2.kalexlab.xyz
+        - https://anime.kalexlab.xyz
         - app://- # electron
       media_path: /anime
       log_level: debug
@@ -20,9 +20,9 @@ data:
       url: http://flaresolverr.flaresolverr.svc.cluster.local:8191
       timeout_seconds: 300
     auth:
-      base_url: https://anime-v2.kalexlab.xyz/api/auth
+      base_url: https://anime.kalexlab.xyz/api/auth
       trusted_origins:
-        - https://anime-v2.kalexlab.xyz
+        - https://anime.kalexlab.xyz
         - xyz.kalexlab.anime://
       email_and_password:
         enabled: false
