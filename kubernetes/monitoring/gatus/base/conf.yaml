@@ -79,11 +79,15 @@ data:
       - name: Frontend
         <<: *default-http
         group: Anime
-        url: "http://app.anime.svc.cluster.local:9000"
-      - name: Backend
+        url: "http://web.anime.svc.cluster.local:80"
+      - name: API
         <<: *default-http
         group: Anime
-        url: "http://app.anime.svc.cluster.local:9000/health"
+        url: "http://api.anime.svc.cluster.local:3000/health"
+      - name: Queue
+        <<: *default-tcp
+        group: Anime
+        url: "tcp://queue.anime.svc.cluster.local:6379"
       - name: Cluster
         <<: *default-tcp
         group: Anime
@@ -93,10 +97,6 @@ data:
         <<: *default-http
         group: Books
         url: "http://shelfmark.books.svc.cluster.local:8084/api/status"
-      - name: Autocaliweb
-        <<: *default-http
-        group: Books
-        url: "http://acw.books.svc.cluster.local:8083/health"
 
       - name: Home Assistant
         <<: *default-http
@@ -225,11 +225,29 @@ data:
         <<: *default-http
         group: Backups
         url: "http://rustfs.backups.svc.cluster.local:9000/health"
+      - name: Rustfs UI
+        <<: *default-http
+        group: Backups
+        url: "http://rustfs.backups.svc.cluster.local:9001"
 
       - name: DDNS updater
         <<: *default-http
         group: DDNS
         url: "http://ddns-updater.ddns-updater.svc.cluster.local:8000"
+
+      - name: Expo updates
+        <<: *default-http
+        group: Expo updates
+        url: "http://xavia-ota.expo-updates.svc.cluster.local:3000"
+      - name: Cluster
+        <<: *default-tcp
+        group: Expo updates
+        url: "tcp://cluster-rw.expo-updates.svc.cluster.local:5432"
+
+      - name: ECCM server
+        <<: *default-http
+        group: Cabling
+        url: "http://eccm-server.cabling.svc.cluster.local:3000/health"
 
       - name: UI
         <<: *default-http

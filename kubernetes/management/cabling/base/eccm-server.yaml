@@ -1,0 +1,91 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eccm-server
+  namespace: cabling
+  labels:
+    kalexlab.xyz/app: cabling
+spec:
+  type: ClusterIP
+  ports:
+    - name: eccm-server
+      port: 3000
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    kalexlab.xyz/app: cabling
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: eccm-server
+  namespace: cabling
+  labels:
+    kalexlab.xyz/app: cabling
+spec:
+  serviceName: eccm-server
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: cabling
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: cabling
+        kalexlab.xyz/monitoring: "true"
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: eccm-server
+          image: "ghcr.io/alessandrozanatta/eccm-server:1.0.6"
+          imagePullPolicy: Always
+
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            periodSeconds: 60
+
+          volumeMounts:
+            - mountPath: /data
+              name: eccm-server-pvc
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65535
+        runAsGroup: 65535
+        fsGroup: 65535
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+  volumeClaimTemplates:
+    - metadata:
+        name: eccm-server-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 10Mi

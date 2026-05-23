@@ -205,6 +205,12 @@ data:
             tag: "backups"
             url: "https://ui.backups.kalexlab.xyz?external=true"
             target: "_blank"
+          - name: "Expo updates"
+            subtitle: "Expo OTA"
+            logo: "https://github.com/xavia-io/xavia-ota/blob/main/public/xavia_logo.png?raw=true"
+            tag: "expo updates"
+            url: "https://expo-ota.kalexlab.xyz?external=true"
+            target: "_blank"
 
       - name: "Monitoring"
         icon: "fas fa-heartbeat"
@@ -237,6 +243,13 @@ data:
       - name: "Networking"
         icon: "fas fa-network-wired"
         items:
+          - name: "Cabling (ECCM)"
+            subtitle: "Ethernet cabling"
+            logo: "https://img.icons8.com/stickers/32/ethernet-on.png"
+            tag: "networking"
+            url: "https://cabling.kalexlab.xyz?external=true"
+            target: "_blank"
+
           - name: "Router - Archer AX23"
             subtitle: "Main router"
             logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/openwrt.png"

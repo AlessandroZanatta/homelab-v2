@@ -428,7 +428,6 @@ data:
       default_policy: deny
       rules:
         - domain:
-            - tranga.kalexlab.xyz
             - torrent.kalexlab.xyz
             - sonarr.kalexlab.xyz
             - radarr.kalexlab.xyz
@@ -447,6 +446,7 @@ data:
             - longhorn.kalexlab.xyz
             - adguard.dns.kalexlab.xyz
             - ddns.kalexlab.xyz
+            - cabling.kalexlab.xyz
           policy: two_factor
           subject:
             - ["group:admins"]
