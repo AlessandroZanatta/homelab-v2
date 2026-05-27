@@ -109,13 +109,13 @@ spec:
             - name: RUSTFS_CONSOLE_ENABLE
               value: "true"
 
-          # resources:
-          #   requests:
-          #     memory: 100Mi
-          #     cpu: 5m
-          #   limits:
-          #     memory: 2Gi
-          #     cpu: 500m
+          resources:
+            requests:
+              memory: 4Gi
+              cpu: 100m
+            limits:
+              memory: 6Gi
+              cpu: 1000m
 
           readinessProbe:
             httpGet:

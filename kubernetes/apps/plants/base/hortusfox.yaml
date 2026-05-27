@@ -105,13 +105,13 @@ spec:
                   name: db-secrets
                   key: MARIADB_PASSWORD
 
-          # resources:
-          #   requests:
-          #     memory: 120Mi
-          #     cpu: 20m
-          #   limits:
-          #     memory: 600Mi
-          #     cpu: 600m
+          resources:
+            requests:
+              memory: 150Mi
+              cpu: 20m
+            limits:
+              memory: 600Mi
+              cpu: 500m
 
           # Proxy auth is required even for / (and there is no /health or /ping endpoint afaik),
           # hence we add fake (valid) headers here :)

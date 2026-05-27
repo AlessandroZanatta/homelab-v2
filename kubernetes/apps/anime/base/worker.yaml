@@ -85,14 +85,13 @@ spec:
                   name: cluster-app
                   key: uri
 
-          # TODO
-          # resources:
-          #   requests:
-          #     memory: 2i
-          #     cpu: 10m
-          #   limits:
-          #     memory: 2.5Gi
-          #     cpu: 2000m
+          resources:
+            requests:
+              memory: 100Mi
+              cpu: 5m
+            limits:
+              memory: 400Mi
+              cpu: 1000m
 
           volumeMounts:
             - mountPath: /anime

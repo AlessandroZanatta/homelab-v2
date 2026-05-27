@@ -89,14 +89,13 @@ spec:
                   name: cluster-app
                   key: dbname
 
-          # TODO
-          # resources:
-          #   requests:
-          #     memory: 50Mi
-          #     cpu: 10m
-          #   limits:
-          #     memory: 500Mi
-          #     cpu: 200m
+          resources:
+            requests:
+              memory: 150Mi
+              cpu: 1m
+            limits:
+              memory: 500Mi
+              cpu: 200m
 
           readinessProbe:
             httpGet:
