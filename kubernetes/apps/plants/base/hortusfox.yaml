@@ -108,10 +108,10 @@ spec:
           resources:
             requests:
               memory: 150Mi
-              cpu: 20m
+              cpu: 100m
             limits:
               memory: 600Mi
-              cpu: 500m
+              cpu: 1000m
 
           # Proxy auth is required even for / (and there is no /health or /ping endpoint afaik),
           # hence we add fake (valid) headers here :)

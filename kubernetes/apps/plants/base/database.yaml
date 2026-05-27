@@ -71,7 +71,9 @@ spec:
                   "-c",
                   "mariadb-admin ping -u$MARIADB_USER -p$MARIADB_PASSWORD",
                 ]
+            timeoutSeconds: 10
             periodSeconds: 10
+            failureThreshold: 3
           livenessProbe:
             exec:
               command:
@@ -80,8 +82,9 @@ spec:
                   "-c",
                   "mariadb-admin ping -u$MARIADB_USER -p$MARIADB_PASSWORD",
                 ]
-            failureThreshold: 3
+            timeoutSeconds: 10
             periodSeconds: 30
+            failureThreshold: 5
 
           resources:
             requests:
@@ -89,7 +92,7 @@ spec:
               cpu: 150m
             limits:
               memory: 600Mi
-              cpu: 300m
+              cpu: 1000m
 
           volumeMounts:
             - mountPath: /tmp
