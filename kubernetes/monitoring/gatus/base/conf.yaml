@@ -79,24 +79,24 @@ data:
       - name: Frontend
         <<: *default-http
         group: Anime
-        url: "http://web.anime.svc.cluster.local:80"
+        url: "http://web.anime-v2.svc.cluster.local:80"
       - name: API
         <<: *default-http
         group: Anime
-        url: "http://api.anime.svc.cluster.local:3000/health"
+        url: "http://api.anime-v2.svc.cluster.local:3000/api/health"
       - name: Queue
         <<: *default-tcp
         group: Anime
-        url: "tcp://queue.anime.svc.cluster.local:6379"
+        url: "tcp://queue.anime-v2.svc.cluster.local:6379"
       - name: Cluster
         <<: *default-tcp
         group: Anime
-        url: "tcp://cluster-rw.anime.svc.cluster.local:5432"
+        url: "tcp://cluster-rw.anime-v2.svc.cluster.local:5432"
 
       - name: Downloader
         <<: *default-http
         group: Books
-        url: "http://shelfmark.books.svc.cluster.local:8084/api/status"
+        url: "http://shelfmark.books.svc.cluster.local:8084"
 
       - name: Home Assistant
         <<: *default-http
