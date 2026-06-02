@@ -43,7 +43,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: mysql
-          image: "docker.io/library/mariadb:12.2.2"
+          image: "docker.io/library/mariadb:12.3.2"
           imagePullPolicy: Always
 
           securityContext:
