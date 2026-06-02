@@ -8,7 +8,7 @@ spec:
   project: default
   sources:
     - repoURL: "https://github.com/kubernetes-sigs/metrics-server.git"
-      targetRevision: master
+      targetRevision: v0.8.1
       path: manifests/overlays/release
   destination:
     server: "https://kubernetes.default.svc"
