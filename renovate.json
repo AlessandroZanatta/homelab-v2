@@ -12,37 +12,14 @@
     ":automergeBranch",
     ":timezone(Europe/Rome)",
 
+    "github>alessandrozanatta/homelab-v2//.renovate/datasources.json",
     "github>alessandrozanatta/homelab-v2//.renovate/labels.json",
-    "github>alessandrozanatta/homelab-v2//.renovate/excludes.json"
+    "github>alessandrozanatta/homelab-v2//.renovate/managers.json",
+    "github>alessandrozanatta/homelab-v2//.renovate/rules.json"
   ],
   "argocd": { "managerFilePatterns": ["apps/**/*.yaml"] },
   "kubernetes": {
     "managerFilePatterns": ["kubernetes/**/*.yaml", "helm/**/extra/**/*.yaml"]
   },
-  "packageRules": [
-    {
-      "description": "Do not automerge Talos and Kubernetes version upgrades. Using siderolabs/kubelet instead of kubernetes/kubernetes as dependency to ensure workers can be updated correctly.",
-      "matchDepNames": ["siderolabs/talos", "siderolabs/kubelet"],
-      "automerge": false
-    }
-  ],
-  "customManagers": [
-    {
-      "customType": "regex",
-      "description": "Update dependencies that have a manually-placed label on them",
-      "managerFilePatterns": ["**/*.yaml"],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+\\S+:\\s*\"?v?(?<currentValue>[^\"\\s]+)\"?"
-      ]
-    },
-    {
-      "customType": "regex",
-      "description": "Update Helm dependencies in cluster bootstrap playbook",
-      "managerFilePatterns": ["ansible/playbooks/cluster/bootstrap.yaml"],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>.*?)\\s+repo_url:\\W?\"?(?<registryUrl>.*?)\"?\\s+chart_name:\\W?[^\\/]*\\/(?<depName>.*?)\\s+chart_version:\\W?v?(?<currentValue>\\S+)"
-      ]
-    }
-  ],
   "dependencyDashboardTitle": "Renovate Dashboard 🤖"
 }

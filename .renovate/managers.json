@@ -1,0 +1,39 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update dependencies that have a manually-placed label on them",
+      "managerFilePatterns": ["**/*.yaml"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+\\S+:\\s*\"?v?(?<currentValue>[^\"\\s]+)\"?"
+      ]
+    },
+    {
+      "customType": "regex",
+      "description": "Update Helm dependencies in cluster bootstrap playbook",
+      "managerFilePatterns": ["ansible/playbooks/cluster/bootstrap.yaml"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.*?)\\s+repo_url:\\W?\"?(?<registryUrl>.*?)\"?\\s+chart_name:\\W?[^\\/]*\\/(?<depName>.*?)\\s+chart_version:\\W?v?(?<currentValue>\\S+)"
+      ]
+    },
+    {
+      "customType": "regex",
+      "description": "Update Grafana dashboard revision from gnetId",
+      "managerFilePatterns": ["helm/kube-prometheus-stack/*.yaml"],
+      "matchStrings": [
+        "#\\s+renovate:\\s+depName=\"(?<depName>.*)\"\\n\\s+gnetId:\\s+(?<packageName>.*?)\\n\\s+revision:\\s+(?<currentValue>.*)"
+      ],
+      "versioningTemplate": "regex:^(?<major>\\d+)$",
+      "datasourceTemplate": "custom.grafana-dashboards"
+    },
+    {
+      "customType": "regex",
+      "description": "Update dashboards pulled from raw GitHub URLs",
+      "fileMatch": ["helm/kube-prometheus-stack/*.yaml"],
+      "matchStrings": [
+        "#\\s*renovate:\\s*datasource=(?<datasource>[a-z-]+)\\s+depName=(?<depName>[^\\s]+)\\s*\\n\\s*url:\\s*\"?https:\\/\\/raw\\.githubusercontent\\.com\\/[^/]+\\/[^/]+\\/(?:refs\\/tags\\/)?(?<currentValue>[^/]+)\\/(?<assetPath>[^\"]+)\"?"
+      ]
+    }
+  ]
+}

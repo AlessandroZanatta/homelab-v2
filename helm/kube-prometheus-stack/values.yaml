@@ -68,32 +68,48 @@ grafana:
   dashboards:
     default:
       argocd:
-        url: "https://raw.githubusercontent.com/argoproj/argo-cd/refs/heads/master/examples/dashboard.json"
+        # renovate: datasource=github-tags depName=argoproj/argo-cd
+        url: "https://raw.githubusercontent.com/argoproj/argo-cd/refs/tags/v3.4.2/examples/dashboard.json"
         datasource: Prometheus
       cloudnative-pg:
+        # renovate: depName="Dashboard - CNPG"
         gnetId: 20417
         revision: 4
         datasource: Prometheus
       smartctl-exporter:
-        url: "https://raw.githubusercontent.com/blesswinsamuel/grafana-dashboards/refs/heads/main/dashboards/dist/dashboards/smartctl.json"
+        # renovate: depName="Dashboard - smartCTL"
+        gnetId: 24922
+        revision: 1
         datasource: Prometheus
       velero:
+        # renovate: depName="Dashboard - Velero"
         gnetId: 16829
         revision: 5
         datasource: Prometheus
       kubernetes-views-global:
+        # renovate: depName="Dashboard - Kubernetes / Views / Global"
         gnetId: 15757
         revision: 43
         datasource: Prometheus
       longhorn:
-        url: "https://raw.githubusercontent.com/onzack/grafana-dashboards/refs/heads/main/grafana/longhorn/onzack-longhorn-monitoring.json"
+        # renovate: depName="Dashboard - Longhorn"
+        gnetId: 16888
+        revision: 10
+        datasource: Prometheus
       node-exporter-temperature:
+        # renovate: depName="Dashboard - Node exporter temperatures"
         gnetId: 15202
         revision: 1
         datasource: Prometheus
       traefik:
+        # renovate: depName="Dashboard - Traefik"
         gnetId: 17346
         revision: 9
+        datasource: Prometheus
+      trivy:
+        # renovate: depName="Dashboard - Trivy"
+        gnetId: 16337
+        revision: 16
         datasource: Prometheus
 
   extraSecretMounts:

@@ -2,6 +2,11 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "packageRules": [
     {
+      "description": "Do not automerge Talos and Kubernetes version upgrades. Using siderolabs/kubelet instead of kubernetes/kubernetes as dependency to ensure workers can be updated correctly.",
+      "matchDepNames": ["siderolabs/talos", "siderolabs/kubelet"],
+      "automerge": false
+    },
+    {
       "description": "Ignore images from registry.kalexlab.xyz since it is not exposed",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["registry.kalexlab.xyz{/,}**"],
