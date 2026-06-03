@@ -1,0 +1,53 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: generic-device-plugin
+  namespace: kube-system
+  labels:
+    kalexlab.xyz/name: device-plugin
+spec:
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      kalexlab.xyz/name: device-plugin
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/name: device-plugin
+    spec:
+      containers:
+        - name: generic-device-plugin
+          image: docker.io/squat/generic-device-plugin:0.2.0
+          args:
+            - --device
+            - |
+              name: zigbee
+              groups:
+                - paths:
+                    - path: /dev/ttyUSB*
+          resources:
+            requests:
+              cpu: 50m
+              memory: 10Mi
+            limits:
+              cpu: 50m
+              memory: 20Mi
+          ports:
+            - containerPort: 8080
+              name: http
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: device-plugin
+              mountPath: /var/lib/kubelet/device-plugins
+            - name: dev
+              mountPath: /dev
+      volumes:
+        - name: device-plugin
+          hostPath:
+            path: /var/lib/kubelet/device-plugins
+        - name: dev
+          hostPath:
+            path: /dev
