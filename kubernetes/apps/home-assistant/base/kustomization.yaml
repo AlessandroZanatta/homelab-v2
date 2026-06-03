@@ -5,6 +5,8 @@ resources:
   - namespace.yaml
   - network-policies.yaml
   - conf.yaml
+  - secrets.yaml
   - mosquitto.yaml
+  - zigbee2mqtt.yaml
   - home-assistant.yaml
   - ingress.yaml

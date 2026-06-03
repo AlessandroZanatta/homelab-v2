@@ -10,6 +10,7 @@ spec:
   dnsNames:
     - ha.kalexlab.xyz
     - mqtt.kalexlab.xyz
+    - z2m.ha.kalexlab.xyz
   issuerRef:
     kind: ClusterIssuer
     name: letsencrypt
@@ -31,6 +32,11 @@ spec:
       services:
         - name: home-assistant
           port: 8123
+    - kind: Rule
+      match: Host(`z2m.ha.kalexlab.xyz`)
+      services:
+        - name: zigbee2mqtt
+          port: 8080
   tls:
     secretName: home-assistant-ingress-certificate-secret
 ---

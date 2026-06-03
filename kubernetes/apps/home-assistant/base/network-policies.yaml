@@ -107,6 +107,52 @@ spec:
             matchLabels:
               kalexlab.xyz/app: home-assistant
               kalexlab.xyz/component: home-assistant
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: home-assistant
+              kalexlab.xyz/component: zigbee2mqtt
       ports:
         - protocol: TCP
           port: 1883
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: home-assistant
+  name: zigbee2mqtt
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: home-assistant
+      kalexlab.xyz/component: zigbee2mqtt
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: 8080
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: home-assistant
+              kalexlab.xyz/component: mosquitto
+      ports:
+        - protocol: TCP
+          port: 1883
+    # For OTA updates
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16

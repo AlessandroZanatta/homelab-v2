@@ -1,0 +1,136 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: home-assistant
+  name: zigbee2mqtt
+  labels:
+    kalexlab.xyz/app: home-assistant
+    kalexlab.xyz/component: zigbee2mqtt
+spec:
+  type: ClusterIP
+  ports:
+    - name: zigbee2mqtt
+      port: 8080
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: home-assistant
+    kalexlab.xyz/component: zigbee2mqtt
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: home-assistant
+  name: zigbee2mqtt
+  labels:
+    kalexlab.xyz/app: home-assistant
+    kalexlab.xyz/component: zigbee2mqtt
+spec:
+  serviceName: zigbee2mqtt
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: home-assistant
+      kalexlab.xyz/component: zigbee2mqtt
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: home-assistant
+        kalexlab.xyz/component: zigbee2mqtt
+        kalexlab.xyz/monitoring: "true"
+    spec:
+      restartPolicy: Always
+
+      containers:
+        - name: app
+          image: "ghcr.io/koenkk/zigbee2mqtt:2.10.1"
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+
+          # securityContext:
+          #   allowPrivilegeEscalation: false
+          #   readOnlyRootFilesystem: true
+          #   capabilities:
+          #     drop:
+          #       - ALL
+
+          # TODO
+          # resources:
+          #   requests:
+          #     memory: 350Mi
+          #     cpu: 10m
+          #   limits:
+          #     memory: 1Gi
+          #     cpu: 1000m
+          resources:
+            limits:
+              devic.es/zigbee: 1
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            failureThreshold: 3
+            periodSeconds: 30
+
+          volumeMounts:
+            - mountPath: /app/data
+              name: zigbee2mqtt-data-pvc
+            - mountPath: /app/data/configuration.yaml
+              name: zigbee2mqtt-conf
+              subPath: configuration.yaml
+            - mountPath: /app/data/secrets.yaml
+              name: zigbee2mqtt-secrets
+              subPath: secrets.yaml
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /run
+              name: run
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      # securityContext:
+      #   runAsNonRoot: true
+      #   supplementalGroups:
+      #     - 20
+      #   runAsUser: 10000
+      #   runAsGroup: 10000
+      #   fsGroup: 10000
+      #   fsGroupChangePolicy: "OnRootMismatch"
+      #   seccompProfile:
+      #     type: RuntimeDefault
+
+      volumes:
+        - name: zigbee2mqtt-conf
+          configMap:
+            name: zigbee2mqtt-conf
+        - name: zigbee2mqtt-secrets
+          secret:
+            secretName: zigbee2mqtt-secrets
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: run
+          emptyDir:
+            sizeLimit: 1Gi
+
+  volumeClaimTemplates:
+    - metadata:
+        name: zigbee2mqtt-data-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 100Mi

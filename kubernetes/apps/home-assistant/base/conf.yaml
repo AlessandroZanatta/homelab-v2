@@ -20,3 +20,34 @@ data:
     persistence_location /mosquitto/data/
   password.txt: |
     mqtt:$7$101$SCOHoQ4dnDcOJY+B$Yf6mm+znEKQaph/u+qczJolmQJCxX4qcOhpRhKUOu1mvT22BD9QJe+RzHlBURBobenGf/TMVYoD42nsVCO2mgA==
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: home-assistant
+  name: zigbee2mqtt-conf
+data:
+  configuration.yaml: |
+    version: 5
+    mqtt:
+      base_topic: zigbee2mqtt
+      server: mqtt://mosquitto:1883
+      user: "!secrets.yaml mqtt__user"
+      password: "!secrets.yaml mqtt__password"
+    serial:
+      port: /dev/ttyUSB0
+      adapter: zstack
+    advanced:
+      channel: 25
+      network_key: "!secrets.yaml advanced__network_key"
+      pan_id: 0x1FC8
+      ext_pan_id: [111, 114, 103, 248, 53, 31, 139, 99]
+    frontend:
+      enabled: true
+      url: https://z2m.ha.kalexlab.xyz
+    homeassistant:
+      enabled: true
+    availability:
+      enabled: true
+    devices: devices.yaml
+    groups: groups.yaml

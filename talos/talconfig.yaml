@@ -36,6 +36,7 @@ patches:
   - "@./patches/machine/longhorn.yaml"
   - "@./patches/machine/features.yaml"
   - "@./patches/machine/certsans.yaml"
+  - "@./patches/machine/udev.yaml"
   - "@./patches/cluster/coredns.yaml"
   - "@./patches/cluster/admission_control.yaml"
   - "@./patches/cluster/env.yaml"
