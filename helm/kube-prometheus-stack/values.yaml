@@ -94,7 +94,7 @@ grafana:
       longhorn:
         # renovate: depName="Dashboard - Longhorn"
         gnetId: 16888
-        revision: 10
+        revision: 12
         datasource: Prometheus
       node-exporter-temperature:
         # renovate: depName="Dashboard - Node exporter temperatures"
