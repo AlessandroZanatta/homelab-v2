@@ -1,0 +1,36 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: trivy
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - clusters: {}
+  template:
+    metadata:
+      name: trivy
+    spec:
+      project: default
+      sources:
+        - repoURL: "https://aquasecurity.github.io/helm-charts/"
+          chart: trivy-operator
+          targetRevision: 0.32.1
+          helm:
+            releaseName: trivy
+            valueFiles:
+              - $values/helm/trivy/values.yaml
+        - repoURL: "https://github.com/AlessandroZanatta/homelab-v2.git"
+          targetRevision: master
+          ref: values
+      destination:
+        server: "{{ .server }}"
+        namespace: trivy-system
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
