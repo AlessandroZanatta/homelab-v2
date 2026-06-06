@@ -350,6 +350,30 @@ data:
             userinfo_signed_response_alg: none
             token_endpoint_auth_method: client_secret_post
 
+          - client_id: rrBl_3QkagNt6hIsNzKHdQOQqQtMvL77gHWW1DMUz3I2W6m5Jys4Agl1OmSGWpW4HNYezE5U
+            client_name: Wiki
+            client_secret: "$pbkdf2-sha512$310000$gAT0FB45VwdJo8jlYmlRRg$jvwMNzY7JQVVVdopm3v1ItbyvXH1HUR/YSomwoEkfu95GeFoPZqd52ANe004l.BxM/HLDrD8fnYEdZwpU3LJiQ"
+            public: false
+            consent_mode: implicit
+            authorization_policy: home
+            require_pkce: false
+            pkce_challenge_method: ''
+            redirect_uris:
+              - "https://wiki.kalexlab.xyz/auth/oidc.callback"
+            scopes:
+              - openid
+              - offline_access
+              - profile
+              - email
+            response_types:
+              - code
+            grant_types:
+              - authorization_code
+              - refresh_token
+            access_token_signed_response_alg: none
+            userinfo_signed_response_alg: none
+            token_endpoint_auth_method: client_secret_post
+
           - client_id: RdUORroUTQ7dCFZ8bqqIhp2zCFXRc5tKj.YA2WJwEMzFyYjyreXGkgQRKMdbKL2.UlK8xTIP
             client_name: Kaneo
             client_secret: "$pbkdf2-sha512$310000$mcMthWq0oWLDzt0wfDDdoQ$lQNiUlbkIuNwQmfODVeh.aa.xH6VTcTQzlqn.cUZjRMy.vAzcD5So6PYRPsVIQ9.ak0C6iul1JPSwudl3b5QSQ"
