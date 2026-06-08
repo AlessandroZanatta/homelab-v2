@@ -91,7 +91,7 @@ repoServer:
       env:
         - name: HELM_SECRETS_VERSION
           # renovate: datasource=github-releases depName=jkroepke/helm-secrets
-          value: "4.7.6"
+          value: "4.7.7"
         - name: KUBECTL_VERSION
           # renovate: datasource=github-releases depName=kubernetes/kubernetes
           value: "1.36.1"
