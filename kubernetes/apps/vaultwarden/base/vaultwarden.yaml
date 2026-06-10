@@ -43,7 +43,7 @@ spec:
       restartPolicy: Always
       initContainers:
         - name: wait-cluster
-          image: "docker.io/library/alpine:3.23.4"
+          image: "docker.io/library/alpine:3.24.0"
           imagePullPolicy: Always
 
           resources:
