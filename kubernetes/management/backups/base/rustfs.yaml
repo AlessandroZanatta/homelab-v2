@@ -50,7 +50,7 @@ spec:
       restartPolicy: Always
       initContainers:
         - name: chown-pv
-          image: "docker.io/library/alpine:3.24.0"
+          image: "docker.io/library/alpine:3.24.1"
           imagePullPolicy: Always
 
           resources:
