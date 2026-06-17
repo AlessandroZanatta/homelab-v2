@@ -6,6 +6,7 @@ metadata:
   namespace: books
 data:
   ENABLE_LOGGING: "false"
+  LOG_ROOT: "/tmp"
   HIDE_LOCAL_AUTH: "true"
   DISABLE_LOCAL_AUTH: "true"
   OIDC_AUTO_REDIRECT: "true"
@@ -34,12 +35,12 @@ data:
   DIRECT_DOWNLOAD_ENABLED: "true"
 
   USE_CF_BYPASS: "true"
-  USING_EXTERNAL_BYPASSER: "true"
-  EXT_BYPASSER_URL: http://flaresolverr.flaresolverr.svc.cluster.local:8191
-  EXT_BYPASSER_TIMEOUT: "600000"
+  USING_EXTERNAL_BYPASSER: "false"
+  # EXT_BYPASSER_URL: http://flaresolverr.flaresolverr.svc.cluster.local:8191
+  # EXT_BYPASSER_TIMEOUT: "120000"
 
   AA_BASE_URL: auto
-  AA_MIRROR_URLS: https://annas-archive.li,https://annas-archive.gl,https://software.annas-archive.li
+  AA_MIRROR_URLS: https://annas-archive.gl,https://annas-archive.pk,https://annas-archive.vg,https://annas-archive.gd,https://annas-archive.is
   LIBGEN_MIRROR_URLS: https://libgen.bz,https://libgen.li,https://libgen.la,https://libgen.vg,https://libgen.gl
   ZLIB_MIRROR_URLS: https://z-library.sk
   WELIB_MIRROR_URLS: https://welib.org

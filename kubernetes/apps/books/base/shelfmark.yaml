@@ -82,9 +82,9 @@ spec:
             requests:
               memory: 30Mi
               cpu: 10m
-            limits:
-              memory: 300Mi
-              cpu: 200m
+            # limits:
+            #   memory: 300Mi
+            #   cpu: 200m
 
           readinessProbe:
             httpGet:
@@ -99,8 +99,8 @@ spec:
             periodSeconds: 30
 
           securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
+            # allowPrivilegeEscalation: false
+            # readOnlyRootFilesystem: true
             capabilities:
               drop:
                 - ALL
@@ -117,10 +117,10 @@ spec:
       automountServiceAccountToken: false
 
       securityContext:
-        runAsNonRoot: true
-        runAsUser: 10000
-        runAsGroup: 10000
-        fsGroup: 10000
+        # runAsNonRoot: true
+        # runAsUser: 10000
+        # runAsGroup: 10000
+        fsGroup: 1000
         fsGroupChangePolicy: "OnRootMismatch"
         seccompProfile:
           type: RuntimeDefault
