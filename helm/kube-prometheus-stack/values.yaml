@@ -49,7 +49,7 @@ grafana:
       login_attribute_path: preferred_username
       groups_attribute_path: groups
       name_attribute_path: name
-      role_attribute_path: contains(groups[*], 'admins') && 'Admin' || 'Viewer'
+      role_attribute_path: "contains(groups[*], 'admins') && 'GrafanaAdmin' || 'Viewer'"
       use_pkce: true
 
   dashboardProviders:
