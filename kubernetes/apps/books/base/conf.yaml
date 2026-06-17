@@ -36,7 +36,7 @@ data:
   USE_CF_BYPASS: "true"
   USING_EXTERNAL_BYPASSER: "true"
   EXT_BYPASSER_URL: http://flaresolverr.flaresolverr.svc.cluster.local:8191
-  EXT_BYPASSER_TIMEOUT: "300000"
+  EXT_BYPASSER_TIMEOUT: "600000"
 
   AA_BASE_URL: auto
   AA_MIRROR_URLS: https://annas-archive.li,https://annas-archive.gl,https://software.annas-archive.li
