@@ -1,0 +1,106 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: radarr
+  labels:
+    kalexlab.xyz/app: media
+    kalexlab.xyz/component: radarr
+spec:
+  type: ClusterIP
+  ports:
+    - name: radarr
+      port: 7878
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: media
+    kalexlab.xyz/component: radarr
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: radarr
+  labels:
+    kalexlab.xyz/app: media
+    kalexlab.xyz/component: radarr
+spec:
+  serviceName: radarr
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: media
+      kalexlab.xyz/component: radarr
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: media
+        kalexlab.xyz/component: radarr
+        kalexlab.xyz/monitoring: "true"
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: app
+          image: "ghcr.io/home-operations/radarr:6.2.1"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 7878
+              protocol: TCP
+          resources:
+            requests:
+              memory: 100Mi
+              cpu: 5m
+            limits:
+              memory: 250Mi
+              cpu: 200m
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 7878
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 7878
+            failureThreshold: 3
+            periodSeconds: 30
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - mountPath: /data
+              name: media-data-pvc
+            - mountPath: /config
+              name: radarr-conf-pvc
+            - mountPath: /tmp
+              name: radarr-tmp
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: media-data-pvc
+          persistentVolumeClaim:
+            claimName: media-data-pvc
+        - name: radarr-tmp
+          emptyDir:
+            sizeLimit: 1Gi
+  volumeClaimTemplates:
+    - metadata:
+        name: radarr-conf-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 100Mi

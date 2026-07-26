@@ -1,0 +1,22 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cloudnative-pg
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://github.com/AlessandroZanatta/homelab-v2.git
+      targetRevision: master
+      path: kubernetes/management/cloudnative-pg
+  destination:
+    name: in-cluster
+    namespace: cnpg-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

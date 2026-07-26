@@ -1,0 +1,30 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    # TODO: rewrite this, we cannot use path in helmCharts kustomization
+    - repoURL: https://github.com/mdonoughe/porkbun-webhook
+      path: deploy/porkbun-webhook
+      targetRevision: main
+      helm:
+        releaseName: porkbun-webhook
+        valueFiles:
+          - $values/kubernetes/management/cert-manager/values/porkbun-webhook.yaml
+    - repoURL: https://github.com/AlessandroZanatta/homelab-v2.git
+      targetRevision: master
+      path: kubernetes/management/cert-manager
+      ref: values
+  destination:
+    name: in-cluster
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

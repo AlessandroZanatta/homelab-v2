@@ -1,5 +1,12 @@
 ---
 creation_rules:
+  - path_regex: (kubernetes|helm)/.*\.sops\.ya?ml$
+    encrypted_regex: ^(data|stringData)$
+    age: "age1xulh9knukykzerg98wclqtfx33crk0h30q4jhwuz03ja9nsjppwq7tmycl"
+
+  - path_regex: talos/.*\.sops\.ya?ml$
+    age: "age1xulh9knukykzerg98wclqtfx33crk0h30q4jhwuz03ja9nsjppwq7tmycl"
+
   # Encrypt only the data and stringData values when dealing with SopsSecrets
   # SopsSecrets are either in the kubernetes folder, or in a helm chart
   # under the extra folder

@@ -1,0 +1,22 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: flaresolverr
+  namespace: argocd
+spec:
+  spec:
+    project: default
+    sources:
+      - repoURL: https://github.com/AlessandroZanatta/homelab-v2.git
+        targetRevision: master
+        path: kubernetes/misc/flaresolverr
+    destination:
+      name: in-cluster
+      namespace: flaresolverr
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+        - CreateNamespace=true

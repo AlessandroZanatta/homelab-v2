@@ -1,0 +1,18 @@
+---
+# -- Deployment replica count - should not be modified
+replicaCount: 1
+
+# -- If set operator will watch SopsSecret resources only in operator namespace
+namespaced: false
+
+metrics:
+  # -- Enable prometheus metrics
+  enabled: false
+
+secretsAsFiles:
+  - mountPath: /etc/sops-age-key-file
+    name: sops-age-key-file
+    secretName: sops-age-key
+extraEnv:
+  - name: SOPS_AGE_KEY_FILE
+    value: /etc/sops-age-key-file/sops.agekey

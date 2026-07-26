@@ -1,7 +1,0 @@
----
-- op: replace
-  path: /spec/capacity/storage
-  value: 5Gi
-
-- op: remove
-  path: /spec/nodeAffinity

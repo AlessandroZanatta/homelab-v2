@@ -1,0 +1,28 @@
+---
+config:
+  devices:
+    - /dev/nvme0n1
+    - /dev/sda
+
+extraInstances:
+  - config:
+      devices:
+        - /dev/nvme0n1
+        - /hostdev/disk/by-id/ata-TOSHIBA_MQ04UBF100_X5SPP12LT;sat
+        - /hostdev/disk/by-id/ata-CT1000MX500SSD1_2406E89658C0;sat
+    nodeSelector:
+      kubernetes.io/hostname: hermes
+
+serviceMonitor:
+  enabled: true
+
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: NotIn
+              values:
+                - athena
+                - hermes

@@ -1,0 +1,75 @@
+---
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: backups
+spec:
+  configuration:
+    destinationPath: "s3://cnpg/immich"
+    endpointURL: "https://backups.kalexlab.xyz"
+    s3Credentials:
+      region:
+        name: s3-secrets
+        key: REGION
+      accessKeyId:
+        name: s3-secrets
+        key: ACCESS_KEY
+      secretAccessKey:
+        name: s3-secrets
+        key: SECRET_KEY
+    wal:
+      compression: bzip2
+    data:
+      compression: bzip2
+  retentionPolicy: 14d
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cluster-vchord
+spec:
+  inheritedMetadata:
+    labels:
+      kalexlab.xyz/app: immich
+      kalexlab.xyz/component: cluster
+      kalexlab.xyz/monitoring: "true"
+  imageName: "ghcr.io/tensorchord/cloudnative-vectorchord:15-0.3.0"
+  postgresql:
+    shared_preload_libraries:
+      - "vchord.so"
+  instances: 1
+  storage:
+    storageClass: longhorn
+    size: 6Gi
+  # Immich requires superuser role to run some
+  # "create extensions" and other commands
+  managed:
+    roles:
+      - name: app
+        superuser: true
+        login: true
+  bootstrap:
+    initdb:
+      postInitSQL:
+        - CREATE EXTENSION IF NOT EXISTS "vector";
+        - CREATE EXTENSION IF NOT EXISTS "vchord" CASCADE;
+        - CREATE EXTENSION IF NOT EXISTS "cube" CASCADE;
+        - CREATE EXTENSION IF NOT EXISTS "earthdistance" CASCADE;
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: backups
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: cluster-backup
+spec:
+  cluster:
+    name: cluster-vchord
+  schedule: "0 0 0 * * *"
+  backupOwnerReference: self
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io

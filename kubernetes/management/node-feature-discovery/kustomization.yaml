@@ -1,0 +1,19 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: node-feature-discovery
+
+helmGlobals:
+  chartHome: ../../../.charts
+
+helmCharts:
+  - name: node-feature-discovery
+    repo: oci://registry.k8s.io/nfd/charts
+    version: 0.18.3
+    releaseName: node-feature-discovery
+    namespace: node-feature-discovery
+    valuesFile: values/node-feature-discovery.yaml
+
+resources:
+  - manifests

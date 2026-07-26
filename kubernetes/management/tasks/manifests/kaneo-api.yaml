@@ -1,0 +1,162 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kaneo-api
+  labels:
+    kalexlab.xyz/app: tasks
+    kalexlab.xyz/component: kaneo-api
+spec:
+  type: ClusterIP
+  ports:
+    - name: kaneo-api
+      port: 1337
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: tasks
+    kalexlab.xyz/component: kaneo-api
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kaneo-api
+  labels:
+    kalexlab.xyz/app: tasks
+    kalexlab.xyz/component: kaneo-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: tasks
+      kalexlab.xyz/component: kaneo-api
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: tasks
+        kalexlab.xyz/component: kaneo-api
+        kalexlab.xyz/monitoring: "true"
+    spec:
+      restartPolicy: Always
+      initContainers:
+        - name: wait-deps
+          image: "docker.io/library/alpine:3.24.1"
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: 30Mi
+              cpu: 1m
+            limits:
+              memory: 300Mi
+              cpu: 20m
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          command: ["sh", "-c", "for i in $(seq 1 300); do nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1"]
+      containers:
+        - name: app
+          image: "ghcr.io/usekaneo/api:2.7.7"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 1337
+              protocol: TCP
+          env:
+            - name: KANEO_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: kaneo-conf
+                  key: KANEO_API_URL
+            - name: KANEO_CLIENT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: kaneo-conf
+                  key: KANEO_CLIENT_URL
+            - name: AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: kaneo-secrets
+                  key: AUTH_SECRET
+            - name: DISABLE_REGISTRATION
+              valueFrom:
+                configMapKeyRef:
+                  name: kaneo-conf
+                  key: DISABLE_REGISTRATION
+            - name: DISABLE_GUEST_ACCESS
+              valueFrom:
+                configMapKeyRef:
+                  name: kaneo-conf
+                  key: DISABLE_GUEST_ACCESS
+            - name: CUSTOM_OAUTH_CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: kaneo-conf
+                  key: CUSTOM_OAUTH_CLIENT_ID
+            - name: CUSTOM_OAUTH_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: kaneo-secrets
+                  key: CUSTOM_OAUTH_CLIENT_SECRET
+            - name: CUSTOM_OAUTH_DISCOVERY_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: kaneo-conf
+                  key: CUSTOM_OAUTH_DISCOVERY_URL
+            - name: CUSTOM_OAUTH_SCOPES
+              valueFrom:
+                configMapKeyRef:
+                  name: kaneo-conf
+                  key: CUSTOM_OAUTH_SCOPES
+            - name: CUSTOM_AUTH_PKCE
+              valueFrom:
+                configMapKeyRef:
+                  name: kaneo-conf
+                  key: CUSTOM_AUTH_PKCE
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: cluster-app
+                  key: uri
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              memory: 50Mi
+              cpu: 1m
+            limits:
+              memory: 200Mi
+              cpu: 500m
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 1337
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 1337
+            failureThreshold: 3
+            periodSeconds: 30
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10000
+        runAsGroup: 10000
+        fsGroup: 10000
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi

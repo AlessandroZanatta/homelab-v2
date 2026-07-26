@@ -1,0 +1,35 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: adguard-certificate
+spec:
+  commonName: adguard.dns.kalexlab.xyz
+  secretName: adguard-ingress-certificate-secret
+  dnsNames:
+    - adguard.dns.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: adguard-ingress
+  annotations:
+    external-dns.alpha.kubernetes.io/target: 192.168.10.20
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`adguard.dns.kalexlab.xyz`)
+      services:
+        - name: adguard
+          port: 80
+      middlewares:
+        - name: authelia-forward-auth
+          namespace: sso
+  tls:
+    secretName: adguard-ingress-certificate-secret

@@ -42,17 +42,6 @@ patches:
   - "@./patches/cluster/env.yaml"
 
 nodes:
-  # Test nodes on Vagrant
-  - hostname: worker
-    ipAddress: worker.local
-    installDisk: /dev/vda
-    controlPlane: false
-  - hostname: controller
-    ipAddress: controller.local
-    installDisk: /dev/vda
-    controlPlane: true
-
-  # Real nodes for prod
   - hostname: athena
     ipAddress: 192.168.10.2
     installDisk: /dev/mmcblk0

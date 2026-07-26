@@ -1,0 +1,22 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: longhorn-system
+
+helmGlobals:
+  chartHome: ../../../.charts
+
+helmCharts:
+  - name: longhorn
+    repo: https://charts.longhorn.io
+    version: 1.12.0
+    releaseName: longhorn
+    namespace: longhorn-system
+    valuesFile: values/longhorn
+
+resources:
+  - manifests
+
+patches:
+  - path: patches/node-disks.yaml

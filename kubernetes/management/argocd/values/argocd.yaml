@@ -1,0 +1,53 @@
+---
+global:
+  domain: argocd.kalexlab.xyz
+
+configs:
+  params:
+    server.insecure: true
+
+  rbac:
+    policy.csv: |
+      g, admins, role:admin
+
+  repositories:
+    homelab:
+      url: https://github.com/AlessandroZanatta/homelab-v2
+      name: homelab
+      type: git
+
+  cm:
+    dex.config: |
+      connectors:
+        - config:
+            issuer: https://auth.kalexlab.xyz
+            clientID: epeYecAgBGxlMfdl58elE2BygSshHmQxT2-g~8rgJpfujUUNo1PaBc~SVPbB1C4wLdxANoIR
+            clientSecret: $oidc-secrets:client-secret
+            insecureEnableGroups: true
+            scopes:
+              - openid
+              - profile
+              - email
+          name: Authelia
+          type: oidc
+          id: authelia
+
+    kustomize.buildOptions: --enable-helm
+
+    # Ignore VolumeSnapshot and VolumeSnapshotContent resources
+    # Previously, pruning of these could fail a backup with Velero
+    resource.exclusions: |
+      - apiGroups:
+          - snapshot.storage.k8s.io
+        kinds:
+          - VolumeSnapshot
+          - VolumeSnapshotContent
+        clusters:
+          - "*"
+
+# Enable metrics
+controller:
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true

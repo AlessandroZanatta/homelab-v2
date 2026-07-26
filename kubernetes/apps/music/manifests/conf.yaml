@@ -1,0 +1,19 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: navidrome-conf
+data:
+  navidrome.toml: |
+    LogLevel = 'INFO'
+    MusicFolder = '/music'
+    DataFolder = '/data'
+    CacheFolder = '/cache'
+    BaseUrl = 'https://music.kalexlab.xyz'
+
+    # Authelia SSO setup
+    ReverseProxyWhitelist = '0.0.0.0/0'
+    # Disable user editing, users are not handled by Authelia
+    EnableUserEditing = false
+
+    EnableInsightsCollector = false

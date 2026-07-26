@@ -1,0 +1,21 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ddns-updater
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://github.com/AlessandroZanatta/homelab-v2.git
+      targetRevision: master
+      path: kubernetes/management/ddns-updater
+  destination:
+    name: in-cluster
+    namespace: ddns-updater
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

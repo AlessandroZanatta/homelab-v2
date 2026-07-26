@@ -7,16 +7,23 @@ repos:
       - id: end-of-file-fixer
       - id: check-added-large-files
 
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.38.0
+    hooks:
+      - id: yamllint
+        name: Strict yamllint
+        args: [--strict]
+
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.4.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+
   - repo: local
     hooks:
       - id: ensure-encrypted-secrets
         name: Ensure secrets are encrypted
         entry: /usr/bin/env just encrypt-all
-        language: script
-        pass_filenames: false
-
-      - id: format-yaml
-        name: Ensure yaml is formatted
-        entry: /usr/bin/env just format
         language: script
         pass_filenames: false

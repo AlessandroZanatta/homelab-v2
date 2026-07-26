@@ -11,8 +11,7 @@ rules:
   colons: enable
   commas: enable
   comments: disable
-  comments-indentation:
-    level: warning
+  comments-indentation: disable
   document-end: disable
   document-start:
     level: warning
@@ -20,10 +19,10 @@ rules:
   empty-values: disable
   float-values: disable
   hyphens: enable
-  indentation: disable 
+  indentation: disable
   key-duplicates: enable
   key-ordering: disable
-  line-length: disable 
+  line-length: disable
   new-line-at-end-of-file: enable
   new-lines: enable
   octal-values: disable
@@ -32,3 +31,7 @@ rules:
   truthy:
     level: warning
 
+ignore: |
+  .charts
+  ansible/roles/openwrt
+  talos/clusterconfig

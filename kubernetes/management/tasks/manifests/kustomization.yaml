@@ -1,0 +1,12 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - network-policies.yaml
+  - conf.yaml
+  - secrets.sops.yaml
+  - cluster.yaml
+  - kaneo-api.yaml
+  - kaneo-web.yaml
+  - ingress.yaml

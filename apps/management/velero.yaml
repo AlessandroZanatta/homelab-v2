@@ -1,0 +1,21 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: velero
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://github.com/AlessandroZanatta/homelab-v2.git
+      targetRevision: master
+      path: kubernetes/management/velero
+  destination:
+    name: in-cluster
+    namespace: velero
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,21 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: backups
+
+helmGlobals:
+  chartHome: ../../../.charts
+
+helmCharts:
+  - name: seaweedfs
+    repo: https://seaweedfs.github.io/seaweedfs/helm
+    version: 4.34.0
+    releaseName: seaweedfs
+    namespace: backups
+    valuesFile: values/seaweedfs.yaml
+
+resources:
+  - manifests
+# patches:
+#   - path: patches/project.yaml

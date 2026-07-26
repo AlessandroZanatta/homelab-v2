@@ -1,7 +1,0 @@
----
-$patch: delete
-apiVersion: postgresql.cnpg.io/v1
-kind: ScheduledBackup
-metadata:
-  name: cluster-backup
-  namespace: sso

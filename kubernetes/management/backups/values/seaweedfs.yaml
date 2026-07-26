@@ -1,0 +1,338 @@
+---
+master:
+  enabled: true
+
+  # Custom command line arguments to add to the master command
+  # Example to fix IPv6 metrics connectivity issues:
+  # extraArgs: ["-metricsIp", "0.0.0.0"]
+  extraArgs:
+    - -mdir=/data/master/data
+
+  config: |-
+    # Enter any extra configuration for master.toml here.
+    # It may be a multi-line string.
+
+  data:
+    type: existingClaim
+    claimName: s3-data-pvc
+
+  logs:
+    type: "" # log to stderr
+
+  # Master also initializes the required folder structure on the pvc
+  initContainers: |
+    - name: init-folders
+      image: docker.io/library/alpine:latest
+      command: ["sh", "-c"]
+      args:
+        - |
+          cd /data && mkdir -p master/data filer/filerldb2 volume/data volume/idx
+
+      imagePullPolicy: Always
+
+      resources:
+        requests:
+          memory: 30Mi
+          cpu: 1m
+        limits:
+          memory: 300Mi
+          cpu: 20m
+
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - ALL
+
+      volumeMounts:
+        - name: data-backups
+          mountPath: /data
+
+  # nodeSelector labels for master pod assignment, formatted as a muli-line string.
+  # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+  # Example:
+  nodeSelector: |
+    feature.node.kubernetes.io/usb-08_0480_0905.present: "true"
+  # nodeSelector: |
+  #   sw-backend: "true"
+
+  # Configure security context for Pod
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  podSecurityContext: &podSecurityContext
+    enabled: true
+    runAsNonRoot: true
+    runAsUser: 65535
+    runAsGroup: 65535
+    fsGroup: 65535
+    fsGroupChangePolicy: "OnRootMismatch"
+    seccompProfile:
+      type: RuntimeDefault
+
+  # Configure security context for Container
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  containerSecurityContext: &containerSecurityContext
+    enabled: true
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+
+volume:
+  enabled: true
+
+  # Custom command line arguments to add to the volume command
+  # Example to fix IPv6 metrics connectivity issues:
+  # extraArgs: ["-metricsIp", "0.0.0.0"]
+  # Example with multiple args:
+  # extraArgs: ["-customFlag", "value", "-anotherFlag"]
+  extraArgs:
+    - -dir.idx=/idx/volume/idx
+    - -dir=/data/volume/data
+
+  # For each data disk you may use ANY storage-class, example with local-path-provisioner
+  # Annotations are optional.
+  #  dataDirs:
+  #   - name: data
+  #     type: "persistentVolumeClaim"
+  #     size: "24Ti"
+  #     storageClass: "local-path-provisioner"
+  #     annotations:
+  #      "key": "value"
+  #     maxVolumes: 0  # If set to zero on non-windows OS, the limit will be auto configured. (default "7")
+  #
+  # You may also spacify an existing claim:
+  #   - name: data
+  #     type: "existingClaim"
+  #     claimName: "my-pvc"
+  #     maxVolumes: 0  # If set to zero on non-windows OS, the limit will be auto configured. (default "7")
+  #
+  # You can also use emptyDir storage:
+  #   - name: data
+  #     type: "emptyDir"
+  #     maxVolumes: 0  # If set to zero on non-windows OS, the limit will be auto configured. (default "7")
+  #
+  # If these don't meet your needs, you can use "custom" here along with extraVolumes and extraVolumeMounts
+  # Particularly useful when using more than 1 for the volume server replicas.
+  #   - name: data
+  #     type: "custom"
+  #     maxVolumes: 0  # If set to zero on non-windows OS, the limit will be auto configured. (default "7")
+
+  dataDirs:
+    - name: data
+      type: existingClaim
+      claimName: s3-data-pvc
+      maxVolumes: 0
+
+  # This will automatically create a job for patching Kubernetes resources if the dataDirs type is 'persistentVolumeClaim' and the size has changed.
+  resizeHook:
+    enabled: false
+
+  # File/blob indexing storage
+  idx:
+    type: existingClaim
+    claimName: s3-data-pvc
+
+  # nodeSelector labels for server pod assignment, formatted as a muli-line string.
+  # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+  # Example:
+  nodeSelector: |
+    feature.node.kubernetes.io/usb-08_0480_0905.present: "true"
+
+  # TODO
+  # Configure security context for Pod
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  # Example:
+  # podSecurityContext:
+  #   enabled: true
+  #   runAsUser: 1000
+  #   runAsGroup: 3000
+  #   fsGroup: 2000
+  podSecurityContext: *podSecurityContext
+
+  # Configure security context for Container
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  # Example:
+  # containerSecurityContext:
+  #   enabled: true
+  #   runAsUser: 2000
+  #   allowPrivilegeEscalation: false
+  containerSecurityContext: *containerSecurityContext
+
+filer:
+  enabled: true
+
+  # You may use ANY storage-class, example with local-path-provisioner
+  # Annotations are optional.
+  #  data:
+  #    type: "persistentVolumeClaim"
+  #    size: "24Ti"
+  #    storageClass: "local-path-provisioner"
+  #    annotations:
+  #      "key": "value"
+  #
+  # You may also specify an existing claim:
+  #  data:
+  #    type: "existingClaim"
+  #    claimName: "my-pvc"
+  #
+  # You can also use emptyDir storage:
+  #  data:
+  #    type: "emptyDir"
+  data:
+    type: existingClaim
+    claimName: s3-data-pvc
+
+  extraVolumes: |
+    - name: tmp
+      emptyDir:
+        sizeLimit: 1Gi
+
+  extraVolumeMounts: |
+    - name: tmp
+      mountPath: /tmp
+    - name: data-filer
+      mountPath: /data
+
+  # You may use ANY storage-class, example with local-path-provisioner
+  # Annotations are optional.
+  # logs:
+  #   type: "persistentVolumeClaim"
+  #   size: "24Ti"
+  #   storageClass: "local-path-provisioner"
+  #   annotations:
+  #     "key": "value"
+
+  # You can also use emptyDir storage:
+  #  logs:
+  #    type: "emptyDir"
+  logs:
+    type: ""
+
+  # nodeSelector labels for server pod assignment, formatted as a muli-line string.
+  # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+  # Example:
+  nodeSelector: |
+    feature.node.kubernetes.io/usb-08_0480_0905.present: "true"
+
+  # TODO
+  # Configure security context for Pod
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  # Example:
+  # podSecurityContext:
+  #   enabled: true
+  #   runAsUser: 1000
+  #   runAsGroup: 3000
+  #   fsGroup: 2000
+  podSecurityContext: *podSecurityContext
+
+  # Configure security context for Container
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  # Example:
+  # containerSecurityContext:
+  #   enabled: true
+  #   runAsUser: 2000
+  #   allowPrivilegeEscalation: false
+  containerSecurityContext: *containerSecurityContext
+
+  extraEnvironmentVars:
+    WEED_LEVELDB2_DIR: "/data/filer/filerldb2"
+
+  s3:
+    enabled: false
+
+s3:
+  enabled: true
+  # enable user & permission to s3 (need to inject to all services)
+  enableAuth: true
+  # set to the name of an existing kubernetes Secret with the s3 json config file
+  # should have a secret key called seaweedfs_s3_config with an inline json config
+  existingConfigSecret: seaweedfs-s3-config
+
+  # You may specify buckets to be created during the install or upgrade process.
+  # Buckets may be exposed publicly by setting `anonymousRead` to `true`
+  # ttl format: [1-255][m|h|d|w|M|y] (e.g., 7d)
+  # objectLock enables S3 Object Lock (irreversible, forces versioning)
+  # versioning: Enabled or Suspended (or bool true/false)
+  createBuckets:
+    - name: cnpg
+      anonymousRead: false
+    - name: longhorn
+      anonymousRead: false
+    - name: velero
+      anonymousRead: false
+    - name: restic
+      anonymousRead: false
+
+  # Suffix of the host name, {bucket}.{domainName}
+  domainName: "backups.kalexlab.xyz"
+
+  extraVolumes: |
+    - name: tmp
+      emptyDir:
+        sizeLimit: 1Gi
+
+  extraVolumeMounts: |
+    - name: tmp
+      mountPath: /tmp
+
+  # TODO
+  # Configure security context for Pod
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  # Example:
+  # podSecurityContext:
+  #   enabled: true
+  #   runAsUser: 1000
+  #   runAsGroup: 3000
+  #   fsGroup: 2000
+  podSecurityContext: *podSecurityContext
+
+  # Configure security context for Container
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  # Example:
+  # containerSecurityContext:
+  #   enabled: true
+  #   runAsUser: 2000
+  #   allowPrivilegeEscalation: false
+  containerSecurityContext: *containerSecurityContext
+
+  # You can also use emptyDir storage:
+  #  logs:
+  #    type: "emptyDir"
+  logs:
+    type: ""
+
+admin:
+  enabled: true
+
+  # Storage configuration
+  data:
+    type: ""
+
+  logs:
+    type: ""
+
+  nodeSelector: |
+    feature.node.kubernetes.io/usb-08_0480_0905.present: "true"
+
+  podSecurityContext: *podSecurityContext
+  containerSecurityContext: *containerSecurityContext
+
+worker:
+  enabled: true
+
+  # Worker job types - categories or comma-separated list of names/aliases
+  # Categories: all, default, heavy
+  #   default: vacuum, volume_balance, ec_balance, admin_script
+  #   heavy: erasure_coding, iceberg_maintenance
+  #   all: every registered job type
+  # Examples: "all", "default", "heavy", "default,iceberg" (default+iceberg), "vacuum,volume_balance"
+  # Refer: https://github.com/seaweedfs/seaweedfs/wiki/Worker
+  jobType: "all"
+
+  nodeSelector: |
+    feature.node.kubernetes.io/usb-08_0480_0905.present: "true"
+
+  podSecurityContext: *podSecurityContext
+  containerSecurityContext: *containerSecurityContext

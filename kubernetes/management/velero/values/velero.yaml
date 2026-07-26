@@ -1,0 +1,47 @@
+---
+initContainers:
+  - name: velero-plugin-for-aws
+    image: velero/velero-plugin-for-aws:v1.14.1
+    imagePullPolicy: Always
+    volumeMounts:
+      - mountPath: /target
+        name: plugins
+
+metrics:
+  enabled: true
+
+  serviceMonitor:
+    enabled: true
+
+configuration:
+  volumeSnapshotLocation:
+    - name: default
+      provider: aws
+
+  features: EnableCSI
+
+  backupStorageLocation:
+    - name: default
+      provider: aws
+      bucket: velero
+      config:
+        region: default
+        s3ForcePathStyle: true
+        s3Url: "https://backups.kalexlab.xyz"
+        publicUrl: "https://backups.kalexlab.xyz"
+
+schedules:
+  daily:
+    schedule: "0 4 * * *"
+    useOwnerReferencesInBackup: true
+    template:
+      csiSnapshotTimeout: 2h0m0s
+      ttl: 336h0m0s
+      storageLocation: default
+      excludedNamespaces:
+        - kube-system
+        - velero
+        - backups
+
+credentials:
+  existingSecret: s3-credentials

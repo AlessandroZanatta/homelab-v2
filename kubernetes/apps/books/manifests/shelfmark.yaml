@@ -1,0 +1,132 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shelfmark
+  labels:
+    kalexlab.xyz/app: books
+    kalexlab.xyz/component: shelfmark
+spec:
+  type: ClusterIP
+  ports:
+    - name: shelfmark
+      port: 8084
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: books
+    kalexlab.xyz/component: shelfmark
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: shelfmark
+  labels:
+    kalexlab.xyz/app: books
+    kalexlab.xyz/component: shelfmark
+spec:
+  serviceName: shelfmark
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: books
+      kalexlab.xyz/component: shelfmark
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: books
+        kalexlab.xyz/component: shelfmark
+        kalexlab.xyz/monitoring: "true"
+        egress.kalexlab.xyz/policy: vpn
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: books
+          image: "ghcr.io/calibrain/shelfmark:v1.3.2"
+          imagePullPolicy: Always
+          # Bypass entrypoint, bloated
+          command:
+            [
+              "gunicorn",
+              "--log-level",
+              "info",
+              "--access-logfile",
+              "-",
+              "--error-logfile",
+              "-",
+              "--worker-class",
+              "geventwebsocket.gunicorn.workers.GeventWebSocketWorker",
+              "--workers",
+              "1",
+              "-t",
+              "300",
+              "-b",
+              "0.0.0.0:8084",
+              "shelfmark.main:app",
+            ]
+          ports:
+            - containerPort: 8084
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: shelfmark-conf
+            - secretRef:
+                name: shelfmark-secrets
+          resources:
+            requests:
+              memory: 30Mi
+              cpu: 10m
+            # limits:
+            #   memory: 300Mi
+            #   cpu: 200m
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8084
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8084
+            failureThreshold: 3
+            periodSeconds: 30
+          securityContext:
+            # allowPrivilegeEscalation: false
+            # readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - mountPath: /config
+              name: shelfmark-config-pvc
+            - mountPath: /books
+              name: books
+            - mountPath: /tmp
+              name: tmp
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+      securityContext:
+        # runAsNonRoot: true
+        # runAsUser: 10000
+        # runAsGroup: 10000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: books
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
+  volumeClaimTemplates:
+    - metadata:
+        name: shelfmark-config-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 100Mi

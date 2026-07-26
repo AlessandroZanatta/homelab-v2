@@ -1,0 +1,263 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homer-conf
+data:
+  config.yml: |
+    ---
+    # Homepage configuration
+    # See https://fontawesome.com/v5/search for icons options
+
+    title: "kalexlab dashboard"
+    subtitle: "Homer"
+    logo: "assets/icons/dark_circle.png"
+
+    header: true
+
+    stylesheet:
+      - assets/catppuccin.css
+
+    # Navbar links
+    links: [] # Allows for navbar (dark mode, layout, and search) without any links
+
+    # Services
+    # First level array represent a group.
+    # Leave only a "items" key if not using group (group name, icon & tagstyle are optional, section separation will not be displayed).
+    services:
+      - name: "Applications"
+        icon: "fas fa-cloud"
+        items:
+          - name: "Bitwarden"
+            subtitle: "Password manager"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/bitwarden.svg"
+            tag: "passwords"
+            url: "https://vault.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Nextcloud"
+            subtitle: "File storage and sharing"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/nextcloud-blue.svg"
+            tag: "file storage"
+            url: "https://cloud.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Immich"
+            subtitle: "Image storing and cataloguing"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/immich.png"
+            tag: "image storage"
+            url: "https://immich.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Navidrome"
+            subtitle: "Music streaming"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/navidrome.svg"
+            tag: "music streaming"
+            url: "https://music.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "QBitTorrent"
+            subtitle: "BitTorrent downloader"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/qbittorrent.svg"
+            tag: "torrent"
+            url: "https://torrent.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Hortusfox"
+            subtitle: "Plant management"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/webp/hortusfox.webp"
+            tag: "plants"
+            url: "https://plants.kalexlab.xyz?external=true"
+            target: "_blank"
+
+      - name: "Reading"
+        icon: "fas fa-book-open"
+        items:
+          - name: CWA downloader
+            subtitle: "eBooks downloader"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/calibre-web-automated-book-downloader.png"
+            tag: "downloader"
+            url: "https://get.books.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: Autocaliweb
+            subtitle: "eBooks management"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/calibre-web.svg"
+            tag: "library books"
+            url: "https://books.kalexlab.xyz?external=true"
+            target: "_blank"
+
+          # - name: "Tranga"
+          #   subtitle: "Manga downloader"
+          #   logo: "https://raw.githubusercontent.com/C9Glax/tranga-website/46729bade38211e795299a788301f0c95183bc63/Website/media/blahaj.png"
+          #   tag: "downloader"
+          #   url: "https://tranga.kalexlab.xyz?external=true"
+          #   target: "_blank"
+          # - name: "Komga"
+          #   subtitle: "Manga reader"
+          #   logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/komga.svg"
+          #   tag: "manga books"
+          #   url: "https://manga.kalexlab.xyz?external=true"
+          #   target: "_blank"
+
+      - name: "Media"
+        icon: "fas fa-play"
+        items:
+          - name: "Anime"
+            subtitle: "Anime downloader and viewer"
+            tag: "anime"
+            url: "https://anime.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Jellyfin"
+            subtitle: "Film and series viewer"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/jellyfin.svg"
+            tag: "film"
+            url: "https://jellyfin.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Radarr"
+            subtitle: "Film downloader"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/radarr.svg"
+            tag: "downloader"
+            url: "https://radarr.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Sonarr"
+            subtitle: "Series downloader"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/sonarr.svg"
+            tag: "downloader"
+            url: "https://sonarr.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Prowlarr"
+            subtitle: "Indexer manager"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/prowlarr.svg"
+            tag: "indexer"
+            url: "https://prowlarr.kalexlab.xyz?external=true"
+            target: "_blank"
+
+      - name: Project management
+        icon: "fas fa-tasks"
+        items:
+          - name: Kaneo
+            subtitle: Kanban tasks management
+            logo: "https://avatars.githubusercontent.com/u/192649426?s=200&v=4"
+            tag: "kanban"
+            url: "https://tasks.kalexlab.xyz?external=true"
+            target: "_blank"
+
+      - name: Automation
+        icon: "fas fa-robot"
+        items:
+          - name: Home Assistant
+            subtitle: Home automation
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/home-assistant.svg"
+            tag: "iot automation"
+            url: "https://ha.kalexlab.xyz/auth/oidc/redirect?external=true"
+            target: "_blank"
+          - name: Mosquitto
+            subtitle: MQTT broker
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/mosquitto.svg"
+            tag: "mqtt broker"
+            url: "https://mqtt.kalexlab.xyz?external=true"
+            target: "_blank"
+
+      - name: "Management"
+        icon: "fas fa-server"
+        items:
+          - name: "Argo CD"
+            subtitle: "Cluster GitOps"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/argo-cd.png"
+            tag: "gitops"
+            url: "https://argocd.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Authelia"
+            subtitle: "SSO"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/authelia.svg"
+            tag: "sso oidc"
+            url: "https://auth.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Traefik"
+            subtitle: "Reverse proxy"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/traefik-proxy.png"
+            tag: "routing"
+            url: "https://traefik.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Adguard"
+            subtitle: "AD blocking"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/adguard-home.png"
+            tag: "AD blocking"
+            url: "https://adguard.dns.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Registry"
+            subtitle: "Docker image repository"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/docker-moby.png"
+            tag: "docker"
+            url: "https://ui.registry.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Longhorn"
+            subtitle: "PVC management"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/longhorn.png"
+            tag: "persistent storage"
+            url: "https://longhorn.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "DDNS"
+            subtitle: "DDNS updater"
+            logo: "https://raw.githubusercontent.com/qdm12/ddns-updater/master/readme/ddnsgopher.svg"
+            tag: "ddns"
+            url: "https://ddns.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "RustFS"
+            subtitle: "S3-compliant storage"
+            logo: "https://docs.rustfs.com/images/logo.svg"
+            tag: "backups"
+            url: "https://ui.backups.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Expo updates"
+            subtitle: "Expo OTA"
+            logo: "https://github.com/xavia-io/xavia-ota/blob/main/public/xavia_logo.png?raw=true"
+            tag: "expo updates"
+            url: "https://expo-ota.kalexlab.xyz?external=true"
+            target: "_blank"
+
+      - name: "Monitoring"
+        icon: "fas fa-heartbeat"
+        items:
+          - name: "Grafana"
+            subtitle: "Cluster monitoring"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/grafana.png"
+            tag: "visualization"
+            url: "https://grafana.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Prometheus"
+            subtitle: "Metrics collector"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/prometheus.svg"
+            tag: "metrics"
+            url: "https://prometheus.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Glitchtip"
+            subtitle: "Application error reporting"
+            logo: "https://gitlab.com/uploads/-/system/group/avatar/6475477/glitchtip_g.png"
+            tag: "error"
+            url: "https://glitchtip.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Gatus"
+            subtitle: "Apps healthchecker"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/gatus.svg"
+            tag: "healthcheck"
+            url: "https://status.kalexlab.xyz?external=true"
+            target: "_blank"
+
+      - name: "Networking"
+        icon: "fas fa-network-wired"
+        items:
+          - name: "Cabling (ECCM)"
+            subtitle: "Ethernet cabling"
+            logo: "https://img.icons8.com/stickers/32/ethernet-on.png"
+            tag: "networking"
+            url: "https://cabling.kalexlab.xyz?external=true"
+            target: "_blank"
+
+          - name: "Router - Archer AX23"
+            subtitle: "Main router"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/openwrt.png"
+            tag: "routing"
+            url: "https://router.kalexlab.xyz?external=true"
+            target: "_blank"
+          - name: "Managed switch - TP Link"
+            subtitle: "HomeLab switch"
+            logo: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/tp-link.png"
+            tag: "switching"
+            url: "http://switch.kalexlab.xyz?external=true"
+            target: "_blank"

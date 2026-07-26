@@ -1,0 +1,24 @@
+---
+# https://kubernetes.io/docs/concepts/configuration/configmap/
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: outline-conf
+data:
+  NODE_ENV: production
+  URL: https://wiki.kalexlab.xyz
+  PORT: "3000"
+  DEFAULT_LANGUAGE: en_GB
+  PGSSLMODE: disable
+  REDIS_URL: redis://cache:6379
+  FILE_STORAGE: local
+  FILE_STORAGE_LOCAL_ROOT_DIR: /data
+  FORCE_HTTPS: "false"
+  PROXY_IP_HEADER: X-Forwarded-For
+  OIDC_CLIENT_ID: rrBl_3QkagNt6hIsNzKHdQOQqQtMvL77gHWW1DMUz3I2W6m5Jys4Agl1OmSGWpW4HNYezE5U
+  OIDC_ISSUER_URL: https://auth.kalexlab.xyz
+  OIDC_LOGOUT_URI: https://wiki.kalexlab.xyz
+  OIDC_USERNAME_CLAIM: preferred_username
+  OIDC_DISPLAY_NAME: Login with Authelia
+  OIDC_SCOPES: openid offline_access profile email
+  ENABLE_UPDATES: "false"

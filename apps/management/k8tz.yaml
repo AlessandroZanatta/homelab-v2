@@ -1,0 +1,24 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: k8tz
+  namespace: argocd
+  annotations:
+    # k8tz should be deployed first to allow injection of the timezone on other pods
+    argocd.argoproj.io/sync-wave: "-99"
+spec:
+  project: default
+  sources:
+    - repoURL: https://github.com/AlessandroZanatta/homelab-v2.git
+      targetRevision: master
+      path: kubernetes/management/k8tz
+  destination:
+    name: in-cluster
+    namespace: k8tz
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

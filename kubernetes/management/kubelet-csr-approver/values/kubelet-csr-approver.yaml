@@ -1,0 +1,23 @@
+---
+# Required configuration item
+providerRegex: "'[a-z]+'"
+
+# optional, permits to bypass dns resolution checks. default: false
+# TODO: nodes currently are named as athena, ... (no FQDN). This causes
+# the resolution step to fail
+bypassDnsResolution: true
+
+# optional, permits ignoring CSRs with another Username than `system:node:...`
+ignoreNonSystemNode: true
+
+# optional, prevents csr denial, i.e. only lets kubelet-csr-approver approve valid CSRs but ignore other CSRs
+skipDenyStep: true
+
+# set this parameter to true to ignore mismatching DNS name and hostname
+bypassHostnameCheck: false
+
+leaderElection: false
+replicas: 1
+
+metrics:
+  enable: false

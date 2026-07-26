@@ -39,8 +39,6 @@
         namespace: argocd
         values_files:
           - "{{ helm_values_path }}/argocd/values.yaml"
-        secrets_files:
-          - "{{ helm_values_path }}/argocd/secrets.yaml"
 
   tasks:
     - name: Bootstrap Talos cluster
