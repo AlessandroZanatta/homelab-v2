@@ -2,17 +2,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: kubelet-csr
+  name: kubelet-csr-approver
   namespace: argocd
 spec:
   project: default
   sources:
     - repoURL: https://github.com/AlessandroZanatta/homelab-v2.git
       targetRevision: master
-      path: kubernetes/management/kubelet-csr
+      path: kubernetes/management/kubelet-csr-approver
   destination:
     name: in-cluster
-    namespace: kubelet-csr
+    namespace: kubelet-csr-approver
   syncPolicy:
     automated:
       prune: true
