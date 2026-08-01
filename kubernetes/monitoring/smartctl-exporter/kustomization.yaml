@@ -21,11 +21,3 @@ helmCharts:
 
 resources:
   - manifests
-
-patches:
-  - patch: |
-      - op: add
-        path: /metadata/namespace
-        value: smartctl-exporter
-    target:
-      namespace: ""

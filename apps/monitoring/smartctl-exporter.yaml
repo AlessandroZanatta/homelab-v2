@@ -12,7 +12,7 @@ spec:
       path: kubernetes/monitoring/smartctl-exporter
   destination:
     name: in-cluster
-    namespace: prometheus
+    namespace: smartctl-exporter
   syncPolicy:
     automated:
       prune: true
