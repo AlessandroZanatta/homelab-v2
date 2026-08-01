@@ -3,6 +3,9 @@ global:
   domain: argocd.kalexlab.xyz
 
 configs:
+  secret:
+    argocdServerAdminPassword: $2a$10$RNlGu408eHiZTVweT1LOyeWYVf0o9uyuXmB7z8n8kab27cW1yl7Vm
+
   params:
     server.insecure: true
 

@@ -89,7 +89,7 @@ data:
               - "https://argocd.kalexlab.xyz/api/dex/callback"
             scopes:
               - openid
-              - groups
+              - profile
               - email
             response_types:
               - code
