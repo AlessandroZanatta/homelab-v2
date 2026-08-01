@@ -59,7 +59,7 @@ spec:
           command: ["sh", "-c", "for i in $(seq 1 300); do nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1"]
       containers:
         - name: app
-          image: "docker.io/vaultwarden/server:1.36.0-alpine"
+          image: "docker.io/vaultwarden/server:1.37.1-alpine"
           imagePullPolicy: Always
           securityContext:
             readOnlyRootFilesystem: true
