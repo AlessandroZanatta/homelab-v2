@@ -1,2 +1,4 @@
 ---
 timezone: Europe/Rome
+
+createNamespace: false
