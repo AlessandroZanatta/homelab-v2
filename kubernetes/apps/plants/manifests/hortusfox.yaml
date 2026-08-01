@@ -41,7 +41,7 @@ spec:
       restartPolicy: Always
       initContainers:
         - name: copy-var-www-html
-          image: "ghcr.io/danielbrendel/hortusfox-web:v5.8"
+          image: "ghcr.io/danielbrendel/hortusfox-web:v5.9"
           imagePullPolicy: Always
           resources:
             requests:
@@ -67,7 +67,7 @@ spec:
               name: tmp
       containers:
         - name: plants
-          image: "ghcr.io/danielbrendel/hortusfox-web:v5.8"
+          image: "ghcr.io/danielbrendel/hortusfox-web:v5.9"
           imagePullPolicy: Always
           ports:
             - containerPort: 80
