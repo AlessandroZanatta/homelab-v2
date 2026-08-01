@@ -48,7 +48,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: qbittorrent
-          image: "ghcr.io/home-operations/qbittorrent:5.2.2"
+          image: "ghcr.io/home-operations/qbittorrent:5.2.3"
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
