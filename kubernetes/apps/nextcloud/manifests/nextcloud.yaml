@@ -85,7 +85,7 @@ spec:
           command: ["sh", "-c", "for i in $(seq 1 300); do nc -zvw1 cache 6379 && nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1"]
       containers:
         - name: nextcloud
-          image: "docker.io/library/nextcloud:34.0.0-apache"
+          image: "docker.io/library/nextcloud:34.0.2-apache"
           imagePullPolicy: Always
           ports:
             - containerPort: 80
