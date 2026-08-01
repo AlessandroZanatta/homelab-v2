@@ -86,7 +86,7 @@ data:
             require_pkce: false
             pkce_challenge_method: ""
             redirect_uris:
-              - "https://argocd.kalexlab.xyz/auth/callback"
+              - "https://argocd.kalexlab.xyz/api/dex/callback"
             scopes:
               - openid
               - groups
