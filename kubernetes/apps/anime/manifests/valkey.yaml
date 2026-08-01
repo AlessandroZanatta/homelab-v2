@@ -44,7 +44,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: queue
-          image: "docker.io/valkey/valkey:9.1.0-alpine"
+          image: "docker.io/valkey/valkey:9.1.1-alpine"
           imagePullPolicy: Always
           ports:
             - name: valkey
