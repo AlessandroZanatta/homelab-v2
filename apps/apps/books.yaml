@@ -5,18 +5,17 @@ metadata:
   name: books
   namespace: argocd
 spec:
-  spec:
-    project: default
-    sources:
-      - repoURL: https://github.com/AlessandroZanatta/homelab-v2.git
-        targetRevision: master
-        path: kubernetes/apps/books
-    destination:
-      name: in-cluster
-      namespace: books
-    syncPolicy:
-      automated:
-        prune: true
-        selfHeal: true
-      syncOptions:
-        - CreateNamespace=true
+  project: default
+  sources:
+    - repoURL: https://github.com/AlessandroZanatta/homelab-v2.git
+      targetRevision: master
+      path: kubernetes/apps/books
+  destination:
+    name: in-cluster
+    namespace: books
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
