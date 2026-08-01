@@ -13,7 +13,7 @@ helmCharts:
     version: 1.12.0
     releaseName: longhorn
     namespace: longhorn-system
-    valuesFile: values/longhorn
+    valuesFile: values/longhorn.yaml
 
 resources:
   - manifests
