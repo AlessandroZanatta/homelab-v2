@@ -1,0 +1,23 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: default
+spec:
+  sourceRepos:
+    - "https://github.com/AlessandroZanatta/homelab-v2.git"
+
+    # TODO: remove when a better solution for webhook is found (see cert-manager app)
+    - "https://github.com/mdonoughe/porkbun-webhook"
+
+  destinations:
+    - namespace: "*"
+      name: in-cluster
+
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+
+  orphanedResources:
+    warn: true
+    ignore: []

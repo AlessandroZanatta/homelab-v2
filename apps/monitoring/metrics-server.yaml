@@ -12,7 +12,7 @@ spec:
       path: kubernetes/monitoring/metrics-server
   destination:
     name: in-cluster
-    namespace: kube-system
+    namespace: metrics-server
   syncPolicy:
     automated:
       prune: true

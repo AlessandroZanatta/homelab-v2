@@ -4,4 +4,5 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - secrets.sops.yaml
+  - project.yaml
   - ingress.yaml
