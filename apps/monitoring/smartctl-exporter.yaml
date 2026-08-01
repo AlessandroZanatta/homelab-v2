@@ -5,18 +5,17 @@ metadata:
   name: smartctl-exporter
   namespace: argocd
 spec:
-  spec:
-    project: default
-    sources:
-      - repoURL: https://github.com/AlessandroZanatta/homelab-v2.git
-        targetRevision: master
-        path: kubernetes/monitoring/smartctl-exporter
-    destination:
-      name: in-cluster
-      namespace: prometheus
-    syncPolicy:
-      automated:
-        prune: true
-        selfHeal: true
-      syncOptions:
-        - CreateNamespace=true
+  project: default
+  sources:
+    - repoURL: https://github.com/AlessandroZanatta/homelab-v2.git
+      targetRevision: master
+      path: kubernetes/monitoring/smartctl-exporter
+  destination:
+    name: in-cluster
+    namespace: prometheus
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
