@@ -6,15 +6,6 @@ crds:
     # Conflicts with ArgoCD, force it, ArgoCD will fix it later
     forceConflicts: true
 
-extraManifests:
-  - apiVersion: v1
-    kind: Secret
-    metadata:
-      name: grafana-oidc-client-secret
-      namespace: prometheus
-    data:
-      client_secret: "{{ .Values.secrets.client_secret | b64enc }}"
-
 grafana:
   enabled: true
 
