@@ -37,22 +37,6 @@ spec:
         kalexlab.xyz/monitoring: "true"
     spec:
       restartPolicy: Always
-      initContainers:
-        - name: copy-conf
-          image: "docker.io/collabora/code:26.04.2.4.1"
-          imagePullPolicy: Always
-          securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop:
-                - ALL
-          command: ["sh", "-c", "cp -r /etc/coolwsd/* /mnt/coolwsd && cp -r /opt/cool/* /mnt/cool"]
-          volumeMounts:
-            - mountPath: /mnt/coolwsd
-              name: etc-coolwsd
-            - mountPath: /mnt/cool
-              name: opt-cool
       containers:
         - name: collabora-online
           image: "docker.io/collabora/code:26.04.2.4.1"
@@ -91,32 +75,22 @@ spec:
             failureThreshold: 4
           securityContext:
             allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: false
             capabilities:
               drop:
                 - ALL
           volumeMounts:
-            - name: opt-cool
-              mountPath: /opt/cool
-            - name: etc-coolwsd
-              mountPath: /etc/coolwsd
-            - name: tmp
-              mountPath: /tmp
+            - name: opt-cool-child-roots
+              mountPath: /opt/cool/child-roots
       securityContext:
         runAsNonRoot: true
-        runAsUser: 65535
-        runAsGroup: 65535
-        fsGroup: 65535
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
         fsGroupChangePolicy: "OnRootMismatch"
         seccompProfile:
           type: RuntimeDefault
       volumes:
-        - name: opt-cool
-          emptyDir:
-            sizeLimit: 1Gi
-        - name: etc-coolwsd
-          emptyDir:
-            sizeLimit: 1Gi
-        - name: tmp
+        - name: opt-cool-child-roots
           emptyDir:
             sizeLimit: 1Gi
