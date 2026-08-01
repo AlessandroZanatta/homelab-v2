@@ -21,3 +21,6 @@ spec:
   serviceSelector:
     matchLabels:
       kalexlab.xyz/ip-pool: adguard
+  nodeSelector:
+    matchLabels:
+      ingress.kalexlab.xyz/type: traefik
