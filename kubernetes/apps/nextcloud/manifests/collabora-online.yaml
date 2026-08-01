@@ -39,7 +39,7 @@ spec:
       restartPolicy: Always
       initContainers:
         - name: copy-conf
-          image: "docker.io/collabora/code:26.04.1.4.1"
+          image: "docker.io/collabora/code:26.04.2.4.1"
           imagePullPolicy: Always
           securityContext:
             allowPrivilegeEscalation: false
@@ -55,7 +55,7 @@ spec:
               name: opt-cool
       containers:
         - name: collabora-online
-          image: "docker.io/collabora/code:26.04.1.4.1"
+          image: "docker.io/collabora/code:26.04.2.4.1"
           imagePullPolicy: Always
           ports:
             - containerPort: 9980
