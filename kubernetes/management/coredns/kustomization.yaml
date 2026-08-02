@@ -10,7 +10,7 @@ helmGlobals:
 helmCharts:
   - name: coredns
     repo: https://coredns.github.io/helm
-    version: 1.46.0
+    version: 1.47.0
     releaseName: coredns
     namespace: coredns
     valuesFile: values/coredns.yaml
