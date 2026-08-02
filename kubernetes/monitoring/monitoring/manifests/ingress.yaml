@@ -1,0 +1,67 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: grafana
+spec:
+  secretName: grafana-ingress-certificate
+  dnsNames:
+    - grafana.kalexlab.xyz
+  issuerRef:
+    group: cert-manager.io
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: grafana
+  annotations:
+    external-dns.alpha.kubernetes.io/target: 192.168.10.20
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`grafana.kalexlab.xyz`)
+      services:
+        - name: monitoring-grafana
+          port: 80
+  tls:
+    secretName: grafana-ingress-certificate
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: prometheus
+spec:
+  secretName: prometheus-ingress-certificate
+  dnsNames:
+    - prometheus.kalexlab.xyz
+  issuerRef:
+    group: cert-manager.io
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: prometheus
+  annotations:
+    external-dns.alpha.kubernetes.io/target: 192.168.10.20
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`prometheus.kalexlab.xyz`)
+      middlewares:
+        - name: authelia-forward-auth
+          namespace: sso
+      services:
+        - name: monitoring-kube-prometheus-prometheus
+          port: 9090
+  tls:
+    secretName: prometheus-ingress-certificate
