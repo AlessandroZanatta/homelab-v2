@@ -10,7 +10,7 @@ helmGlobals:
 helmCharts:
   - name: velero
     repo: https://vmware-tanzu.github.io/helm-charts/
-    version: 12.0.3
+    version: 12.1.0
     releaseName: velero
     namespace: velero
     valuesFile: values/velero.yaml
