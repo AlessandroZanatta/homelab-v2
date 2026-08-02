@@ -10,7 +10,7 @@ helmGlobals:
 helmCharts:
   - name: seaweedfs
     repo: https://seaweedfs.github.io/seaweedfs/helm
-    version: 4.34.0
+    version: 4.40.0
     releaseName: seaweedfs
     namespace: backups
     valuesFile: values/seaweedfs.yaml
