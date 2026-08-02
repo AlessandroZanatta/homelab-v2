@@ -81,8 +81,16 @@ nodes:
             match: "'/dev/disk/by-id/ata-TOSHIBA_MQ04UBF100_X5SPP12LT' in disk.symlinks"
           minSize: "900GiB"
           grow: true
-    nodeLabels: &traefik-nodelabel
+    nodeLabels: &nodeLabels
       ingress.kalexlab.xyz/type: traefik
+    nodeAnnotations: &nodeAnnotations
+      # Define disk configuration on a per-node basis.
+      # Note: this cannot be updated, it is only honoured on Longhorn nodes creation
+      #   ref: https://longhorn.io/docs/1.11.2/nodes-and-volumes/nodes/default-disk-and-node-config/#customizing-default-disks-for-new-nodes
+      #
+      # storageReserved is non-zero due it being interpreted as a empty field otherwise
+      #   ref: https://github.com/longhorn/longhorn/issues/11444
+      node.longhorn.io/default-disks-config: '[{"name":"nvme","path":"/var/lib/longhorn","allowScheduling":true,"storageReserved":149768240947,"tags":[]},{"name":"sata","path":"/var/mnt/longhorn","allowScheduling":true,"storageReserved":1,"tags":[]}]'
 
   - hostname: zeus
     ipAddress: 192.168.10.4
@@ -103,4 +111,5 @@ nodes:
           # Power efficiency looks OK even without ASPM (~7-10W idle)
           - pcie_aspm=off
         systemExtensions: *systemExtensions
-    nodeLabels: *traefik-nodelabel
+    nodeLabels: *nodeLabels
+    nodeAnnotations: *nodeAnnotations
