@@ -10,6 +10,14 @@ prometheus:
 service:
   clusterIP: "10.96.0.10"
 
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: coredns
+
 servers:
   - zones:
       - zone: .
