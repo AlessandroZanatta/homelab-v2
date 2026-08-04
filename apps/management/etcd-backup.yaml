@@ -12,7 +12,7 @@ spec:
       path: kubernetes/management/etcd-backup
   destination:
     name: in-cluster
-    namespace: descheduler
+    namespace: etcd-backup
   syncPolicy:
     automated:
       prune: true
