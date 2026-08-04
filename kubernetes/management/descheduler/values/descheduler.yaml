@@ -8,13 +8,21 @@ podSecurityContext:
 deschedulingInterval: 5m
 
 deschedulerPolicy:
+  nodeSelector: "balance.kalexlab.xyz/pool=default"
+  metricsProviders:
+    - source: KubernetesMetrics
   profiles:
     - name: default
       pluginConfig:
         - name: DefaultEvictor
           args:
-            ignorePvcPods: true
-            evictLocalStoragePods: true
+            nodeFit: true
+            minReplicas: 2
+            podProtections:
+              defaultDisabled:
+                - PodsWithLocalStorage
+              extraEnabled:
+                - PodsWithPVC
         - name: RemoveDuplicates
         - name: RemovePodsHavingTooManyRestarts
           args:
@@ -29,14 +37,19 @@ deschedulerPolicy:
         - name: RemovePodsViolatingTopologySpreadConstraint
         - name: LowNodeUtilization
           args:
+            metricsUtilization:
+              source: KubernetesMetrics
+            useDeviationThresholds: true
             thresholds:
-              # cpu: 20
-              memory: 50
-              # pods: 20
+              cpu: 10
+              memory: 10
             targetThresholds:
-              # cpu: 70
-              memory: 70
-              # pods: 70
+              cpu: 10
+              memory: 10
+            evictableNamespaces:
+              exclude:
+                - kube-system
+                - system-upgrade
       plugins:
         balance:
           enabled:
