@@ -2,10 +2,10 @@
 clusterName: homelab
 endpoint: "https://${CONTROL_PLANE_VIP}:6443"
 
-# renovate: datasource=github-releases depName=siderolabs/talos
-talosVersion: v1.13.4
-# renovate: datasource=github-releases depName=siderolabs/kubelet
-kubernetesVersion: v1.36.2
+# renovate: datasource=docker depName=ghcr.io/siderolabs/installer
+talosVersion: v1.13.7
+# renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
+kubernetesVersion: v1.36.3
 
 controlPlane:
   patches:
@@ -33,7 +33,6 @@ cniConfig:
 
 patches:
   - "@./patches/machine/kubelet.yaml"
-  - "@./patches/machine/longhorn.yaml"
   - "@./patches/machine/features.yaml"
   - "@./patches/machine/certsans.yaml"
   - "@./patches/machine/udev.yaml"
@@ -69,11 +68,17 @@ nodes:
     installDisk: /dev/nvme0n1
     controlPlane: false
     userVolumes:
-      - name: longhorn
+      - name: data-nvme
+        provisioning:
+          diskSelector:
+            match: "'/dev/disk/by-id/nvme-WD_BLACK_SN770_1TB_24014H805228' in disk.symlinks"
+          minSize: "100GiB" # Talos will autogrow the size if more is available
+          grow: true
+      - name: data-sata
         provisioning:
           diskSelector:
             match: "'/dev/disk/by-id/ata-CT1000MX500SSD1_2406E89658C0' in disk.symlinks"
-          minSize: "900GiB" # Talos will autogrow the size if more is available
+          minSize: "100GiB" # Talos will autogrow the size if more is available
           grow: true
       - name: backups
         provisioning:
@@ -81,8 +86,12 @@ nodes:
             match: "'/dev/disk/by-id/ata-TOSHIBA_MQ04UBF100_X5SPP12LT' in disk.symlinks"
           minSize: "900GiB"
           grow: true
+    patches:
+      - "@./patches/machine/longhorn.yaml"
+      - "@./patches/machine/ephemeral.yaml"
     nodeLabels: &nodeLabels
       ingress.kalexlab.xyz/type: traefik
+      balance.kalexlab.xyz/pool: default
     nodeAnnotations: &nodeAnnotations
       # Define disk configuration on a per-node basis.
       # Note: this cannot be updated, it is only honoured on Longhorn nodes creation
@@ -90,18 +99,24 @@ nodes:
       #
       # storageReserved is non-zero due it being interpreted as a empty field otherwise
       #   ref: https://github.com/longhorn/longhorn/issues/11444
-      node.longhorn.io/default-disks-config: '[{"name":"nvme","path":"/var/lib/longhorn","allowScheduling":true,"storageReserved":149768240947,"tags":[]},{"name":"sata","path":"/var/mnt/longhorn","allowScheduling":true,"storageReserved":1,"tags":[]}]'
+      node.longhorn.io/default-disks-config: '[{"name":"data-nvme","path":"/var/mnt/data-nvme","allowScheduling":true,"storageReserved":1,"tags":[]},{"name":"data-sata","path":"/var/mnt/data-sata","allowScheduling":true,"storageReserved":1,"tags":[]}]'
 
   - hostname: zeus
     ipAddress: 192.168.10.4
     installDisk: /dev/nvme0n1
     controlPlane: true
     userVolumes:
-      - name: longhorn
+      - name: data-nvme
+        provisioning:
+          diskSelector:
+            match: "'/dev/disk/by-id/nvme-WD_BLACK_SN770_1TB_24453F403703' in disk.symlinks"
+          minSize: "100GiB" # Talos will autogrow the size if more is available
+          grow: true
+      - name: data-sata
         provisioning:
           diskSelector:
             match: "'/dev/disk/by-id/ata-CT1000MX500SSD1_2434E988FA39' in disk.symlinks"
-          minSize: "900GiB" # Talos will autogrow the size if more is available
+          minSize: "100GiB" # Talos will autogrow the size if more is available
           grow: true
     schematic:
       customization:
@@ -111,5 +126,8 @@ nodes:
           # Power efficiency looks OK even without ASPM (~7-10W idle)
           - pcie_aspm=off
         systemExtensions: *systemExtensions
+    patches:
+      - "@./patches/machine/longhorn.yaml"
+      - "@./patches/machine/ephemeral.yaml"
     nodeLabels: *nodeLabels
     nodeAnnotations: *nodeAnnotations

@@ -6,3 +6,4 @@ machine:
     defaultRuntimeSeccompProfileEnabled: true
     extraArgs:
       rotate-server-certificates: true
+      max-pods: "256"
