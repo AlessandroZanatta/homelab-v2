@@ -28,8 +28,7 @@ data:
       ratelimit_whitelist: []
       refuse_any: true
       upstream_dns:
-        - https://dns.cloudflare.com/dns-query
-        - tls://1dot1dot1dot1.cloudflare-dns.com
+        - 192.168.10.1
       upstream_dns_file: ""
       bootstrap_dns:
         - 1.1.1.1
