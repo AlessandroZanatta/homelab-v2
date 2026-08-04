@@ -8,3 +8,13 @@ spec:
     # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
     version: v1.13.8
     # Note: if hooks are required, you must add a `backoffLimit: 1`
+  healthChecks:
+    - apiVersion: v1
+      kind: Node
+      expr: status.conditions.filter(c, c.type == "Ready").all(c, c.status == "True")
+      timeout: 15m
+    - apiVersion: longhorn.io/v1beta2
+      kind: Volume
+      namespace: longhorn-system
+      expr: status.robustness in ["healthy", "unknown"]
+      timeout: 120m
