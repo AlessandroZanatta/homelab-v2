@@ -30,7 +30,7 @@
     {
       "customType": "regex",
       "description": "Update dashboards pulled from raw GitHub URLs",
-      "fileMatch": ["helm/kube-prometheus-stack/*.yaml"],
+      "managerFilePatterns": ["/helm/kube-prometheus-stack/*.yaml/"],
       "matchStrings": [
         "#\\s*renovate:\\s*datasource=(?<datasource>[a-z-]+)\\s+depName=(?<depName>[^\\s]+)\\s*\\n\\s*url:\\s*\"?https:\\/\\/raw\\.githubusercontent\\.com\\/[^/]+\\/[^/]+\\/(?:refs\\/tags\\/)?(?<currentValue>[^/]+)\\/(?<assetPath>[^\"]+)\"?"
       ]
