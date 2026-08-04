@@ -3,3 +3,8 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - namespace.yaml
+  - secrets.sops.yaml
+  - vsc.yaml
+  - trim-job.yaml
+  - snapshot-delete-job.yaml
+  - ingress.yaml
