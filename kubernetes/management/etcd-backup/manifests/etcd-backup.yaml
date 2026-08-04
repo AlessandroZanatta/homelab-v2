@@ -1,0 +1,60 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: etcd-backup
+spec:
+  schedule: "0 */6 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: etcd-backup
+              image: ghcr.io/siderolabs/talos-backup:v0.1.0-beta.3-10-gb9fd478
+              workingDir: /tmp
+              imagePullPolicy: Always
+
+              envFrom:
+                - configMapRef:
+                    name: etcd-backup-conf
+                - secretRef:
+                    name: etcd-backup-secrets
+
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+
+              volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
+                - mountPath: /.talos
+                  name: talos
+                - mountPath: /var/run/secrets/talos.dev
+                  name: talos-secrets
+
+          enableServiceLinks: false
+          automountServiceAccountToken: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65535
+            runAsGroup: 65535
+            fsGroup: 65535
+            fsGroupChangePolicy: "OnRootMismatch"
+            seccompProfile:
+              type: RuntimeDefault
+
+          volumes:
+            - name: tmp
+              emptyDir:
+                sizeLimit: 2Gi
+            - name: talos
+              emptyDir:
+                sizeLimit: 1Gi
+            - name: talos-secrets
+              secret:
+                secretName: talos-backup-secrets

@@ -12,6 +12,7 @@ controlPlane:
     - "@./patches/machine/vip.yaml"
     - "@./patches/cluster/kube-proxy.yaml"
     - "@./patches/cluster/metrics.yaml"
+    - "@./patches/machine/api_access.yaml"
 
   schematic: &schematic
     customization:

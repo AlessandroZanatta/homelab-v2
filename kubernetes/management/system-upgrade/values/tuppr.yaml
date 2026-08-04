@@ -1,0 +1,23 @@
+---
+# -- Pod resource requests/limits.
+resources: {}
+# limits:
+#   cpu: 500m
+#   memory: 128Mi
+# requests:
+#   cpu: 10m
+#   memory: 64Mi
+
+# Controller runtime configuration.
+controller:
+  # -- Controller log level: info or debug.
+  logLevel: debug # TODO: switch to info once there is a stable release
+
+monitoring:
+  serviceMonitor:
+    # -- Create a Prometheus Operator ServiceMonitor (requires its CRDs).
+    enabled: true
+
+  dashboards:
+    # -- Render the Grafana dashboard ConfigMap (for grafana-operator or the kube-prometheus-stack sidecar).
+    enabled: true

@@ -1,0 +1,7 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: system-upgrade
+  annotations:
+    k8tz.io/inject: false

@@ -1,0 +1,20 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: system-upgrade
+
+helmGlobals:
+  chartHome: ../../../.charts
+
+helmCharts:
+  - name: tuppr
+    repo: oci://ghcr.io/home-operations/charts
+    version: 0.4.6
+    releaseName: tuppr
+    namespace: system-upgrade
+    valuesFile: values/tuppr.yaml
+    includeCRDs: true
+
+resources:
+  - manifests

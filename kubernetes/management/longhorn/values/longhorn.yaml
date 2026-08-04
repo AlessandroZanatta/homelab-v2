@@ -4,6 +4,8 @@ defaultSettings:
   storageReservedPercentageForDefaultDisk: "15"
   # -- Maximum number of engines that are allowed to concurrently upgrade on each node after Longhorn Manager is upgraded. When the value is "0", Longhorn does not automatically upgrade volume engines to the new default engine image version.
   concurrentAutomaticEngineUpgradePerNodeLimit: "2"
+  # -- Policy that defines the action Longhorn takes when a node with the last healthy replica of a volume is drained.
+  nodeDrainPolicy: block-for-eviction-if-contains-last-replica
 
 preUpgradeChecker:
   # -- Setting that allows Longhorn to perform pre-upgrade checks. Disable this setting when installing Longhorn using Argo CD or other GitOps solutions.
@@ -19,10 +21,12 @@ persistence:
   dataEngine: v1
 
 csi:
+  # -- Configures Pod anti-affinity to prevent multiple instances on the same node. Use soft (tries to separate) or hard (must separate). When unspecified, Longhorn uses the default value ("soft").
+  podAntiAffinityPreset: hard
   # -- Replica count of the CSI Attacher. When unspecified, Longhorn uses the default value ("3").
-  attacherReplicaCount: 1
+  attacherReplicaCount: "2"
   # -- Replica count of the CSI Provisioner. When unspecified, Longhorn uses the default value ("3").
-  provisionerReplicaCount: 1
+  provisionerReplicaCount: "2"
   # -- Replica count of the CSI Resizer. When unspecified, Longhorn uses the default value ("3").
   resizerReplicaCount: 1
   # -- Replica count of the CSI Snapshotter. When unspecified, Longhorn uses the default value ("3").

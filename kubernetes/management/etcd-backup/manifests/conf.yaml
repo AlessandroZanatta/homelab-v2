@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: etcd-backup-conf
+data:
+  CUSTOM_S3_ENDPOINT: https://backups.kalexlab.xyz
+  USE_PATH_STYLE: "true"
+  BUCKET: etcd
+  AGE_RECIPIENT_PUBLIC_KEY: age1ff26etr9n8nsp2ve2lkh7w4dqd9g9m9u3y8aw77ureu639mrfatqmuqnhv
+  ENABLE_COMPRESSION: "true"
