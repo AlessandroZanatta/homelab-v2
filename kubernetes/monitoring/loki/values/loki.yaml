@@ -1,7 +1,8 @@
 ---
 global:
   # -- configures DNS service name
-  dnsService: "coredns"
+  dnsService: coredns
+  dnsNamespace: coredns
 
 # -- Deployment mode lets you specify how to deploy Loki.
 # There are 3 options:
