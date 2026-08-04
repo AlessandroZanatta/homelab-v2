@@ -41,6 +41,7 @@ spec:
       isWALArchiver: true
       parameters:
         barmanObjectName: backups
+  enablePDB: false
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
