@@ -6,7 +6,7 @@
       "description": "Update dependencies that have a manually-placed label on them",
       "managerFilePatterns": ["**/*.yaml"],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+\\S+:\\s*\"?v?(?<currentValue>[^\"\\s]+)\"?"
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+\\S+:\\s*\"?v?(?:[\\w./-]+:)?(?<currentValue>[^\"\\s]+)\"?"
       ]
     },
     {

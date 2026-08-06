@@ -6,6 +6,15 @@
       "matchDatasources": ["docker"],
       "matchPackageNames": ["registry.kalexlab.xyz{/,}**"],
       "enabled": false
+    },
+    {
+      "description": "Automerge Talos and Kubernetes updates only early on weekends",
+      "matchPackageNames": [
+        "ghcr.io/siderolabs/installer",
+        "ghcr.io/siderolabs/kubelet"
+      ],
+      "automerge": true,
+      "automergeSchedule": ["after 11pm on friday", "on saturday"]
     }
   ]
 }
