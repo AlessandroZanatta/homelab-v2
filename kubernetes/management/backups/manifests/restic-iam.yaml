@@ -1,0 +1,71 @@
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: S3Identity
+metadata:
+  name: restic
+spec:
+  seaweedRef:
+    name: backups
+    namespace: backups
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: S3Credentials
+metadata:
+  name: restic
+spec:
+  seaweedRef:
+    name: backups
+    namespace: backups
+  identityRef:
+    name: restic
+  secretRef:
+    name: restic-s3-credentials
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: S3Policy
+metadata:
+  name: restic
+spec:
+  seaweedRef:
+    name: backups
+    namespace: backups
+  policyDocument: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:ListBucket"
+          ],
+          "Resource": [
+            "arn:aws:s3:::restic"
+          ]
+        },
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:GetObject",
+            "s3:PutObject",
+            "s3:DeleteObject"
+          ],
+          "Resource": [
+            "arn:aws:s3:::restic/*"
+          ]
+        }
+      ]
+    }
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: S3PolicyBinding
+metadata:
+  name: restic
+spec:
+  seaweedRef:
+    name: backups
+    namespace: backups
+  policyRef:
+    name: restic
+  subjects:
+    - kind: S3Identity
+      name: restic
