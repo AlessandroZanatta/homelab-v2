@@ -74,7 +74,7 @@ grafana:
     default:
       argocd:
         # renovate: datasource=github-tags depName=argoproj/argo-cd
-        url: "https://raw.githubusercontent.com/argoproj/argo-cd/refs/tags/v3.4.2/examples/dashboard.json"
+        url: "https:v3.5.0"
         datasource: Prometheus
       seaweedfs-operator:
         # renovate: datasource=github-tags depName=seaweedfs/seaweedfs-operator
