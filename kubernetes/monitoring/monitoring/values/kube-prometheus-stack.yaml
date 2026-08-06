@@ -76,6 +76,10 @@ grafana:
         # renovate: datasource=github-tags depName=argoproj/argo-cd
         url: "https://raw.githubusercontent.com/argoproj/argo-cd/refs/tags/v3.4.2/examples/dashboard.json"
         datasource: Prometheus
+      seaweedfs-operator:
+        # renovate: datasource=github-tags depName=seaweedfs/seaweedfs-operator
+        url: "https://raw.githubusercontent.com/seaweedfs/seaweedfs-operator/refs/tags/seaweedfs-operator-0.1.37/deploy/helm/dashboard/seaweedfs-grafana-dashboard.json"
+        datasource: Prometheus
       cloudnative-pg:
         # renovate: depName="Dashboard - CNPG"
         gnetId: 20417
