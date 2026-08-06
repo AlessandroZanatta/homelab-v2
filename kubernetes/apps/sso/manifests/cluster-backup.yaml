@@ -1,0 +1,71 @@
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: S3Identity
+metadata:
+  name: authelia
+spec:
+  seaweedRef:
+    name: backups
+    namespace: backups
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: S3Credentials
+metadata:
+  name: authelia
+spec:
+  seaweedRef:
+    name: backups
+    namespace: backups
+  identityRef:
+    name: authelia
+  secretRef:
+    name: authelia-s3-credentials
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: S3Policy
+metadata:
+  name: authelia
+spec:
+  seaweedRef:
+    name: backups
+    namespace: backups
+  policyDocument: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:ListBucket"
+          ],
+          "Resource": [
+            "arn:aws:s3:::cnpg"
+          ]
+        },
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:GetObject",
+            "s3:PutObject",
+            "s3:AbortMultipartUpload"
+          ],
+          "Resource": [
+            "arn:aws:s3:::cnpg/authelia/*"
+          ]
+        }
+      ]
+    }
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: S3PolicyBinding
+metadata:
+  name: authelia
+spec:
+  seaweedRef:
+    name: backups
+    namespace: backups
+  policyRef:
+    name: authelia
+  subjects:
+    - kind: S3Identity
+      name: authelia

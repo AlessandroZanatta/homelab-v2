@@ -1,0 +1,52 @@
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: ResourceReferenceGrant
+metadata:
+  name: allow-create-buckets
+spec:
+  from:
+    - group: seaweed.seaweedfs.com
+      kind: Bucket
+      namespaceSelector:
+        matchLabels:
+          backups.kalexlab.xyz/provision: "true"
+    - group: seaweed.seaweedfs.com
+      kind: BucketLifecyclePolicy
+      namespaceSelector:
+        matchLabels:
+          backups.kalexlab.xyz/provision: "true"
+  to:
+    - group: seaweed.seaweedfs.com
+      kind: Seaweed
+      name: backups
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: ResourceReferenceGrant
+metadata:
+  name: allow-use-bucket
+spec:
+  from:
+    - group: seaweed.seaweedfs.com
+      kind: S3Identity
+      namespaceSelector:
+        matchLabels:
+          backups.kalexlab.xyz/use: "true"
+    - group: seaweed.seaweedfs.com
+      kind: S3Credentials
+      namespaceSelector:
+        matchLabels:
+          backups.kalexlab.xyz/use: "true"
+    - group: seaweed.seaweedfs.com
+      kind: S3Policy
+      namespaceSelector:
+        matchLabels:
+          backups.kalexlab.xyz/use: "true"
+    - group: seaweed.seaweedfs.com
+      kind: S3PolicyBinding
+      namespaceSelector:
+        matchLabels:
+          backups.kalexlab.xyz/use: "true"
+  to:
+    - group: seaweed.seaweedfs.com
+      kind: Seaweed
+      name: backups

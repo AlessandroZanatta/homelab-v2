@@ -7,4 +7,6 @@ resources:
   - vsc.yaml
   - trim-job.yaml
   - snapshot-delete-job.yaml
+  - s3-bucket.yaml
+  - s3-iam.yaml
   - ingress.yaml

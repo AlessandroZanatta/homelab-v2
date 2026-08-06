@@ -1,0 +1,27 @@
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: Bucket
+metadata:
+  name: etcd
+spec:
+  clusterRef:
+    name: backups
+    namespace: backups
+  reclaimPolicy: Retain
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: BucketLifecyclePolicy
+metadata:
+  name: delete-old-snapshots
+spec:
+  bucketRef:
+    name: etcd
+  rules:
+    - id: expire-old-backups
+      status: Enabled
+      expiration:
+        days: 14
+    - id: cleanup-incomplete-uploads
+      status: Enabled
+      abortIncompleteMultipartUpload:
+        daysAfterInitiation: 7

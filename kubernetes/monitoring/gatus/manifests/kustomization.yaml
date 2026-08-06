@@ -7,5 +7,6 @@ resources:
   - conf.yaml
   - secrets.sops.yaml
   - cluster.yaml
+  - cluster-backup.yaml
   - gatus.yaml
   - ingress.yaml

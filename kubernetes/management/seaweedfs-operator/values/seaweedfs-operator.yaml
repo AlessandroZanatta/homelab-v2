@@ -1,0 +1,11 @@
+---
+## Security context for pods
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  fsGroup: 65532
+  # runAsGroup and seccompProfile added manually
+  runAsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault

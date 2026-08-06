@@ -1,0 +1,23 @@
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: Bucket
+metadata:
+  name: velero
+spec:
+  clusterRef:
+    name: backups
+    namespace: backups
+  reclaimPolicy: Retain
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: BucketLifecyclePolicy
+metadata:
+  name: cleanup-uploads
+spec:
+  bucketRef:
+    name: velero
+  rules:
+    - id: cleanup-incomplete-uploads
+      status: Enabled
+      abortIncompleteMultipartUpload:
+        daysAfterInitiation: 7

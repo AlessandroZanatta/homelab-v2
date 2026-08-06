@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - conf.yaml
-  - secrets.sops.yaml
-  - sa.yaml
+  - s3-bucket.yaml
+  - s3-iam.yaml
+  - talos-sa.yaml
   - etcd-backup.yaml

@@ -471,6 +471,7 @@ data:
             - adguard.dns.kalexlab.xyz
             - ddns.kalexlab.xyz
             - cabling.kalexlab.xyz
+            - ui.backups.kalexlab.xyz
           policy: two_factor
           subject:
             - ["group:admins"]

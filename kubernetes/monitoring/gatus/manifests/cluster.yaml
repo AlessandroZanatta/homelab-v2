@@ -8,15 +8,12 @@ spec:
     destinationPath: "s3://cnpg/gatus"
     endpointURL: "https://backups.kalexlab.xyz"
     s3Credentials:
-      region:
-        name: s3-secrets
-        key: REGION
       accessKeyId:
-        name: s3-secrets
-        key: ACCESS_KEY
+        name: gatus-s3-credentials
+        key: accessKey
       secretAccessKey:
-        name: s3-secrets
-        key: SECRET_KEY
+        name: gatus-s3-credentials
+        key: secretKey
     wal:
       compression: bzip2
     data:
@@ -32,6 +29,8 @@ spec:
     labels:
       kalexlab.xyz/app: gatus
       kalexlab.xyz/component: cluster
+      # TODO: add monitoring? may be meaningless
+      backups.kalexlab.xyz/use: "true"
   instances: 1
   storage:
     storageClass: longhorn

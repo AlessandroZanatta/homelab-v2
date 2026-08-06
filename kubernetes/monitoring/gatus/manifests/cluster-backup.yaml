@@ -1,0 +1,71 @@
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: S3Identity
+metadata:
+  name: gatus
+spec:
+  seaweedRef:
+    name: backups
+    namespace: backups
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: S3Credentials
+metadata:
+  name: gatus
+spec:
+  seaweedRef:
+    name: backups
+    namespace: backups
+  identityRef:
+    name: gatus
+  secretRef:
+    name: gatus-s3-credentials
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: S3Policy
+metadata:
+  name: gatus
+spec:
+  seaweedRef:
+    name: backups
+    namespace: backups
+  policyDocument: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:ListBucket"
+          ],
+          "Resource": [
+            "arn:aws:s3:::cnpg"
+          ]
+        },
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:GetObject",
+            "s3:PutObject",
+            "s3:AbortMultipartUpload"
+          ],
+          "Resource": [
+            "arn:aws:s3:::cnpg/gatus/*"
+          ]
+        }
+      ]
+    }
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: S3PolicyBinding
+metadata:
+  name: gatus
+spec:
+  seaweedRef:
+    name: backups
+    namespace: backups
+  policyRef:
+    name: gatus
+  subjects:
+    - kind: S3Identity
+      name: gatus

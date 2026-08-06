@@ -6,5 +6,6 @@ resources:
   - network-policies.yaml
   - secrets.sops.yaml
   - cluster.yaml
+  - cluster-backup.yaml
   - vaultwarden.yaml
   - ingress.yaml

@@ -1,0 +1,69 @@
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: S3Identity
+metadata:
+  name: longhorn
+spec:
+  seaweedRef:
+    name: backups
+    namespace: backups
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: S3Credentials
+metadata:
+  name: longhorn
+spec:
+  seaweedRef:
+    name: backups
+    namespace: backups
+  identityRef:
+    name: longhorn
+  secretRef:
+    name: longhorn-s3-credentials
+    accessKeyField: AWS_ACCESS_KEY_ID
+    secretKeyField: AWS_SECRET_ACCESS_KEY
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: S3Policy
+metadata:
+  name: longhorn
+spec:
+  seaweedRef:
+    name: backups
+    namespace: backups
+  policyDocument: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:GetObject",
+            "s3:PutObject",
+            "s3:DeleteObject",
+            "s3:ListBucket",
+            "s3:GetBucketLocation",
+            "s3:AbortMultipartUpload",
+            "s3:ListMultipartUploadParts"
+          ],
+          "Resource": [
+            "arn:aws:s3:::longhorn",
+            "arn:aws:s3:::longhorn/*"
+          ]
+        }
+      ]
+    }
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: S3PolicyBinding
+metadata:
+  name: longhorn
+spec:
+  seaweedRef:
+    name: backups
+    namespace: backups
+  policyRef:
+    name: longhorn
+  subjects:
+    - kind: S3Identity
+      name: longhorn

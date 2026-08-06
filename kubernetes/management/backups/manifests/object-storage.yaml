@@ -1,0 +1,183 @@
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: Seaweed
+metadata:
+  name: backups
+spec:
+  # renovate: datasource=docker depName=chrislusf/seaweedfs
+  image: chrislusf/seaweedfs:4.39
+
+  # TODO: add limits to all pods
+
+  volumeServerDiskCount: 1
+  imagePullPolicy: Always
+
+  nodeSelector:
+    feature.node.kubernetes.io/usb-08_0480_0905.present: "true"
+
+  loggingArgs:
+    - -logtostderr=true
+    - -log_json
+
+  master:
+    replicas: 1
+
+    initContainers:
+      - name: fix-perms
+        image: docker.io/library/alpine:latest
+        command: &fixPermsCommand
+          - sh
+          - -c
+          - |
+            chown 65535:65535 /data
+            chmod 2775 /data
+        securityContext: &fixPermsSecurityContext
+          runAsUser: 0
+          runAsNonRoot: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+            add:
+              - CHOWN
+              - FOWNER
+        volumeMounts:
+          - name: master-data
+            mountPath: /data
+
+    labels:
+      kalexlab.xyz/app: backups
+      kalexlab.xyz/component: master
+
+    volumeSizeLimitMB: 1000
+
+    volumes:
+      - name: master-data
+        persistentVolumeClaim:
+          claimName: backups-master-pvc
+      - name: tmp
+        emptyDir:
+          sizeLimit: 1Gi
+    volumeMounts:
+      - name: master-data
+        mountPath: /data
+      - name: tmp
+        mountPath: /tmp
+
+    podSecurityContext: &podSecurityContext
+      runAsNonRoot: true
+      runAsUser: 65535
+      runAsGroup: 65535
+      fsGroup: 65535
+      fsGroupChangePolicy: "OnRootMismatch"
+      seccompProfile:
+        type: RuntimeDefault
+
+    containerSecurityContext: &containerSecurityContext
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
+
+  volume:
+    replicas: 1
+
+    initContainers:
+      - name: fix-perms
+        image: docker.io/library/alpine:latest
+        command: *fixPermsCommand
+        securityContext: *fixPermsSecurityContext
+        volumeMounts:
+          - name: mount0
+            mountPath: /data
+
+    labels:
+      kalexlab.xyz/app: backups
+      kalexlab.xyz/component: volume
+
+    requests:
+      storage: 975G
+
+    storageClassName: ""
+    storageSelector:
+      matchLabels:
+        kalexlab.xyz/app: seaweedfs
+        kalexlab.xyz/component: volume
+
+    podSecurityContext: *podSecurityContext
+    containerSecurityContext: *containerSecurityContext
+
+  filer:
+    replicas: 1
+
+    initContainers:
+      - name: fix-perms
+        image: docker.io/library/alpine:latest
+        command: *fixPermsCommand
+        securityContext: *fixPermsSecurityContext
+        volumeMounts:
+          - name: backups-filer-pvc
+            mountPath: /data
+
+    labels:
+      kalexlab.xyz/app: backups
+      kalexlab.xyz/component: filer
+
+    persistence:
+      enabled: true
+      existingClaim: backups-filer-pvc
+
+    volumes:
+      - name: tmp
+        emptyDir:
+          sizeLimit: 1Gi
+    volumeMounts:
+      - name: tmp
+        mountPath: /tmp
+
+    podSecurityContext: *podSecurityContext
+    containerSecurityContext: *containerSecurityContext
+
+  s3:
+    replicas: 1
+
+    labels:
+      kalexlab.xyz/app: backups
+      kalexlab.xyz/component: s3
+
+    metricsPort: 8191
+
+    domainName: backups.kalexlab.xyz
+    iam: true
+
+    volumes:
+      - name: tmp
+        emptyDir:
+          sizeLimit: 1Gi
+    volumeMounts:
+      - name: tmp
+        mountPath: /tmp
+
+    podSecurityContext: *podSecurityContext
+    containerSecurityContext: *containerSecurityContext
+
+  worker:
+    replicas: 1
+
+    labels:
+      kalexlab.xyz/app: backups
+      kalexlab.xyz/component: worker
+
+    jobType: all
+
+    podSecurityContext: *podSecurityContext
+    containerSecurityContext: *containerSecurityContext
+
+  admin:
+    labels:
+      kalexlab.xyz/app: backups
+      kalexlab.xyz/component: admin
+
+    podSecurityContext: *podSecurityContext
+    containerSecurityContext: *containerSecurityContext

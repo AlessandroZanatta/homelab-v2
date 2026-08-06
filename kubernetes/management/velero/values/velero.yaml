@@ -44,4 +44,4 @@ schedules:
         - backups
 
 credentials:
-  existingSecret: s3-credentials
+  existingSecret: velero-cloud

@@ -41,7 +41,7 @@ defaultBackupStore:
   # -- Endpoint used to access the default backupstore. (Options: "NFS", "CIFS", "AWS", "GCP", "AZURE")
   backupTarget: "s3://longhorn@default/"
   # -- Name of the Kubernetes secret associated with the default backup target.
-  backupTargetCredentialSecret: backups-secrets
+  backupTargetCredentialSecret: longhorn-s3-credentials
 
 ingress:
   enabled: false

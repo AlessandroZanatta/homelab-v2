@@ -9,6 +9,7 @@ resources:
   - pvc.yaml
   - valkey.yaml
   - cluster.yaml
+  - cluster-backup.yaml
   - api.yaml
   - web.yaml
   - worker.yaml

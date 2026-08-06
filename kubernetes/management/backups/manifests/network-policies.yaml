@@ -1,50 +1,324 @@
 ---
-# apiVersion: networking.k8s.io/v1
-# kind: NetworkPolicy
-# metadata:
-#   name: default-deny-all
-# spec:
-#   podSelector: {}
-#   policyTypes:
-#     - Ingress
-#     - Egress
-# ---
-# apiVersion: networking.k8s.io/v1
-# kind: NetworkPolicy
-# metadata:
-#   name: rustfs
-# spec:
-#   podSelector:
-#     matchLabels:
-#       kalexlab.xyz/app: backups
-#       kalexlab.xyz/component: rustfs
-#   policyTypes:
-#     - Ingress
-#   ingress:
-#     - from:
-#         - namespaceSelector:
-#             matchLabels:
-#               kubernetes.io/metadata.name: traefik
-#           podSelector:
-#             matchLabels:
-#               app.kubernetes.io/name: traefik
-#       ports:
-#         - protocol: TCP
-#           port: 9000
-#         - protocol: TCP
-#           port: 9001
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-cluster-dns
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: coredns
+          podSelector:
+            matchLabels:
+              k8s-app: coredns
+      ports:
+        - protocol: UDP
+          port: 53
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: s3
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: backups
+      kalexlab.xyz/component: s3
+  policyTypes:
+    - Egress
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: 8333
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: 8191
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: filer
+      ports:
+        - protocol: TCP
+          port: 18888
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: master
+      ports:
+        - protocol: TCP
+          port: 19333
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: volume
+      ports:
+        - protocol: TCP
+          port: 8444
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: volume
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: backups
+      kalexlab.xyz/component: volume
+  policyTypes:
+    - Egress
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: master
+      ports:
+        - protocol: TCP
+          port: 18444
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: filer
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: s3
+      ports:
+        - protocol: TCP
+          port: 8444
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: master
+      ports:
+        - protocol: TCP
+          port: 19333
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: filer
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: backups
+      kalexlab.xyz/component: filer
+  policyTypes:
+    - Egress
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: s3
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: admin
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: seaweedfs-operator
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: seaweedfs-operator
+      ports:
+        - protocol: TCP
+          port: 18888
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: master
+      ports:
+        - protocol: TCP
+          port: 19333
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: volume
+      ports:
+        - protocol: TCP
+          port: 8444
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: master
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: backups
+      kalexlab.xyz/component: master
+  policyTypes:
+    - Egress
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: filer
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: volume
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: admin
+      ports:
+        - protocol: TCP
+          port: 19333
+        - protocol: TCP
+          port: 9333
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: s3
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: seaweedfs-operator
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: seaweedfs-operator
+      ports:
+        - protocol: TCP
+          port: 19333
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: volume
+      ports:
+        - protocol: TCP
+          port: 18444
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: admin
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: backups
+      kalexlab.xyz/component: admin
+  policyTypes:
+    - Egress
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: worker
+      ports:
+        - protocol: TCP
+          port: 33646
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: 23646
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: master
+      ports:
+        - protocol: TCP
+          port: 19333
+        - protocol: TCP
+          port: 9333
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: filer
+      ports:
+        - protocol: TCP
+          port: 18888
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: worker
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: backups
+      kalexlab.xyz/component: worker
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: admin
+      ports:
+        - protocol: TCP
+          port: 33646
 ---
 apiVersion: cilium.io/v2
 kind: CiliumClusterwideNetworkPolicy
 metadata:
-  name: allow-cnpg-clusters-backups
+  name: allow-bucket-users
 spec:
   endpointSelector:
     matchLabels:
-      kalexlab.xyz/component: cluster
+      backups.kalexlab.xyz/use: "true"
   egress:
-    # Allow traffic from all cnpg clusters to s3 storage
-    - toEndpoints:
-        - matchLabels:
-            k8s:io.kubernetes.pod.namespace: traefik
-            app.kubernetes.io/name: traefik
+    - toFQDNs:
+        - matchName: "backups.kalexlab.xyz"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

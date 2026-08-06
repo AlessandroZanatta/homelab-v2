@@ -5,8 +5,8 @@ resources:
   - namespace.yaml
   - network-policies.yaml
   - conf.yaml
-  - secrets.sops.yaml
   - cluster.yaml
+  - cluster-backup.yaml
   - valkey.yaml
   - immich.yaml
   - machine-learning.yaml

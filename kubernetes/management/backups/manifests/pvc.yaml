@@ -2,11 +2,13 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: s3-data-pv
+  name: backups-volume-pv
+  labels:
+    kalexlab.xyz/app: seaweedfs
+    kalexlab.xyz/component: volume
 spec:
   capacity:
-    storage: 1Ti
-  volumeMode: Filesystem
+    storage: 975G
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
@@ -15,22 +17,92 @@ spec:
     required:
       nodeSelectorTerms:
         - matchExpressions:
-            - key: kubernetes.io/hostname
+            - key: feature.node.kubernetes.io/usb-08_0480_0905.present
               operator: In
               values:
-                - hermes
+                - "true"
   hostPath:
-    path: "/var/mnt/backups"
+    path: /var/mnt/backups/volume
     type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: backups-master-pv
+  labels:
+    kalexlab.xyz/app: seaweedfs
+    kalexlab.xyz/component: master
+spec:
+  capacity:
+    storage: 5G
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: feature.node.kubernetes.io/usb-08_0480_0905.present
+              operator: In
+              values:
+                - "true"
+  hostPath:
+    path: /var/mnt/backups/master
+    type: DirectoryOrCreate
+  claimRef:
+    name: backups-master-pvc
+    namespace: backups
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: s3-data-pvc
+  name: backups-master-pvc
 spec:
   accessModes:
     - ReadWriteOnce
   storageClassName: ""
   resources:
     requests:
-      storage: 1Ti
+      storage: 5G
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: backups-filer-pv
+  labels:
+    kalexlab.xyz/app: seaweedfs
+    kalexlab.xyz/component: filer
+spec:
+  capacity:
+    storage: 20G
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: feature.node.kubernetes.io/usb-08_0480_0905.present
+              operator: In
+              values:
+                - "true"
+  hostPath:
+    path: /var/mnt/backups/filer
+    type: DirectoryOrCreate
+  claimRef:
+    name: backups-filer-pvc
+    namespace: backups
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backups-filer-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 20G

@@ -8,15 +8,12 @@ spec:
     destinationPath: "s3://cnpg/wiki"
     endpointURL: "https://backups.kalexlab.xyz"
     s3Credentials:
-      region:
-        name: s3-secrets
-        key: REGION
       accessKeyId:
-        name: s3-secrets
-        key: ACCESS_KEY
+        name: wiki-s3-credentials
+        key: accessKey
       secretAccessKey:
-        name: s3-secrets
-        key: SECRET_KEY
+        name: wiki-s3-credentials
+        key: secretKey
     wal:
       compression: bzip2
     data:
@@ -33,6 +30,7 @@ spec:
       kalexlab.xyz/app: wiki
       kalexlab.xyz/component: cluster
       kalexlab.xyz/monitoring: "true"
+      backups.kalexlab.xyz/use: "true"
   instances: 1
   storage:
     storageClass: longhorn

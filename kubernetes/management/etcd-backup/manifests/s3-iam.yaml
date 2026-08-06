@@ -1,0 +1,64 @@
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: S3Identity
+metadata:
+  name: etcd-backup
+spec:
+  seaweedRef:
+    name: backups
+    namespace: backups
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: S3Credentials
+metadata:
+  name: etcd-backup
+spec:
+  seaweedRef:
+    name: backups
+    namespace: backups
+  identityRef:
+    name: etcd-backup
+  secretRef:
+    name: etcd-backup
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: S3Policy
+metadata:
+  name: etcd-backup
+spec:
+  seaweedRef:
+    name: backups
+    namespace: backups
+  policyDocument: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:ListBucket",
+            "s3:GetObject",
+            "s3:PutObject",
+            "s3:AbortMultipartUpload"
+          ],
+          "Resource": [
+            "arn:aws:s3:::etcd",
+            "arn:aws:s3:::etcd/*"
+          ]
+        }
+      ]
+    }
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: S3PolicyBinding
+metadata:
+  name: etcd-backup
+spec:
+  seaweedRef:
+    name: backups
+    namespace: backups
+  policyRef:
+    name: etcd-backup
+  subjects:
+    - kind: S3Identity
+      name: etcd-backup

@@ -22,6 +22,18 @@ spec:
                 - secretRef:
                     name: etcd-backup-secrets
 
+              env:
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: etcd-backup
+                      key: accessKey
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: etcd-backup
+                      key: secretKey
+
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true

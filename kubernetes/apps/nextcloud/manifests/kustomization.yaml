@@ -7,6 +7,7 @@ resources:
   - conf.yaml
   - secrets.sops.yaml
   - cluster.yaml
+  - cluster-backup.yaml
   - valkey.yaml
   - collabora-online.yaml
   - nextcloud.yaml
