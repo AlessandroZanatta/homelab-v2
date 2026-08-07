@@ -3,7 +3,7 @@ replicaCount: 2
 
 prometheus:
   service:
-    enabled: false
+    enabled: true
   monitor:
     enabled: false
 

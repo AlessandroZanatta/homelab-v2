@@ -76,9 +76,9 @@ grafana:
         # renovate: datasource=github-tags depName=argoproj/argo-cd
         url: "https:v3.5.0"
         datasource: Prometheus
-      seaweedfs-operator:
-        # renovate: datasource=github-tags depName=seaweedfs/seaweedfs-operator
-        url: "https://raw.githubusercontent.com/seaweedfs/seaweedfs-operator/refs/tags/seaweedfs-operator-0.1.37/deploy/helm/dashboard/seaweedfs-grafana-dashboard.json"
+      seaweedfs:
+        # renovate: datasource=github-tags depName=seaweedfs/seaweedfs
+        url: "https://raw.githubusercontent.com/seaweedfs/seaweedfs/refs/tags/4.36/k8s/charts/seaweedfs/dashboards/seaweedfs-grafana-dashboard.json"
         datasource: Prometheus
       cloudnative-pg:
         # renovate: depName="Dashboard - CNPG"
@@ -89,7 +89,9 @@ grafana:
         # renovate: depName="Dashboard - smartCTL"
         gnetId: 24922
         revision: 1
-        datasource: Prometheus
+        datasource:
+          - name: DS_PROMETHEUS
+            value: Prometheus
       velero:
         # renovate: depName="Dashboard - Velero"
         gnetId: 16829
@@ -114,11 +116,6 @@ grafana:
         # renovate: depName="Dashboard - Traefik"
         gnetId: 17346
         revision: 9
-        datasource: Prometheus
-      trivy:
-        # renovate: depName="Dashboard - Trivy"
-        gnetId: 16337
-        revision: 16
         datasource: Prometheus
 
 prometheusOperator:
@@ -239,14 +236,6 @@ alertmanager:
 
     route:
       receiver: "null"
-      receivers:
-        - name: telegram
-          telegram_configs:
-            - bot_token: /etc/alertmanager/secrets/alertmanager-secrets/bot_token
-              chat_id: /etc/alertmanager/secrets/alertmanager-secrets/admin1_chat_id
-              parse_mode: HTML
-              message: '{{ template "telegram.message" . }}'
-        - name: "null"
       routes:
         - match:
             severity: "critical"
@@ -255,7 +244,14 @@ alertmanager:
           group_wait: 30s
           group_interval: 5m
           repeat_interval: 24h
-
+    receivers:
+      - name: telegram
+        telegram_configs:
+          - bot_token_file: /etc/alertmanager/secrets/alertmanager-secrets/bot_token
+            chat_id_file: /etc/alertmanager/secrets/alertmanager-secrets/admin1_chat_id
+            parse_mode: HTML
+            message: '{{ template "telegram.message" . }}'
+      - name: "null"
   alertmanagerSpec:
     ## Secrets is a list of Secrets in the same namespace as the Alertmanager object, which shall be mounted into the
     ## Alertmanager Pods. The Secrets are mounted into /etc/alertmanager/secrets/.
@@ -263,14 +259,15 @@ alertmanager:
     secrets:
       - alertmanager-secrets
 
+# namespace for scraping is hardcoded to kube-system, scrap this
 coreDns:
-  # Service exposed by coreDns itself, appears to not be working otherwise
-  service:
-    selector:
-      app.kubernetes.io/name: coredns
+  enabled: false
+  serviceMonitor:
+    enabled: false
 
 kubeEtcd:
   # Control plane virtual IP from talos/machine/vip.yaml and talos/talenv.prod.yaml
+  # Only good for single-CP clusters!
   endpoints:
     - 192.168.10.9
 

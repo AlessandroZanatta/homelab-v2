@@ -18,6 +18,23 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
+  name: coredns
+spec:
+  jobLabel: app.kubernetes.io/name
+  endpoints:
+    - port: metrics
+      path: /metrics
+  namespaceSelector:
+    matchNames:
+      - coredns
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: coredns
+      app.kubernetes.io/component: metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
   name: cert-manager
 spec:
   endpoints:
