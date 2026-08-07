@@ -1,0 +1,53 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-cluster-dns
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: coredns
+          podSelector:
+            matchLabels:
+              k8s-app: coredns
+      ports:
+        - protocol: UDP
+          port: 53
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: redis-operator
+spec:
+  endpointSelector:
+    matchLabels:
+      name: redis-operator
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
+  ingress:
+    - fromEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "8081"
+              protocol: TCP

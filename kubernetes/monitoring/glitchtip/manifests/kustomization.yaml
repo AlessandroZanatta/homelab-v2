@@ -9,7 +9,7 @@ resources:
   - uploads-pvc.yaml
   - cluster.yaml
   - cluster-backup.yaml
-  - valkey.yaml
+  - cache.yaml
   - web.yaml
   - worker.yaml
   - ingress.yaml

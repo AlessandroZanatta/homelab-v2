@@ -8,6 +8,6 @@ resources:
   - secrets.sops.yaml
   - cluster.yaml
   - cluster-backup.yaml
-  - valkey.yaml
+  - cache.yaml
   - outline.yaml
   - ingress.yaml
