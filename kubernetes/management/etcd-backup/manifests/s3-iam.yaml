@@ -19,7 +19,7 @@ spec:
   identityRef:
     name: etcd-backup
   secretRef:
-    name: etcd-backup
+    name: etcd-backup-s3-credentials
 ---
 apiVersion: seaweed.seaweedfs.com/v1
 kind: S3Policy

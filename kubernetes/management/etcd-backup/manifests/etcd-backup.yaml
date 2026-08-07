@@ -26,12 +26,12 @@ spec:
                 - name: AWS_ACCESS_KEY_ID
                   valueFrom:
                     secretKeyRef:
-                      name: etcd-backup
+                      name: etcd-backup-s3-credentials
                       key: accessKey
                 - name: AWS_SECRET_ACCESS_KEY
                   valueFrom:
                     secretKeyRef:
-                      name: etcd-backup
+                      name: etcd-backup-s3-credentials
                       key: secretKey
 
               securityContext:
