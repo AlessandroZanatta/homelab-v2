@@ -43,7 +43,7 @@ spec:
       # hostNetwork: true
       containers:
         - name: app
-          image: "docker.io/homeassistant/home-assistant:2026.8.0"
+          image: "docker.io/homeassistant/home-assistant:2026.8.1"
           imagePullPolicy: Always
           ports:
             - containerPort: 8123
