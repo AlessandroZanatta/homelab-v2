@@ -19,8 +19,6 @@ spec:
               envFrom:
                 - configMapRef:
                     name: etcd-backup-conf
-                - secretRef:
-                    name: etcd-backup-secrets
 
               env:
                 - name: AWS_ACCESS_KEY_ID
