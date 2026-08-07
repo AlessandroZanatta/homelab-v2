@@ -78,7 +78,7 @@ grafana:
         datasource: Prometheus
       seaweedfs:
         # renovate: datasource=github-tags depName=seaweedfs/seaweedfs
-        url: "https://raw.githubusercontent.com/seaweedfs/seaweedfs/refs/tags/4.36/k8s/charts/seaweedfs/dashboards/seaweedfs-grafana-dashboard.json"
+        url: "https:4.41"
         datasource: Prometheus
       cloudnative-pg:
         # renovate: depName="Dashboard - CNPG"
