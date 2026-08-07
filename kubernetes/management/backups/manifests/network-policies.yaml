@@ -305,7 +305,16 @@ spec:
               kalexlab.xyz/component: admin
       ports:
         - protocol: TCP
-          port: 33646
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: master
+      ports:
+        - protocol: TCP
+          port: 9333
+        - protocol: TCP
+          port: 19333
 ---
 apiVersion: cilium.io/v2
 kind: CiliumClusterwideNetworkPolicy
@@ -316,9 +325,11 @@ spec:
     matchLabels:
       backups.kalexlab.xyz/use: "true"
   egress:
-    - toFQDNs:
-        - matchName: "backups.kalexlab.xyz"
-      toPorts:
+    - toPorts:
         - ports:
             - port: "443"
               protocol: TCP
+            - port: "8443"
+              protocol: TCP
+          serverNames:
+            - backups.kalexlab.xyz
