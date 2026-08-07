@@ -22,6 +22,8 @@ spec:
   master:
     replicas: 1
 
+    metricsPort: 8191
+
     initContainers:
       - name: fix-perms
         image: docker.io/library/alpine:latest
@@ -83,6 +85,8 @@ spec:
   volume:
     replicas: 1
 
+    metricsPort: 8191
+
     initContainers:
       - name: fix-perms
         image: docker.io/library/alpine:latest
@@ -110,6 +114,8 @@ spec:
 
   filer:
     replicas: 1
+
+    metricsPort: 8191
 
     initContainers:
       - name: fix-perms
@@ -142,11 +148,11 @@ spec:
   s3:
     replicas: 1
 
+    metricsPort: 8191
+
     labels:
       kalexlab.xyz/app: backups
       kalexlab.xyz/component: s3
-
-    metricsPort: 8191
 
     domainName: backups.kalexlab.xyz
     iam: true
@@ -165,6 +171,8 @@ spec:
   worker:
     replicas: 1
 
+    metricsPort: 8191
+
     labels:
       kalexlab.xyz/app: backups
       kalexlab.xyz/component: worker
@@ -175,6 +183,8 @@ spec:
     containerSecurityContext: *containerSecurityContext
 
   admin:
+    metricsPort: 8191
+
     labels:
       kalexlab.xyz/app: backups
       kalexlab.xyz/component: admin

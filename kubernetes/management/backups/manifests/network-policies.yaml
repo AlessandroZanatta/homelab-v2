@@ -121,6 +121,16 @@ spec:
       ports:
         - protocol: TCP
           port: 8444
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: 8191
   egress:
     - to:
         - podSelector:
@@ -162,6 +172,16 @@ spec:
       ports:
         - protocol: TCP
           port: 18888
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: 8191
   egress:
     - to:
         - podSelector:
@@ -206,6 +226,10 @@ spec:
             matchLabels:
               kalexlab.xyz/app: backups
               kalexlab.xyz/component: admin
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: worker
       ports:
         - protocol: TCP
           port: 19333
@@ -225,6 +249,16 @@ spec:
       ports:
         - protocol: TCP
           port: 19333
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: 8191
   egress:
     - to:
         - podSelector:
@@ -266,6 +300,16 @@ spec:
       ports:
         - protocol: TCP
           port: 23646
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: 8191
   egress:
     - to:
         - podSelector:
@@ -296,7 +340,19 @@ spec:
       kalexlab.xyz/app: backups
       kalexlab.xyz/component: worker
   policyTypes:
+    - Ingress
     - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: 8191
   egress:
     - to:
         - podSelector:
@@ -305,6 +361,9 @@ spec:
               kalexlab.xyz/component: admin
       ports:
         - protocol: TCP
+          port: 23646
+        - protocol: TCP
+          port: 33646
     - to:
         - podSelector:
             matchLabels:
