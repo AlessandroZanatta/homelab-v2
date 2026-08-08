@@ -40,7 +40,7 @@ spec:
       restartPolicy: Always
       initContainers:
         - name: copy-nginx
-          image: "ghcr.io/usekaneo/web:2.14.0"
+          image: "ghcr.io/usekaneo/web:2.15.0"
           imagePullPolicy: Always
           securityContext:
             readOnlyRootFilesystem: true
@@ -63,7 +63,7 @@ spec:
               name: nginx-confd
       containers:
         - name: app
-          image: "ghcr.io/usekaneo/web:2.14.0"
+          image: "ghcr.io/usekaneo/web:2.15.0"
           imagePullPolicy: Always
           ports:
             - containerPort: 5173
