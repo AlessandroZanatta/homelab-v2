@@ -4,10 +4,16 @@ kind: CronJob
 metadata:
   name: etcd-backup
 spec:
+  # TODO: if this job fails, throw a critical alert
   schedule: "0 */6 * * *"
   jobTemplate:
     spec:
       template:
+        metadata:
+          labels:
+            kalexlab.xyz/app: etcd-backup
+            kalexlab.xyz/monitoring: "true"
+            backups.kalexlab.xyz/use: "true"
         spec:
           restartPolicy: Never
           containers:

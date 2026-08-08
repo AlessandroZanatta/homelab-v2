@@ -1,0 +1,48 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-cluster-dns
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: coredns
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: coredns
+      ports:
+        - protocol: UDP
+          port: 53
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-egress-to-talos
+spec:
+  endpointSelector:
+    matchLabels:
+      kalexlab.xyz/app: etcd-backup
+  egress:
+    - toPorts:
+        - ports:
+            - port: "50000"
+              protocol: TCP
+          serverNames:
+            - talos.default.svc.cluster.local
+            - talos.default.svc
+            - talos.default
