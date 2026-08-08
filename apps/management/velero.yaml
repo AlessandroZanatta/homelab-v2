@@ -20,3 +20,4 @@ spec:
       enabled: true
     syncOptions:
       - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true

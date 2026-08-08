@@ -5,7 +5,7 @@ prometheus:
   service:
     enabled: true
   monitor:
-    enabled: false
+    enabled: true
 
 service:
   clusterIP: "10.96.0.10"

@@ -1,0 +1,29 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: etcd-backup-alerts
+spec:
+  groups:
+    - name: etcd-backup.rules
+      rules:
+        - alert: EtcdBackupJobFailed
+          expr: |
+            kube_job_status_failed{namespace="etcd-backup"} * on(job_name, namespace) group_left(owner_name)
+            kube_job_owner{namespace="etcd-backup", owner_kind="CronJob", owner_name="etcd-backup"}
+            > 0
+          for: 0m
+          labels:
+            severity: critical
+          annotations:
+            summary: "etcd backup Job failed"
+            description: "The etcd-backup CronJob's Job {{ $labels.job_name }} in namespace {{ $labels.namespace }} failed."
+        - alert: EtcdBackupNotRunning
+          expr: |
+            time() - kube_cronjob_status_last_schedule_time{namespace="etcd-backup", cronjob="etcd-backup"} > 12 * 3600
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "etcd backup CronJob hasn't run recently"
+            description: "etcd-backup in namespace {{ $labels.namespace }} hasn't been scheduled in over 12h (expected every 6h)."

@@ -14,15 +14,6 @@ helmCharts:
     releaseName: monitoring
     namespace: monitoring
     valuesFile: values/kube-prometheus-stack.yaml
-    additionalValuesFiles:
-      - values/alerts/argocd.yaml
-      - values/alerts/cert-manager.yaml
-      - values/alerts/cnpg.yaml
-      - values/alerts/coredns.yaml
-      - values/alerts/longhorn.yaml
-      - values/alerts/smartctl.yaml
-      - values/alerts/traefik.yaml
-      - values/alerts/velero.yaml
 
 resources:
   - manifests

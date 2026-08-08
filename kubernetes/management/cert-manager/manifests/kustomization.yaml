@@ -6,3 +6,4 @@ resources:
   - clusterissuer.yaml
   - rbac.yaml
   - secrets.sops.yaml
+  - alerting.yaml

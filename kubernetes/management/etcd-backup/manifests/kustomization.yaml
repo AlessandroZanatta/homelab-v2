@@ -9,3 +9,4 @@ resources:
   - s3-iam.yaml
   - talos-sa.yaml
   - etcd-backup.yaml
+  - alerting.yaml

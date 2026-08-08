@@ -11,7 +11,5 @@ enableCertificateOwnerRef: true
 
 prometheus:
   enabled: true
-
-  # ServiceMonitor created by kube-prometheus-stack to avoid dependency loops
   servicemonitor:
-    enabled: false
+    enabled: true

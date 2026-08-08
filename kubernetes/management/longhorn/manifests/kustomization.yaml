@@ -10,3 +10,4 @@ resources:
   - s3-bucket.yaml
   - s3-iam.yaml
   - ingress.yaml
+  - alerting.yaml

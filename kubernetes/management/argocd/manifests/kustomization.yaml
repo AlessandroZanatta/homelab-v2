@@ -6,3 +6,4 @@ resources:
   - secrets.sops.yaml
   - project.yaml
   - ingress.yaml
+  - alerting.yaml

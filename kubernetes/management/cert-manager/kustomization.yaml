@@ -17,5 +17,3 @@ helmCharts:
 
 resources:
   - manifests
-# patches:
-#   - path: patches/project.yaml

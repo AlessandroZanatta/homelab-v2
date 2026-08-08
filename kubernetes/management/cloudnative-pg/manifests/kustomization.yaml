@@ -6,3 +6,4 @@ resources:
   - network-policies.yaml
   - pod-monitor.yaml
   - s3-bucket.yaml
+  - alerting.yaml

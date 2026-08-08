@@ -138,6 +138,11 @@ prometheus:
     ## which will also match the podmonitors created
     podMonitorSelectorNilUsesHelmValues: false
 
+    ## If true, a nil or {} value for prometheus.prometheusSpec.ruleSelector will cause the
+    ## prometheus resource to be created with selectors based on values in the helm deployment,
+    ## which will also match the PrometheusRule resources created
+    ruleSelectorNilUsesHelmValues: false
+
     ## External URL at which Prometheus will be reachable.
     ##
     externalUrl: "https://prometheus.kalexlab.xyz"

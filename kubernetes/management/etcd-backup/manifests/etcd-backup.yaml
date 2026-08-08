@@ -4,7 +4,6 @@ kind: CronJob
 metadata:
   name: etcd-backup
 spec:
-  # TODO: if this job fails, throw a critical alert
   schedule: "0 */6 * * *"
   jobTemplate:
     spec:

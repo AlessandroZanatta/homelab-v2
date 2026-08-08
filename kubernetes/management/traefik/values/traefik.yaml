@@ -149,8 +149,6 @@ metrics:
     service:
       # -- Create a dedicated metrics service to use with ServiceMonitor
       enabled: true
-
-    # ServiceMonitor created by kube-prometheus-stack to avoid dependency loops
     serviceMonitor:
       # -- Enable optional CR for Prometheus Operator. See EXAMPLES.md for more details.
-      enabled: false
+      enabled: true

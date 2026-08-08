@@ -8,8 +8,8 @@ extraInstances:
   - config:
       devices:
         - /dev/nvme0n1
-        - /hostdev/disk/by-id/ata-TOSHIBA_MQ04UBF100_X5SPP12LT;sat
-        - /hostdev/disk/by-id/ata-CT1000MX500SSD1_2406E89658C0;sat
+        - /dev/sda
+        - /dev/sdb
     nodeSelector:
       kubernetes.io/hostname: hermes
 
@@ -25,4 +25,6 @@ affinity:
               operator: NotIn
               values:
                 - athena
+                # Manually deployed as the extra instance to
+                # include backup (external) disk
                 - hermes
