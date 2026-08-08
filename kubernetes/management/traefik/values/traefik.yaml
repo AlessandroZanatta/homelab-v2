@@ -33,6 +33,12 @@ affinity:
             app.kubernetes.io/name: traefik
         topologyKey: kubernetes.io/hostname
 
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 1
+    maxSurge: 0
+
 ingressRoute:
   dashboard:
     enabled: false
