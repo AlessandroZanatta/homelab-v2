@@ -17,7 +17,7 @@ spec:
             description: "Number of CoreDNS panics encountered\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
         - alert: CoreDNSDown
           expr: |
-            absent(up{job="coredns"} == 1)
+            absent(up{job="coredns-metrics"} == 1)
           for: 15m
           labels:
             severity: critical
