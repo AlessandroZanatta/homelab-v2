@@ -7,4 +7,4 @@ metadata:
     grafana_dashboard: "1"
 data:
   # renovate: depName="Dashboard - Longhorn"
-  longhorn.json: "https://grafana.com/api/dashboards/16888/revisions/12/download"
+  longhorn.json: "https://grafana.com/api/dashboards/16888/revisions/14/download"
