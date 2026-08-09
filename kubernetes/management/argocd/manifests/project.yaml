@@ -5,10 +5,10 @@ metadata:
   name: default
 spec:
   sourceRepos:
-    - "https://github.com/AlessandroZanatta/homelab-v2.git"
+    - https://github.com/AlessandroZanatta/homelab-v2.git
 
     # TODO: remove when a better solution for webhook is found (see cert-manager app)
-    - "https://github.com/mdonoughe/porkbun-webhook"
+    - https://github.com/mdonoughe/porkbun-webhook
 
   destinations:
     - namespace: "*"
@@ -21,6 +21,100 @@ spec:
   orphanedResources:
     warn: true
     ignore:
-      # Ignore all CNPG configmaps
-      - kind: "ConfigMap"
-        name: "cnpg-default-monitoring"
+      # Argo CD
+      - kind: Secret
+        name: argocd-redis
+      - group: argoproj.io
+        kind: Application
+        name: app-of-apps
+
+      # Cert Manager
+      - kind: Secret
+        name: cert-manager-webhook-ca
+      - kind: Secret
+        name: letsencrypt-clusterissuer
+
+      # Cilium
+      - kind: Secret
+        name: cilium-ca
+      - kind: Secret
+        name: hubble-relay-client-certs
+      - kind: Secret
+        name: hubble-server-certs
+
+      # CNPG
+      # Ignore default CNPG configmaps
+      - kind: ConfigMap
+        name: cnpg-default-monitoring
+
+      # Longhorn
+      - kind: Secret
+        name: longhorn-webhook-*
+      - kind: Pod
+        name: csi-*
+      - kind: Pod
+        name: longhorn-csi-plugin-*
+      - kind: Pod
+        name: engine-image-ei-*
+      - kind: Pod
+        name: instance-manager-*
+      - group: apps
+        kind: Deployment
+        name: csi-*
+      - group: apps
+        kind: ReplicaSet
+        name: csi-*
+      - group: apps
+        kind: DaemonSet
+        name: longhorn-csi-plugin
+      - group: apps
+        kind: DaemonSet
+        name: engine-image-ei-*
+      - group: apps
+        kind: ControllerRevision
+        name: longhorn-csi-plugin-*
+      - group: apps
+        kind: ControllerRevision
+        name: engine-image-ei-*
+      - group: policy
+        kind: PodDisruptionBudget
+        name: csi-*
+      - group: policy
+        kind: PodDisruptionBudget
+        name: instance-manager-*
+      - group: longhorn.io
+        kind: BackupTarget
+        name: default
+      - group: longhorn.io
+        kind: Engine
+        name: pvc-*
+      - group: longhorn.io
+        kind: EngineImage
+        name: ei-*
+      - group: longhorn.io
+        kind: InstanceManager
+        name: instance-manager-*
+      - group: longhorn.io
+        kind: Node
+        name: "*"
+      - group: longhorn.io
+        kind: Replica
+        name: pvc-*
+      - group: longhorn.io
+        kind: Setting
+        name: "*"
+      - group: longhorn.io
+        kind: Snapshot
+        name: "*"
+      - group: longhorn.io
+        kind: Volume
+        name: pvc-*
+      - group: longhorn.io
+        kind: VolumeAttachment
+        name: pvc-*
+      - kind: ConfigMap
+        name: recovery-backend-*
+
+      # Velero
+      - group: velero.io
+        kind: Backup
