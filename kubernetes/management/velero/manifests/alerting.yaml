@@ -24,10 +24,13 @@ spec:
             severity: warning
 
         - alert: VeleroNoRecentBackup
-          expr: time() - velero_backup_last_successful_timestamp > 172800 # 48h
+          expr: time() - velero_backup_last_successful_timestamp{schedule="velero-daily"} > 172800
           for: 15m
           labels:
             severity: critical
+          annotations:
+            summary: "Velero daily backup schedule hasn't succeeded recently"
+            description: "The velero-daily schedule's last successful backup was more than 48h ago."
 
         - alert: VeleroRestoreFailed
           expr: increase(velero_restore_failed_total[30m]) > 0
