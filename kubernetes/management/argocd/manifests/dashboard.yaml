@@ -7,4 +7,4 @@ metadata:
     grafana_dashboard: "1"
 data:
   # renovate: datasource=github-tags depName=argoproj/argo-cd
-  argocd.json: "https://raw.githubusercontent.com/argoproj/argo-cd/refs/tags/v3.4.0/examples/dashboard.json"
+  argocd.json: "https:v3.5.0"
