@@ -115,6 +115,20 @@ spec:
       - kind: ConfigMap
         name: recovery-backend-*
 
+      # Reloader
+      - kind: ConfigMap
+        name: reloader-meta-info
+
+      # Seaweedfs operator
+      - kind: Secret
+        name: seaweedfs-operator-webhook-server-cert
+
+      # SOPS-operator
+      - kind: Secret
+        name: sops-age-key
+
       # Velero
       - group: velero.io
         kind: Backup
+      - group: velero.io
+        kind: Restore
