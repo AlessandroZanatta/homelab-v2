@@ -6,7 +6,7 @@
       "description": "Update dependencies that have a manually-placed label on them",
       "managerFilePatterns": ["**/*.yaml"],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+\\S+:\\s*\"?v?(?:[\\w./-]+:)?(?<currentValue>[^\"\\s]+)\"?"
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+\\S+:\\s*\"?v?(?:[\\w./-]+:)?(?<currentValue>[^\"\\s/]+)\"?"
       ]
     },
     {
@@ -32,7 +32,7 @@
       "description": "Update dashboards pulled from raw GitHub URLs",
       "managerFilePatterns": ["kubernetes/**/*.yaml"],
       "matchStrings": [
-        "#\\s*renovate:\\s*datasource=(?<datasource>[a-z-]+)\\s+depName=(?<depName>[^\\s]+)\\s*\\n\\s*url:\\s*\"?https:\\/\\/raw\\.githubusercontent\\.com\\/[^/]+\\/[^/]+\\/(?:refs\\/tags\\/)?(?<currentValue>[^/]+)\\/(?<assetPath>[^\"]+)\"?"
+        "#\\s*renovate:\\s*datasource=(?<datasource>[a-z-]+)\\s+depName=(?<depName>[^\\s]+)\\s*\\n\\s*\\S+:\\s*\"?https:\\/\\/raw\\.githubusercontent\\.com\\/[^/]+\\/[^/]+\\/(?:refs\\/tags\\/)?(?<currentValue>[^/]+)\\/(?<assetPath>[^\"]+)\"?"
       ]
     }
   ]

@@ -15,6 +15,12 @@
       ],
       "automerge": true,
       "automergeSchedule": ["after 11pm on friday", "on saturday"]
+    },
+    {
+      "description": "Auto-merge grafana.com dashboard revision bumps",
+      "matchDatasources": ["custom.grafana-dashboards"],
+      "automerge": true,
+      "automergeType": "branch"
     }
   ]
 }
