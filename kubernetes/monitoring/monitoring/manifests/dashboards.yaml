@@ -8,3 +8,4 @@ metadata:
 data:
   # renovate: depName="Dashboard - Kubernetes / Views / Global"
   kubernetes-views-global.json: "https://grafana.com/api/dashboards/15757/revisions/43/download"
+  node-exporter-temperature.json: "https://grafana.com/api/dashboards/15202/revisions/1/download"
