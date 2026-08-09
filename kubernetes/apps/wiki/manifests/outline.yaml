@@ -57,10 +57,15 @@ spec:
             capabilities:
               drop:
                 - ALL
-          command: ["sh", "-c", "for i in $(seq 1 300); do nc -zvw1 cache 6379 && nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1"]
+          command:
+            [
+              "sh",
+              "-c",
+              "for i in $(seq 1 300); do nc -zvw1 cache 6379 && nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1",
+            ]
       containers:
         - name: outline
-          image: "docker.getoutline.com/outlinewiki/outline:1.8.1"
+          image: "docker.io/outlinewiki/outline:1.8.1"
           imagePullPolicy: Always
           ports:
             - name: outline
