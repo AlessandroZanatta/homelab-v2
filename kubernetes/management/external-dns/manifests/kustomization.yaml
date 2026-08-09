@@ -6,3 +6,4 @@ resources:
   - secrets.sops.yaml
   - rbac.yaml
   - external-dns.yaml
+  - service-monitor.yaml

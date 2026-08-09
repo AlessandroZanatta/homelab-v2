@@ -1,4 +1,22 @@
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-dns
+  labels:
+    kalexlab.xyz/app: external-dns
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 7979
+      protocol: TCP
+    - name: webhook-http
+      port: 8888
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: external-dns
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -24,16 +42,21 @@ spec:
             - --log-level=info
             - --source=traefik-proxy
             - --provider=webhook
+            - --source=node
+            - --fqdn-template={{ if eq .Kind "Node" }}{{ .Name }}.kalexlab.xyz{{ end }}
             - --registry=txt
             - --txt-owner-id=external-dns
-          securityContext:
+            - --metrics-address=:7979
+
+          securityContext: &securityContext
             readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
             capabilities:
               drop:
                 - ALL
           ports:
-            - containerPort: 7979
+            - name: http
+              containerPort: 7979
               protocol: TCP
           resources:
             requests:
@@ -45,12 +68,12 @@ spec:
           readinessProbe:
             httpGet:
               path: /healthz
-              port: 7979
+              port: http
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /healthz
-              port: 7979
+              port: http
             periodSeconds: 60
         - name: external-dns-webhook-provider
           image: ghcr.io/alessandrozanatta/external-dns-porkbun-webhook:1.0.3
@@ -59,7 +82,8 @@ spec:
             - --log-level=info
             - --domain-filter=kalexlab.xyz
           ports:
-            - containerPort: 8888
+            - name: webhook-http
+              containerPort: 8888
               protocol: TCP
           env:
             - name: PORKBUN_API_KEY
@@ -72,12 +96,7 @@ spec:
                 secretKeyRef:
                   name: porkbun-secrets
                   key: secret-key
-          securityContext:
-            readOnlyRootFilesystem: true
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
+          securityContext: *securityContext
           resources:
             requests:
               memory: 20Mi
@@ -88,18 +107,18 @@ spec:
           readinessProbe:
             httpGet:
               path: /healthz
-              port: 8888
+              port: webhook-http
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /healthz
-              port: 8888
+              port: webhook-http
             periodSeconds: 60
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
+        runAsUser: 65535
+        runAsGroup: 65535
+        fsGroup: 65535
         fsGroupChangePolicy: "OnRootMismatch"
         seccompProfile:
           type: RuntimeDefault

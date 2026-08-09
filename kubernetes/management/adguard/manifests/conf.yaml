@@ -168,22 +168,10 @@ data:
       parental_block_host: family-block.dns.adguard.com
       safebrowsing_block_host: standard-block.dns.adguard.com
       rewrites:
-        - domain: "test.reciept.kalexlab.xyz"
-          answer: "192.168.10.20"
-
         - domain: "router.kalexlab.xyz"
           answer: "192.168.10.1"
-        - domain: "athena.kalexlab.xyz"
-          answer: "192.168.10.2"
-        - domain: "hermes.kalexlab.xyz"
-          answer: "192.168.10.3"
-        - domain: "zeus.kalexlab.xyz"
-          answer: "192.168.10.4"
         - domain: "switch.kalexlab.xyz"
           answer: "192.168.10.10"
-
-        - domain: "*.dev.kalexlab.xyz"
-          answer: "192.168.121.20"
 
       safebrowsing_cache_size: 1048576
       safesearch_cache_size: 1048576
