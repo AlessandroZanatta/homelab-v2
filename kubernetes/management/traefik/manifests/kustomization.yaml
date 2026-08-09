@@ -5,3 +5,4 @@ resources:
   - namespace.yaml
   - ingress.yaml
   - alerting.yaml
+  - dashboard.yaml

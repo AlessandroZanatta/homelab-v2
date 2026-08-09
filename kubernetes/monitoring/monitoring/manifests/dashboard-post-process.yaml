@@ -1,0 +1,22 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-post-process
+data:
+  normalize-datasource.sh: |
+    #!/bin/sh
+    for f in /tmp/dashboards/*.json; do
+      content=$(head -c 200 "$f")
+      case "$content" in
+        http://*|https://*)
+          url=$(cat "$f")
+          wget -q "$url" -O "$f.tmp" && mv "$f.tmp" "$f"
+          ;;
+      esac
+    done
+
+    find /tmp/dashboards -name '*.json' -exec sed -i \
+      -e '/-- .* --/! s/"datasource":.*,/"datasource": "Prometheus",/g' \
+      -e 's/\${DS_PROMETHEUS}/Prometheus/g' \
+      {} +

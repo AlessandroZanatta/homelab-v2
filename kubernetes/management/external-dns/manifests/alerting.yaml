@@ -1,0 +1,44 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: external-dns-alerts
+spec:
+  groups:
+    - name: external-dns.rules
+      rules:
+        - alert: ExternalDNSDown
+          expr: up{job="external-dns"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "ExternalDNS instance down"
+            description: "ExternalDNS target {{ $labels.instance }} has been down for more than 5 minutes."
+
+        - alert: ExternalDNSRegistryErrors
+          expr: rate(external_dns_registry_errors_total[10m]) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "ExternalDNS registry errors detected"
+            description: "ExternalDNS is failing to read/write records to the DNS provider registry ({{ $value }} errors/sec over last 10m)."
+
+        - alert: ExternalDNSSourceErrors
+          expr: rate(external_dns_source_errors_total[10m]) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "ExternalDNS source errors detected"
+            description: "ExternalDNS is failing to list Kubernetes sources (Ingress/Service/etc.), meaning DNS records may go stale."
+
+        - alert: ExternalDNSSyncStale
+          expr: time() - external_dns_controller_last_sync_timestamp_seconds > 900
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "ExternalDNS sync loop stalled"
+            description: "No successful sync from ExternalDNS in over 15 minutes. New/changed DNS records won't be applied."

@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-dashboard
+  labels:
+    grafana_dashboard: "1"
+data:
+  # renovate: datasource=github-tags depName=argoproj/argo-cd
+  argocd.json: "https://raw.githubusercontent.com/argoproj/argo-cd/refs/tags/v3.5.0/examples/dashboard.json"

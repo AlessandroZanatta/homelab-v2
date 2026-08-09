@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: traefik-dashboard
+  labels:
+    grafana_dashboard: "1"
+data:
+  # renovate: depName="Dashboard - Traefik"
+  traefik.json: "https://grafana.com/api/dashboards/17346/revisions/9/download"

@@ -19,10 +19,10 @@
     },
     {
       "customType": "regex",
-      "description": "Update Grafana dashboard revision from gnetId",
-      "managerFilePatterns": ["helm/kube-prometheus-stack/*.yaml"],
+      "description": "Update Grafana dashboard revision from grafana.com URL",
+      "managerFilePatterns": ["kubernetes/**/*.yaml"],
       "matchStrings": [
-        "#\\s+renovate:\\s+depName=\"(?<depName>.*)\"\\n\\s+gnetId:\\s+(?<packageName>.*?)\\n\\s+revision:\\s+(?<currentValue>.*)"
+        "#\\s+renovate:\\s+depName=\"(?<depName>.*)\"\\n\\s+.*: \"https://grafana\\.com/api/dashboards/(?<packageName>\\d+)/revisions/(?<currentValue>\\d+)/download\""
       ],
       "versioningTemplate": "regex:^(?<major>\\d+)$",
       "datasourceTemplate": "custom.grafana-dashboards"
@@ -30,7 +30,7 @@
     {
       "customType": "regex",
       "description": "Update dashboards pulled from raw GitHub URLs",
-      "managerFilePatterns": ["/helm/kube-prometheus-stack/*.yaml/"],
+      "managerFilePatterns": ["kubernetes/**/*.yaml"],
       "matchStrings": [
         "#\\s*renovate:\\s*datasource=(?<datasource>[a-z-]+)\\s+depName=(?<depName>[^\\s]+)\\s*\\n\\s*url:\\s*\"?https:\\/\\/raw\\.githubusercontent\\.com\\/[^/]+\\/[^/]+\\/(?:refs\\/tags\\/)?(?<currentValue>[^/]+)\\/(?<assetPath>[^\"]+)\"?"
       ]

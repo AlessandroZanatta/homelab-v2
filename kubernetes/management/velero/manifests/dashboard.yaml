@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: velero-dashboard
+  labels:
+    grafana_dashboard: "1"
+data:
+  # renovate: depName="Dashboard - Velero"
+  velero.json: "https://grafana.com/api/dashboards/16829/revisions/5/download"

@@ -7,3 +7,4 @@ resources:
   - s3-bucket.yaml
   - s3-iam.yaml
   - alerting.yaml
+  - dashboard.yaml

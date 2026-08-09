@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: external-dns-dashboard
+  labels:
+    grafana_dashboard: "1"
+data:
+  # renovate: depName="Dashboard - Velero"
+  external-dns.json: https://grafana.com/api/dashboards/23969/revisions/1/download

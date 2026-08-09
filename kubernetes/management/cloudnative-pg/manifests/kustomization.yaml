@@ -7,3 +7,4 @@ resources:
   - pod-monitor.yaml
   - s3-bucket.yaml
   - alerting.yaml
+  - dashboard.yaml

@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: seaweedfs-dashboard
+  labels:
+    grafana_dashboard: "1"
+data:
+  # renovate: datasource=github-tags depName=seaweedfs/seaweedfs
+  seaweedfs.json: "https://raw.githubusercontent.com/seaweedfs/seaweedfs/refs/tags/4.41/k8s/charts/seaweedfs/dashboards/seaweedfs-grafana-dashboard.json"

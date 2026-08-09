@@ -7,3 +7,4 @@ resources:
   - project.yaml
   - ingress.yaml
   - alerting.yaml
+  - dashboard.yaml

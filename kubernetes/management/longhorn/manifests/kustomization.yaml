@@ -11,3 +11,4 @@ resources:
   - s3-iam.yaml
   - ingress.yaml
   - alerting.yaml
+  - dashboard.yaml

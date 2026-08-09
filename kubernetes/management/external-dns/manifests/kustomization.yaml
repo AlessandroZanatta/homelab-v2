@@ -7,3 +7,5 @@ resources:
   - rbac.yaml
   - external-dns.yaml
   - service-monitor.yaml
+  - alerting.yaml
+  - dashboard.yaml
