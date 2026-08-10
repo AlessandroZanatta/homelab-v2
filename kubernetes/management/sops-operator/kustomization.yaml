@@ -10,7 +10,7 @@ helmGlobals:
 helmCharts:
   - name: sops-secrets-operator
     repo: https://isindir.github.io/sops-secrets-operator
-    version: 0.28.0
+    version: 0.28.1
     releaseName: sops
     namespace: sops
     valuesFile: values/sops-operator.yaml
