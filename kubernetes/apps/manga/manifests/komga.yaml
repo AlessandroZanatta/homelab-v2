@@ -41,7 +41,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: manga
-          image: "docker.io/gotson/komga:1.25.0"
+          image: "docker.io/gotson/komga:1.26.1"
           imagePullPolicy: Always
           securityContext:
             readOnlyRootFilesystem: true
