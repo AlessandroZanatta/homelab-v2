@@ -38,11 +38,9 @@ spec:
     matchLabels:
       kalexlab.xyz/app: etcd-backup
   egress:
+    - toCIDR:
+        - 192.168.10.4/32
     - toPorts:
         - ports:
             - port: "50000"
               protocol: TCP
-          serverNames:
-            - talos.default.svc.cluster.local
-            - talos.default.svc
-            - talos.default
