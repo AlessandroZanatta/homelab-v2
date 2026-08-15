@@ -58,7 +58,7 @@ spec:
           command: ["sh", "-c", "for i in $(seq 1 300); do nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1"]
       containers:
         - name: app
-          image: "ghcr.io/usekaneo/api:2.19.0"
+          image: "ghcr.io/usekaneo/api:2.19.1"
           imagePullPolicy: Always
           ports:
             - containerPort: 1337
