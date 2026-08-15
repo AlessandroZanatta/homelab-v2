@@ -11,9 +11,8 @@ spec:
       targetRevision: master
       path: kubernetes/misc/device-plugin
   destination:
-    # TODO: migrate to its own namespace!
     name: in-cluster
-    namespace: kube-system
+    namespace: device-plugin
   syncPolicy:
     automated:
       prune: true
