@@ -82,7 +82,12 @@ spec:
             capabilities:
               drop:
                 - ALL
-          command: ["sh", "-c", "for i in $(seq 1 300); do nc -zvw1 cache 6379 && nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1"]
+          command:
+            [
+              "sh",
+              "-c",
+              "for i in $(seq 1 300); do nc -zvw1 cache 6379 && nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1",
+            ]
       containers:
         - name: nextcloud
           image: "docker.io/library/nextcloud:34.0.3-apache"
@@ -145,14 +150,7 @@ spec:
             limits:
               memory: 2Gi
               cpu: 2000m
-          readinessProbe:
-            httpGet:
-              path: /status.php
-              port: 80
-              httpHeaders:
-                - name: Host
-                  value: nextcloud.nextcloud.svc.cluster.local
-            periodSeconds: 10
+
           livenessProbe:
             httpGet:
               path: /status.php
@@ -160,8 +158,21 @@ spec:
               httpHeaders:
                 - name: Host
                   value: nextcloud.nextcloud.svc.cluster.local
-            failureThreshold: 3
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
             periodSeconds: 30
+            failureThreshold: 5
+
+          readinessProbe:
+            httpGet:
+              path: /status.php
+              port: 80
+              httpHeaders:
+                - name: Host
+                  value: nextcloud.nextcloud.svc.cluster.local
+            timeoutSeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
