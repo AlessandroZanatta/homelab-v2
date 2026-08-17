@@ -1,0 +1,162 @@
+---
+global:
+  # -- Toggle and define pod-level security context.
+  # @default -- `{}` (See [values.yaml])
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65535
+    runAsGroup: 65535
+    fsGroup: 65535
+    fsGroupChangePolicy: "OnRootMismatch"
+    seccompProfile:
+      type: RuntimeDefault
+
+  # Default affinity preset for all components
+  affinity:
+    # -- Default pod anti-affinity rules. Either: `none`, `soft` or `hard`
+    podAntiAffinity: none
+    # Node affinity rules
+    nodeAffinity:
+      # -- Default node affinity rules. Either `none`, `soft` or `hard`
+      type: none
+
+  # -- Deployment strategy for all deployed Deployments
+  # maxSurge=25%, maxUnavailable=75% to recreate one by one
+  deploymentStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 75%
+
+  # -- Additional volumeMounts to all deployed Deployments. Does not apply to GeoIP
+  # @default -- `[]` (See [values.yaml])
+  volumeMounts:
+    - name: secret-key
+      mountPath: /secrets/secret-key
+    - name: cnpg-cluster
+      mountPath: /secrets/postgres
+
+  # -- Additional volumes to all deployed Deployments.
+  # @default -- `[]` (See [values.yaml])
+  volumes:
+    - name: secret-key
+      secret:
+        secretName: secret-key
+    - name: cnpg-cluster
+      secret:
+        secretName: cluster-app
+
+  envFrom:
+    - secretRef:
+        name: bootstrap
+
+# -- Authentik configuration. See the [authentik configuration docs] for details about which values are accepted here. See the note at the top of that page for details about transforming environment variable names into values here.
+# @default -- See [values.yaml]
+authentik:
+  # -- Log level for server and worker
+  log_level: info
+  # -- Secret key used for cookie singing and unique user IDs,
+  # don't change this after the first install
+  secret_key: "file:///secrets/secret-key/key"
+  # bootstrap_email: "file:///secrets/bootstrap/email"
+  # bootstrap_password: "file:///secrets/bootstrap/password"
+  # bootstrap_token: "file:///secrets/bootstrap/token"
+
+  postgresql:
+    # -- set the postgresql hostname to talk to
+    # if unset and .Values.postgresql.enabled == true, will generate the default
+    # @default -- `{{ .Release.Name }}-postgresql`
+    host: "file:///secrets/postgres/host"
+    # -- postgresql Database name
+    # @default -- `authentik`
+    name: "file:///secrets/postgres/dbname"
+    # -- postgresql Username
+    # @default -- `authentik`
+    user: "file:///secrets/postgres/username"
+    # -- postgresql password
+    password: "file:///secrets/postgres/password"
+    # -- postgresql port
+    port: 5432
+
+## authentik server
+server:
+  # -- The number of server pods to run
+  replicas: 2
+
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: authentik
+          app.kubernetes.io/component: server
+
+  # -- Resource limits and requests for the authentik server
+  resources: {}
+  # requests:
+  #   cpu: 100m
+  #   memory: 512Mi
+  # limits:
+  #   memory: 512Mi
+
+  # -- authentik server container-level security context
+  # @default -- See [values.yaml]
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+
+  ## authentik server metrics service configuration
+  metrics:
+    # -- deploy metrics service
+    enabled: true
+    serviceMonitor:
+      # -- enable a prometheus ServiceMonitor
+      enabled: true
+
+  volumeMounts:
+    - mountPath: /data
+      name: authentik-data-pvc
+
+  volumes:
+    - name: authentik-data-pvc
+      persistentVolumeClaim:
+        claimName: authentik-data-pvc
+
+## authentik worker
+worker:
+  # -- The number of worker pods to run
+  replicas: 2
+
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: authentik
+          app.kubernetes.io/component: worker
+
+  # -- authentik worker container-level security context
+  # @default -- See [values.yaml]
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+
+  ## authentik worker metrics service configuration
+  metrics:
+    # -- deploy metrics service
+    enabled: true
+    serviceMonitor:
+      # -- enable a prometheus ServiceMonitor
+      enabled: true
+
+prometheus:
+  rules:
+    enabled: true

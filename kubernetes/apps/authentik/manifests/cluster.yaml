@@ -1,0 +1,67 @@
+---
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: backups
+spec:
+  configuration:
+    destinationPath: "s3://cnpg/authentik"
+    endpointURL: "https://backups.kalexlab.xyz"
+    s3Credentials:
+      accessKeyId:
+        name: authentik-s3-credentials
+        key: accessKey
+      secretAccessKey:
+        name: authentik-s3-credentials
+        key: secretKey
+    wal:
+      compression: bzip2
+    data:
+      compression: bzip2
+  retentionPolicy: 14d
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cluster
+spec:
+  inheritedMetadata:
+    labels:
+      kalexlab.xyz/app: authentik
+      kalexlab.xyz/component: cluster
+      kalexlab.xyz/monitoring: "true"
+      backups.kalexlab.xyz/use: "true"
+    annotations:
+      gatus.kalexlab.xyz/enabled: "true"
+      gatus.kalexlab.xyz/scheme: tcp
+  instances: 2
+  storage:
+    storageClass: longhorn-single-replica
+    size: 4Gi
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: backups
+  affinity:
+    enablePodAntiAffinity: false
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: postgresql
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: cluster-backup
+spec:
+  cluster:
+    name: cluster
+  schedule: "0 0 0 * * *"
+  backupOwnerReference: self
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
