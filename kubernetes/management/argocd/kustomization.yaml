@@ -10,7 +10,7 @@ helmGlobals:
 helmCharts:
   - name: argo-cd
     repo: https://argoproj.github.io/argo-helm
-    version: 10.3.3
+    version: 10.4.0
     releaseName: argocd
     namespace: argocd
     valuesFile: values/argocd.yaml
