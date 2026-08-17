@@ -6,6 +6,9 @@ metadata:
   labels:
     kalexlab.xyz/app: plants
     kalexlab.xyz/component: database
+  annotations:
+    gatus.kalexlab.xyz/enabled: "true"
+    gatus.kalexlab.xyz/scheme: tcp
 spec:
   type: ClusterIP
   ports:

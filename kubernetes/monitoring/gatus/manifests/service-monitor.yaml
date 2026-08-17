@@ -1,0 +1,15 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: gatus-sidecar
+spec:
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: gatus
+      kalexlab.xyz/component: gatus
+  endpoints:
+    - port: gs-metrics
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s

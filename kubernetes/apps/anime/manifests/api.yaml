@@ -6,6 +6,10 @@ metadata:
   labels:
     kalexlab.xyz/app: anime-v2
     kalexlab.xyz/component: api
+    kalexlab.xyz/monitoring: "true"
+  annotations:
+    gatus.kalexlab.xyz/enabled: "true"
+    gatus.kalexlab.xyz/path: /api/health
 spec:
   type: ClusterIP
   ports:
@@ -57,7 +61,12 @@ spec:
             capabilities:
               drop:
                 - ALL
-          command: ["sh", "-c", "for i in $(seq 1 300); do nc -zvw1 queue 6379 && nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1"]
+          command:
+            [
+              "sh",
+              "-c",
+              "for i in $(seq 1 300); do nc -zvw1 queue 6379 && nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1",
+            ]
       containers:
         - name: api
           image: "registry.kalexlab.xyz/anime-v2/api:latest"

@@ -2,17 +2,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cabling
+  name: adguard
   namespace: argocd
 spec:
   project: default
   sources:
     - repoURL: https://github.com/AlessandroZanatta/homelab-v2.git
       targetRevision: master
-      path: kubernetes/management/cabling
+      path: kubernetes/apps/adguard
   destination:
     name: in-cluster
-    namespace: cabling
+    namespace: adguard
   syncPolicy:
     automated:
       prune: true

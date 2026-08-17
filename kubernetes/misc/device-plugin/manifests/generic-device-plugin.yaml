@@ -1,10 +1,8 @@
-# TODO: move from kube-system to its own namespace
 ---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: generic-device-plugin
-  namespace: kube-system
   labels:
     kalexlab.xyz/name: device-plugin
 spec:

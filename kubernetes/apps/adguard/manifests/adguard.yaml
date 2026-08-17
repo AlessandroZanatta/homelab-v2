@@ -6,6 +6,12 @@ metadata:
   labels:
     kalexlab.xyz/app: adguard
     kalexlab.xyz/ip-pool: adguard
+    gatus.kalexlab.xyz/enabled: "true"
+  annotations:
+    gatus.kalexlab.xyz/enabled: "true"
+    gatus.kalexlab.xyz/port: adguard-dns-tcp
+    gatus.kalexlab.xyz/scheme: tcp
+    gatus.kalexlab.xyz/name: Adguard DNS
 spec:
   type: LoadBalancer
   clusterIP: 10.96.0.11

@@ -8,7 +8,7 @@ resources:
   - secrets.sops.yaml
   - cluster.yaml
   - cluster-backup.yaml
-  - valkey.yaml
+  - cache.yaml
   - authelia.yaml
   - forward-auth.yaml
   - ingress.yaml

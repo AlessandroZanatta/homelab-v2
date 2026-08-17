@@ -30,6 +30,23 @@ configuration:
         s3Url: "https://backups.kalexlab.xyz"
         publicUrl: "https://backups.kalexlab.xyz"
 
+configMaps:
+  velero-volume-policy:
+    data:
+      policy.yaml: |
+        version: v1
+        volumePolicies:
+          - conditions:
+              pvcLabels:
+                cnpg.io/pvcRole: PG_DATA
+            action:
+              type: skip
+          - conditions:
+              pvcLabels:
+                cnpg.io/pvcRole: PG_WAL
+            action:
+              type: skip
+
 schedules:
   daily:
     schedule: "0 4 * * *"
@@ -42,6 +59,9 @@ schedules:
         - kube-system
         - velero
         - backups
+      resourcePolicy:
+        kind: configmap
+        name: velero-volume-policy
 
 credentials:
   existingSecret: velero-cloud

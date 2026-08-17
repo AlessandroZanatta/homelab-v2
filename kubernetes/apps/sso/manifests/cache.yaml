@@ -12,7 +12,7 @@ kind: Redis
 metadata:
   name: cache
   labels:
-    kalexlab.xyz/app: nextcloud
+    kalexlab.xyz/app: sso
     kalexlab.xyz/component: cache
     kalexlab.xyz/monitoring: "true"
   annotations:

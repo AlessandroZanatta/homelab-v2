@@ -12,6 +12,12 @@ spec:
     - name: gatus
       port: 8080
       protocol: TCP
+    - name: gs-metrics
+      port: 8081
+      protocol: TCP
+    - name: gs-healthz
+      port: 8082
+      protocol: TCP
   selector:
     kalexlab.xyz/app: gatus
     kalexlab.xyz/component: gatus
@@ -54,7 +60,55 @@ spec:
             capabilities:
               drop:
                 - ALL
-          command: ["sh", "-c", "for i in $(seq 1 300); do nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1"]
+          command:
+            [
+              "sh",
+              "-c",
+              "for i in $(seq 1 300); do nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1",
+            ]
+        - name: gatus-sidecar
+          image: "ghcr.io/alessandrozanatta/gatus-sidecar:0.5.2"
+          args:
+            - --ingressroute-discovery
+            - auto
+            - --output
+            - /config/endpoints.yaml
+          imagePullPolicy: Always
+          restartPolicy: Always
+          ports:
+            - name: gs-metrics
+              containerPort: 8081
+              protocol: TCP
+            - name: gs-healthz
+              containerPort: 8082
+              protocol: TCP
+          resources:
+            requests:
+              memory: 30Mi
+              cpu: 1m
+            limits:
+              memory: 300Mi
+              cpu: 20m
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8082
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8082
+            failureThreshold: 3
+            periodSeconds: 30
+          volumeMounts:
+            - mountPath: /config
+              name: gatus-conf
       containers:
         - name: app
           image: "ghcr.io/twin/gatus:v5.36.0"
@@ -62,6 +116,9 @@ spec:
           ports:
             - containerPort: 8080
               protocol: TCP
+          envFrom:
+            - secretRef:
+                name: gatus-secrets
           env:
             - name: GATUS_CONFIG_PATH
               value: /config
@@ -90,26 +147,6 @@ spec:
                 secretKeyRef:
                   name: cluster-app
                   key: dbname
-            - name: TELEGRAM_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: gatus-secrets
-                  key: TELEGRAM_TOKEN
-            - name: KALEX_TELEGRAM_ID
-              valueFrom:
-                secretKeyRef:
-                  name: gatus-secrets
-                  key: KALEX_TELEGRAM_ID
-            - name: LAETITIA_TELEGRAM_ID
-              valueFrom:
-                secretKeyRef:
-                  name: gatus-secrets
-                  key: LAETITIA_TELEGRAM_ID
-            - name: OIDC_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: gatus-secrets
-                  key: OIDC_CLIENT_SECRET
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
@@ -137,8 +174,12 @@ spec:
           volumeMounts:
             - mountPath: /config
               name: gatus-conf
+            - mountPath: /config/base.yaml
+              subPath: base.yaml
+              name: gatus-conf-base
       enableServiceLinks: false
-      automountServiceAccountToken: false
+      automountServiceAccountToken: true
+      serviceAccount: gatus-sidecar
       securityContext:
         runAsNonRoot: true
         runAsUser: 10000
@@ -149,5 +190,8 @@ spec:
           type: RuntimeDefault
       volumes:
         - name: gatus-conf
+          emptyDir:
+
+        - name: gatus-conf-base
           configMap:
             name: gatus-conf

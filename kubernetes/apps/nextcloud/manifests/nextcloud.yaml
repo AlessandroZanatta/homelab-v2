@@ -6,6 +6,14 @@ metadata:
   labels:
     kalexlab.xyz/app: nextcloud
     kalexlab.xyz/component: nextcloud
+  annotations:
+    gatus.kalexlab.xyz/enabled: "true"
+    gatus.kalexlab.xyz/scheme: http
+    gatus.kalexlab.xyz/path: /status.php
+    gatus.kalexlab.xyz/endpoint: |
+      conditions:
+        - "[STATUS] == 200"
+        - "[BODY].maintenance == false"
 spec:
   type: ClusterIP
   ports:

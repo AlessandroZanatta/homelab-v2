@@ -101,6 +101,19 @@ spec:
             kalexlab.xyz/app: gatus
             kalexlab.xyz/component: gatus
 ---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: gatus-sidecar-to-apiserver
+spec:
+  endpointSelector:
+    matchLabels:
+      kalexlab.xyz/app: gatus
+      kalexlab.xyz/component: gatus
+  egress:
+    - toEntities:
+        - kube-apiserver
+---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:

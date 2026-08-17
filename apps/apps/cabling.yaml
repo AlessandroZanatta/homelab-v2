@@ -2,17 +2,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: expo-updates
+  name: cabling
   namespace: argocd
 spec:
   project: default
   sources:
     - repoURL: https://github.com/AlessandroZanatta/homelab-v2.git
       targetRevision: master
-      path: kubernetes/management/expo-updates
+      path: kubernetes/apps/cabling
   destination:
     name: in-cluster
-    namespace: expo-updates
+    namespace: cabling
   syncPolicy:
     automated:
       prune: true

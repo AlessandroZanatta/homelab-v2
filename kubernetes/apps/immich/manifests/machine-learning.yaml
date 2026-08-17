@@ -6,6 +6,8 @@ metadata:
   labels:
     kalexlab.xyz/app: immich
     kalexlab.xyz/component: machine-learning
+  annotations:
+    gatus.kalexlab.xyz/enabled: "true"
 spec:
   type: ClusterIP
   ports:

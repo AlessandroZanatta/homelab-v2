@@ -31,6 +31,10 @@ spec:
       kalexlab.xyz/component: cluster
       kalexlab.xyz/monitoring: "true"
       backups.kalexlab.xyz/use: "true"
+    annotations:
+      gatus.kalexlab.xyz/enabled: "true"
+      gatus.kalexlab.xyz/scheme: tcp
+      gatus.kalexlab.xyz/exclude: cluster-vchord-ro
   imageName: "ghcr.io/tensorchord/cloudnative-vectorchord:15-0.3.0"
   postgresql:
     shared_preload_libraries:

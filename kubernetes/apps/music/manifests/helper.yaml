@@ -6,6 +6,9 @@ metadata:
   labels:
     kalexlab.xyz/app: music
     kalexlab.xyz/component: helper-backend
+  annotations:
+    gatus.kalexlab.xyz/enabled: "true"
+    gatus.kalexlab.xyz/path: /api/health
 spec:
   type: ClusterIP
   ports:

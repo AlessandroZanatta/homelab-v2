@@ -6,6 +6,9 @@ metadata:
   labels:
     kalexlab.xyz/app: tasks
     kalexlab.xyz/component: kaneo-api
+  annotations:
+    gatus.kalexlab.xyz/enabled: "true"
+    gatus.kalexlab.xyz/path: /api/health
 spec:
   type: ClusterIP
   ports:
@@ -55,7 +58,12 @@ spec:
             capabilities:
               drop:
                 - ALL
-          command: ["sh", "-c", "for i in $(seq 1 300); do nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1"]
+          command:
+            [
+              "sh",
+              "-c",
+              "for i in $(seq 1 300); do nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1",
+            ]
       containers:
         - name: app
           image: "ghcr.io/usekaneo/api:2.19.1"

@@ -50,6 +50,12 @@ spec:
     labels:
       kalexlab.xyz/app: backups
       kalexlab.xyz/component: master
+      kalexlab.xyz/monitoring: "true"
+
+    service:
+      annotations:
+        gatus.kalexlab.xyz/enabled: "true"
+        gatus.kalexlab.xyz/port: master-http
 
     volumeSizeLimitMB: 1000
 
@@ -99,6 +105,13 @@ spec:
     labels:
       kalexlab.xyz/app: backups
       kalexlab.xyz/component: volume
+      kalexlab.xyz/monitoring: "true"
+
+    service:
+      annotations:
+        gatus.kalexlab.xyz/enabled: "true"
+        gatus.kalexlab.xyz/port: volume-http
+        gatus.kalexlab.xyz/path: /healthz
 
     requests:
       storage: 975G
@@ -129,6 +142,12 @@ spec:
     labels:
       kalexlab.xyz/app: backups
       kalexlab.xyz/component: filer
+      kalexlab.xyz/monitoring: "true"
+
+    service:
+      annotations:
+        gatus.kalexlab.xyz/enabled: "true"
+        gatus.kalexlab.xyz/port: filer-http
 
     persistence:
       enabled: true
@@ -153,6 +172,16 @@ spec:
     labels:
       kalexlab.xyz/app: backups
       kalexlab.xyz/component: s3
+      kalexlab.xyz/monitoring: "true"
+
+    service:
+      annotations:
+        gatus.kalexlab.xyz/enabled: "true"
+        gatus.kalexlab.xyz/ports: s3-http
+        # S3 returns 403 on a call without credentials
+        gatus.kalexlab.xyz/endpoint: |
+          conditions:
+            - "[STATUS] == any(200,401,403)"
 
     domainName: backups.kalexlab.xyz
     iam: true
@@ -176,6 +205,14 @@ spec:
     labels:
       kalexlab.xyz/app: backups
       kalexlab.xyz/component: worker
+      kalexlab.xyz/monitoring: "true"
+
+    # TODO: service not supported by operator currently,
+    # need to open a PR for that
+    annotations:
+      gatus.kalexlab.xyz/enabled: "true"
+      gatus.kalexlab.xyz/ports: worker-metrics
+      gatus.kalexlab.xyz/path: /health
 
     jobType: all
 
@@ -188,6 +225,12 @@ spec:
     labels:
       kalexlab.xyz/app: backups
       kalexlab.xyz/component: admin
+      kalexlab.xyz/monitoring: "true"
+
+    service:
+      annotations:
+        gatus.kalexlab.xyz/enabled: "true"
+        gatus.kalexlab.xyz/port: admin-http
 
     podSecurityContext: *podSecurityContext
     containerSecurityContext: *containerSecurityContext

@@ -7,6 +7,9 @@ metadata:
     kalexlab.xyz/app: anime-v2
     kalexlab.xyz/component: queue
     kalexlab.xyz/monitoring: "true"
+  annotations:
+    gatus.kalexlab.xyz/enabled: "true"
+    gatus.kalexlab.xyz/scheme: tcp
 spec:
   kubernetesConfig:
     # renovate: datasource=docker depName=valkey/valkey
@@ -43,3 +46,10 @@ spec:
         resources:
           requests:
             storage: 2Gi
+  livenessProbe:
+    periodSeconds: 15
+    failureThreshold: 6
+  readinessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    failureThreshold: 6

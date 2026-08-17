@@ -4,9 +4,14 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - network-policies.yaml
+  - rbac.yaml
   - conf.yaml
   - secrets.sops.yaml
   - cluster.yaml
   - cluster-backup.yaml
+  - github.com/AlessandroZanatta/gatus-sidecar/config/crd?ref=v0.5.2
+  - endpoint-templates.yaml
   - gatus.yaml
   - ingress.yaml
+  - service-monitor.yaml
+  - alerting.yaml

@@ -15,6 +15,9 @@ metadata:
     kalexlab.xyz/app: wiki
     kalexlab.xyz/component: cache
     kalexlab.xyz/monitoring: "true"
+  annotations:
+    gatus.kalexlab.xyz/enabled: "true"
+    gatus.kalexlab.xyz/scheme: tcp
 spec:
   kubernetesConfig:
     # renovate: datasource=docker depName=valkey/valkey

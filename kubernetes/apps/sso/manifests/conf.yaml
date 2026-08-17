@@ -456,7 +456,7 @@ data:
             - sonarr.kalexlab.xyz
             - radarr.kalexlab.xyz
             - prowlarr.kalexlab.xyz
-            - helper.music.kalexlab.xyz
+            - get.music.kalexlab.xyz
             - plants.kalexlab.xyz
           policy: one_factor
           subject:

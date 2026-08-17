@@ -2,17 +2,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: adguard
+  name: expo-updates
   namespace: argocd
 spec:
   project: default
   sources:
     - repoURL: https://github.com/AlessandroZanatta/homelab-v2.git
       targetRevision: master
-      path: kubernetes/management/adguard
+      path: kubernetes/apps/expo-updates
   destination:
     name: in-cluster
-    namespace: adguard
+    namespace: expo-updates
   syncPolicy:
     automated:
       prune: true

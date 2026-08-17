@@ -4,7 +4,8 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - secrets.sops.yaml
-  - vsc.yaml
+  - storageclasses.yaml
+  - volumesnapshotclasses.yaml
   - trim-job.yaml
   - snapshot-delete-job.yaml
   - s3-bucket.yaml

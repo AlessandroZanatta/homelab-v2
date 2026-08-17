@@ -151,16 +151,3 @@ spec:
       ports:
         - protocol: TCP
           port: 5432
----
-apiVersion: cilium.io/v2
-kind: CiliumNetworkPolicy
-metadata:
-  name: cluster-to-apiserver
-spec:
-  endpointSelector:
-    matchLabels:
-      kalexlab.xyz/app: immich
-      kalexlab.xyz/component: cluster
-  egress:
-    - toEntities:
-        - kube-apiserver

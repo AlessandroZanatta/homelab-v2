@@ -1,0 +1,57 @@
+---
+apiVersion: gatus.kalexlab.xyz/v1alpha1
+kind: EndpointTemplate
+metadata:
+  name: common-alerts
+spec:
+  # No defaultFor: this one is only ever pulled in through extends.
+  endpoint:
+    interval: 1m
+    alerts:
+      - type: telegram
+      - type: telegram
+        provider-override:
+          id: "${LAETITIA_TELEGRAM_ID}"
+---
+apiVersion: gatus.kalexlab.xyz/v1alpha1
+kind: EndpointTemplate
+metadata:
+  name: default-http
+spec:
+  extends:
+    - common-alerts
+  defaultFor:
+    - http
+  scheme: http
+  endpoint:
+    conditions:
+      - "[STATUS] == 200"
+---
+apiVersion: gatus.kalexlab.xyz/v1alpha1
+kind: EndpointTemplate
+metadata:
+  name: default-https
+spec:
+  extends:
+    - common-alerts
+  defaultFor:
+    - https
+  scheme: http
+  endpoint:
+    conditions:
+      - "[STATUS] == any(200, 401)" # Traefik forward auth
+
+---
+apiVersion: gatus.kalexlab.xyz/v1alpha1
+kind: EndpointTemplate
+metadata:
+  name: default-tcp
+spec:
+  extends:
+    - common-alerts
+  defaultFor:
+    - tcp
+  scheme: tcp
+  endpoint:
+    conditions:
+      - "[CONNECTED] == true"
