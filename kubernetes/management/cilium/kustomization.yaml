@@ -10,7 +10,7 @@ helmGlobals:
 helmCharts:
   - name: cilium
     repo: https://helm.cilium.io
-    version: 1.20.0
+    version: 1.20.1
     releaseName: cilium
     namespace: cilium
     valuesFile: values/cilium.yaml
