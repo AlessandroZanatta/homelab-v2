@@ -31,7 +31,8 @@ configuration:
         publicUrl: "https://backups.kalexlab.xyz"
 
 configMaps:
-  velero-volume-policy:
+  # <ReleaseName>- added as prefix automatically
+  volume-policy:
     data:
       policy.yaml: |
         version: v1
