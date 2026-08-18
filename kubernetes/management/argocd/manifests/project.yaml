@@ -131,4 +131,8 @@ spec:
       - group: velero.io
         kind: Backup
       - group: velero.io
+        kind: DeleteBackupRequest
+      - group: velero.io
+        kind: DownloadRequest
+      - group: velero.io
         kind: Restore
