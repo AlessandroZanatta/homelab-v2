@@ -10,7 +10,7 @@ helmGlobals:
 helmCharts:
   - name: redis-operator
     repo: https://ot-container-kit.github.io/helm-charts/
-    version: 0.25.0
+    version: 0.26.0
     releaseName: redis-operator
     namespace: redis-operator
     valuesFile: values/redis-operator.yaml
