@@ -25,3 +25,4 @@ securityContext:
 
 featureGates:
   GenerateConfigInInitContainer: true
+  AvoidCommandLinePassword: null
