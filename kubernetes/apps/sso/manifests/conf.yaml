@@ -171,6 +171,30 @@ data:
             userinfo_signed_response_alg: none
             token_endpoint_auth_method: client_secret_post
 
+          - client_id: uNJILP7wNZqjbx6FTrjN5qsBs7LUHPdeXCRr2bnmqZsAEMClHHmmJRBKjj0qfbeGTLyypdyQ
+            client_name: Spesa - DEV
+            client_secret: "$pbkdf2-sha512$310000$1nh8CK6p8ECNjqNMKJghmA$m4TvQIyflqChmv/Wc4ID.3RS9pgITQF6vKy5Rmw9mtFG44vs4g/dFLx7Gi83G.dWl0/z6f9pcuWOG65om6piEw"
+            public: false
+            consent_mode: implicit
+            authorization_policy: devs
+            require_pkce: true
+            pkce_challenge_method: ""
+            redirect_uris:
+              - "http://192.168.10.51:3000/auth/oauth2/callback/oidc"
+              - "xyz.kalexlab.reciept.dev://oauth"
+            scopes:
+              - openid
+              - profile
+              - groups
+              - email
+            response_types:
+              - code
+            grant_types:
+              - authorization_code
+            access_token_signed_response_alg: none
+            userinfo_signed_response_alg: none
+            token_endpoint_auth_method: client_secret_post
+
           - client_id: 5WREoY~6NzpJNJVMf43EmuzuNV4uahCjuqOmReV1Iq_0yNG3bSQiJVA3zmIvGFkx23YGMoz9
             client_name: Books
             client_secret: "$pbkdf2-sha512$310000$eAzhAeoYfms6FKxjEibt8g$ujVy6auB.VxUXksnMWQ4n8wtvg5KiJENVjUcZ388QoWCntrpk9sq6hMjY9.mNDPDve6G..teYAcQd65SOjhQDQ"
