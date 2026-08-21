@@ -17,7 +17,7 @@ kind: IngressRoute
 metadata:
   name: plants-ingress
   annotations:
-    external-dns.alpha.kubernetes.io/target: 192.168.10.20
+    external-dns.kubernetes.io/target: 192.168.10.20
     # Hortusfox returns 401 due to missing forward auth on everything
     gatus.kalexlab.xyz/endpoint: |
       conditions:

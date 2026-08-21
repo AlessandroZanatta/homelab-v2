@@ -47,6 +47,7 @@ spec:
             - --registry=txt
             - --txt-owner-id=external-dns
             - --metrics-address=:7979
+            - --policy=sync
 
           securityContext: &securityContext
             readOnlyRootFilesystem: true

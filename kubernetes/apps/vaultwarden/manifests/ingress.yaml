@@ -17,7 +17,7 @@ kind: IngressRoute
 metadata:
   name: vaultwarden-ingress
   annotations:
-    external-dns.alpha.kubernetes.io/target: 192.168.10.20
+    external-dns.kubernetes.io/target: 192.168.10.20
 spec:
   entryPoints:
     - web

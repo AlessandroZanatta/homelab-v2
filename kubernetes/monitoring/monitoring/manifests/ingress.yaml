@@ -17,7 +17,7 @@ kind: IngressRoute
 metadata:
   name: grafana
   annotations:
-    external-dns.alpha.kubernetes.io/target: 192.168.10.20
+    external-dns.kubernetes.io/target: 192.168.10.20
 spec:
   entryPoints:
     - web
@@ -49,7 +49,7 @@ kind: IngressRoute
 metadata:
   name: prometheus
   annotations:
-    external-dns.alpha.kubernetes.io/target: 192.168.10.20
+    external-dns.kubernetes.io/target: 192.168.10.20
 spec:
   entryPoints:
     - web

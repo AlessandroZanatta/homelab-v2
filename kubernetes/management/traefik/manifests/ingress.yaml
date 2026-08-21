@@ -20,7 +20,7 @@ metadata:
   namespace: traefik
   name: traefik-dashboard-ingress
   annotations:
-    external-dns.alpha.kubernetes.io/target: 192.168.10.20
+    external-dns.kubernetes.io/target: 192.168.10.20
 spec:
   entryPoints:
     - web

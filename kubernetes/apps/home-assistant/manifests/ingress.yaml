@@ -19,7 +19,7 @@ kind: IngressRoute
 metadata:
   name: home-assistant-ingress
   annotations:
-    external-dns.alpha.kubernetes.io/target: 192.168.10.20
+    external-dns.kubernetes.io/target: 192.168.10.20
 spec:
   entryPoints:
     - web
@@ -51,7 +51,7 @@ kind: IngressRouteTCP
 metadata:
   name: mosquitto
   annotations:
-    external-dns.alpha.kubernetes.io/target: 192.168.10.20
+    external-dns.kubernetes.io/target: 192.168.10.20
 spec:
   entryPoints:
     - mqtt
