@@ -216,6 +216,14 @@ spec:
 
     jobType: all
 
+    volumes:
+      - name: data
+        emptyDir:
+          sizeLimit: 1Gi
+    volumeMounts:
+      - name: data
+        mountPath: /data
+
     podSecurityContext: *podSecurityContext
     containerSecurityContext: *containerSecurityContext
 

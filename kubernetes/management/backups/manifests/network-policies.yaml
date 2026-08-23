@@ -43,6 +43,18 @@ spec:
     - Ingress
   ingress:
     - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: filer
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: worker
+      ports:
+        - protocol: TCP
+          port: 18333
+    - from:
         - namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: traefik
@@ -106,6 +118,10 @@ spec:
             matchLabels:
               kalexlab.xyz/app: backups
               kalexlab.xyz/component: master
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: filer
       ports:
         - protocol: TCP
           port: 18444
@@ -163,6 +179,10 @@ spec:
             matchLabels:
               kalexlab.xyz/app: backups
               kalexlab.xyz/component: admin
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: worker
         - namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: seaweedfs-operator
@@ -195,10 +215,20 @@ spec:
         - podSelector:
             matchLabels:
               kalexlab.xyz/app: backups
+              kalexlab.xyz/component: s3
+      ports:
+        - protocol: TCP
+          port: 18333
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
               kalexlab.xyz/component: volume
       ports:
         - protocol: TCP
           port: 8444
+        - protocol: TCP
+          port: 18444
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -290,6 +320,8 @@ spec:
       ports:
         - protocol: TCP
           port: 33646
+        - protocol: TCP
+          port: 23646
     - from:
         - namespaceSelector:
             matchLabels:
@@ -374,6 +406,22 @@ spec:
           port: 9333
         - protocol: TCP
           port: 19333
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: filer
+      ports:
+        - protocol: TCP
+          port: 18888
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: s3
+      ports:
+        - protocol: TCP
+          port: 18333
 ---
 apiVersion: cilium.io/v2
 kind: CiliumClusterwideNetworkPolicy
