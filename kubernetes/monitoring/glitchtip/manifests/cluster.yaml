@@ -34,7 +34,7 @@ spec:
   instances: 1
   storage:
     storageClass: longhorn
-    size: 3Gi
+    size: 4Gi
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
