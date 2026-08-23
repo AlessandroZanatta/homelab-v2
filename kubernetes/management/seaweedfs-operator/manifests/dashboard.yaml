@@ -7,4 +7,4 @@ metadata:
     grafana_dashboard: "1"
 data:
   # renovate: datasource=github-tags depName=seaweedfs/seaweedfs
-  seaweedfs.json: "https://raw.githubusercontent.com/seaweedfs/seaweedfs/refs/tags/4.43/k8s/charts/seaweedfs/dashboards/seaweedfs-grafana-dashboard.json"
+  seaweedfs.json: "https://raw.githubusercontent.com/seaweedfs/seaweedfs/refs/tags/4.44/k8s/charts/seaweedfs/dashboards/seaweedfs-grafana-dashboard.json"
