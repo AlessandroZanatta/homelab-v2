@@ -17,12 +17,10 @@ deschedulerPolicy:
         - name: DefaultEvictor
           args:
             nodeFit: true
-            minReplicas: 2
+            minReplicas: 1
             podProtections:
               defaultDisabled:
                 - PodsWithLocalStorage
-              extraEnabled:
-                - PodsWithPVC
         - name: RemoveDuplicates
         - name: RemovePodsHavingTooManyRestarts
           args:
@@ -41,10 +39,8 @@ deschedulerPolicy:
               source: KubernetesMetrics
             useDeviationThresholds: true
             thresholds:
-              cpu: 10
               memory: 10
             targetThresholds:
-              cpu: 10
               memory: 10
             evictableNamespaces:
               exclude:
