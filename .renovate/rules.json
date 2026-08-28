@@ -13,8 +13,10 @@
         "ghcr.io/siderolabs/installer",
         "ghcr.io/siderolabs/kubelet"
       ],
+      "schedule": ["at any time"],
       "automerge": true,
-      "automergeSchedule": ["after 11pm on friday", "on saturday"]
+      "automergeType": "pr",
+      "automergeSchedule": ["after 11pm on friday", "after 11pm on saturday"]
     },
     {
       "description": "Auto-merge grafana.com dashboard revision bumps",
