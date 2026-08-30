@@ -41,7 +41,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: xprem
-          image: "ghcr.io/mercuretechnologies/xprem:v3.1.2"
+          image: "ghcr.io/mercuretechnologies/xprem:v3.1.3"
           imagePullPolicy: Always
           securityContext:
             readOnlyRootFilesystem: true
