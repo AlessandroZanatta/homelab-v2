@@ -57,11 +57,11 @@ spec:
   routes:
     - kind: Rule
       match: Host(`prometheus.kalexlab.xyz`)
-      middlewares:
-        - name: authelia-forward-auth
-          namespace: sso
       services:
         - name: monitoring-kube-prometheus-prometheus
           port: 9090
+      middlewares:
+        - name: authentik-forward-auth
+          namespace: authentik
   tls:
     secretName: prometheus-ingress-certificate
