@@ -6,6 +6,9 @@ metadata:
   labels:
     kalexlab.xyz/app: expo-updates
     kalexlab.xyz/component: xprem
+  annotations:
+    gatus.kalexlab.xyz/enabled: "true"
+    gatus.kalexlab.xyz/path: /dashboard
 spec:
   type: ClusterIP
   ports:
