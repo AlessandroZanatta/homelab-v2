@@ -29,7 +29,7 @@ spec:
         - name: ddns-updater
           port: 8000
       middlewares:
-        - name: authelia-forward-auth
-          namespace: sso
+        - name: authentik-forward-auth
+          namespace: authentik
   tls:
     secretName: ddns-updater-ingress-certificate-secret

@@ -35,6 +35,8 @@ global:
       mountPath: /secrets/secret-key
     - name: cnpg-cluster
       mountPath: /secrets/postgres
+    - name: blueprints-default-override
+      mountPath: /blueprints/default
 
   # -- Additional volumes to all deployed Deployments.
   # @default -- `[]` (See [values.yaml])
@@ -45,6 +47,8 @@ global:
     - name: cnpg-cluster
       secret:
         secretName: cluster-app
+    - name: blueprints-default-override
+      emptyDir: {}
 
   envFrom:
     - secretRef:
@@ -61,6 +65,17 @@ authentik:
   # bootstrap_email: "file:///secrets/bootstrap/email"
   # bootstrap_password: "file:///secrets/bootstrap/password"
   # bootstrap_token: "file:///secrets/bootstrap/token"
+  web:
+    base_url: "https://auth.kalexlab.xyz"
+
+  outposts:
+    # The embedded outpost is created and owned by authentik itself, which makes
+    # it a poor fit for tofu: adopting it needs a data source plus an import
+    # block, and `tofu destroy` then deletes an object authentik expects to own.
+    # Disabling it lets the outpost be declared as an ordinary resource instead,
+    # so destroy and apply stay repeatable. authentik actively keeps the embedded
+    # outpost deleted while this is true.
+    disable_embedded_outpost: true
 
   postgresql:
     # -- set the postgresql hostname to talk to

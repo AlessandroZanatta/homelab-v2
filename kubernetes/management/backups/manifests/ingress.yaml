@@ -39,7 +39,7 @@ spec:
         - name: backups-admin
           port: admin-http
       middlewares:
-        - name: authelia-forward-auth
-          namespace: sso
+        - name: authentik-forward-auth
+          namespace: authentik
   tls:
     secretName: backups-certificate

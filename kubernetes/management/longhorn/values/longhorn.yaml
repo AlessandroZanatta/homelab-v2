@@ -5,7 +5,7 @@ defaultSettings:
   # -- Maximum number of engines that are allowed to concurrently upgrade on each node after Longhorn Manager is upgraded. When the value is "0", Longhorn does not automatically upgrade volume engines to the new default engine image version.
   concurrentAutomaticEngineUpgradePerNodeLimit: "2"
   # -- Policy that defines the action Longhorn takes when a node with the last healthy replica of a volume is drained.
-  nodeDrainPolicy: block-for-eviction-if-contains-last-replica
+  nodeDrainPolicy: allow-if-replica-is-stopped
 
 preUpgradeChecker:
   # -- Setting that allows Longhorn to perform pre-upgrade checks. Disable this setting when installing Longhorn using Argo CD or other GitOps solutions.

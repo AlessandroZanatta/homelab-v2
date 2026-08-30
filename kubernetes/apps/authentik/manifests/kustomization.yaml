@@ -10,4 +10,4 @@ resources:
   - cluster-backup.yaml
   - secrets.sops.yaml
   - middlewares.yaml
-  # - ingress.yaml
+  - ingress.yaml

@@ -29,8 +29,8 @@ spec:
     - kind: Rule
       match: Host(`traefik.kalexlab.xyz`)
       middlewares:
-        - name: authelia-forward-auth
-          namespace: sso
+        - name: authentik-forward-auth
+          namespace: authentik
       services:
         - kind: TraefikService
           name: api@internal

@@ -31,7 +31,7 @@ spec:
         - name: hubble-ui
           port: 80
       middlewares:
-        - name: authelia-forward-auth
-          namespace: sso
+        - name: authentik-forward-auth
+          namespace: authentik
   tls:
     secretName: hubble-ingress-certificate-secret

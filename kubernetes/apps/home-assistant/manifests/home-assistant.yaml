@@ -74,6 +74,12 @@ spec:
             failureThreshold: 3
             periodSeconds: 30
           volumeMounts:
+            - mountPath: /config/configuration.yaml
+              subPath: configuration.yaml
+              name: home-assistant-conf
+            - mountPath: /config/secrets.yaml
+              subPath: secrets.yaml
+              name: home-assistant-secrets
             - mountPath: /config
               name: home-assistant-config-pvc
       enableServiceLinks: false
@@ -86,6 +92,13 @@ spec:
       # fsGroupChangePolicy: "OnRootMismatch"
       # seccompProfile:
       #   type: RuntimeDefault
+      volumes:
+        - name: home-assistant-conf
+          configMap:
+            name: home-assistant-conf
+        - name: home-assistant-secrets
+          secret:
+            secretName: home-assistant-secrets
   volumeClaimTemplates:
     - metadata:
         name: home-assistant-config-pvc

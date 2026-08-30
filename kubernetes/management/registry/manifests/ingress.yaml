@@ -34,5 +34,8 @@ spec:
       services:
         - name: ui
           port: 8080
+      middlewares:
+        - name: authentik-forward-auth
+          namespace: authentik
   tls:
     secretName: registry-ingress-certificate-secret

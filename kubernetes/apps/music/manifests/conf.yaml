@@ -11,9 +11,10 @@ data:
     CacheFolder = '/cache'
     BaseUrl = 'https://music.kalexlab.xyz'
 
-    # Authelia SSO setup
-    ReverseProxyWhitelist = '0.0.0.0/0'
-    # Disable user editing, users are not handled by Authelia
     EnableUserEditing = false
-
     EnableInsightsCollector = false
+
+    [ExtAuth]
+    TrustedSources = '10.244.0.0/16'
+    UserHeader = "X-authentik-username"
+    LogoutURL = "https://auth.kalexlab.xyz/application/o/apps-navidrome/end-session/"

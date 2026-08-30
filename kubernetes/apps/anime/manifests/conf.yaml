@@ -4,4 +4,40 @@ kind: ConfigMap
 metadata:
   name: anime-conf
 data:
-  config.yaml: "base_path: /api\nserver:\n  cors_origin:\n    - https://anime.kalexlab.xyz\n    - app://- # electron\n  media_path: /anime\n  log_level: debug\nredis:\n  host: queue\n  port: 6379\nsentry:\n  enabled: true\n  dsn: https://ffc5c4c4bc354811bd9cd09e0cfb4d4e@glitchtip.kalexlab.xyz/2\n  environment: production \nflaresolverr:\n  url: http://flaresolverr.flaresolverr.svc.cluster.local:8191\n  timeout_seconds: 300\nauth:\n  base_url: https://anime.kalexlab.xyz/api/auth\n  trusted_origins:\n    - https://anime.kalexlab.xyz\n    - xyz.kalexlab.anime://\n  email_and_password:\n    enabled: false\n  device_authorization:\n    enabled: true\n    verification_uri: xyz.kalexlab.anime:///device\n  oidc:\n    enabled: true\n    client_id: Wz_GlwcKKwH1UHM9aQAk7otNLb8R_D36zHvWQSA~BNQZ0K.rIqTnPa2tnFC0dnL8FbADBX-f\n    discovery_url: https://auth.kalexlab.xyz/.well-known/openid-configuration\n"
+  config.yaml: |
+    base_path: /api
+    server:
+      cors_origin:
+        - https://anime.kalexlab.xyz
+        - app://- # electron
+      media_path: /anime
+      log_level: debug
+    redis:
+      host: queue
+      port: 6379
+    sentry:
+      enabled: true
+      dsn: https://ffc5c4c4bc354811bd9cd09e0cfb4d4e@glitchtip.kalexlab.xyz/2
+      environment: production
+    flaresolverr:
+      url: http://flaresolverr.flaresolverr.svc.cluster.local:8191
+      timeout_seconds: 300
+    auth:
+      base_url: https://anime.kalexlab.xyz/api/auth
+      trusted_origins:
+        - https://anime.kalexlab.xyz
+        - xyz.kalexlab.anime://
+      email_and_password:
+        enabled: false
+      device_authorization:
+        enabled: true
+        verification_uri: xyz.kalexlab.anime:///device
+      oidc:
+        enabled: true
+        client_id: apps-anime
+        discovery_url: https://auth.kalexlab.xyz/application/o/apps-anime/.well-known/openid-configuration
+      account_linking:
+        enabled: true
+        trusted_providers:
+          - oidc
+        require_local_email_verified: false

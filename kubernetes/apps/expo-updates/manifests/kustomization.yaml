@@ -8,5 +8,5 @@ resources:
   - secrets.sops.yaml
   - cluster.yaml
   - cluster-backup.yaml
-  - xavia-ota.yaml
+  - xprem.yaml
   - ingress.yaml

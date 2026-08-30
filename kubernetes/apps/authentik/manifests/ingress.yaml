@@ -2,12 +2,12 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: homer-certificate
+  name: authentik
 spec:
-  commonName: homer.kalexlab.xyz
-  secretName: homer-ingress-certificate-secret
+  commonName: auth.kalexlab.xyz
+  secretName: authentik-certificate
   dnsNames:
-    - homer.kalexlab.xyz
+    - auth.kalexlab.xyz
   issuerRef:
     kind: ClusterIssuer
     name: letsencrypt
@@ -15,7 +15,7 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: homer-ingress
+  name: authentik
   annotations:
     external-dns.kubernetes.io/target: 192.168.10.20
 spec:
@@ -23,11 +23,10 @@ spec:
     - web
     - websecure
   routes:
-    # No need to add forward-auth to homer
     - kind: Rule
-      match: Host(`homer.kalexlab.xyz`)
+      match: Host(`auth.kalexlab.xyz`)
       services:
-        - name: homer
-          port: 8080
+        - name: authentik-server
+          port: http
   tls:
-    secretName: homer-ingress-certificate-secret
+    secretName: authentik-certificate

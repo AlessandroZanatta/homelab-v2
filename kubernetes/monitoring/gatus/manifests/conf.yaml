@@ -7,9 +7,9 @@ data:
   base.yaml: |
     security:
       oidc:
-        issuer-url: "https://auth.kalexlab.xyz"
-        redirect-url: "https://status.kalexlab.xyz/authorization-code/callback"
-        client-id: DckOx_vcEnOlhRWpBk81VJqHAiKZ0rd2R1MCt4zmV28SSndNeS2z5ZlDBgQK..FDjytZd0_g
+        issuer-url: https://auth.kalexlab.xyz/application/o/monitoring-gatus/
+        redirect-url: https://status.kalexlab.xyz/authorization-code/callback
+        client-id: monitoring-gatus
         client-secret: "${OIDC_CLIENT_SECRET}"
         scopes: [openid, profile, email]
 

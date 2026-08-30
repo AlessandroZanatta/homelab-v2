@@ -4,10 +4,10 @@ kind: Certificate
 metadata:
   name: immich-certificate
 spec:
-  commonName: immich.kalexlab.xyz
+  commonName: photos.kalexlab.xyz
   secretName: immich-ingress-certificate-secret
   dnsNames:
-    - immich.kalexlab.xyz
+    - photos.kalexlab.xyz
   issuerRef:
     kind: ClusterIssuer
     name: letsencrypt
@@ -24,7 +24,7 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`immich.kalexlab.xyz`)
+      match: Host(`photos.kalexlab.xyz`)
       services:
         - name: immich
           port: 2283

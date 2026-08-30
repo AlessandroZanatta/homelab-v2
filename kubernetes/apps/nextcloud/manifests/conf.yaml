@@ -77,7 +77,7 @@ data:
     <?php
 
     $CONFIG = array(
-      'oidc_login_provider_url' => 'https://auth.kalexlab.xyz'
+      'oidc_login_provider_url' => 'https://auth.kalexlab.xyz/application/o/apps-nextcloud/'
     );
   oidc.config.php: |
     <?php
@@ -85,22 +85,22 @@ data:
     $CONFIG = array(
       'allow_user_to_change_display_name' => false,
       'lost_password_link' => 'disabled',
-      'oidc_login_client_id' => '1LDwBk.lsBIq4UKju1xTtErbtJO4wzN.3u1~BB0y0V65zRn.VITLv3Qk2jNlhSYAy7wNvs80',
+      'oidc_login_client_id' => 'apps-nextcloud',
       'oidc_login_client_secret' => getenv("OIDC_CLIENT_SECRET"),
       'oidc_login_auto_redirect' => true,
       'oidc_login_end_session_redirect' => false,
-      'oidc_login_button_text' => 'Log in with Authelia',
-      'oidc_login_hide_password_form' => false,
+      'oidc_login_button_text' => 'Log in with Authentik',
+      'oidc_login_hide_password_form' => true,
       'oidc_login_attributes' => array (
           'id' => 'preferred_username',
           'name' => 'name',
           'mail' => 'email',
           'groups' => 'groups',
-          'is_admin' => 'is_nextcloud_admin',
+          'is_admin' => 'nextcloud_admin',
       ),
       'oidc_login_default_group' => 'oidc',
       'oidc_login_use_external_storage' => false,
-      'oidc_login_scope' => 'openid profile email groups nextcloud_userinfo',
+      'oidc_login_scope' => 'openid profile email nextcloud_role',
       'oidc_login_proxy_ldap' => false,
       'oidc_login_disable_registration' => true,
       'oidc_login_redir_fallback' => false,

@@ -36,14 +36,6 @@ spec:
       gatus.kalexlab.xyz/scheme: tcp
       gatus.kalexlab.xyz/exclude: cluster-ro
   instances: 1
-  bootstrap:
-    initdb:
-      postInitApplicationSQLRefs:
-        configMapRefs:
-          - name: cluster-init
-            key: releases.sql
-          - name: cluster-init
-            key: tracking.sql
   storage:
     storageClass: longhorn
     size: 4Gi

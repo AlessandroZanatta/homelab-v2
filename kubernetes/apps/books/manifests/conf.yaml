@@ -16,13 +16,13 @@ data:
   EMAIL_SMTP_PORT: "587"
   EMAIL_SMTP_SECURITY: starttls
   AUTH_METHOD: oidc
-  OIDC_DISCOVERY_URL: https://auth.kalexlab.xyz/.well-known/openid-configuration
-  OIDC_CLIENT_ID: W9az.SxyFYPmffn6~TWQIoLvBywXD~5fh-lai8mwzVNM21rkne7XDn_8Z83sfK5mvBQZtLKs
-  OIDC_SCOPES: openid,email,profile,groups
+  OIDC_DISCOVERY_URL: https://auth.kalexlab.xyz/application/o/apps-shelfmark/.well-known/openid-configuration
+  OIDC_CLIENT_ID: apps-shelfmark
+  OIDC_SCOPES: openid,email,profile
   OIDC_ADMIN_GROUP: admins
   OIDC_USE_ADMIN_GROUP: "true"
   OIDC_AUTO_PROVISION: "true"
-  OIDC_BUTTON_LABEL: Login with Authelia
+  OIDC_BUTTON_LABEL: Login with Authentik
   METADATA_PROVIDER: hardcover
   HARDCOVER_ENABLED: "true"
   DIRECT_DOWNLOAD_ENABLED: "true"

@@ -14,6 +14,25 @@ spec:
     name: letsencrypt
 ---
 apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: strip-authentik-headers
+spec:
+  headers:
+    customRequestHeaders:
+      X-authentik-username: ""
+      X-authentik-groups: ""
+      X-authentik-email: ""
+      X-authentik-name: ""
+      X-authentik-uid: ""
+      X-authentik-jwt: ""
+      X-authentik-meta-jwks: ""
+      X-authentik-meta-outpost: ""
+      X-authentik-meta-provider: ""
+      X-authentik-meta-app: ""
+      X-authentik-meta-version: ""
+---
+apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: music-ingress
@@ -29,25 +48,31 @@ spec:
       services:
         - name: navidrome
           port: 4533
-          # Navidrome is somehow making Authelia crash, disable SSO for now
-          # middlewares:
-          #   - name: authelia-forward-auth
-          #     namespace: sso
+      middlewares:
+        - name: authentik-forward-auth
+          namespace: authentik
+    - kind: Rule
+      match: "Host(`music.kalexlab.xyz`) && PathPrefix(`/rest/`) && !Query(`c`, `NavidromeUI`)"
+      services:
+        - name: navidrome
+          port: 4533
+      middlewares:
+        - name: strip-authentik-headers
     - kind: Rule
       match: "Host(`get.music.kalexlab.xyz`) && PathPrefix(`/api`)"
       services:
         - name: helper-backend
           port: 8000
       middlewares:
-        - name: authelia-forward-auth
-          namespace: sso
+        - name: authentik-forward-auth
+          namespace: authentik
     - kind: Rule
       match: Host(`get.music.kalexlab.xyz`)
       services:
         - name: helper-frontend
           port: 80
       middlewares:
-        - name: authelia-forward-auth
-          namespace: sso
+        - name: authentik-forward-auth
+          namespace: authentik
   tls:
     secretName: music-ingress-certificate-secret

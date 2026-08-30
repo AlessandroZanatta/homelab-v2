@@ -1,0 +1,109 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: xprem
+  labels:
+    kalexlab.xyz/app: expo-updates
+    kalexlab.xyz/component: xprem
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 3000
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: expo-updates
+    kalexlab.xyz/component: xprem
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: xprem
+  labels:
+    kalexlab.xyz/app: expo-updates
+    kalexlab.xyz/component: xprem
+spec:
+  serviceName: xprem
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: expo-updates
+      kalexlab.xyz/component: xprem
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: expo-updates
+        kalexlab.xyz/component: xprem
+        kalexlab.xyz/monitoring: "true"
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: xprem
+          image: "ghcr.io/mercuretechnologies/xprem:v3.1.2"
+          imagePullPolicy: Always
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: xprem
+            - secretRef:
+                name: xprem
+
+          env:
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: cluster-app
+                  key: uri
+          # TODO
+          # resources:
+          #   requests:
+          #     memory: 400Mi
+          #     cpu: 10m
+          #   limits:
+          #     memory: 2Gi
+          #     cpu: 1500m
+          readinessProbe:
+            httpGet:
+              path: /dashboard
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /dashboard
+              port: http
+            failureThreshold: 3
+            periodSeconds: 30
+          volumeMounts:
+            - mountPath: /updates
+              name: updates-pvc
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65565
+        runAsGroup: 65565
+        fsGroup: 65565
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+  volumeClaimTemplates:
+    - metadata:
+        name: updates-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 2Gi

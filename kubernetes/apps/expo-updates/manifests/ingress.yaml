@@ -2,10 +2,10 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: expo-updates-certificate
+  name: expo-updates
 spec:
   commonName: expo-ota.kalexlab.xyz
-  secretName: expo-updates-ingress-certificate-secret
+  secretName: expo-updates-ingress-certificate
   dnsNames:
     - expo-ota.kalexlab.xyz
   issuerRef:
@@ -15,9 +15,9 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: expo-updates-ingress
+  name: expo-updates
   annotations:
-    external-dns.alpha.kubernetes.io/target: 192.168.10.20
+    external-dns.kubernetes.io/target: 192.168.10.20
 spec:
   entryPoints:
     - web
@@ -26,7 +26,7 @@ spec:
     - kind: Rule
       match: Host(`expo-ota.kalexlab.xyz`)
       services:
-        - name: xavia-ota
-          port: 3000
+        - name: xprem
+          port: http
   tls:
-    secretName: expo-updates-ingress-certificate-secret
+    secretName: expo-updates-ingress-certificate

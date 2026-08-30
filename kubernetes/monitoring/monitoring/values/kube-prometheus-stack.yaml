@@ -59,20 +59,26 @@ grafana:
     server:
       root_url: "https://grafana.kalexlab.xyz"
 
+    auth:
+      # hides the username/password fields on /login
+      disable_login_form: true
+
     auth.generic_oauth:
       enabled: true
-      name: Authelia
-      auth_url: https://auth.kalexlab.xyz/api/oidc/authorization
-      token_url: https://auth.kalexlab.xyz/api/oidc/token
-      api_url: https://auth.kalexlab.xyz/api/oidc/userinfo
-      client_id: vP36vqAl-kDRRlq0~88S1u-2jdyyktDkLDuPsHmwHp0oDnuBRg-KH4DeJXaAWXBXU4.uL7YK
+      auto_login: true
+      name: Authentik
+      auth_url: https://auth.kalexlab.xyz/application/o/authorize/
+      token_url: https://auth.kalexlab.xyz/application/o/token/
+      api_url: https://auth.kalexlab.xyz/application/o/userinfo/
+      client_id: monitoring-grafana
       client_secret: "$__file{/etc/secrets/grafana-secrets/generic_oauth_client_secret}"
-      scopes: openid profile email groups
+      scopes: openid profile email grafana_role
       empty_scopes: false
       login_attribute_path: preferred_username
       groups_attribute_path: groups
       name_attribute_path: name
-      role_attribute_path: "contains(groups[*], 'admins') && 'GrafanaAdmin' || 'Viewer'"
+      role_attribute_path: "contains(grafana_role[*], 'admin') && 'GrafanaAdmin' || contains(grafana_role[*], 'viewer') && 'Viewer'"
+      allow_assign_grafana_admin: true
       use_pkce: true
 
   extraSecretMounts:

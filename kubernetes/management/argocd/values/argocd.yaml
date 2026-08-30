@@ -3,15 +3,12 @@ global:
   domain: argocd.kalexlab.xyz
 
 configs:
-  secret:
-    argocdServerAdminPassword: $2a$10$RNlGu408eHiZTVweT1LOyeWYVf0o9uyuXmB7z8n8kab27cW1yl7Vm
-
   params:
     server.insecure: true
 
   rbac:
     policy.csv: |
-      g, admins, role:admin
+      g, infra, role:admin
 
   repositories:
     homelab:
@@ -20,20 +17,21 @@ configs:
       type: git
 
   cm:
+    admin.enabled: "false"
     dex.config: |
       connectors:
         - config:
-            issuer: https://auth.kalexlab.xyz
-            clientID: epeYecAgBGxlMfdl58elE2BygSshHmQxT2-g~8rgJpfujUUNo1PaBc~SVPbB1C4wLdxANoIR
+            issuer: https://auth.kalexlab.xyz/application/o/management-argocd/
+            clientID: management-argocd
             clientSecret: $oidc-secrets:client-secret
             insecureEnableGroups: true
             scopes:
               - openid
               - profile
               - email
-          name: Authelia
+          name: Authentik
           type: oidc
-          id: authelia
+          id: authentik
 
     kustomize.buildOptions: --enable-helm
 
