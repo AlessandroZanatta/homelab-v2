@@ -177,7 +177,7 @@ spec:
     service:
       annotations:
         gatus.kalexlab.xyz/enabled: "true"
-        gatus.kalexlab.xyz/ports: s3-http
+        gatus.kalexlab.xyz/port: s3-http
         # S3 returns 403 on a call without credentials
         gatus.kalexlab.xyz/endpoint: |
           conditions:
