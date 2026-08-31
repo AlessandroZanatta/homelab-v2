@@ -13,7 +13,6 @@ terraform {
 }
 
 provider "authentik" {
-  url      = "https://auth.kalexlab.xyz"
-  token    = var.authentik_token
-  insecure = true
+  url   = "https://auth.kalexlab.xyz"
+  token = var.authentik_token
 }

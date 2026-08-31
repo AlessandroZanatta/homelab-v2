@@ -5,7 +5,7 @@ metadata:
   name: authentik-forward-auth
 spec:
   forwardAuth:
-    address: http://ak-outpost-proxy-outpost.authentik.svc.cluster.local:9000/outpost.goauthentik.io/auth/traefik
+    address: http://ak-outpost-proxy.authentik.svc.cluster.local:9000/outpost.goauthentik.io/auth/traefik
     trustForwardHeader: true
     authResponseHeaders:
       - X-authentik-username
@@ -34,7 +34,7 @@ spec:
       match: PathPrefix(`/outpost.goauthentik.io/`)
       priority: 100
       services:
-        - name: ak-outpost-proxy-outpost
+        - name: ak-outpost-proxy
           port: 9000
       middlewares:
         - name: authentik-forward-auth
