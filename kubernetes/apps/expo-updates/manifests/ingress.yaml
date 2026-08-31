@@ -18,6 +18,7 @@ metadata:
   name: expo-updates
   annotations:
     external-dns.kubernetes.io/target: 192.168.10.20
+    gatus.kalexlab.xyz/path: /dashboard
 spec:
   entryPoints:
     - web
