@@ -18,7 +18,7 @@ metadata:
 spec:
   kubernetesConfig:
     # renovate: datasource=docker depName=valkey/valkey
-    image: docker.io/valkey/valkey:9.1.1-alpine
+    image: docker.io/valkey/valkey:9.1.2-alpine
     imagePullPolicy: Always
 
     resources:
