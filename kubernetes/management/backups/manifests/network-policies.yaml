@@ -122,6 +122,10 @@ spec:
             matchLabels:
               kalexlab.xyz/app: backups
               kalexlab.xyz/component: filer
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: worker
       ports:
         - protocol: TCP
           port: 18444
@@ -414,6 +418,14 @@ spec:
       ports:
         - protocol: TCP
           port: 18888
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: volume
+      ports:
+        - protocol: TCP
+          port: 18444
     - to:
         - podSelector:
             matchLabels:
