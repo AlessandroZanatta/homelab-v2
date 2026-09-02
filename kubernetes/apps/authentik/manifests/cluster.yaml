@@ -35,7 +35,7 @@ spec:
       gatus.kalexlab.xyz/enabled: "true"
       gatus.kalexlab.xyz/scheme: tcp
   # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/postgresql
-  imageName: ghcr.io/cloudnative-pg/postgresql:18.6-minimal-trixie
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.6-standard-trixie
   instances: 2
   # Required, otherwise primary instance is upgraded in-place (without a switchover)
   primaryUpdateStrategy: unsupervised
