@@ -46,7 +46,7 @@ spec:
       isWALArchiver: true
       parameters:
         barmanObjectName: backups
-        # renovate-major: depname=ghcr.io/cloudnative-pg/postgresql
+        # renovate-major: depName=ghcr.io/cloudnative-pg/postgresql
         serverName: cluster-v18
   enablePDB: false
 ---
