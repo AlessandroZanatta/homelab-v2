@@ -41,7 +41,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: app
-          image: "ghcr.io/koenkk/zigbee2mqtt:2.13.0"
+          image: "ghcr.io/koenkk/zigbee2mqtt:2.14.0"
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
