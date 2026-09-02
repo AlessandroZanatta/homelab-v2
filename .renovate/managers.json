@@ -43,8 +43,8 @@
         "# renovate-major: depName=(?<depName>\\S+)\\s+serverName:\\s*\"?[\\w-]*v(?<currentValue>\\d+)\"?"
       ],
       "datasourceTemplate": "docker",
-      "extractVersionTemplate": "^(?<version>\\d+)",
-      "versioningTemplate": "regex:^(?<major>\\d+)$"
+      "extractVersionTemplate": "^(?<version>\\d+[a-z0-9]*)",
+      "versioningTemplate": "regex:^(?<major>\\d+)(?<prerelease>[a-z].+)?$"
     }
   ]
 }
