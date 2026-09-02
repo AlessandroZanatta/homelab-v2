@@ -28,6 +28,11 @@ global:
       maxSurge: 25%
       maxUnavailable: 75%
 
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+
   # -- Additional volumeMounts to all deployed Deployments. Does not apply to GeoIP
   # @default -- `[]` (See [values.yaml])
   volumeMounts:
@@ -98,14 +103,14 @@ server:
   # -- The number of server pods to run
   replicas: 2
 
-  topologySpreadConstraints:
-    - maxSkew: 1
-      topologyKey: kubernetes.io/hostname
-      whenUnsatisfiable: DoNotSchedule
-      labelSelector:
-        matchLabels:
-          app.kubernetes.io/name: authentik
-          app.kubernetes.io/component: server
+  ## authentik server Pod Disruption Budget
+  ## Ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+  pdb:
+    # -- Deploy a [PodDistrubtionBudget] for the authentik server
+    enabled: true
+    # -- Number of pods that are available after eviction as number or percentage (eg.: 50%)
+    # @default -- `""` (defaults to 0 if not specified)
+    minAvailable: "1"
 
   # -- Resource limits and requests for the authentik server
   resources: {}
@@ -146,14 +151,14 @@ worker:
   # -- The number of worker pods to run
   replicas: 2
 
-  topologySpreadConstraints:
-    - maxSkew: 1
-      topologyKey: kubernetes.io/hostname
-      whenUnsatisfiable: DoNotSchedule
-      labelSelector:
-        matchLabels:
-          app.kubernetes.io/name: authentik
-          app.kubernetes.io/component: worker
+  ## authentik worker Pod Disruption Budget
+  ## Ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+  pdb:
+    # -- Deploy a [PodDistrubtionBudget] for the authentik worker
+    enabled: true
+    # -- Number of pods that are available after eviction as number or percentage (eg.: 50%)
+    # @default -- `""` (defaults to 0 if not specified)
+    minAvailable: "1"
 
   # -- authentik worker container-level security context
   # @default -- See [values.yaml]

@@ -18,6 +18,9 @@ topologySpreadConstraints:
       matchLabels:
         app.kubernetes.io/name: coredns
 
+podDisruptionBudget:
+  minAvailable: 1
+
 servers:
   - zones:
       - zone: .
