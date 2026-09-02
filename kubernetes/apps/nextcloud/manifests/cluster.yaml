@@ -36,7 +36,7 @@ spec:
       gatus.kalexlab.xyz/scheme: tcp
       gatus.kalexlab.xyz/exclude: cluster-ro
   # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/postgresql
-  imageName: ghcr.io/cloudnative-pg/postgresql:17.11-minimal-trixie
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.6-minimal-trixie
   instances: 1
   storage:
     storageClass: longhorn
@@ -47,7 +47,7 @@ spec:
       parameters:
         barmanObjectName: backups
         # renovate-major: depName=ghcr.io/cloudnative-pg/postgresql
-        serverName: cluster-v17
+        serverName: cluster-v18
   enablePDB: false
 ---
 apiVersion: postgresql.cnpg.io/v1
