@@ -37,9 +37,18 @@ spec:
   # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/postgresql
   imageName: ghcr.io/cloudnative-pg/postgresql:18.6-minimal-trixie
   instances: 2
+  # Required, otherwise primary instance is upgraded in-place (without a switchover)
+  primaryUpdateStrategy: unsupervised
+  primaryUpdateMethod: switchover
   storage:
     storageClass: longhorn-single-replica
     size: 4Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 200Mi
+    limits:
+      memory: 500Mi
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
