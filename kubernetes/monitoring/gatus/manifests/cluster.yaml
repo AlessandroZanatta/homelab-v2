@@ -33,7 +33,7 @@ spec:
       backups.kalexlab.xyz/use: "true"
   instances: 1
   # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/postgresql
-  imageName: ghcr.io/cloudnative-pg/postgresql:18.3-minimal-trixie
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.6-minimal-trixie
   storage:
     storageClass: longhorn
     size: 50Gi
