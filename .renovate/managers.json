@@ -34,6 +34,17 @@
       "matchStrings": [
         "#\\s*renovate:\\s*datasource=(?<datasource>[a-z-]+)\\s+depName=(?<depName>[^\\s]+)\\s*\\n\\s*\\S+:\\s*\"?https:\\/\\/raw\\.githubusercontent\\.com\\/[^/]+\\/[^/]+\\/(?:refs\\/tags\\/)?(?<currentValue>[^/]+)\\/(?<assetPath>[^\"]+)\"?"
       ]
+    },
+    {
+      "customType": "regex",
+      "description": "Track PostgreSQL major in CNPG barman serverName",
+      "managerFilePatterns": ["kubernetes/**/*.yaml"],
+      "matchStrings": [
+        "# renovate-major: depName=(?<depName>\\S+)\\s+serverName:\\s*\"?[\\w-]*v(?<currentValue>\\d+)\"?"
+      ],
+      "datasourceTemplate": "docker",
+      "extractVersionTemplate": "^(?<version>\\d+)",
+      "versioningTemplate": "regex:^(?<major>\\d+)$"
     }
   ]
 }

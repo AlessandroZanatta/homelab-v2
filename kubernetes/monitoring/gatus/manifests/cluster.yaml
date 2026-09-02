@@ -32,6 +32,8 @@ spec:
       # TODO: add monitoring? may be meaningless
       backups.kalexlab.xyz/use: "true"
   instances: 1
+  # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/postgresql
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.3-minimal-trixie
   storage:
     storageClass: longhorn
     size: 50Gi
@@ -40,6 +42,8 @@ spec:
       isWALArchiver: true
       parameters:
         barmanObjectName: backups
+        # renovate-major: depname=ghcr.io/cloudnative-pg/postgresql
+        serverName: cluster-v18
   enablePDB: false
 ---
 apiVersion: postgresql.cnpg.io/v1

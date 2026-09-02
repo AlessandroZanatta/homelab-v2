@@ -34,6 +34,8 @@ spec:
     annotations:
       gatus.kalexlab.xyz/enabled: "true"
       gatus.kalexlab.xyz/scheme: tcp
+  # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/postgresql
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.4-minimal-trixie
   instances: 2
   storage:
     storageClass: longhorn-single-replica
@@ -43,6 +45,8 @@ spec:
       isWALArchiver: true
       parameters:
         barmanObjectName: backups
+        # renovate-major: depname=ghcr.io/cloudnative-pg/postgresql
+        serverName: cluster-v18
   affinity:
     enablePodAntiAffinity: false
   topologySpreadConstraints:

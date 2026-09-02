@@ -31,7 +31,13 @@ spec:
       kalexlab.xyz/component: cluster
       kalexlab.xyz/monitoring: "true"
       backups.kalexlab.xyz/use: "true"
+    annotations:
+      gatus.kalexlab.xyz/enabled: "true"
+      gatus.kalexlab.xyz/scheme: tcp
+      gatus.kalexlab.xyz/exclude: cluster-ro
   instances: 1
+  # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/postgresql
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.6-minimal-trixie
   storage:
     storageClass: longhorn
     size: 4Gi
@@ -40,6 +46,8 @@ spec:
       isWALArchiver: true
       parameters:
         barmanObjectName: backups
+        # renovate-major: depname=ghcr.io/cloudnative-pg/postgresql
+        serverName: cluster-v17
   enablePDB: false
 ---
 apiVersion: postgresql.cnpg.io/v1

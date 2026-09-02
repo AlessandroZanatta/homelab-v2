@@ -23,6 +23,15 @@
       "matchDatasources": ["custom.grafana-dashboards"],
       "automerge": true,
       "automergeType": "branch"
+    },
+    {
+      "description": "Keep CNPG image and barman serverName in one PR",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": [
+        "ghcr.io/cloudnative-pg/postgresql",
+        "ghcr.io/tensorchord/cloudnative-vectorchord"
+      ],
+      "groupName": "cloudnative-pg postgres"
     }
   ]
 }
