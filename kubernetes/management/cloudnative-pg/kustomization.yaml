@@ -17,4 +17,4 @@ helmCharts:
 
 resources:
   - manifests
-  - https://github.com/cloudnative-pg/plugin-barman-cloud//kubernetes?ref=v0.14.0
+  - https://github.com/cloudnative-pg/plugin-barman-cloud//kubernetes?ref=v0.15.0
