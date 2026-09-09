@@ -65,7 +65,7 @@ spec:
             ]
       containers:
         - name: outline
-          image: "docker.io/outlinewiki/outline:1.10.0"
+          image: "docker.io/outlinewiki/outline:1.10.1"
           imagePullPolicy: Always
           ports:
             - name: outline
