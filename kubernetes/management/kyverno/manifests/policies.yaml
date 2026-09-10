@@ -1,0 +1,50 @@
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disable-l2announce-on-cordon
+spec:
+  admission: true
+  background: false
+  failurePolicy: Ignore
+  rules:
+    - name: schedulable
+      match:
+        any:
+          - resources:
+              kinds: [Node]
+      context:
+        - name: cordoned
+          variable:
+            jmesPath: request.object.spec.unschedulable
+            default: false
+      preconditions:
+        all:
+          - key: "{{ cordoned }}"
+            operator: Equals
+            value: false
+      mutate:
+        patchStrategicMerge:
+          metadata:
+            labels:
+              ingress.kalexlab.xyz/enabled: "true"
+    - name: cordoned
+      match:
+        any:
+          - resources:
+              kinds: [Node]
+      context:
+        - name: cordoned
+          variable:
+            jmesPath: request.object.spec.unschedulable
+            default: false
+      preconditions:
+        all:
+          - key: "{{ cordoned }}"
+            operator: Equals
+            value: true
+      mutate:
+        patchStrategicMerge:
+          metadata:
+            labels:
+              ingress.kalexlab.xyz/enabled: "false"

@@ -3,7 +3,6 @@ apiVersion: "cilium.io/v2"
 kind: CiliumLoadBalancerIPPool
 metadata:
   name: pool-adguard
-  namespace: kube-system
 spec:
   blocks:
     - cidr: "192.168.10.21/32"
@@ -15,7 +14,6 @@ apiVersion: "cilium.io/v2alpha1"
 kind: CiliumL2AnnouncementPolicy
 metadata:
   name: l2policy-adguard
-  namespace: kube-system
 spec:
   loadBalancerIPs: true
   serviceSelector:
@@ -23,4 +21,5 @@ spec:
       kalexlab.xyz/ip-pool: adguard
   nodeSelector:
     matchLabels:
+      ingress.kalexlab.xyz/enabled: "true"
       ingress.kalexlab.xyz/type: traefik
