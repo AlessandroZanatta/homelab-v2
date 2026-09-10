@@ -23,6 +23,7 @@ spec:
           - key: "{{ cordoned }}"
             operator: Equals
             value: false
+      skipBackgroundRequests: true
       mutate:
         patchStrategicMerge:
           metadata:
@@ -43,6 +44,7 @@ spec:
           - key: "{{ cordoned }}"
             operator: Equals
             value: true
+      skipBackgroundRequests: true
       mutate:
         patchStrategicMerge:
           metadata:
