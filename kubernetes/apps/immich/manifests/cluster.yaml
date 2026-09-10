@@ -35,7 +35,8 @@ spec:
       gatus.kalexlab.xyz/enabled: "true"
       gatus.kalexlab.xyz/scheme: tcp
       gatus.kalexlab.xyz/exclude: cluster-vchord-ro
-  imageName: "ghcr.io/tensorchord/cloudnative-vectorchord:15-0.3.0"
+  # renovate: datasource=docker depName=ghcr.io/tensorchord/cloudnative-vectorchord
+  imageName: "ghcr.io/tensorchord/cloudnative-vectorchord:18.6-1.1.1"
   postgresql:
     shared_preload_libraries:
       - "vchord.so"
@@ -62,6 +63,8 @@ spec:
       isWALArchiver: true
       parameters:
         barmanObjectName: backups
+        # renovate-major: depname=ghcr.io/tensorchord/cloudnative-vectorchord
+        serverName: cluster-v18
   enablePDB: false
 ---
 apiVersion: postgresql.cnpg.io/v1
