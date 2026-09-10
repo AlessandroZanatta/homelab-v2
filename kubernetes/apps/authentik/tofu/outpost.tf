@@ -1,17 +1,16 @@
-# Proxy outpost, declared rather than adopting authentik's embedded one.
-
-resource "authentik_service_connection_kubernetes" "local" {
-  name  = "local-cluster"
-  local = true
+data "authentik_outpost" "embedded" {
+  name = "authentik Embedded Outpost"
 }
 
-resource "authentik_outpost" "proxy" {
-  name               = "proxy"
-  type               = "proxy"
-  service_connection = authentik_service_connection_kubernetes.local.id
+import {
+  to = authentik_outpost.embedded
+  id = data.authentik_outpost.embedded.id
+}
 
-  // Collected from the forward-auth applications in apps-proxy-auth.tf. The
-  // API rejects an outpost with no providers, so this must stay non-empty.
+resource "authentik_outpost" "embedded" {
+  name = data.authentik_outpost.embedded.name
+
+  // Collected from the forward-auth applications in apps-proxy-auth.tf
   protocol_providers = [for p in authentik_provider_proxy.app : p.id]
 
   config = jsonencode({
@@ -38,51 +37,51 @@ resource "authentik_outpost" "proxy" {
     object_naming_template           = "ak-outpost-%(name)s"
     refresh_interval                 = "minutes=5"
 
-    # Make the outpost highly-available too
-    kubernetes_json_patches = {
-      service = [
-        {
-          op    = "add"
-          path  = "/metadata/annotations"
-          value = {}
-        },
-        {
-          op    = "add"
-          path  = "/metadata/annotations/gatus.kalexlab.xyz~1enabled"
-          value = "true"
-        },
-        {
-          op    = "add"
-          path  = "/metadata/annotations/gatus.kalexlab.xyz~1port"
-          value = "http"
-        },
-        {
-          op    = "add"
-          path  = "/metadata/annotations/gatus.kalexlab.xyz~1endpoint"
-          value = <<-EOT
-            conditions:
-              - "[STATUS] == 400"
-          EOT
-        },
-      ]
-      deployment = [
-        {
-          op   = "add"
-          path = "/spec/template/spec/topologySpreadConstraints"
-          value = [{
-            maxSkew           = 1
-            topologyKey       = "kubernetes.io/hostname"
-            whenUnsatisfiable = "DoNotSchedule"
-            labelSelector = {
-              matchLabels = {
-                "app.kubernetes.io/name" = "authentik-outpost-proxy"
-                # Must match this resource name
-                "goauthentik.io/outpost-name" = "proxy"
-              }
-            }
-          }]
-        },
-      ]
-    }
+    # Make the outpost highly-available too (not needed for embedded outpost!)
+    # kubernetes_json_patches = {
+    #   service = [
+    #     {
+    #       op    = "add"
+    #       path  = "/metadata/annotations"
+    #       value = {}
+    #     },
+    #     {
+    #       op    = "add"
+    #       path  = "/metadata/annotations/gatus.kalexlab.xyz~1enabled"
+    #       value = "true"
+    #     },
+    #     {
+    #       op    = "add"
+    #       path  = "/metadata/annotations/gatus.kalexlab.xyz~1port"
+    #       value = "http"
+    #     },
+    #     {
+    #       op    = "add"
+    #       path  = "/metadata/annotations/gatus.kalexlab.xyz~1endpoint"
+    #       value = <<-EOT
+    #         conditions:
+    #           - "[STATUS] == 400"
+    #       EOT
+    #     },
+    #   ]
+    #   deployment = [
+    #     {
+    #       op   = "add"
+    #       path = "/spec/template/spec/topologySpreadConstraints"
+    #       value = [{
+    #         maxSkew           = 1
+    #         topologyKey       = "kubernetes.io/hostname"
+    #         whenUnsatisfiable = "DoNotSchedule"
+    #         labelSelector = {
+    #           matchLabels = {
+    #             "app.kubernetes.io/name" = "authentik-outpost-proxy"
+    #             # Must match this resource name
+    #             "goauthentik.io/outpost-name" = "proxy"
+    #           }
+    #         }
+    #       }]
+    #     },
+    #   ]
+    # }
   })
 }
