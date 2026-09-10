@@ -1,4 +1,18 @@
 ---
+replicaCount: 2
+
 monitoring:
   # -- Specifies whether the monitoring should be enabled. Requires Prometheus Operator CRDs.
   podMonitorEnabled: true
+
+# Ensure operators are on different nodes
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+                - cloudnative-pg
+        topologyKey: kubernetes.io/hostname
