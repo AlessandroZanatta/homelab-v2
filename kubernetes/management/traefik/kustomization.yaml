@@ -14,6 +14,11 @@ helmCharts:
     releaseName: traefik
     namespace: traefik
     valuesFile: values/traefik.yaml
+    # Fix for the following error when attempting to render this kustomization:
+    #   error: Error: execution error at (traefik/templates/servicemonitor.yaml:5:10): ERROR: You have to deploy monitoring.coreos.com/v1 first
+    apiVersions:
+      - monitoring.coreos.com/v1
+      - monitoring.coreos.com/v1/ServiceMonitor
 
 resources:
   - manifests
