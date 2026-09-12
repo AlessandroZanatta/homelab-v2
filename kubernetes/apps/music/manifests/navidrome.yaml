@@ -41,7 +41,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: music
-          image: "docker.io/deluan/navidrome:0.63.2"
+          image: "docker.io/deluan/navidrome:0.64.0"
           imagePullPolicy: Always
           ports:
             - containerPort: 4533
