@@ -15,6 +15,7 @@ spec:
     - name: http
       port: 3000
       protocol: TCP
+      targetPort: http
   selector:
     kalexlab.xyz/app: expo-updates
     kalexlab.xyz/component: xprem
@@ -40,6 +41,7 @@ spec:
         kalexlab.xyz/app: expo-updates
         kalexlab.xyz/component: xprem
         kalexlab.xyz/monitoring: "true"
+        sso.kalexlab.xyz/idp: authentik
     spec:
       restartPolicy: Always
       containers:
@@ -68,14 +70,12 @@ spec:
                 secretKeyRef:
                   name: cluster-app
                   key: uri
-          # TODO
-          # resources:
-          #   requests:
-          #     memory: 400Mi
-          #     cpu: 10m
-          #   limits:
-          #     memory: 2Gi
-          #     cpu: 1500m
+          resources:
+            requests:
+              memory: 20Mi
+              cpu: 3m
+            limits:
+              memory: 200Mi
           readinessProbe:
             httpGet:
               path: /dashboard

@@ -27,7 +27,7 @@ spec:
               k8s-app: coredns
       ports:
         - protocol: UDP
-          port: 53
+          port: udp-53
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -50,7 +50,7 @@ spec:
               app.kubernetes.io/name: traefik
       ports:
         - protocol: TCP
-          port: 80
+          port: http
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -74,7 +74,7 @@ spec:
               app.kubernetes.io/name: traefik
       ports:
         - protocol: TCP
-          port: 3000
+          port: http
   egress:
     - to:
         - podSelector:
@@ -91,18 +91,7 @@ spec:
               kalexlab.xyz/component: cluster
       ports:
         - protocol: TCP
-          port: 5432
-    # Allow OIDC with Authelia
-    - to:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: traefik
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: traefik
-      ports:
-        - protocol: TCP
-          port: 8443
+          port: postgresql
     # Provider search
     - to:
         - namespaceSelector:
@@ -114,7 +103,7 @@ spec:
               kalexlab.xyz/component: flaresolverr
       ports:
         - protocol: TCP
-          port: 8191
+          port: http
     # Metadata search
     - to:
         - ipBlock:
@@ -123,6 +112,66 @@ spec:
               - 10.0.0.0/8
               - 172.16.0.0/12
               - 192.168.0.0/16
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: dns-visibility
+  namespace: anime-v2
+spec:
+  endpointSelector:
+    matchLabels:
+      kalexlab.xyz/app: anime-v2
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: coredns
+            k8s-app: coredns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+          rules:
+            dns:
+              - matchPattern: "*"
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-worker-egress-to-glitchtip
+spec:
+  endpointSelector:
+    matchLabels:
+      kalexlab.xyz/app: anime-v2
+      kalexlab.xyz/component: worker
+  egress:
+    - toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "8443"
+              protocol: TCP
+          serverNames:
+            - glitchtip.kalexlab.xyz
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-api-egress-to-glitchtip
+spec:
+  endpointSelector:
+    matchLabels:
+      kalexlab.xyz/app: anime-v2
+      kalexlab.xyz/component: api
+  egress:
+    - toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "8443"
+              protocol: TCP
+          serverNames:
+            - glitchtip.kalexlab.xyz
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -151,7 +200,7 @@ spec:
               kalexlab.xyz/component: cluster
       ports:
         - protocol: TCP
-          port: 5432
+          port: postgresql
     - to:
         - namespaceSelector:
             matchLabels:
@@ -162,7 +211,7 @@ spec:
               kalexlab.xyz/component: flaresolverr
       ports:
         - protocol: TCP
-          port: 8191
+          port: http
     - to:
         - ipBlock:
             cidr: 0.0.0.0/0
@@ -219,7 +268,7 @@ spec:
               kalexlab.xyz/component: api
       ports:
         - protocol: TCP
-          port: 5432
+          port: postgresql
     - from:
         - podSelector:
             matchLabels:
@@ -227,4 +276,4 @@ spec:
               kalexlab.xyz/component: worker
       ports:
         - protocol: TCP
-          port: 5432
+          port: postgresql

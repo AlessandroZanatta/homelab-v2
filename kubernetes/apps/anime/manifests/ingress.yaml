@@ -28,11 +28,11 @@ spec:
       match: "Host(`anime.kalexlab.xyz`) && PathPrefix(`/api`)"
       services:
         - name: api
-          port: 3000
+          port: http
     - kind: Rule
       match: "Host(`anime.kalexlab.xyz`)"
       services:
         - name: web
-          port: 80
+          port: http
   tls:
     secretName: anime-ingress-certificate-secret

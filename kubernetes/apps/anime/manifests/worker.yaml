@@ -41,7 +41,12 @@ spec:
             capabilities:
               drop:
                 - ALL
-          command: ["sh", "-c", "for i in $(seq 1 300); do nc -zvw1 queue 6379 && nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1"]
+          command:
+            [
+              "sh",
+              "-c",
+              "for i in $(seq 1 300); do nc -zvw1 queue 6379 && nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1",
+            ]
       containers:
         - name: worker
           image: "registry.kalexlab.xyz/anime-v2/api:latest"
@@ -52,9 +57,6 @@ spec:
             capabilities:
               drop:
                 - ALL
-          ports:
-            - containerPort: 3000
-              protocol: TCP
           envFrom:
             - secretRef:
                 name: anime-secrets
@@ -76,7 +78,6 @@ spec:
               cpu: 5m
             limits:
               memory: 400Mi
-              cpu: 1000m
           volumeMounts:
             - mountPath: /anime
               name: anime-data-pvc

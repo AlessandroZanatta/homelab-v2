@@ -12,6 +12,7 @@ spec:
     - name: shelfmark
       port: 8084
       protocol: TCP
+      targetPort: http
   selector:
     kalexlab.xyz/app: books
     kalexlab.xyz/component: shelfmark
@@ -37,6 +38,7 @@ spec:
         kalexlab.xyz/app: books
         kalexlab.xyz/component: shelfmark
         kalexlab.xyz/monitoring: "true"
+        sso.kalexlab.xyz/idp: authentik
         egress.kalexlab.xyz/policy: vpn
     spec:
       restartPolicy: Always
@@ -65,7 +67,8 @@ spec:
               "shelfmark.main:app",
             ]
           ports:
-            - containerPort: 8084
+            - name: http
+              containerPort: 8084
               protocol: TCP
           envFrom:
             - configMapRef:
@@ -76,18 +79,17 @@ spec:
             requests:
               memory: 30Mi
               cpu: 10m
-            # limits:
-            #   memory: 300Mi
-            #   cpu: 200m
+            limits:
+              memory: 600Mi
           readinessProbe:
             httpGet:
               path: /
-              port: 8084
+              port: http
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /
-              port: 8084
+              port: http
             failureThreshold: 3
             periodSeconds: 30
           securityContext:

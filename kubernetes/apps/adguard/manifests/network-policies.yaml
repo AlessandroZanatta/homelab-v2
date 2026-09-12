@@ -27,7 +27,7 @@ spec:
               k8s-app: coredns
       ports:
         - protocol: UDP
-          port: 53
+          port: udp-53
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -50,11 +50,11 @@ spec:
               app.kubernetes.io/name: traefik
       ports:
         - protocol: TCP
-          port: 80
+          port: http
     - from:
       ports:
         - protocol: TCP
-          port: 53
+          port: dns-tcp
         - protocol: UDP
           port: 53
   egress:

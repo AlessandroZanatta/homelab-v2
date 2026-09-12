@@ -27,7 +27,7 @@ spec:
               k8s-app: coredns
       ports:
         - protocol: UDP
-          port: 53
+          port: udp-53
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -48,7 +48,7 @@ spec:
           podSelector: {}
       ports:
         - protocol: TCP
-          port: 8191
+          port: http
   egress:
     - to:
         - ipBlock:

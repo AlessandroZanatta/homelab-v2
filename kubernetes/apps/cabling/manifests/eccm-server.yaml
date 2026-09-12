@@ -11,7 +11,7 @@ spec:
     - name: eccm-server
       port: 3000
       protocol: TCP
-      targetPort: 3000
+      targetPort: http
   selector:
     kalexlab.xyz/app: cabling
 ---
@@ -45,17 +45,18 @@ spec:
               drop:
                 - ALL
           ports:
-            - containerPort: 3000
+            - name: http
+              containerPort: 3000
               protocol: TCP
           readinessProbe:
             httpGet:
               path: /health
-              port: 3000
+              port: http
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /health
-              port: 3000
+              port: http
             periodSeconds: 60
           volumeMounts:
             - mountPath: /data

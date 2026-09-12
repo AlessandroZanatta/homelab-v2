@@ -27,7 +27,7 @@ spec:
       match: Host(`adguard.dns.kalexlab.xyz`)
       services:
         - name: adguard
-          port: 80
+          port: http
       middlewares:
         - name: authentik-forward-auth
           namespace: authentik

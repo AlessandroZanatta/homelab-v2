@@ -13,9 +13,10 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: api
+    - name: http
       port: 3000
       protocol: TCP
+      targetPort: http
   selector:
     kalexlab.xyz/app: anime-v2
     kalexlab.xyz/component: api
@@ -40,6 +41,7 @@ spec:
         kalexlab.xyz/app: anime-v2
         kalexlab.xyz/component: api
         kalexlab.xyz/monitoring: "true"
+        sso.kalexlab.xyz/idp: authentik
     spec:
       restartPolicy: Always
       imagePullSecrets:
@@ -54,7 +56,6 @@ spec:
               cpu: 1m
             limits:
               memory: 300Mi
-              cpu: 20m
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
@@ -78,7 +79,8 @@ spec:
               drop:
                 - ALL
           ports:
-            - containerPort: 3000
+            - name: http
+              containerPort: 3000
               protocol: TCP
           envFrom:
             - secretRef:
@@ -102,12 +104,12 @@ spec:
           readinessProbe:
             httpGet:
               path: /api/health
-              port: 3000
+              port: http
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /api/health
-              port: 3000
+              port: http
             failureThreshold: 3
             periodSeconds: 30
           volumeMounts:

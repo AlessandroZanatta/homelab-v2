@@ -9,24 +9,25 @@ metadata:
     gatus.kalexlab.xyz/enabled: "true"
   annotations:
     gatus.kalexlab.xyz/enabled: "true"
-    gatus.kalexlab.xyz/port: adguard-dns-tcp
+    gatus.kalexlab.xyz/port: dns-tcp
     gatus.kalexlab.xyz/scheme: tcp
     gatus.kalexlab.xyz/name: Adguard DNS
 spec:
   type: LoadBalancer
   clusterIP: 10.96.0.11
   ports:
-    - name: adguard-interface
+    - name: http
       port: 80
       protocol: TCP
-    - name: adguard-dns-tcp
+      targetPort: http
+    - name: dns-tcp
       port: 53
-      targetPort: 53
       protocol: TCP
-    - name: adguard-dns-udp
+      targetPort: dns-tcp
+    - name: dns-udp
       port: 53
-      targetPort: 53
       protocol: UDP
+      targetPort: dns-udp
   selector:
     kalexlab.xyz/app: adguard
 ---
@@ -81,11 +82,14 @@ spec:
           image: "docker.io/adguard/adguardhome:v0.107.79"
           imagePullPolicy: Always
           ports:
-            - containerPort: 80
+            - name: http
+              containerPort: 80
               protocol: TCP
-            - containerPort: 53
+            - name: dns-tcp
+              containerPort: 53
               protocol: TCP
-            - containerPort: 53
+            - name: dns-udp
+              containerPort: 53
               protocol: UDP
           resources:
             requests:
@@ -93,16 +97,15 @@ spec:
               cpu: 10m
             limits:
               memory: 200Mi
-              cpu: 50m
           readinessProbe:
             httpGet:
               path: /
-              port: 80
+              port: http
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /
-              port: 80
+              port: http
             failureThreshold: 3
             periodSeconds: 30
           securityContext:
@@ -122,9 +125,9 @@ spec:
               name: adguard-conf
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
+        runAsUser: 65535
+        runAsGroup: 65535
+        fsGroup: 65535
         fsGroupChangePolicy: "OnRootMismatch"
         seccompProfile:
           type: RuntimeDefault

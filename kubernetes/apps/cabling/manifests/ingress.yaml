@@ -27,7 +27,7 @@ spec:
       match: Host(`cabling.kalexlab.xyz`)
       services:
         - name: eccm-server
-          port: 3000
+          port: http
       middlewares:
         - name: authentik-forward-auth
           namespace: authentik

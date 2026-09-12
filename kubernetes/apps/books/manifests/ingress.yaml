@@ -28,6 +28,6 @@ spec:
       match: Host(`get.books.kalexlab.xyz`)
       services:
         - name: shelfmark
-          port: 8084
+          port: http
   tls:
     secretName: books-ingress-certificate-secret

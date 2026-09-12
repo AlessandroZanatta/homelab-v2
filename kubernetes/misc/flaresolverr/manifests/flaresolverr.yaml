@@ -9,7 +9,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: flaresolverr
+    - name: http
       port: 8191
       protocol: TCP
   selector:
@@ -71,7 +71,8 @@ spec:
           image: "ghcr.io/flaresolverr/flaresolverr:v3.5.2"
 
           ports:
-            - containerPort: 8191
+            - name: http
+              containerPort: 8191
               protocol: TCP
 
           resources:
@@ -85,12 +86,12 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: 8191
+              port: http
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /
-              port: 8191
+              port: http
             failureThreshold: 3
             periodSeconds: 30
 
@@ -112,6 +113,7 @@ spec:
 
       securityContext:
         runAsNonRoot: true
+        # Image (verify?) uses 1000, can't use 65535
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
