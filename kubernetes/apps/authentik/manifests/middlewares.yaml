@@ -25,6 +25,10 @@ apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: authentik-outpost-callback
+  annotations:
+    # No need to monitor this, embedded outpost is
+    # already covered by authentik-server service
+    gatus.kalexlab.xyz/enabled: "false"
 spec:
   entryPoints:
     - web
@@ -34,8 +38,8 @@ spec:
       match: PathPrefix(`/outpost.goauthentik.io/`)
       priority: 100
       services:
-        - name: ak-outpost-proxy
-          port: 9000
+        - name: ak-outpost-authentik-embedded-outpost
+          port: http
       middlewares:
         - name: authentik-forward-auth
   # Intentionally empty: let Traefik pick the certificate for the host that

@@ -132,9 +132,10 @@ locals {
 resource "authentik_provider_proxy" "app" {
   for_each = local.proxy_apps
 
-  name          = each.value.name
-  mode          = "forward_single"
-  external_host = each.value.host
+  name                  = each.value.name
+  mode                  = "forward_single"
+  external_host         = each.value.host
+  access_token_validity = "hours=12"
 
   authorization_flow = authentik_flow.authorization_implicit.uuid
   invalidation_flow  = authentik_flow.app_invalidation.uuid

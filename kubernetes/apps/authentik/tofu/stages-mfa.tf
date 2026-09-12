@@ -13,7 +13,7 @@ resource "authentik_stage_authenticator_webauthn" "webauthn_setup_stage" {
   configure_flow = authentik_flow.webauthn_setup.uuid
 
   // TODO: can probably remove this when authentik provider is updated
-  lifecycle { ignore_changes = [prevent_duplicate_devices] }
+  # lifecycle { ignore_changes = [prevent_duplicate_devices] }
 }
 
 resource "authentik_stage_authenticator_static" "static_setup_stage" {

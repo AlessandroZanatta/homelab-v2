@@ -8,7 +8,179 @@ spec:
   policyTypes:
     - Ingress
     - Egress
-  ingress:
-    - {}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-cluster-dns
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
   egress:
-    - {}
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: coredns
+          podSelector:
+            matchLabels:
+              k8s-app: coredns
+      ports:
+        - protocol: UDP
+          port: udp-53
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: server
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: authentik
+      kalexlab.xyz/component: server
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: http
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: metrics
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: authentik
+              kalexlab.xyz/component: cluster
+      ports:
+        - protocol: TCP
+          port: postgresql
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: worker
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: authentik
+      kalexlab.xyz/component: worker
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: metrics
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: authentik
+              kalexlab.xyz/component: cluster
+      ports:
+        - protocol: TCP
+          port: postgresql
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: worker-to-apiserver
+spec:
+  endpointSelector:
+    matchLabels:
+      kalexlab.xyz/app: authentik
+      kalexlab.xyz/component: worker
+  egress:
+    - toEntities:
+        - kube-apiserver
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cluster
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: authentik
+      kalexlab.xyz/component: cluster
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: authentik
+              kalexlab.xyz/component: server
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: authentik
+              kalexlab.xyz/component: worker
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: authentik
+              kalexlab.xyz/component: cluster
+      ports:
+        - protocol: TCP
+          port: postgresql
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: authentik
+              kalexlab.xyz/component: cluster
+      ports:
+        - protocol: TCP
+          port: status
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: authentik
+              kalexlab.xyz/component: cluster
+      ports:
+        - protocol: TCP
+          port: postgresql
+        - protocol: TCP
+          port: status
+---
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: allow-idp-clients
+spec:
+  endpointSelector:
+    matchLabels:
+      sso.kalexlab.xyz/idp: authentik
+  egress:
+    - toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "8443"
+              protocol: TCP
+          serverNames:
+            - auth.kalexlab.xyz

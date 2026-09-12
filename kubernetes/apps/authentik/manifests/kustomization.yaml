@@ -11,4 +11,3 @@ resources:
   - secrets.sops.yaml
   - middlewares.yaml
   - ingress.yaml
-  - pdb.yaml
