@@ -72,4 +72,13 @@ spec:
               app.kubernetes.io/name: traefik
       ports:
         - protocol: TCP
+          port: http
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: expo-updates
+              kalexlab.xyz/component: cluster
+      ports:
+        - protocol: TCP
           port: postgresql

@@ -12,6 +12,7 @@ spec:
     - name: http
       port: 8191
       protocol: TCP
+      targetPort: http
   selector:
     kalexlab.xyz/app: flaresolverr
     kalexlab.xyz/component: flaresolverr
