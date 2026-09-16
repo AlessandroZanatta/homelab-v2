@@ -138,6 +138,10 @@ spec:
             matchLabels:
               kalexlab.xyz/app: backups
               kalexlab.xyz/component: s3
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: admin
       ports:
         - protocol: TCP
           port: 8444
@@ -365,6 +369,14 @@ spec:
       ports:
         - protocol: TCP
           port: 18888
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: volume
+      ports:
+        - protocol: TCP
+          port: 8444
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

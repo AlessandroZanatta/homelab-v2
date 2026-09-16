@@ -5,7 +5,7 @@ metadata:
   name: backups
 spec:
   # renovate: datasource=docker depName=chrislusf/seaweedfs
-  image: chrislusf/seaweedfs:4.47
+  image: docker.io/chrislusf/seaweedfs:4.47
 
   # TODO: add limits to all pods
 
@@ -229,6 +229,10 @@ spec:
 
   admin:
     metricsPort: 8191
+
+    extraArgs:
+      - -ip=0.0.0.0
+      - -allowInsecureBind
 
     labels:
       kalexlab.xyz/app: backups
