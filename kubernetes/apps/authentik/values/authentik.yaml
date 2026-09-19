@@ -73,6 +73,10 @@ authentik:
   web:
     base_url: "https://auth.kalexlab.xyz"
 
+  # Disable update checks, makes system tasks fail
+  # and are not needed since there's renovate
+  disable_update_check: true
+
   postgresql:
     # -- set the postgresql hostname to talk to
     # if unset and .Values.postgresql.enabled == true, will generate the default
