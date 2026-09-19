@@ -1,0 +1,8 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spliit-conf
+data:
+  BASE_URL: https://split.kalexlab.xyz
+  DEFAULT_CURRENCY_CODE: EUR

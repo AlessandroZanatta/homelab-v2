@@ -48,6 +48,12 @@ locals {
           group = "apps"
           icon  = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/webp/hortusfox.webp"
         }
+        "apps-spliit" = {
+          name  = "Spliit"
+          host  = "https://split.kalexlab.xyz"
+          group = "apps"
+          icon  = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/spliit.svg"
+        }
       }
     },
 

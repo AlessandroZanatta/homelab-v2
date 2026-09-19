@@ -1,0 +1,64 @@
+---
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: backups
+spec:
+  configuration:
+    destinationPath: "s3://cnpg/spliit"
+    endpointURL: "https://backups.kalexlab.xyz"
+    s3Credentials:
+      accessKeyId:
+        name: spliit-s3-credentials
+        key: accessKey
+      secretAccessKey:
+        name: spliit-s3-credentials
+        key: secretKey
+    wal:
+      compression: bzip2
+    data:
+      compression: bzip2
+  retentionPolicy: 14d
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cluster
+spec:
+  inheritedMetadata:
+    labels:
+      kalexlab.xyz/app: spliit
+      kalexlab.xyz/component: cluster
+      kalexlab.xyz/monitoring: "true"
+      backups.kalexlab.xyz/use: "true"
+    annotations:
+      gatus.kalexlab.xyz/enabled: "true"
+      gatus.kalexlab.xyz/scheme: tcp
+      gatus.kalexlab.xyz/exclude: cluster-ro
+  # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/postgresql
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.6-standard-trixie
+  instances: 1
+  storage:
+    storageClass: longhorn
+    size: 4Gi
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: backups
+        # renovate-major: depName=ghcr.io/cloudnative-pg/postgresql
+        serverName: cluster-v18
+  enablePDB: false
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: cluster-backup
+spec:
+  cluster:
+    name: cluster
+  schedule: "0 0 0 * * *"
+  backupOwnerReference: self
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io

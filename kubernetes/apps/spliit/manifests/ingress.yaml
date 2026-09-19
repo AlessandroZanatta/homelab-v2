@@ -1,0 +1,42 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: spliit
+spec:
+  commonName: split.kalexlab.xyz
+  secretName: spliit-ingress-certificate
+  dnsNames:
+    - split.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: spliit
+  annotations:
+    external-dns.kubernetes.io/target: 192.168.10.20
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    # Allow users to install PWA
+    - kind: Rule
+      priority: 100
+      match: Host(`split.kalexlab.xyz`) && (Path(`/manifest.webmanifest`) || Path(`/sw.js`) || PathPrefix(`/logo/`))
+      services:
+        - name: spliit
+          port: http
+    - kind: Rule
+      match: Host(`split.kalexlab.xyz`)
+      services:
+        - name: spliit
+          port: http
+      middlewares:
+        - name: authentik-forward-auth
+          namespace: authentik
+  tls:
+    secretName: spliit-ingress-certificate
