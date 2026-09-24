@@ -111,7 +111,7 @@ spec:
               name: gatus-conf
       containers:
         - name: app
-          image: "ghcr.io/twin/gatus:v5.36.0"
+          image: "ghcr.io/twin/gatus:v5.37.0"
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
