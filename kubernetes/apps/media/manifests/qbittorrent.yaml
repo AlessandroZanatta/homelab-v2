@@ -110,7 +110,9 @@ spec:
           persistentVolumeClaim:
             claimName: media-data-pvc
   volumeClaimTemplates:
-    - metadata:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: qbittorrent-conf-pvc
       spec:
         accessModes:
