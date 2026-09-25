@@ -32,6 +32,12 @@
         "ghcr.io/tensorchord/cloudnative-vectorchord"
       ],
       "groupName": "cloudnative-pg postgres"
+    },
+    {
+      "description": "Keep MariaDB image and backup S3 prefix in one PR",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/mariadb/mariadb"],
+      "groupName": "mariadb"
     }
   ]
 }

@@ -37,10 +37,10 @@
     },
     {
       "customType": "regex",
-      "description": "Track PostgreSQL major in CNPG barman serverName",
+      "description": "Track database major version in backup paths (CNPG barman serverName, mariadb-operator S3 prefix)",
       "managerFilePatterns": ["kubernetes/**/*.yaml"],
       "matchStrings": [
-        "# renovate-major: depName=(?<depName>\\S+)\\s+serverName:\\s*\"?[\\w-]*v(?<currentValue>\\d+)\"?"
+        "# renovate-major: depName=(?<depName>\\S+)\\s+\\w+:\\s*\"?[\\w./-]*?(?<currentValue>\\d+)\"?\\s"
       ],
       "datasourceTemplate": "docker",
       "extractVersionTemplate": "^(?<version>\\d+[a-z0-9]*)",
