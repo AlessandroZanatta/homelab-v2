@@ -106,7 +106,9 @@ spec:
           emptyDir:
             sizeLimit: 1Gi
   volumeClaimTemplates:
-    - metadata:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: jellyfin-conf-pvc
       spec:
         accessModes:

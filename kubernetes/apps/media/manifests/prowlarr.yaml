@@ -95,7 +95,9 @@ spec:
           emptyDir:
             sizeLimit: 1Gi
   volumeClaimTemplates:
-    - metadata:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: prowlarr-conf-pvc
       spec:
         accessModes:
