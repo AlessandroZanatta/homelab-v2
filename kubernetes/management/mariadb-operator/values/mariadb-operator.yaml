@@ -1,0 +1,53 @@
+---
+# -- CRDs
+crds:
+  # -- Whether the helm chart should create and update the CRDs. It is false by default, which implies that the CRDs must be
+  # managed independently with the mariadb-operator-crds helm chart.
+  # **WARNING** This should only be set to true during the initial deployment. If this chart manages the CRDs
+  # and is later uninstalled, all MariaDB instances will be DELETED.
+  enabled: true
+
+metrics:
+  # -- Enable operator internal metrics. Prometheus must be installed in the cluster
+  enabled: true
+  serviceMonitor:
+    # -- Enable controller ServiceMonitor
+    enabled: true
+
+# TODO
+# -- Annotations to add to controller Pod
+podAnnotations: {}
+# -- Security context to add to controller Pod
+podSecurityContext: {}
+# -- Security context to add to controller container
+securityContext: {}
+# -- Resources to add to controller container
+resources: {}
+# requests:
+#   cpu: 10m
+#   memory: 32Mi
+
+# -- Operator configuration
+# config:
+#   # -- Galera library path to be used with MariaDB Galera
+#   galeraLibPath: /usr/lib/galera/libgalera_smm.so
+#   # -- Default MariaDB version to be used when unable to infer it via image tag
+#   mariadbDefaultVersion: "12.3"
+#   # -- Default MariaDB image
+#   mariadbImage:
+#     repository: mariadb
+#     tag: 12.3.3
+#   # -- Default MariaDB image name
+#   mariadbImageName: mariadb
+#   # -- Default MaxScale image
+#   maxscaleImage:
+#     repository: mariadb/maxscale
+#     tag: 23.08.13-2
+#   # -- Default MariaDB exporter image
+#   exporterImage:
+#     repository: prom/mysqld-exporter
+#     tag: v0.15.1
+#   # -- Default MaxScale exporter image
+#   exporterMaxscaleImage:
+#     repository: mariadb/maxscale-prometheus-exporter-ubi
+#     tag: v0.0.1
