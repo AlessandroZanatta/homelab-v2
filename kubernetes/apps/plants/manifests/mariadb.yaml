@@ -41,13 +41,12 @@ spec:
     rollingUpdate:
       maxUnavailable: 1
 
-  # TODO
-  # resources:
-  #   requests:
-  #     cpu: 500m
-  #     memory: 1Gi
-  #   limits:
-  #     memory: 1Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 250Mi
+    limits:
+      memory: 750Mi
 
   metrics:
     enabled: true
