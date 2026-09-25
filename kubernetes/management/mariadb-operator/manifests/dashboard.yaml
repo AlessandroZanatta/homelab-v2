@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mariadb-dashboard
+  labels:
+    grafana_dashboard: "1"
+data:
+  # renovate: depName="Dashboard - MariaDB"
+  mariadb.json: "https://grafana.com/api/dashboards/7362/revisions/5/download"

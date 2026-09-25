@@ -5,3 +5,5 @@ resources:
   - namespace.yaml
   - network-policies.yaml
   - bucket.yaml
+  - dashboard.yaml
+  - alerting.yaml

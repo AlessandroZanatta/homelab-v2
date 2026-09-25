@@ -1,0 +1,38 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: mariadb-operator-alerts
+spec:
+  groups:
+    - name: mariadb-operator.rules
+      rules:
+        - alert: MariaDBBackupJobFailed
+          expr: |
+            (kube_job_status_failed > 0)
+            * on (namespace, job_name) group_left (owner_name)
+            kube_job_owner{owner_kind=~"PhysicalBackup|Backup"}
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Backup {{ $labels.namespace }}/{{ $labels.owner_name }} failed (job {{ $labels.job_name }})"
+
+        - alert: MariaDBBackupStale
+          expr: |
+            time() - max by (namespace, owner_name) (
+              kube_job_status_completion_time
+              * on (namespace, job_name) group_left (owner_name)
+                kube_job_owner{owner_kind=~"PhysicalBackup|Backup"}
+            ) > 28 * 3600
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: "No successful backup for {{ $labels.namespace }}/{{ $labels.owner_name }} in over 28h"
+
+        - alert: MariaDBDown
+          expr: mysql_up == 0
+          for: 5m
+          labels:
+            severity: critical
