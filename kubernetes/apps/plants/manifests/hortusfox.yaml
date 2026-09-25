@@ -9,8 +9,9 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: hortusfox
+    - name: http
       port: 80
+      targetPort: http
       protocol: TCP
   selector:
     kalexlab.xyz/app: plants
@@ -49,7 +50,6 @@ spec:
               cpu: 1m
             limits:
               memory: 300Mi
-              cpu: 200m
           securityContext:
             runAsUser: 33
             runAsGroup: 33
@@ -58,7 +58,12 @@ spec:
             capabilities:
               drop:
                 - ALL
-          command: ["sh", "-c", "cp -r /var/www/html/. /mnt/html && cp -r /tmp/. /mnt/tmp"]
+          command:
+            [
+              "sh",
+              "-c",
+              "cp -r /var/www/html/. /mnt/html && cp -r /tmp/. /mnt/tmp",
+            ]
           volumeMounts:
             - mountPath: /mnt/html
               name: html
@@ -70,7 +75,8 @@ spec:
           image: "ghcr.io/danielbrendel/hortusfox-web:v5.9"
           imagePullPolicy: Always
           ports:
-            - containerPort: 80
+            - name: http
+              containerPort: 80
               protocol: TCP
           envFrom:
             - configMapRef:
@@ -78,16 +84,11 @@ spec:
             - secretRef:
                 name: hortusfox-secrets
           env:
-            - name: DB_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: db-secrets
-                  key: MARIADB_USER
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: db-secrets
-                  key: MARIADB_PASSWORD
+                  name: mariadb-app
+                  key: password
           resources:
             requests:
               memory: 150Mi
@@ -100,22 +101,22 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: 80
+              port: http
               httpHeaders:
-                - name: Remote-Email
+                - name: X-authentik-email
                   value: alessandro.zanatta.lav@gmail.com
-                - name: Remote-User
+                - name: X-authentik-username
                   value: kalex
             timeoutSeconds: 5
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /
-              port: 80
+              port: http
               httpHeaders:
-                - name: Remote-Email
+                - name: X-authentik-email
                   value: alessandro.zanatta.lav@gmail.com
-                - name: Remote-User
+                - name: X-authentik-username
                   value: kalex
             failureThreshold: 3
             timeoutSeconds: 5

@@ -30,8 +30,13 @@ spec:
     - kind: Rule
       match: Host(`plants.kalexlab.xyz`)
       middlewares:
-        - name: authelia-forward-auth
-          namespace: sso
+        - name: authentik-forward-auth
+          namespace: authentik
+      services:
+        - name: hortusfox
+          port: 80
+    - kind: Rule
+      match: Host(`plants.kalexlab.xyz`) && (Path(`/manifest.json`) || PathPrefix(`/logo.png`))
       services:
         - name: hortusfox
           port: 80

@@ -27,7 +27,7 @@ spec:
               k8s-app: coredns
       ports:
         - protocol: UDP
-          port: 53
+          port: udp-53
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -51,55 +51,57 @@ spec:
               app.kubernetes.io/name: traefik
       ports:
         - protocol: TCP
-          port: 80
+          port: http
   egress:
     - to:
         - podSelector:
             matchLabels:
               kalexlab.xyz/app: plants
-              kalexlab.xyz/component: database
+              kalexlab.xyz/component: mariadb
       ports:
         - protocol: TCP
-          port: 3306
-    # Allow reaching internet on port 443
-    # This is then narrowed down by CNP below
-    - to:
-        - ipBlock:
-            cidr: 0.0.0.0/0
-            except:
-              - 10.0.0.0/8
-              - 172.16.0.0/12
-              - 192.168.0.0/16
-      ports:
-        - protocol: TCP
-          port: 443
+          port: mariadb
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: allow-plantnet-api-egress
+  name: hortusfox-egress-fqdn
 spec:
   endpointSelector:
     matchLabels:
       kalexlab.xyz/app: plants
       kalexlab.xyz/component: hortusfox
   egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: coredns
+            k8s-app: coredns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY # UDP + TCP
+          rules:
+            dns:
+              - matchPattern: "*"
     - toFQDNs:
         - matchName: my-api.plantnet.org
+        - matchName: api.openweathermap.org
       toPorts:
         - ports:
             - port: "443"
+              protocol: TCP
+            - port: "80"
               protocol: TCP
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: database
+  name: mariadb
 spec:
   podSelector:
     matchLabels:
       kalexlab.xyz/app: plants
-      kalexlab.xyz/component: database
+      kalexlab.xyz/component: mariadb
   policyTypes:
     - Ingress
   ingress:
@@ -108,6 +110,31 @@ spec:
             matchLabels:
               kalexlab.xyz/app: plants
               kalexlab.xyz/component: hortusfox
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: plants
+              kalexlab.xyz/component: mariadb-backup
       ports:
         - protocol: TCP
-          port: 3306
+          port: mariadb
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mariadb-backup
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: plants
+      kalexlab.xyz/component: mariadb-backup
+  policyTypes:
+    - Ingress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: plants
+              kalexlab.xyz/component: mariadb
+      ports:
+        - protocol: TCP
+          port: mariadb

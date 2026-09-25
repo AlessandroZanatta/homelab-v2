@@ -6,6 +6,7 @@ resources:
   - network-policies.yaml
   - conf.yaml
   - secrets.sops.yaml
-  - database.yaml
+  - mariadb.yaml
+  - mariadb-backup.yaml
   - hortusfox.yaml
   - ingress.yaml

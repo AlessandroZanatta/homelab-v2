@@ -1,0 +1,91 @@
+---
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: mariadb
+spec:
+  inheritMetadata:
+    labels:
+      kalexlab.xyz/app: plants
+      kalexlab.xyz/component: mariadb
+      kalexlab.xyz/monitoring: "true"
+      backups.kalexlab.xyz/use: "true"
+    annotations:
+      gatus.kalexlab.xyz/enabled: "true"
+      gatus.kalexlab.xyz/scheme: tcp
+
+  # renovate: datasource=docker depName=ghcr.io/mariadb/mariadb
+  image: ghcr.io/mariadb/mariadb:13.0.2
+  imagePullPolicy: Always
+  replicas: 1
+
+  rootPasswordSecretKeyRef:
+    name: mariadb
+    key: password
+    generate: true
+
+  database: app
+  username: app
+  passwordSecretKeyRef:
+    name: mariadb-app
+    key: password
+    generate: true
+
+  port: 3306
+
+  storage:
+    size: 3Gi
+
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+
+  # TODO
+  # resources:
+  #   requests:
+  #     cpu: 500m
+  #     memory: 1Gi
+  #   limits:
+  #     memory: 1Gi
+
+  metrics:
+    enabled: true
+---
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: PhysicalBackup
+metadata:
+  name: mariadb-backup
+spec:
+  inheritMetadata:
+    labels:
+      kalexlab.xyz/app: plants
+      kalexlab.xyz/component: mariadb-backup
+      backups.kalexlab.xyz/use: "true"
+  mariaDbRef:
+    name: mariadb
+    waitForIt: true
+  storage:
+    s3:
+      bucket: mariadb
+      endpoint: backups.kalexlab.xyz
+      # renovate-major: depName=ghcr.io/mariadb/mariadb
+      prefix: plants/mariadb-13
+      accessKeyIdSecretKeyRef:
+        name: plants-s3-credentials
+        key: accessKey
+      secretAccessKeySecretKeyRef:
+        name: plants-s3-credentials
+        key: secretKey
+      tls:
+        enabled: true
+  schedule:
+    cron: "0 0 * * *"
+    suspend: false
+    immediate: true
+    onDemand: "1"
+  compression: bzip2
+  maxRetention: 336h # 14d
+
+# TODO: configure PITR?
+#   ref: https://github.com/mariadb-operator/mariadb-operator/blob/main/docs/pitr.md
