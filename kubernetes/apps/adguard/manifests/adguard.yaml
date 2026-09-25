@@ -144,7 +144,9 @@ spec:
           configMap:
             name: adguard-conf
   volumeClaimTemplates:
-    - metadata:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: adguard-work-pvc
       spec:
         accessModes:
