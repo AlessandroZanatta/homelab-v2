@@ -40,6 +40,13 @@ spec:
         kalexlab.xyz/monitoring: "true"
     spec:
       restartPolicy: Always
+      # APP_SERVICE_URL (www.hortusfox.com) is hardcoded by the entrypoint and queried at pod startup.
+      # Egress is blocked, so resolve it to loopback to fail fast instead of hanging.
+      hostAliases:
+        - ip: 127.0.0.1
+          hostnames:
+            - www.hortusfox.com
+            - hortusfox.com
       initContainers:
         - name: copy-var-www-html
           image: "ghcr.io/danielbrendel/hortusfox-web:v6.1"
