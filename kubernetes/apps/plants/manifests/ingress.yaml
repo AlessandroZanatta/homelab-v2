@@ -22,6 +22,7 @@ metadata:
     gatus.kalexlab.xyz/endpoint: |
       conditions:
         - "[STATUS] == any(200,401)"
+    gatus.kalexlab.xyz/exclude-route: /manifest.json
 spec:
   entryPoints:
     - web
