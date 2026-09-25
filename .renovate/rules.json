@@ -16,7 +16,7 @@
       "schedule": ["at any time"],
       "automerge": true,
       "automergeType": "pr",
-      "automergeSchedule": ["after 11pm on friday", "after 11pm on saturday"]
+      "automergeSchedule": ["after 1am on saturday", "after 1am on sunday"]
     },
     {
       "description": "Auto-merge grafana.com dashboard revision bumps",
