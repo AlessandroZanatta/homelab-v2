@@ -9,7 +9,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: shelfmark
+    - name: http
       port: 8084
       protocol: TCP
       targetPort: http
