@@ -8,3 +8,4 @@ resources:
   - s3-bucket.yaml
   - alerting.yaml
   - dashboard.yaml
+  - pdb.yaml
