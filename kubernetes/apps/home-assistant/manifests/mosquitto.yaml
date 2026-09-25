@@ -11,6 +11,7 @@ spec:
   ports:
     - name: mosquitto
       port: 1883
+      targetPort: mqtt
       protocol: TCP
   selector:
     kalexlab.xyz/app: home-assistant
@@ -44,7 +45,8 @@ spec:
           image: "docker.io/library/eclipse-mosquitto:2.0.22"
           imagePullPolicy: Always
           ports:
-            - containerPort: 1883
+            - name: mqtt
+              containerPort: 1883
               protocol: TCP
           securityContext:
             allowPrivilegeEscalation: false
@@ -61,11 +63,11 @@ spec:
               cpu: 5m
           readinessProbe:
             tcpSocket:
-              port: 1883
+              port: mqtt
             periodSeconds: 10
           livenessProbe:
             tcpSocket:
-              port: 1883
+              port: mqtt
             failureThreshold: 3
             periodSeconds: 30
           volumeMounts:
@@ -77,9 +79,9 @@ spec:
       automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
-        runAsUser: 10000
-        runAsGroup: 10000
-        fsGroup: 10000
+        runAsUser: 65535
+        runAsGroup: 65535
+        fsGroup: 65535
         fsGroupChangePolicy: "OnRootMismatch"
         seccompProfile:
           type: RuntimeDefault

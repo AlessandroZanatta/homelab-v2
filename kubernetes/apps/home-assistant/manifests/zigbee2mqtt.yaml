@@ -11,6 +11,7 @@ spec:
   ports:
     - name: zigbee2mqtt
       port: 8080
+      targetPort: http
       protocol: TCP
   selector:
     kalexlab.xyz/app: home-assistant
@@ -44,7 +45,8 @@ spec:
           image: "ghcr.io/koenkk/zigbee2mqtt:2.14.1"
           imagePullPolicy: Always
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
               protocol: TCP
           # securityContext:
           #   allowPrivilegeEscalation: false
@@ -53,26 +55,23 @@ spec:
           #     drop:
           #       - ALL
 
-          # TODO
-          # resources:
-          #   requests:
-          #     memory: 350Mi
-          #     cpu: 10m
-          #   limits:
-          #     memory: 1Gi
-          #     cpu: 1000m
           resources:
+            requests:
+              memory: 128Mi
+              cpu: 1m
             limits:
+              memory: 1Gi
               devic.es/zigbee: 1
+
           readinessProbe:
             httpGet:
               path: /
-              port: 8080
+              port: http
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /
-              port: 8080
+              port: http
             failureThreshold: 3
             periodSeconds: 30
           volumeMounts:

@@ -27,7 +27,7 @@ spec:
               k8s-app: coredns
       ports:
         - protocol: UDP
-          port: 53
+          port: udp-53
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -51,19 +51,16 @@ spec:
               app.kubernetes.io/name: traefik
       ports:
         - protocol: TCP
-          port: 8123
+          port: http
   egress:
-    # Allow OIDC with Authelia
     - to:
-        - namespaceSelector:
+        - podSelector:
             matchLabels:
-              kubernetes.io/metadata.name: traefik
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: traefik
+              kalexlab.xyz/app: home-assistant
+              kalexlab.xyz/component: cluster
       ports:
         - protocol: TCP
-          port: 8443
+          port: postgresql
     - to:
         - podSelector:
             matchLabels:
@@ -71,7 +68,7 @@ spec:
               kalexlab.xyz/component: mosquitto
       ports:
         - protocol: TCP
-          port: 1883
+          port: mqtt
     - to:
         - ipBlock:
             cidr: 0.0.0.0/0
@@ -79,6 +76,27 @@ spec:
               - 10.0.0.0/8
               - 172.16.0.0/12
               - 192.168.0.0/16
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cluster
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: home-assistant
+      kalexlab.xyz/component: cluster
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: home-assistant
+              kalexlab.xyz/component: home-assistant
+      ports:
+        - protocol: TCP
+          port: postgresql
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -109,7 +127,7 @@ spec:
               kalexlab.xyz/component: zigbee2mqtt
       ports:
         - protocol: TCP
-          port: 1883
+          port: mqtt
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -133,7 +151,7 @@ spec:
               app.kubernetes.io/name: traefik
       ports:
         - protocol: TCP
-          port: 8080
+          port: http
   egress:
     - to:
         - podSelector:
@@ -142,7 +160,7 @@ spec:
               kalexlab.xyz/component: mosquitto
       ports:
         - protocol: TCP
-          port: 1883
+          port: mqtt
     # For OTA updates
     - to:
         - ipBlock:

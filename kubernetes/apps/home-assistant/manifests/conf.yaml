@@ -21,6 +21,9 @@ data:
       trusted_proxies:
         - 10.244.0.0/23
 
+    recorder:
+      db_url: !env_var recorder__db_url
+
     auth_oidc:
       client_id: apps-homeassistant
       client_secret: !secret auth_oidc__client_secret
