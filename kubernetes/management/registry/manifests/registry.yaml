@@ -41,7 +41,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: registry
-          image: "docker.io/library/registry:3.1.1"
+          image: "docker.io/library/registry:3.1.2"
           imagePullPolicy: Always
           securityContext:
             readOnlyRootFilesystem: true
