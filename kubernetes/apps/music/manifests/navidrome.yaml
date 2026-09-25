@@ -9,8 +9,9 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: navidrome
+    - name: http
       port: 4533
+      targetPort: http
       protocol: TCP
   selector:
     kalexlab.xyz/app: music
@@ -44,7 +45,8 @@ spec:
           image: "docker.io/deluan/navidrome:0.64.2"
           imagePullPolicy: Always
           ports:
-            - containerPort: 4533
+            - name: http
+              containerPort: 4533
               protocol: TCP
           env:
             - name: ND_CONFIGFILE
@@ -68,12 +70,12 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: 4533
+              port: http
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /
-              port: 4533
+              port: http
             failureThreshold: 3
             periodSeconds: 30
           securityContext:
@@ -98,9 +100,9 @@ spec:
       automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
+        runAsUser: 65535
+        runAsGroup: 65535
+        fsGroup: 65535
         fsGroupChangePolicy: "OnRootMismatch"
         seccompProfile:
           type: RuntimeDefault

@@ -9,14 +9,17 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: qbittorrent
+    - name: http
       port: 8080
+      targetPort: http
       protocol: TCP
-    - name: qbittorrent-bt-tcp
+    - name: bt-tcp
       port: 6881
+      targetPort: bt-tcp
       protocol: TCP
-    - name: qbittorrent-bt-udp
+    - name: bt-udp
       port: 6881
+      targetPort: bt-udp
       protocol: UDP
   selector:
     kalexlab.xyz/app: media
@@ -51,11 +54,14 @@ spec:
           image: "ghcr.io/home-operations/qbittorrent:5.2.3"
           imagePullPolicy: Always
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
               protocol: TCP
-            - containerPort: 6881
+            - name: bt-tcp
+              containerPort: 6881
               protocol: TCP
-            - containerPort: 6881
+            - name: bt-udp
+              containerPort: 6881
               protocol: UDP
           env:
             - name: WEBUI_PORT
@@ -66,16 +72,15 @@ spec:
               cpu: 5m
             limits:
               memory: 500Mi
-              cpu: 200m
           readinessProbe:
             httpGet:
               path: /
-              port: 8080
+              port: http
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /
-              port: 8080
+              port: http
             failureThreshold: 3
             periodSeconds: 30
           securityContext:
@@ -94,9 +99,9 @@ spec:
       automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
+        runAsUser: 65535
+        runAsGroup: 65535
+        fsGroup: 65535
         fsGroupChangePolicy: "OnRootMismatch"
         seccompProfile:
           type: RuntimeDefault

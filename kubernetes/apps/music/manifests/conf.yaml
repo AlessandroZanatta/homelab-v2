@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: navidrome-conf
+  name: navidrome-toml-conf
 data:
   navidrome.toml: |
     LogLevel = 'INFO'
@@ -18,3 +18,12 @@ data:
     TrustedSources = '10.244.0.0/16'
     UserHeader = "X-authentik-username"
     LogoutURL = "https://auth.kalexlab.xyz/application/o/apps-navidrome/end-session/"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: helper-conf
+data:
+  MUSIC_DIRECTORY: /music
+  BEET_CONFIG_PATH: /config.yaml
+  BEET_LIBRARY_PATH: /library/library.db

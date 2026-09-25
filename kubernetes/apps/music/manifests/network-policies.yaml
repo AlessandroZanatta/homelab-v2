@@ -27,7 +27,7 @@ spec:
               k8s-app: coredns
       ports:
         - protocol: UDP
-          port: 53
+          port: udp-53
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -49,9 +49,13 @@ spec:
           podSelector:
             matchLabels:
               app.kubernetes.io/name: traefik
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: music
+              kalexlab.xyz/component: helper-backend
       ports:
         - protocol: TCP
-          port: 4533
+          port: http
   # Allow scrobbling and cover retrieval
   egress:
     - to:
@@ -83,7 +87,7 @@ spec:
               app.kubernetes.io/name: traefik
       ports:
         - protocol: TCP
-          port: 80
+          port: http
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -107,18 +111,26 @@ spec:
               app.kubernetes.io/name: traefik
       ports:
         - protocol: TCP
-          port: 8000
+          port: http
   egress:
+    # - to:
+    #     - namespaceSelector:
+    #         matchLabels:
+    #           kubernetes.io/metadata.name: traefik
+    #       podSelector:
+    #         matchLabels:
+    #           app.kubernetes.io/name: traefik
+    #   ports:
+    #     - protocol: TCP
+    #       port: 8443
     - to:
-        - namespaceSelector:
+        - podSelector:
             matchLabels:
-              kubernetes.io/metadata.name: traefik
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: traefik
+              kalexlab.xyz/app: music
+              kalexlab.xyz/component: navidrome
       ports:
         - protocol: TCP
-          port: 8443
+          port: http
     - to:
         - ipBlock:
             cidr: 0.0.0.0/0
@@ -126,3 +138,24 @@ spec:
               - 10.0.0.0/8
               - 172.16.0.0/12
               - 192.168.0.0/16
+# ---
+# apiVersion: cilium.io/v2
+# kind: CiliumNetworkPolicy
+# metadata:
+#   name: allow-helper-to-music-egress
+# spec:
+#   endpointSelector:
+#     matchLabels:
+#       kalexlab.xyz/app: music
+#       kalexlab.xyz/component: helper-backend
+#   egress:
+#     - toEndpoints:
+#         - matchLabels:
+#             k8s:io.kubernetes.pod.namespace: traefik
+#             app.kubernetes.io/name: traefik
+#       toPorts:
+#         - ports:
+#             - port: "8443"
+#               protocol: TCP
+#           serverNames:
+#             - music.kalexlab.xyz

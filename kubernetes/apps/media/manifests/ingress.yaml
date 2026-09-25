@@ -31,26 +31,26 @@ spec:
       match: Host(`jellyfin.kalexlab.xyz`)
       services:
         - name: jellyfin
-          port: 8096
+          port: http
     # QBitTorrent configured to not require authentication when logging
-    # from 0.0.0.0. Authentication enforced via forward auth on Authentik
+    # from 0.0.0.0. Authentication enforced via forward auth
     - kind: Rule
       match: Host(`torrent.kalexlab.xyz`)
       services:
         - name: qbittorrent
-          port: 8080
+          port: http
       middlewares:
         - name: authentik-forward-auth
           namespace: authentik
     # The following are set to allow without authentication local IPs
-    # and are then protected using Authentik forward auth to have SSO
+    # and are then protected using forward auth to have SSO
     # Currently not possible to disable authentication/use OIDC.
     #   ref: https://github.com/Sonarr/Sonarr/issues/2477
     - kind: Rule
       match: Host(`prowlarr.kalexlab.xyz`)
       services:
         - name: prowlarr
-          port: 9696
+          port: http
       middlewares:
         - name: authentik-forward-auth
           namespace: authentik
@@ -58,7 +58,7 @@ spec:
       match: Host(`radarr.kalexlab.xyz`)
       services:
         - name: radarr
-          port: 7878
+          port: http
       middlewares:
         - name: authentik-forward-auth
           namespace: authentik
@@ -66,7 +66,7 @@ spec:
       match: Host(`sonarr.kalexlab.xyz`)
       services:
         - name: sonarr
-          port: 8989
+          port: http
       middlewares:
         - name: authentik-forward-auth
           namespace: authentik

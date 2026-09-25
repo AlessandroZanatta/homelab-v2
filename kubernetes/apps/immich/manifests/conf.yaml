@@ -2,5 +2,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: immich-config
+  name: immich-conf
 data:
+  REDIS_HOSTNAME: cache
+  REDIS_PORT: "6379"
+  IMMICH_CONFIG_FILE: /immich.json

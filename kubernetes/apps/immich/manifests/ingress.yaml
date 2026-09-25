@@ -27,6 +27,6 @@ spec:
       match: Host(`photos.kalexlab.xyz`)
       services:
         - name: immich
-          port: 2283
+          port: http
   tls:
     secretName: immich-ingress-certificate-secret

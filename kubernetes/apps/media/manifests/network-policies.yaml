@@ -27,7 +27,7 @@ spec:
               k8s-app: coredns
       ports:
         - protocol: UDP
-          port: 53
+          port: udp-53
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -51,19 +51,8 @@ spec:
               app.kubernetes.io/name: traefik
       ports:
         - protocol: TCP
-          port: 8096
+          port: http
   egress:
-    # Allow to reach OIDC on Authelia
-    - to:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: traefik
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: traefik
-      ports:
-        - protocol: TCP
-          port: 8443
     # Allow jellyfin to fetch metadata from external services
     - to:
         - ipBlock:
@@ -103,7 +92,7 @@ spec:
               kalexlab.xyz/component: prowlarr
       ports:
         - protocol: TCP
-          port: 7878
+          port: http
   egress:
     - to:
         - podSelector:
@@ -112,7 +101,7 @@ spec:
               kalexlab.xyz/component: prowlarr
       ports:
         - protocol: TCP
-          port: 9696
+          port: http
     - to:
         - podSelector:
             matchLabels:
@@ -120,7 +109,7 @@ spec:
               kalexlab.xyz/component: qbittorrent
       ports:
         - protocol: TCP
-          port: 8080
+          port: http
     - to:
         - ipBlock:
             cidr: 0.0.0.0/0
@@ -159,7 +148,7 @@ spec:
               kalexlab.xyz/component: prowlarr
       ports:
         - protocol: TCP
-          port: 8989
+          port: http
   egress:
     - to:
         - podSelector:
@@ -168,7 +157,7 @@ spec:
               kalexlab.xyz/component: prowlarr
       ports:
         - protocol: TCP
-          port: 9696
+          port: http
     - to:
         - podSelector:
             matchLabels:
@@ -176,7 +165,7 @@ spec:
               kalexlab.xyz/component: qbittorrent
       ports:
         - protocol: TCP
-          port: 8080
+          port: http
     - to:
         - ipBlock:
             cidr: 0.0.0.0/0
@@ -215,7 +204,7 @@ spec:
               kalexlab.xyz/component: sonarr
       ports:
         - protocol: TCP
-          port: 9696
+          port: http
   egress:
     - to:
         - podSelector:
@@ -224,7 +213,7 @@ spec:
               kalexlab.xyz/component: radarr
       ports:
         - protocol: TCP
-          port: 7878
+          port: http
     - to:
         - podSelector:
             matchLabels:
@@ -232,7 +221,7 @@ spec:
               kalexlab.xyz/component: sonarr
       ports:
         - protocol: TCP
-          port: 8989
+          port: http
     - to:
         - namespaceSelector:
             matchLabels:
@@ -243,7 +232,7 @@ spec:
               kalexlab.xyz/component: flaresolverr
       ports:
         - protocol: TCP
-          port: 8191
+          port: http
     - to:
         - ipBlock:
             cidr: 0.0.0.0/0
@@ -282,7 +271,7 @@ spec:
               kalexlab.xyz/component: sonarr
       ports:
         - protocol: TCP
-          port: 8080
+          port: http
   egress:
     - to:
         - podSelector:
@@ -291,7 +280,7 @@ spec:
               kalexlab.xyz/component: radarr
       ports:
         - protocol: TCP
-          port: 7878
+          port: http
     - to:
         - podSelector:
             matchLabels:
@@ -299,7 +288,7 @@ spec:
               kalexlab.xyz/component: sonarr
       ports:
         - protocol: TCP
-          port: 8989
+          port: http
     - to:
         - ipBlock:
             cidr: 0.0.0.0/0

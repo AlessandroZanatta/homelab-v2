@@ -12,8 +12,9 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: helper-backend
+    - name: http
       port: 8000
+      targetPort: http
       protocol: TCP
   selector:
     kalexlab.xyz/app: music
@@ -40,7 +41,7 @@ spec:
         kalexlab.xyz/app: music
         kalexlab.xyz/component: helper-backend
         kalexlab.xyz/monitoring: "true"
-        egress.kalexlab.xyz/policy: vpn
+        # egress.kalexlab.xyz/policy: vpn
     spec:
       restartPolicy: Always
       imagePullSecrets:
@@ -50,31 +51,27 @@ spec:
           image: "registry.kalexlab.xyz/navidrome-helper/backend:latest"
           imagePullPolicy: Always
           ports:
-            - containerPort: 8000
+            - name: http
+              containerPort: 8000
               protocol: TCP
-          env:
-            - name: MUSIC_DIRECTORY
-              value: /music
-            - name: BEET_CONFIG_PATH
-              value: /config.yaml
-            - name: BEET_LIBRARY_PATH
-              value: /library/library.db
+          envFrom:
+            - configMapRef:
+                name: helper-conf
           resources:
             requests:
               memory: 200Mi
               cpu: 10m
             limits:
               memory: 1Gi
-              cpu: 2000m
           readinessProbe:
             httpGet:
               path: /api/health
-              port: 8000
+              port: http
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /api/health
-              port: 8000
+              port: http
             failureThreshold: 10
             periodSeconds: 30
           securityContext:
@@ -101,9 +98,9 @@ spec:
       automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
+        runAsUser: 65535
+        runAsGroup: 65535
+        fsGroup: 65535
         fsGroupChangePolicy: "OnRootMismatch"
         seccompProfile:
           type: RuntimeDefault
@@ -144,8 +141,9 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: helper-frontend
+    - name: http
       port: 80
+      targetPort: http
       protocol: TCP
   selector:
     kalexlab.xyz/app: music
@@ -201,7 +199,8 @@ spec:
           image: "registry.kalexlab.xyz/navidrome-helper/frontend:latest"
           imagePullPolicy: Always
           ports:
-            - containerPort: 80
+            - name: http
+              containerPort: 80
               protocol: TCP
           resources:
             requests:
@@ -209,16 +208,15 @@ spec:
               cpu: 1m
             limits:
               memory: 50Mi
-              cpu: 20m
           readinessProbe:
             httpGet:
               path: /
-              port: 80
+              port: http
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /
-              port: 80
+              port: http
             failureThreshold: 3
             periodSeconds: 30
           securityContext:
@@ -240,9 +238,9 @@ spec:
       automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
+        runAsUser: 65535
+        runAsGroup: 65535
+        fsGroup: 65535
         fsGroupChangePolicy: "OnRootMismatch"
         seccompProfile:
           type: RuntimeDefault

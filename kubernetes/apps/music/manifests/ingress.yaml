@@ -49,7 +49,7 @@ spec:
       match: Host(`music.kalexlab.xyz`)
       services:
         - name: navidrome
-          port: 4533
+          port: http
       middlewares:
         - name: authentik-forward-auth
           namespace: authentik
@@ -57,14 +57,14 @@ spec:
       match: "Host(`music.kalexlab.xyz`) && PathPrefix(`/rest/`) && !Query(`c`, `NavidromeUI`)"
       services:
         - name: navidrome
-          port: 4533
+          port: http
       middlewares:
         - name: strip-authentik-headers
     - kind: Rule
       match: "Host(`get.music.kalexlab.xyz`) && PathPrefix(`/api`)"
       services:
         - name: helper-backend
-          port: 8000
+          port: http
       middlewares:
         - name: authentik-forward-auth
           namespace: authentik
@@ -72,7 +72,7 @@ spec:
       match: Host(`get.music.kalexlab.xyz`)
       services:
         - name: helper-frontend
-          port: 80
+          port: http
       middlewares:
         - name: authentik-forward-auth
           namespace: authentik

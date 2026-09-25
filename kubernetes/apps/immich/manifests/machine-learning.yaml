@@ -13,6 +13,7 @@ spec:
   ports:
     - name: machine-learning
       port: 3003
+      targetPort: http
       protocol: TCP
   selector:
     kalexlab.xyz/app: immich
@@ -52,7 +53,8 @@ spec:
               drop:
                 - ALL
           ports:
-            - containerPort: 3003
+            - name: http
+              containerPort: 3003
               protocol: TCP
           env:
             - name: MPLCONFIGDIR
@@ -67,12 +69,12 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: 3003
+              port: http
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /
-              port: 3003
+              port: http
             failureThreshold: 3
             periodSeconds: 30
           volumeMounts:
@@ -88,9 +90,9 @@ spec:
             sizeLimit: 1Gi
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
+        runAsUser: 65535
+        runAsGroup: 65535
+        fsGroup: 65535
         fsGroupChangePolicy: "OnRootMismatch"
         seccompProfile:
           type: RuntimeDefault

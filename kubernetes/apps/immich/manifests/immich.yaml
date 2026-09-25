@@ -11,6 +11,7 @@ spec:
   ports:
     - name: immich
       port: 2283
+      targetPort: http
       protocol: TCP
   selector:
     kalexlab.xyz/app: immich
@@ -37,6 +38,7 @@ spec:
         kalexlab.xyz/app: immich
         kalexlab.xyz/component: immich
         kalexlab.xyz/monitoring: "true"
+        sso.kalexlab.xyz/idp: authentik
     spec:
       restartPolicy: Always
       initContainers:
@@ -49,7 +51,6 @@ spec:
               cpu: 1m
             limits:
               memory: 300Mi
-              cpu: 20m
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
@@ -73,20 +74,19 @@ spec:
               drop:
                 - ALL
           ports:
-            - containerPort: 2283
+            - name: http
+              containerPort: 2283
               protocol: TCP
+
+          envFrom:
+            - configMapRef:
+                name: immich-conf
           env:
             - name: DB_URL
               valueFrom:
                 secretKeyRef:
                   name: cluster-vchord-app
                   key: uri
-            - name: REDIS_HOSTNAME
-              value: cache
-            - name: REDIS_PORT
-              value: "6379"
-            - name: IMMICH_CONFIG_FILE
-              value: /immich.json
           resources:
             requests:
               memory: 1Gi
@@ -97,12 +97,12 @@ spec:
           readinessProbe:
             httpGet:
               path: /api/server/ping
-              port: 2283
+              port: http
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /api/server/ping
-              port: 2283
+              port: http
             failureThreshold: 3
             periodSeconds: 30
           volumeMounts:
@@ -115,9 +115,9 @@ spec:
       automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
+        runAsUser: 65535
+        runAsGroup: 65535
+        fsGroup: 65535
         fsGroupChangePolicy: "OnRootMismatch"
         seccompProfile:
           type: RuntimeDefault
