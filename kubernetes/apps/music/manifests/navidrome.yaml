@@ -90,7 +90,7 @@ spec:
             - mountPath: /music
               name: music-pvc
             - mountPath: /navidrome.toml
-              name: navidrome-conf
+              name: navidrome-toml
               subPath: navidrome.toml
             - mountPath: /cache
               name: cache
@@ -110,9 +110,9 @@ spec:
         - name: music-pvc
           persistentVolumeClaim:
             claimName: music-pvc
-        - name: navidrome-conf
+        - name: navidrome-toml
           configMap:
-            name: navidrome-conf
+            name: navidrome-toml
         - name: tmp
           emptyDir:
             sizeLimit: 1Gi
