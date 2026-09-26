@@ -5,7 +5,7 @@ endpoint: "https://${CONTROL_PLANE_VIP}:6443"
 # renovate: datasource=docker depName=ghcr.io/siderolabs/talos
 talosVersion: v1.14.1
 # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
-kubernetesVersion: v1.37.0
+kubernetesVersion: v1.37.1
 
 controlPlane:
   patches:
