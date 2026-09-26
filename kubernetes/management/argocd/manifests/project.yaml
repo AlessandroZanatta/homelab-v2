@@ -24,9 +24,15 @@ spec:
       # Argo CD
       - kind: Secret
         name: argocd-redis
+      - kind: Secret
+        name: in-cluster
       - group: argoproj.io
         kind: Application
         name: app-of-apps
+
+      # Authentik
+      - kind: Service
+        name: ak-outpost-authentik-embedded-outpost
 
       # Cert Manager
       - kind: Secret
@@ -46,6 +52,12 @@ spec:
       # Ignore default CNPG configmaps
       - kind: ConfigMap
         name: cnpg-default-monitoring
+
+      # Kyverno
+      - kind: Secret
+        name: kyverno-cleanup-controller.kyverno.svc.kyverno-tls-*
+      - kind: Secret
+        name: kyverno-svc.kyverno.svc.kyverno-tls-*
 
       # Longhorn
       - kind: Secret
@@ -114,6 +126,10 @@ spec:
         name: pvc-*
       - kind: ConfigMap
         name: recovery-backend-*
+
+      # MariaDB operator
+      - kind: Secret
+        name: mariadb-operator-webhook-*
 
       # Reloader
       - kind: ConfigMap
