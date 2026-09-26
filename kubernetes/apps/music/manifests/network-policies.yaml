@@ -113,16 +113,6 @@ spec:
         - protocol: TCP
           port: http
   egress:
-    # - to:
-    #     - namespaceSelector:
-    #         matchLabels:
-    #           kubernetes.io/metadata.name: traefik
-    #       podSelector:
-    #         matchLabels:
-    #           app.kubernetes.io/name: traefik
-    #   ports:
-    #     - protocol: TCP
-    #       port: 8443
     - to:
         - podSelector:
             matchLabels:
@@ -138,24 +128,3 @@ spec:
               - 10.0.0.0/8
               - 172.16.0.0/12
               - 192.168.0.0/16
-# ---
-# apiVersion: cilium.io/v2
-# kind: CiliumNetworkPolicy
-# metadata:
-#   name: allow-helper-to-music-egress
-# spec:
-#   endpointSelector:
-#     matchLabels:
-#       kalexlab.xyz/app: music
-#       kalexlab.xyz/component: helper-backend
-#   egress:
-#     - toEndpoints:
-#         - matchLabels:
-#             k8s:io.kubernetes.pod.namespace: traefik
-#             app.kubernetes.io/name: traefik
-#       toPorts:
-#         - ports:
-#             - port: "8443"
-#               protocol: TCP
-#           serverNames:
-#             - music.kalexlab.xyz
