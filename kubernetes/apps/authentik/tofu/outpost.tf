@@ -36,52 +36,5 @@ resource "authentik_outpost" "embedded" {
     log_level                        = "info"
     object_naming_template           = "ak-outpost-%(name)s"
     refresh_interval                 = "minutes=5"
-
-    # Make the outpost highly-available too (not needed for embedded outpost!)
-    # kubernetes_json_patches = {
-    #   service = [
-    #     {
-    #       op    = "add"
-    #       path  = "/metadata/annotations"
-    #       value = {}
-    #     },
-    #     {
-    #       op    = "add"
-    #       path  = "/metadata/annotations/gatus.kalexlab.xyz~1enabled"
-    #       value = "true"
-    #     },
-    #     {
-    #       op    = "add"
-    #       path  = "/metadata/annotations/gatus.kalexlab.xyz~1port"
-    #       value = "http"
-    #     },
-    #     {
-    #       op    = "add"
-    #       path  = "/metadata/annotations/gatus.kalexlab.xyz~1endpoint"
-    #       value = <<-EOT
-    #         conditions:
-    #           - "[STATUS] == 400"
-    #       EOT
-    #     },
-    #   ]
-    #   deployment = [
-    #     {
-    #       op   = "add"
-    #       path = "/spec/template/spec/topologySpreadConstraints"
-    #       value = [{
-    #         maxSkew           = 1
-    #         topologyKey       = "kubernetes.io/hostname"
-    #         whenUnsatisfiable = "DoNotSchedule"
-    #         labelSelector = {
-    #           matchLabels = {
-    #             "app.kubernetes.io/name" = "authentik-outpost-proxy"
-    #             # Must match this resource name
-    #             "goauthentik.io/outpost-name" = "proxy"
-    #           }
-    #         }
-    #       }]
-    #     },
-    #   ]
-    # }
   })
 }
