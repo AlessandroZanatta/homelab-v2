@@ -20,16 +20,16 @@ spec:
   replicas: 1
 
   rootPasswordSecretKeyRef:
-    name: mariadb
+    name: mariadb-root
     key: password
-    generate: true
+    generate: false
 
   database: app
   username: app
   passwordSecretKeyRef:
     name: mariadb-app
     key: password
-    generate: true
+    generate: false
 
   port: 3306
 
@@ -50,6 +50,10 @@ spec:
 
   metrics:
     enabled: true
+    passwordSecretKeyRef:
+      name: mariadb-metrics
+      key: password
+      generate: false
 ---
 apiVersion: k8s.mariadb.com/v1alpha1
 kind: PhysicalBackup
