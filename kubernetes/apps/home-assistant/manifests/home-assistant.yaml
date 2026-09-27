@@ -43,7 +43,7 @@ spec:
       restartPolicy: Always
       initContainers:
         - name: site-packages
-          image: "docker.io/homeassistant/home-assistant:2026.9.3"
+          image: "docker.io/homeassistant/home-assistant:2026.9.4"
           command:
             ["cp", "-a", "/usr/local/lib/python3.14/site-packages/.", "/sp/"]
           securityContext:
@@ -57,7 +57,7 @@ spec:
 
       containers:
         - name: app
-          image: "docker.io/homeassistant/home-assistant:2026.9.3"
+          image: "docker.io/homeassistant/home-assistant:2026.9.4"
           command: ["python3", "-m", "homeassistant", "--config", "/config"]
           workingDir: /config
           imagePullPolicy: Always
