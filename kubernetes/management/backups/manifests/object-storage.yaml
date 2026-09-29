@@ -5,7 +5,7 @@ metadata:
   name: backups
 spec:
   # renovate: datasource=docker depName=chrislusf/seaweedfs
-  image: docker.io/chrislusf/seaweedfs:4.47
+  image: docker.io/chrislusf/seaweedfs:4.48
 
   # TODO: add limits to all pods
 
