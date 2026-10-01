@@ -1,0 +1,7 @@
+---
+# While this is specific to the node with the ZigBee antenna, keeping it for all nodes
+# is harmless and (probably) allows seamless shifts of the antenna between nodes
+apiVersion: v1alpha1
+kind: UdevRulesConfig
+rules:
+  - SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", GROUP="20", MODE="0660"

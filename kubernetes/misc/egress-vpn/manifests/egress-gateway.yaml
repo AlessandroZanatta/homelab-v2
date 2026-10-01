@@ -18,11 +18,11 @@ spec:
     - "172.16.0.0/12"
     - "10.0.0.0/8"
 
-  # Egress is through a node with the kalexlab.xyz/node: vpn label
+  # Egress is through a node with the egress.kalexlab.xyz/gateway: vpn label
   # and through the 192.168.10.2 IP address
   egressGateway:
     nodeSelector:
       matchLabels:
-        kalexlab.xyz/node: vpn
+        egress.kalexlab.xyz/gateway: vpn
 
     egressIP: 192.168.10.2

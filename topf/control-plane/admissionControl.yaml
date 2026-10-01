@@ -1,0 +1,22 @@
+---
+# Relax default PodSecurity by removing enforcement of restricted,
+# but keeping the warnings
+apiVersion: v1alpha1
+kind: KubeAdmissionControlConfig
+name: PodSecurity
+configuration:
+  apiVersion: pod-security.admission.config.k8s.io/v1alpha1
+  kind: PodSecurityConfiguration
+  defaults:
+    audit: restricted
+    audit-version: latest
+    enforce: privileged
+    enforce-version: latest
+    warn: restricted
+    warn-version: latest
+  exemptions:
+    namespaces:
+      - longhorn-system # required for raw storage access
+      - kube-prometheus-stack # required by node exporter
+    runtimeClasses: []
+    usernames: []

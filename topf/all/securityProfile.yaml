@@ -1,0 +1,6 @@
+---
+# Talos v1.14 enables workload isolation by default for new configs.
+# Disabled until verified with privileged workloads (Cilium, Longhorn, node-exporter)
+apiVersion: v1alpha1
+kind: SecurityProfileConfig
+workloadIsolation: false

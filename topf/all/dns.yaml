@@ -1,0 +1,12 @@
+---
+apiVersion: v1alpha1
+kind: ResolverConfig
+hostDNS:
+  enabled: true
+  # CoreDNS is self-managed, keep it on its own upstreams
+  forwardKubeDNSToHost: false
+nameservers:
+  - address: 1.1.1.1
+    protocol: DoH
+    tlsServerName: cloudflare-dns.com
+  - address: 1.1.1.1

@@ -1,0 +1,7 @@
+---
+# Allow workloads on control planes by dropping the default taint
+apiVersion: v1alpha1
+kind: KubeNodeConfig
+taints:
+  node-role.kubernetes.io/control-plane:
+    $patch: delete

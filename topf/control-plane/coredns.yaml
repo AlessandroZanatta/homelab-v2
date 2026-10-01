@@ -1,0 +1,5 @@
+---
+# Disable coreDNS, manually deployed
+apiVersion: v1alpha1
+kind: KubeCoreDNSConfig
+enabled: false

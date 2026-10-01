@@ -1,24 +1,22 @@
-AGE_RECIPIENT := "age1ff26etr9n8nsp2ve2lkh7w4dqd9g9m9u3y8aw77ureu639mrfatqmuqnhv"
-DEFAULT_TALOS_ENDPOINT := "192.168.10.4"
-
 init:
   pre-commit install
   pre-commit install --hook-type commit-msg
 
 tal *ARGS:
-  talosctl --talosconfig talos/clusterconfig/talosconfig {{ ARGS }}
+  talosctl --talosconfig topf/talosconfig {{ ARGS }}
 
-tal-genconfig:
-  SOPS_AGE_KEY_FILE=./sops.agekey talhelper genconfig  -c talos/talconfig.yaml -s talos/talsecret.sops.yaml -e talos/talenv.yaml -o talos/clusterconfig
-  chmod 600 talos/clusterconfig/*
+[working-directory('topf')]
+topf *ARGS:
+  topf {{ ARGS }}
 
-tal-gencommand-upgrade:
-  SOPS_AGE_KEY_FILE=./sops.agekey talhelper gencommand upgrade -c talos/talconfig.yaml -e talos/talenv.yaml -o talos/clusterconfig
+[working-directory('topf')]
+topf-talosconfig:
+  topf talosconfig > talosconfig
 
 _check_secret_file SECRET_FILE:
   #!/bin/bash
 
-  set -e
+  set -euo pipefail
 
   if ! [ -f "{{ SECRET_FILE }}" ]; then
     echo "Error: {{ SECRET_FILE }} does not exists, or it is not a file"
@@ -28,7 +26,7 @@ _check_secret_file SECRET_FILE:
   KIND=$(yq -r .kind "{{ SECRET_FILE }}")
 
   if ! [[ "$KIND" == "SopsSecret" ]]; then
-    if ! echo "{{ SECRET_FILE }}" | grep -Eq "(helm|talos)/"; then
+    if ! echo "{{ SECRET_FILE }}" | grep -Eq "(helm|topf)/"; then
       echo "{{ SECRET_FILE }} is not a SopsSecret, nor a Helm secret"
       exit 1
     fi
@@ -37,16 +35,16 @@ _check_secret_file SECRET_FILE:
 sops SECRET_FILE:
   #!/bin/bash
 
-  set -e
+  set -euo pipefail
 
   just _check_secret_file "{{ SECRET_FILE }}"
 
   SOPS=$(yq -r .sops "{{ SECRET_FILE }}")
   # Not encrypted, missing sops header
   if [[ "$SOPS" == "null" ]]; then
-    SOPS_AGE_RECIPIENTS="{{ AGE_RECIPIENT }}" sops --encrypt --in-place "{{ SECRET_FILE }}"
+    sops --encrypt --in-place "{{ SECRET_FILE }}"
   else
-    SOPS_AGE_KEY_FILE=./sops.agekey sops --decrypt --in-place "{{ SECRET_FILE }}"
+    sops --decrypt --in-place "{{ SECRET_FILE }}"
   fi
 
   if ! head -n 1 "{{ SECRET_FILE }}" | grep -q '^---$'; then
@@ -57,7 +55,7 @@ sops SECRET_FILE:
 ensure-sops SECRET_FILE:
   #!/bin/bash
 
-  set -e
+  set -euo pipefail
 
   if ! just _check_secret_file "{{ SECRET_FILE }}"; then
     exit 0
@@ -73,9 +71,9 @@ ensure-sops SECRET_FILE:
 encrypt-all:
   #!/bin/bash
 
-  set -e
+  set -euo pipefail
 
-  for FILE_PATH in $(find ./helm ./kubernetes ./talos -type f -name "*.sops.y?ml"); do
+  for FILE_PATH in $(find ./helm ./kubernetes ./topf -type f -name "*.sops.y?ml"); do
     just ensure-sops "$FILE_PATH"
   done
 
@@ -85,7 +83,7 @@ debug-pod NAMESPACE:
 pvc-pod NAMESPACE PVC:
   #!/bin/bash
 
-  set -e
+  set -euo pipefail
 
   cat <<EOF | kubectl apply -f -
     apiVersion: v1

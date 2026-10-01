@@ -1,3 +1,4 @@
+{{- if index .Node.Data "longhornNode" }}
 ---
 apiVersion: v1alpha1
 kind: VolumeConfig
@@ -8,3 +9,4 @@ provisioning:
   minSize: 100GB
   maxSize: 100GB
   grow: false
+{{- end }}

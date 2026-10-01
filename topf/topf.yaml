@@ -1,0 +1,91 @@
+---
+clusterName: homelab
+clusterEndpoint: https://192.168.10.9:6443
+
+# renovate: datasource=docker depName=ghcr.io/siderolabs/talos
+talosVersion: v1.14.1
+# renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
+kubernetesVersion: v1.37.1
+
+platform: metal
+secureboot: false
+schematicId: "@schematic.yaml.tpl"
+
+secretsPath: secrets.sops.yaml
+
+data:
+  controlPlaneVIP: 192.168.10.9
+
+nodes:
+  - host: athena
+    ip: 192.168.10.2
+    role: worker
+    data:
+      installDiskSelector: disk.dev_path == "/dev/mmcblk0"
+      rpi: true
+      nodeLabels:
+        egress.kalexlab.xyz/gateway: vpn
+      taints:
+        - effect: NoSchedule
+          key: kalexlab.xyz/taint
+          value: vpn
+
+  - host: hermes
+    ip: 192.168.10.3
+    role: worker
+    data:
+      installDiskSelector: disk.dev_path == "/dev/nvme0n1"
+      longhornNode: true
+      userVolumes:
+        - name: data-nvme
+          provisioning:
+            diskSelector:
+              match: "'/dev/disk/by-id/nvme-WD_BLACK_SN770_1TB_24014H805228' in disk.symlinks"
+            minSize: "100GiB" # Talos will autogrow the size if more is available
+            grow: true
+        - name: data-sata
+          provisioning:
+            diskSelector:
+              match: "'/dev/disk/by-id/ata-CT1000MX500SSD1_2406E89658C0' in disk.symlinks"
+            minSize: "100GiB" # Talos will autogrow the size if more is available
+            grow: true
+        - name: backups
+          provisioning:
+            diskSelector:
+              match: "'/dev/disk/by-id/ata-TOSHIBA_MQ04UBF100_X5SPP12LT' in disk.symlinks"
+            minSize: "900GiB"
+            grow: true
+      nodeLabels: &nodeLabels
+        ingress.kalexlab.xyz/type: traefik
+        balance.kalexlab.xyz/pool: default
+      nodeAnnotations: &nodeAnnotations
+        # Only honoured on Longhorn node creation
+        #   ref: https://longhorn.io/docs/1.11.2/nodes-and-volumes/nodes/default-disk-and-node-config/#customizing-default-disks-for-new-nodes
+        # storageReserved is non-zero, otherwise it's treated as empty
+        #   ref: https://github.com/longhorn/longhorn/issues/11444
+        node.longhorn.io/default-disks-config: '[{"name":"data-nvme","path":"/var/mnt/data-nvme","allowScheduling":true,"storageReserved":1,"tags":[]},{"name":"data-sata","path":"/var/mnt/data-sata","allowScheduling":true,"storageReserved":1,"tags":[]}]'
+
+  - host: zeus
+    ip: 192.168.10.4
+    role: control-plane
+    data:
+      installDiskSelector: disk.dev_path == "/dev/nvme0n1"
+      longhornNode: true
+      extraKernelArgs:
+        - pcie_aspm=off
+      userVolumes:
+        - name: data-nvme
+          provisioning:
+            diskSelector:
+              match: "'/dev/disk/by-id/nvme-WD_BLACK_SN770_1TB_24453F403703' in disk.symlinks"
+            minSize: "100GiB" # Talos will autogrow the size if more is available
+            grow: true
+        - name: data-sata
+          provisioning:
+            diskSelector:
+              match: "'/dev/disk/by-id/ata-CT1000MX500SSD1_2434E988FA39' in disk.symlinks"
+            minSize: "100GiB" # Talos will autogrow the size if more is available
+            grow: true
+
+      nodeLabels: *nodeLabels
+      nodeAnnotations: *nodeAnnotations

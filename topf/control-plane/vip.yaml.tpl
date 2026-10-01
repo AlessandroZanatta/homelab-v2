@@ -1,5 +1,4 @@
 ---
-# Virtual load-balancer IP
 machine:
   network:
     interfaces:
@@ -7,4 +6,4 @@ machine:
           physical: true
         dhcp: true
         vip:
-          ip: "${CONTROL_PLANE_VIP}"
+          ip: "{{ .Data.controlPlaneVIP }}"

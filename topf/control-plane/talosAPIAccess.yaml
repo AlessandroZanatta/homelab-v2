@@ -1,0 +1,9 @@
+---
+apiVersion: v1alpha1
+kind: KubeTalosAPIAccessConfig
+allowedRoles:
+  - os:etcd:backup
+  - os:admin
+allowedKubernetesNamespaces:
+  - etcd-backup
+  - system-upgrade
