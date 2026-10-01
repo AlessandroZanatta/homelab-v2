@@ -14,14 +14,17 @@ repos:
         name: Strict yamllint
         args: [--strict]
 
-  - repo: https://github.com/compilerla/conventional-pre-commit
-    rev: v3.6.0
-    hooks:
-      - id: conventional-pre-commit
-        stages: [commit-msg]
-
   - repo: local
     hooks:
+      - id: commitlint
+        name: Lint commit message
+        entry: commitlint --edit
+        language: node
+        additional_dependencies:
+          - "@commitlint/cli@21.2.3"
+          - "@commitlint/config-conventional@21.2.3"
+        stages: [commit-msg]
+
       - id: ensure-encrypted-secrets
         name: Ensure secrets are encrypted
         entry: /usr/bin/env just encrypt-all

@@ -12,6 +12,7 @@
     ":automergeBranch",
     ":timezone(Europe/Rome)",
     ":enablePreCommit",
+    "security:minimumReleaseAgeNpm",
 
     "github>alessandrozanatta/homelab-v2//.renovate/datasources.json",
     "github>alessandrozanatta/homelab-v2//.renovate/labels.json",
