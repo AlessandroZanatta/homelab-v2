@@ -17,3 +17,14 @@ helmCharts:
 
 resources:
   - manifests
+
+patches:
+  - target:
+      kind: Job
+      name: longhorn-uninstall
+    patch: |
+      $patch: delete
+      apiVersion: batch/v1
+      kind: Job
+      metadata:
+        name: longhorn-uninstall
