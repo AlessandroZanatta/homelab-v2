@@ -20,6 +20,7 @@ spec:
       - X-authentik-meta-provider
       - X-authentik-meta-app
       - X-authentik-meta-version
+    maxResponseBodySize: 1048576 # 1MB
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
