@@ -9,7 +9,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: immich
+    - name: http
       port: 2283
       targetPort: http
       protocol: TCP
