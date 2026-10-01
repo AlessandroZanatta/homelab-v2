@@ -11,15 +11,18 @@
     ":disableRateLimiting",
     ":automergeBranch",
     ":timezone(Europe/Rome)",
+    ":enablePreCommit",
 
     "github>alessandrozanatta/homelab-v2//.renovate/datasources.json",
     "github>alessandrozanatta/homelab-v2//.renovate/labels.json",
     "github>alessandrozanatta/homelab-v2//.renovate/managers.json",
     "github>alessandrozanatta/homelab-v2//.renovate/rules.json"
   ],
-  "argocd": { "managerFilePatterns": ["apps/**/*.yaml"] },
+  "argocd": {
+    "managerFilePatterns": ["apps/**/*.yaml"]
+  },
   "kubernetes": {
-    "managerFilePatterns": ["kubernetes/**/*.yaml", "helm/**/extra/**/*.yaml"]
+    "managerFilePatterns": ["kubernetes/**/*.yaml"]
   },
   "dependencyDashboardTitle": "Renovate Dashboard 🤖"
 }
