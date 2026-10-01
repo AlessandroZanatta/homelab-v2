@@ -38,6 +38,14 @@
       "matchDatasources": ["docker"],
       "matchPackageNames": ["ghcr.io/mariadb/mariadb"],
       "groupName": "mariadb"
+    },
+    {
+      "description": "Keep gatus-sidecar image and CRDs in one commit",
+      "matchPackageNames": [
+        "ghcr.io/alessandrozanatta/gatus-sidecar",
+        "AlessandroZanatta/gatus-sidecar"
+      ],
+      "groupName": "gatus-sidecar"
     }
   ]
 }
