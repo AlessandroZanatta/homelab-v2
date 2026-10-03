@@ -1,0 +1,70 @@
+---
+# -- The number of operators to run simultaneously.
+# With leader election, only one instance reconciles CRs preventing duplicate reconciliations.
+# Note: Multiple replicas increase stability, it does not increase throughput.
+replicas: 1
+
+logging:
+  # -- Log encoding ("console", "json")
+  encoder: json
+
+crds:
+  # -- Immutable CustomResourceDefinitions are installed only once using `crds/` directory
+  # and require manual upgrade by `kubectl apply`.
+  # Mutable CRDs are installed and upgraded together with the Helm chart using `templates/` directory
+  # without manual `kubectl apply` step required.
+  # Use `helm upgrade -i --take-ownership` when switching to mutable CRDs for the first time only.
+  # Both types of CRDs are protected on the Helm chart uninstall to avoid cascading deletion.
+  immutable: true
+
+# -- pod security context
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65535
+  runAsGroup: 65535
+  fsGroup: 65535
+  fsGroupChangePolicy: "OnRootMismatch"
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+# -- grafana operator container resources
+# TODO
+resources: {}
+
+# TODO
+serviceMonitor:
+  # -- Whether to create a ServiceMonitor
+  enabled: false
+  # -- Set of labels to transfer from the Kubernetes Service onto the target
+  additionalLabels: {}
+  # -- Set how frequently Prometheus should scrape
+  interval: 1m
+  # -- Set timeout for scrape
+  scrapeTimeout: 10s
+  # -- Set path to metrics path
+  telemetryPath: /metrics
+  # -- Set of labels to transfer from the Kubernetes Service onto the target
+  targetLabels: []
+  # -- MetricRelabelConfigs to apply to samples before ingestion
+  metricRelabelings: []
+  # -- Set relabel_configs as per https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
+  relabelings: []
+
+dashboard:
+  # -- Whether to create a ConfigMap containing a dashboard monitoring the operator metrics.
+  # Consider enabling this if you are enabling the ServiceMonitor.
+  # Optionally, a GrafanaDashboard CR can be manually created pointing to the Grafana.com dashboard ID 22785
+  # https://grafana.com/grafana/dashboards/22785-grafana-operator/
+  # The Grafana.com dashboard is maintained by the community and does not necessarily match the JSON definition in this repository.
+  enabled: false
+  # -- Annotations to add to the Grafana dashboard ConfigMap
+  annotations: {}
+  # -- Labels to add to the Grafana dashboard ConfigMap
+  labels: {}

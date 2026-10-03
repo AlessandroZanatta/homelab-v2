@@ -1,10 +1,13 @@
 ---
-apiVersion: v1
-kind: ConfigMap
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
 metadata:
-  name: argocd-dashboard
-  labels:
-    grafana_dashboard: "1"
-data:
+  name: argocd
+spec:
+  instanceSelector:
+    matchLabels:
+      grafana.kalexlab.xyz/instance: grafana
+  allowCrossNamespaceImport: true
+  folder: Infrastructure
   # renovate: datasource=github-tags depName=argoproj/argo-cd
-  argocd.json: "https://raw.githubusercontent.com/argoproj/argo-cd/refs/tags/v3.5.3/examples/dashboard.json"
+  url: "https://raw.githubusercontent.com/argoproj/argo-cd/refs/tags/v3.5.3/examples/dashboard.json"

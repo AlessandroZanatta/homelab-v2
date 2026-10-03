@@ -2,17 +2,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: monitoring
+  name: grafana
   namespace: argocd
 spec:
   project: default
   sources:
     - repoURL: https://github.com/AlessandroZanatta/homelab-v2.git
       targetRevision: master
-      path: kubernetes/monitoring/monitoring
+      path: kubernetes/monitoring/grafana
   destination:
     name: in-cluster
-    namespace: monitoring
+    namespace: grafana
   syncPolicy:
     automated:
       prune: true

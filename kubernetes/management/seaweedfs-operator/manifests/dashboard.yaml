@@ -1,10 +1,13 @@
 ---
-apiVersion: v1
-kind: ConfigMap
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
 metadata:
-  name: seaweedfs-dashboard
-  labels:
-    grafana_dashboard: "1"
-data:
+  name: seaweedfs
+spec:
+  instanceSelector:
+    matchLabels:
+      grafana.kalexlab.xyz/instance: grafana
+  allowCrossNamespaceImport: true
+  folder: Infrastructure
   # renovate: datasource=github-tags depName=seaweedfs/seaweedfs
-  seaweedfs.json: "https://raw.githubusercontent.com/seaweedfs/seaweedfs/refs/tags/4.48/k8s/charts/seaweedfs/dashboards/seaweedfs-grafana-dashboard.json"
+  url: "https://raw.githubusercontent.com/seaweedfs/seaweedfs/refs/tags/4.48/k8s/charts/seaweedfs/dashboards/seaweedfs-grafana-dashboard.json"

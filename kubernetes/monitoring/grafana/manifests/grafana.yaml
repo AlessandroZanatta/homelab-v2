@@ -1,0 +1,101 @@
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: Grafana
+metadata:
+  name: grafana
+  labels:
+    grafana.kalexlab.xyz/instance: grafana
+spec:
+  # renovate: datasource=docker depName=docker.io/grafana/grafana
+  version: docker.io/grafana/grafana:13.2.3
+  config:
+    analytics:
+      check_for_updates: "false"
+      check_for_plugin_updates: "false"
+      reporting_enabled: "false"
+
+    plugins:
+      preinstall_auto_update: "false"
+      preinstall_disabled: "true"
+
+    # While users only access via IdP, Grafana operator requires admin access
+    # to actually manage the Grafana instance!
+    # security:
+    #   disable_initial_admin_creation: "true"
+
+    date_formats:
+      default_timezone: Europe/Rome
+
+    server:
+      root_url: https://grafana.kalexlab.xyz
+
+    auth:
+      disable_login_form: "true"
+
+    auth.generic_oauth:
+      enabled: "true"
+      auto_login: "true"
+      name: Authentik
+      auth_url: https://auth.kalexlab.xyz/application/o/authorize/
+      token_url: https://auth.kalexlab.xyz/application/o/token/
+      api_url: https://auth.kalexlab.xyz/application/o/userinfo/
+      client_id: monitoring-grafana
+      client_secret: "$__file{/etc/secrets/grafana-secrets/generic_oauth_client_secret}"
+      scopes: openid profile email grafana_role
+      empty_scopes: "false"
+      login_attribute_path: preferred_username
+      groups_attribute_path: groups
+      name_attribute_path: name
+      role_attribute_path: "contains(grafana_role[*], 'admin') && 'GrafanaAdmin' || contains(grafana_role[*], 'viewer') && 'Viewer'"
+      allow_assign_grafana_admin: "true"
+      use_pkce: "true"
+
+    database:
+      type: postgres
+      host: "$__file{/etc/secrets/cluster-app/host}"
+      name: "$__file{/etc/secrets/cluster-app/dbname}"
+      user: "$__file{/etc/secrets/cluster-app/username}"
+      password: "$__file{/etc/secrets/cluster-app/password}"
+
+  deployment:
+    spec:
+      template:
+        metadata:
+          labels:
+            sso.kalexlab.xyz/idp: authentik
+            kalexlab.xyz/monitoring: "true"
+        spec:
+          containers:
+            - name: grafana # must match the operator's container name
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+              volumeMounts:
+                - name: grafana-secrets
+                  mountPath: /etc/secrets/grafana-secrets
+                - name: cluster-app
+                  mountPath: /etc/secrets/cluster-app
+                - name: tmp
+                  mountPath: /tmp
+          volumes:
+            - name: grafana-secrets
+              secret:
+                secretName: grafana-secrets
+            - name: cluster-app
+              secret:
+                secretName: cluster-app
+            - name: tmp
+              emptyDir: {}
+          automountServiceAccountToken: false
+          enableServiceLinks: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65535
+            runAsGroup: 65535
+            fsGroup: 65535
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault

@@ -2,11 +2,11 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: prometheus
+  name: grafana
 spec:
-  secretName: prometheus-ingress-certificate
+  secretName: grafana-ingress
   dnsNames:
-    - prometheus.kalexlab.xyz
+    - grafana.kalexlab.xyz
   issuerRef:
     group: cert-manager.io
     kind: ClusterIssuer
@@ -15,7 +15,7 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: prometheus
+  name: grafana
   annotations:
     external-dns.kubernetes.io/target: 192.168.10.20
 spec:
@@ -24,12 +24,9 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`prometheus.kalexlab.xyz`)
+      match: Host(`grafana.kalexlab.xyz`)
       services:
-        - name: monitoring-kube-prometheus-prometheus
-          port: 9090
-      middlewares:
-        - name: authentik-forward-auth
-          namespace: authentik
+        - name: grafana-service
+          port: grafana
   tls:
-    secretName: prometheus-ingress-certificate
+    secretName: grafana-ingress

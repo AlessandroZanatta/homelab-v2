@@ -1,10 +1,16 @@
 ---
-apiVersion: v1
-kind: ConfigMap
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
 metadata:
-  name: longhorn-dashboard
-  labels:
-    grafana_dashboard: "1"
-data:
+  name: longhorn
+spec:
+  instanceSelector:
+    matchLabels:
+      grafana.kalexlab.xyz/instance: grafana
+  allowCrossNamespaceImport: true
+  folder: Infrastructure
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: Prometheus
   # renovate: depName="Dashboard - Longhorn"
-  longhorn.json: "https://grafana.com/api/dashboards/16888/revisions/14/download"
+  url: "https://grafana.com/api/dashboards/16888/revisions/14/download"

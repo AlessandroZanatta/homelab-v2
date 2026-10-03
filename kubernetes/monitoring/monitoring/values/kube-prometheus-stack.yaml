@@ -7,84 +7,96 @@ crds:
     forceConflicts: true
 
 grafana:
-  enabled: true
-
-  # Use an existing secret for the admin user.
-  admin:
-    existingSecret: grafana-secrets
-    userKey: admin_user
-    passwordKey: admin_password
-
-  extraVolumes:
-    - name: dashboard-post-process
-      configMap:
-        name: grafana-dashboard-post-process
-
-  dashboardProviders:
-    dashboardproviders.yaml:
-      apiVersion: 1
-      providers:
-        - name: sidecarProvider
-          orgId: 1
-          folder: ""
-          type: file
-          disableDeletion: false
-          editable: true
-          options:
-            path: /tmp/dashboards
-
-  sidecar:
-    dashboards:
-      enabled: true
-      script: /etc/sidecar-scripts/normalize-datasource.sh
-      extraMounts:
-        - name: dashboard-post-process
-          mountPath: /etc/sidecar-scripts
-          readOnly: true
-    datasources:
-      watchMethod: "SLEEP"
-
+  # Managed with the Grafana operator, disabled here
+  enabled: false
+  forceDeployDashboards: true
   defaultDashboardsTimezone: Europe/Rome
-
-  additionalDataSources:
-    - access: proxy
-      isDefault: false
-      name: loki
-      orgId: 1
-      type: loki
-      url: http://loki.loki.svc.cluster.local:3100
-      version: 1
-
-  grafana.ini:
-    server:
-      root_url: "https://grafana.kalexlab.xyz"
-
-    auth:
-      # hides the username/password fields on /login
-      disable_login_form: true
-
-    auth.generic_oauth:
-      enabled: true
-      auto_login: true
-      name: Authentik
-      auth_url: https://auth.kalexlab.xyz/application/o/authorize/
-      token_url: https://auth.kalexlab.xyz/application/o/token/
-      api_url: https://auth.kalexlab.xyz/application/o/userinfo/
-      client_id: monitoring-grafana
-      client_secret: "$__file{/etc/secrets/grafana-secrets/generic_oauth_client_secret}"
-      scopes: openid profile email grafana_role
-      empty_scopes: false
-      login_attribute_path: preferred_username
-      groups_attribute_path: groups
-      name_attribute_path: name
-      role_attribute_path: "contains(grafana_role[*], 'admin') && 'GrafanaAdmin' || contains(grafana_role[*], 'viewer') && 'Viewer'"
-      allow_assign_grafana_admin: true
-      use_pkce: true
-
-  extraSecretMounts:
-    - name: grafana-secrets
-      secretName: grafana-secrets
-      mountPath: /etc/secrets/grafana-secrets
+  # namespaceOverride: grafana
+  # defaultDashboards:
+  #   namespace: grafana
+  operator:
+    dashboardsConfigMapRefEnabled: true
+    matchLabels:
+      grafana.kalexlab.xyz/instance: grafana
+    folder: Kubernetes
+  # enabled: true
+  #
+  # # Use an existing secret for the admin user.
+  # admin:
+  #   existingSecret: grafana-secrets
+  #   userKey: admin_user
+  #   passwordKey: admin_password
+  #
+  # extraVolumes:
+  #   - name: dashboard-post-process
+  #     configMap:
+  #       name: grafana-dashboard-post-process
+  #
+  # dashboardProviders:
+  #   dashboardproviders.yaml:
+  #     apiVersion: 1
+  #     providers:
+  #       - name: sidecarProvider
+  #         orgId: 1
+  #         folder: ""
+  #         type: file
+  #         disableDeletion: false
+  #         editable: true
+  #         options:
+  #           path: /tmp/dashboards
+  #
+  # sidecar:
+  #   dashboards:
+  #     enabled: true
+  #     script: /etc/sidecar-scripts/normalize-datasource.sh
+  #     extraMounts:
+  #       - name: dashboard-post-process
+  #         mountPath: /etc/sidecar-scripts
+  #         readOnly: true
+  #   datasources:
+  #     watchMethod: "SLEEP"
+  #
+  # defaultDashboardsTimezone: Europe/Rome
+  #
+  # additionalDataSources:
+  #   - access: proxy
+  #     isDefault: false
+  #     name: loki
+  #     orgId: 1
+  #     type: loki
+  #     url: http://loki.loki.svc.cluster.local:3100
+  #     version: 1
+  #
+  # grafana.ini:
+  #   server:
+  #     root_url: "https://grafana.kalexlab.xyz"
+  #
+  #   auth:
+  #     # hides the username/password fields on /login
+  #     disable_login_form: true
+  #
+  #   auth.generic_oauth:
+  #     enabled: true
+  #     auto_login: true
+  #     name: Authentik
+  #     auth_url: https://auth.kalexlab.xyz/application/o/authorize/
+  #     token_url: https://auth.kalexlab.xyz/application/o/token/
+  #     api_url: https://auth.kalexlab.xyz/application/o/userinfo/
+  #     client_id: monitoring-grafana
+  #     client_secret: "$__file{/etc/secrets/grafana-secrets/generic_oauth_client_secret}"
+  #     scopes: openid profile email grafana_role
+  #     empty_scopes: false
+  #     login_attribute_path: preferred_username
+  #     groups_attribute_path: groups
+  #     name_attribute_path: name
+  #     role_attribute_path: "contains(grafana_role[*], 'admin') && 'GrafanaAdmin' || contains(grafana_role[*], 'viewer') && 'Viewer'"
+  #     allow_assign_grafana_admin: true
+  #     use_pkce: true
+  #
+  # extraSecretMounts:
+  #   - name: grafana-secrets
+  #     secretName: grafana-secrets
+  #     mountPath: /etc/secrets/grafana-secrets
 
 prometheusOperator:
   tls:
