@@ -1,0 +1,7 @@
+---
+# kexec reboots intermittently hang zeus (HP EliteDesk 800 G3): powered on, no ping, never boots.
+# Force a full firmware reboot instead (costs a few seconds of POST)
+#   ref: https://docs.siderolabs.com/talos/v1.14/configure-your-talos-cluster/system-configuration/kexec
+machine:
+  sysctls:
+    kernel.kexec_load_disabled: "1"
