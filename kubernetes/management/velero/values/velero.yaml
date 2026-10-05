@@ -48,6 +48,11 @@ configMaps:
                 cnpg.io/pvcRole: PG_WAL
             action:
               type: skip
+          - conditions:
+              pvcLabels:
+                pvc.k8s.mariadb.com/role: storage
+            action:
+              type: skip
 
 schedules:
   daily:
