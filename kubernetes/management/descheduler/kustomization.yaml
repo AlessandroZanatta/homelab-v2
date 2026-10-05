@@ -10,7 +10,7 @@ helmGlobals:
 helmCharts:
   - name: descheduler
     repo: https://kubernetes-sigs.github.io/descheduler/
-    version: 0.36.0
+    version: 0.37.0
     releaseName: descheduler
     namespace: descheduler
     valuesFile: values/descheduler.yaml
