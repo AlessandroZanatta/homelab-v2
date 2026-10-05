@@ -49,7 +49,7 @@ spec:
             - hortusfox.com
       initContainers:
         - name: copy-var-www-html
-          image: "ghcr.io/danielbrendel/hortusfox-web:v6.2"
+          image: "ghcr.io/danielbrendel/hortusfox-web:v6.3"
           imagePullPolicy: Always
           resources:
             requests:
@@ -79,7 +79,7 @@ spec:
               name: tmp
       containers:
         - name: plants
-          image: "ghcr.io/danielbrendel/hortusfox-web:v6.2"
+          image: "ghcr.io/danielbrendel/hortusfox-web:v6.3"
           imagePullPolicy: Always
           ports:
             - name: http
