@@ -1,0 +1,40 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: reciept-conf
+data:
+  config.yaml: |
+    node_env: production
+    server:
+      root_path: /api
+      language: it_IT
+      upload_path: /uploads
+      log_level: info
+      cors_origin:
+        - https://recipes.kalexlab.xyz
+    notifications:
+      enabled: true
+      shoplist_grace_minutes: 30
+    planner:
+      recently_cooked_days: 10
+    sentry:
+      enabled: true
+      dsn: https://bf2beb942b3c4de39802ae90b7ba003e@glitchtip.kalexlab.xyz/5
+      environment: production
+    auth:
+      email_and_password:
+        enabled: false
+        disable_sign_up: true
+      oidc:
+        enabled: true
+        client_id: apps-reciept
+        discovery_url: https://auth.kalexlab.xyz/application/o/apps-reciept/.well-known/openid-configuration
+      account_linking:
+        enabled: true
+        trusted_providers:
+          - oidc
+      base_url: https://recipes.kalexlab.xyz/api/auth
+      trusted_origins:
+        - https://recipes.kalexlab.xyz
+        - xyz.kalexlab.reciept://

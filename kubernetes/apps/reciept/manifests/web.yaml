@@ -1,0 +1,91 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  labels:
+    kalexlab.xyz/app: reciept
+    kalexlab.xyz/component: web
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: http
+  selector:
+    kalexlab.xyz/app: reciept
+    kalexlab.xyz/component: web
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  labels:
+    kalexlab.xyz/app: reciept
+    kalexlab.xyz/component: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: reciept
+      kalexlab.xyz/component: web
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: reciept
+        kalexlab.xyz/component: web
+        kalexlab.xyz/monitoring: "true"
+    spec:
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: registry-credentials
+      containers:
+        - name: api
+          image: "registry.kalexlab.xyz/reciept/web:latest"
+          imagePullPolicy: Always
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          resources:
+            requests:
+              memory: 5Mi
+              cpu: 1m
+            limits:
+              memory: 50Mi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            failureThreshold: 3
+            periodSeconds: 30
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65535
+        runAsGroup: 65535
+        fsGroup: 65535
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi

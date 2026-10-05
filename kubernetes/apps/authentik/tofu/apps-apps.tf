@@ -297,6 +297,46 @@ resource "authentik_policy_binding" "apps_nextcloud" {
   order  = 0
 }
 
+# Reciept
+resource "authentik_provider_oauth2" "apps_reciept" {
+  name               = "Reciept"
+  client_id          = "apps-reciept"
+  authorization_flow = authentik_flow.authorization_implicit.uuid
+  invalidation_flow  = authentik_flow.app_invalidation.uuid
+
+  signing_key = authentik_certificate_key_pair.jwt_signing.id
+  allowed_redirect_uris = [
+    {
+      matching_mode     = "strict",
+      url               = "https://recipes.kalexlab.xyz/api/auth/callback/oidc",
+      redirect_uri_type = "authorization",
+    }
+  ]
+  property_mappings = [
+    data.authentik_property_mapping_provider_scope.oidc_scopes["openid"].id,
+    data.authentik_property_mapping_provider_scope.oidc_scopes["email"].id,
+    data.authentik_property_mapping_provider_scope.oidc_scopes["profile"].id
+  ]
+  grant_types = [
+    "authorization_code"
+  ]
+}
+
+resource "authentik_application" "apps_reciept" {
+  name              = "Reciept"
+  slug              = "apps-reciept"
+  group             = var.application_groups["apps"]
+  meta_icon         = "https://recipes.kalexlab.xyz/favicon.ico"
+  protocol_provider = authentik_provider_oauth2.apps_reciept.id
+}
+
+resource "authentik_policy_binding" "apps_reciept" {
+  target = authentik_application.apps_reciept.uuid
+  group  = authentik_group.home.id
+  order  = 0
+}
+
+
 # Kaneo
 resource "authentik_provider_oauth2" "apps_kaneo" {
   name               = "Kaneo"

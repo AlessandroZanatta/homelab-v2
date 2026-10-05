@@ -100,7 +100,7 @@ resource "authentik_provider_oauth2" "monitoring_glitchtip" {
   allowed_redirect_uris = [
     {
       matching_mode     = "strict",
-      url               = "https://glitchtip.kalexlab.xyz/accounts/oidc/authelia/login/callback/",
+      url               = "https://glitchtip.kalexlab.xyz/accounts/oidc/authentik/login/callback/",
       redirect_uri_type = "authorization",
     }
   ]
