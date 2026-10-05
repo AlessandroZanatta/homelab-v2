@@ -24,7 +24,7 @@ spec:
     matchLabels:
       grafana.kalexlab.xyz/instance: grafana
   allowCrossNamespaceImport: true
-  folder: Kubernetes
+  folder: Hardware
   datasources:
     - inputName: DS_PROMETHEUS
       datasourceName: Prometheus
