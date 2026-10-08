@@ -65,7 +65,7 @@ spec:
             ]
       containers:
         - name: immich
-          image: "ghcr.io/immich-app/immich-server:v3.3.0"
+          image: "ghcr.io/immich-app/immich-server:v3.3.1"
           imagePullPolicy: Always
           securityContext:
             readOnlyRootFilesystem: true
