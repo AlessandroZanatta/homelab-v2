@@ -17,22 +17,32 @@ kind: IngressRoute
 metadata:
   name: reciept-ingress
   annotations:
-    external-dns.kubernetes.io/target: 192.168.10.20
+    external-dns.kubernetes.io/target: ingress.kalexlab.xyz
     gatus.kalexlab.xyz/path: /
 spec:
   entryPoints:
     - web
     - websecure
+    - web-public
+    - websecure-public
   routes:
     - kind: Rule
-      match: "Host(`recipes.kalexlab.xyz`) && PathPrefix(`/api`)"
+      match: Host(`recipes.kalexlab.xyz`) && PathPrefix(`/api/public`)
       services:
         - name: api
           port: http
     - kind: Rule
-      match: "Host(`recipes.kalexlab.xyz`)"
+      match: Host(`recipes.kalexlab.xyz`)
       services:
         - name: web
+          port: http
+    - kind: Rule
+      match: Host(`recipes.kalexlab.xyz`) && PathPrefix(`/api`)
+      middlewares:
+        - name: allow-internal-only
+          namespace: traefik
+      services:
+        - name: api
           port: http
   tls:
     secretName: reciept-ingress-certificate

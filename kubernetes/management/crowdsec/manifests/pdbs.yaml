@@ -1,0 +1,22 @@
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: lapi
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: crowdsec
+      kalexlab.xyz/component: lapi
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: appsec
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: crowdsec
+      kalexlab.xyz/component: appsec

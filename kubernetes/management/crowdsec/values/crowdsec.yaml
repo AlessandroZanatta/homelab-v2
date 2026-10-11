@@ -1,0 +1,316 @@
+---
+x-volumes: &writableVolumes []
+  # - name: etc-crowdsec
+  #   emptyDir: {}
+  # - name: crowdsec-data
+  #   emptyDir: {}
+
+x-mounts: &writableMounts []
+  # - name: etc-crowdsec
+  #   mountPath: /etc/crowdsec
+  # - name: crowdsec-data
+  #   mountPath: /var/lib/crowdsec/data
+
+## @section Global
+## @param container_runtime [default: docker] [string] for raw logs format: docker or containerd
+container_runtime: containerd
+
+# Here you can specify your own custom configuration to be loaded in crowdsec agent or lapi
+# Each config needs to be a multi-line using '|' in YAML specs
+# for the agent those configs will be loaded : parsers, scenarios, postoverflows, simulation.yaml
+# for the lapi those configs will be loaded : profiles.yaml, notifications, console.yaml
+# These entries can be split across multiple values files, or injected with `--set-file`
+# when using the chart from a remote repository.
+## @section Configuration
+config:
+  config.yaml.local: |
+    api:
+      server:
+        auto_registration:
+          enabled: true
+          token: "${REGISTRATION_TOKEN}"
+          allowed_ranges:
+            - "10.244.0.0/16"
+    db_config:
+      type: postgresql
+      user: "${username}"
+      password: "${password}"
+      db_name: "${dbname}"
+      host: "${host}"
+      port: ${port}
+      sslmode: require
+      flush:
+        # Agents re-register whenever their pods restart; clean up the stale
+        # machine entries they leave behind.
+        agents_autodelete:
+          login_password: 60m
+
+# If you want to specify secrets that will be used for all your crowdsec-agents
+# secrets can be provided as env variables
+## @section secrets
+secrets:
+  externalSecret:
+    name: crowdsec-secrets
+    csLapiSecretKey: csLapiSecret
+    registrationTokenKey: registrationToken
+
+# lapi will deploy pod with crowdsec lapi and dashboard as deployment
+## @section lapi
+lapi:
+  # -- enable lapi (by default enabled)
+  ## @param lapi.enabled  Enable LAPI deployment (enabled by default)
+  enabled: true
+  # -- replicas for local API
+  ## @param lapi.replicas  Number of replicas for the Local API
+  replicas: 2
+
+  # Allows you to load environment variables from kubernetes secret or config map
+  ## @param lapi.envFrom Environment variables loaded from Kubernetes Secrets or ConfigMaps
+  envFrom:
+    - secretRef:
+        name: cluster-app
+
+  # -- environment variables from crowdsecurity/crowdsec docker image
+  ## @param lapi.env [array] Extra environment variables passed to the crowdsecurity/crowdsec container
+  env:
+    - name: BOUNCER_KEY_traefik
+      valueFrom:
+        secretKeyRef:
+          name: crowdsec-secrets
+          key: BOUNCER_KEY_traefik
+
+  # -- Labels to be added to lapi pods, if global podLabels are not set
+  ## @param lapi.podLabels Labels applied to LAPI pods
+  podLabels:
+    kalexlab.xyz/app: crowdsec
+    kalexlab.xyz/component: lapi
+
+  ## @param lapi.strategy.type [string] Deployment strategy for the LAPI deployment
+  strategy: &strategy
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 75%
+
+  # -- Pod securityContext
+  ## @param lapi.podSecurityContext [object] Security context for LAPI pods
+  podSecurityContext: &podSecurityContext
+    runAsNonRoot: false
+    seccompProfile:
+      type: RuntimeDefault
+
+  # -- Container securityContext
+  ## @param lapi.securityContext [object] Security context for the LAPI contaienr
+  securityContext: &securityContext
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: false
+    capabilities:
+      drop:
+        - ALL
+
+  # -- resources for lapi
+  ## @param lapi.resources [object] Resource requests and limits for the LAPI pods
+  resources:
+    requests:
+      cpu: 50m
+      memory: 50Mi
+    limits:
+      memory: 500Mi
+
+  # -- Enable persistent volumes
+  # No PVCs: data lives in Postgres, CAPI credentials in a Secret.
+  persistentVolume:
+    data:
+      enabled: false
+    config:
+      enabled: false
+  storeCAPICredentialsInSecret: true
+  storeLAPICscliCredentialsInSecret: true
+
+  # -- topologySpreadConstraints for lapi
+  ## @param lapi.topologySpreadConstraints [array] Topology spread constraints for LAPI pods
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          kalexlab.xyz/app: crowdsec
+          kalexlab.xyz/component: lapi
+
+  # -- Enable service monitoring (exposes "metrics" port "6060" for Prometheus)
+  metrics:
+    ## @param lapi.metrics.enabled  Enable service monitoring for Prometheus (exposes port 6060)
+    enabled: true
+    # -- Creates a ServiceMonitor so Prometheus will monitor this service
+    # -- Prometheus needs to be configured to watch on all namespaces for ServiceMonitors
+    # -- See the documentation: https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack#prometheusioscrape
+    # -- See also: https://github.com/prometheus-community/helm-charts/issues/106#issuecomment-700847774
+    serviceMonitor:
+      ## @param lapi.metrics.serviceMonitor.enabled [default: true] [object] Create a ServiceMonitor resource for Prometheus
+      enabled: true
+
+  extraVolumes: *writableVolumes
+  extraVolumeMounts: *writableMounts
+
+# agent will deploy pod on every node as daemonSet to read wanted pods logs
+## @section agent
+agent:
+  # -- enable agent (by default enabled)
+  ## @param agent.enabled [default:true] [object] Enable CrowdSec agent (enabled by default)
+  enabled: true
+
+  # -- Specify each pod you want to process it logs (namespace, podName and program)
+  ## @param agent.acquisition [array] Pod log acquisition definitions (namespace, podName, program, etc.)
+  acquisition:
+    - namespace: traefik
+      podName: traefik-*
+      program: traefik
+    #- namespace: "" #ingress-nginx
+    # -- to select pod logs to process
+    #  podName: "" #ingress-nginx-controller-*
+    # -- program name related to specific parser you will use (see https://hub.crowdsec.net/author/crowdsecurity/configurations/docker-logs)
+    #  program: "" #nginx
+    # -- If set to true, will poll the files using os.Stat instead of using inotify
+    #  poll_without_inotify: false
+
+  # -- Pod securityContext
+  ## @param agent.podSecurityContext [object] Security context for agent pods
+  podSecurityContext: *podSecurityContext
+
+  # -- Container securityContext
+  ## @param agent.securityContext [object] Security context for agent containers
+  securityContext: *securityContext
+
+  # -- Labels to be added to agent pods, if global podLabels are not set
+  ## @param agent.podLabels [object] Labels applied to agent pods
+  podLabels:
+    kalexlab.xyz/app: crowdsec
+    kalexlab.xyz/component: agent
+
+  ## @param agent.resources [object] Resource requests and limits for agent pods
+  resources:
+    requests:
+      cpu: 1m
+      memory: 40Mi
+    limits:
+      memory: 250Mi
+
+  # -- environment variables from crowdsecurity/crowdsec docker image
+  ## @param agent.env Environment variables passed to the crowdsecurity/crowdsec container
+  env:
+    - name: COLLECTIONS
+      value: "crowdsecurity/traefik"
+
+  # -- Enable service monitoring (exposes "metrics" port "6060" for Prometheus)
+  metrics:
+    ## @param agent.metrics.enabled Enable service monitoring for Prometheus (exposes port 6060)
+    enabled: true
+    # -- Creates a ServiceMonitor so Prometheus will monitor this service
+    # -- Prometheus needs to be configured to watch on all namespaces for ServiceMonitors
+    # -- See the documentation: https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack#prometheusioscrape
+    # -- See also: https://github.com/prometheus-community/helm-charts/issues/106#issuecomment-700847774
+    serviceMonitor:
+      ## @param agent.metrics.serviceMonitor.enabled  Create a ServiceMonitor resource for Prometheus
+      enabled: true
+
+  # -- wait-for-lapi init container
+  wait_for_lapi:
+    # -- Container securityContext
+    ## @param agent.wait_for_lapi.securityContext [object] Security context for the wait-for-lapi init container
+    securityContext: &waitForLapiSecurityContext
+      runAsUser: 0
+      runAsNonRoot: false
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: false
+      capabilities:
+        drop:
+          - ALL
+
+  extraVolumes: *writableVolumes
+  extraVolumeMounts: *writableMounts
+
+# -- Enable AppSec (https://docs.crowdsec.net/docs/next/appsec/intro)
+appsec:
+  # -- Enable AppSec (by default disabled)
+  ## @param appsec.enabled [default: false] [object] Enable AppSec component (disabled by default)
+  enabled: true
+  # -- replicas for Appsec
+  ## @param appsec.replicas Number of replicas for the AppSec Deployment
+  replicas: 2
+  # -- strategy for appsec deployment
+  ## @param appsec.strategy [object] Deployment strategy for AppSec
+  strategy: *strategy
+
+  # -- Additional acquisitions for AppSec
+  ## @param appsec.acquisitions [array] AppSec acquisitions (datasource listeners), e.g. appsec listener on 7422
+  acquisitions:
+    - source: appsec
+      listen_addr: 0.0.0.0:7422
+      path: /
+      appsec_configs:
+        - crowdsecurity/appsec-default
+        - crowdsecurity/crs
+      labels:
+        type: appsec
+
+  # -- Pod securityContext
+  ## @param appsec.podSecurityContext [object] Security context for AppSec pods
+  podSecurityContext: *podSecurityContext
+  # -- Container securityContext
+  ## @param appsec.securityContext [object] Security context for the appsec container
+  securityContext: *securityContext
+
+  # -- podLabels for appsec pods
+  ## @param appsec.podLabels [object] Labels added to AppSec pods
+  podLabels:
+    kalexlab.xyz/app: crowdsec
+    kalexlab.xyz/component: appsec
+
+  # -- resources for appsec pods
+  ## @param appsec.resources [object] Resource requests and limits for AppSec pods
+  resources:
+    requests:
+      cpu: 20m
+      memory: 60Mi
+    limits:
+      memory: 250Mi
+
+  # -- environment variables
+  ## @param appsec.env [array] Environment variables for the AppSec container (collections/configs/rules toggles, etc.)
+  env:
+    # TODO: add other collections?
+    - name: COLLECTIONS
+      value: "crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules crowdsecurity/appsec-crs"
+
+  # -- affinity for appsec
+  ## @param appsec.affinity [object] Affinity rules for scheduling AppSec pods
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              kalexlab.xyz/app: crowdsec
+              kalexlab.xyz/component: appsec
+          topologyKey: kubernetes.io/hostname
+
+  # -- Enable service monitoring (exposes "metrics" port "6060" for Prometheus and "7422" for AppSec)
+  metrics:
+    ## @param appsec.metrics.enabled Enable service monitoring (exposes metrics on 6060; AppSec listener typically 7422)
+    enabled: true
+    # -- Creates a ServiceMonitor so Prometheus will monitor this service
+    # -- Prometheus needs to be configured to watch on all namespaces for ServiceMonitors
+    # -- See the documentation: https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack#prometheusioscrape
+    # -- See also: https://github.com/prometheus-community/helm-charts/issues/106#issuecomment-700847774
+    serviceMonitor:
+      ## @param appsec.metrics.serviceMonitor.enabled Create a ServiceMonitor for Prometheus scraping
+      enabled: true
+
+  # -- wait-for-lapi init container
+  wait_for_lapi:
+    # -- Container securityContext
+    ## @param appsec.wait_for_lapi.securityContext [object] Security context for the wait-for-lapi init container
+    securityContext: *waitForLapiSecurityContext
+
+  extraVolumes: *writableVolumes
+  extraVolumeMounts: *writableMounts

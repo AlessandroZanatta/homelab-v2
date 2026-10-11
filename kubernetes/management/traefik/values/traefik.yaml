@@ -33,6 +33,10 @@ affinity:
             app.kubernetes.io/name: traefik
         topologyKey: kubernetes.io/hostname
 
+podDisruptionBudget:
+  enabled: true
+  maxUnavailable: 1
+
 updateStrategy:
   type: RollingUpdate
   rollingUpdate:
@@ -59,6 +63,10 @@ global:
   checkNewVersion: true
   sendAnonymousUsage: false
 
+# Access logs on stdout, parsed by the CrowdSec agents.
+accessLog:
+  enabled: true
+
 ports:
   web:
     ## -- Enable this entrypoint as a default entrypoint. When a service doesn't explicitly set an entrypoint it will only use this entrypoint.
@@ -82,6 +90,7 @@ ports:
         entryPoint:
           to: websecure
           scheme: https
+          permanent: true
 
   websecure:
     ## -- Enable this entrypoint as a default entrypoint. When a service doesn't explicitly set an entrypoint it will only use this entrypoint.
@@ -111,6 +120,62 @@ ports:
       tls:
         enabled: true
 
+  web-public:
+    ## -- Enable this entrypoint as a default entrypoint. When a service doesn't explicitly set an entrypoint it will only use this entrypoint.
+    # asDefault: true
+    port: 8001
+    # hostPort: 8000
+    # containerPort: 8000
+    expose:
+      default: false
+      public: true
+    exposedPort: 80
+    ## -- Different target traefik port on the cluster, useful for IP type LB
+    # targetPort: 80
+    # The port protocol (TCP/UDP)
+    protocol: TCP
+
+    http:
+      # Port Redirections
+      # Added in 2.2, you can make permanent redirects via entrypoints.
+      # https://docs.traefik.io/routing/entrypoints/#redirection
+      redirections:
+        entryPoint:
+          to: websecure-public
+          scheme: https
+          permanent: true
+
+  websecure-public:
+    ## -- Enable this entrypoint as a default entrypoint. When a service doesn't explicitly set an entrypoint it will only use this entrypoint.
+    asDefault: false
+    port: 8444
+    # hostPort: 8443
+    # containerPort: 8443
+    expose:
+      default: false
+      public: true
+    exposedPort: 443
+    ## -- Different target traefik port on the cluster, useful for IP type LB
+    # targetPort: 80
+    ## -- The port protocol (TCP/UDP)
+    protocol: TCP
+
+    # -- See [upstream documentation](https://doc.traefik.io/traefik/routing/entrypoints/#transport)
+    transport:
+      respondingTimeouts:
+        # Immich requires being able to upload big files (> ~700MB),
+        # and hangs with the default readTimeout (60s).
+        # Currently, it does not appear to be possible to modify this value on a per-route basis
+        readTimeout: 300s
+
+    http:
+      ## Set TLS at the entrypoint
+      ## https://doc.traefik.io/traefik/routing/entrypoints/#tls
+      tls:
+        enabled: true
+      middlewares:
+        - traefik-crowdsec@kubernetescrd
+
   mqtt:
     asDefault: false
     port: 8883
@@ -139,8 +204,18 @@ service:
     kalexlab.xyz/ip-pool: traefik
 
   spec:
+    allocateLoadBalancerNodePorts: false
     # Preserve client IP address
     externalTrafficPolicy: Local
+
+  additionalServices:
+    public:
+      labels:
+        kalexlab.xyz/ip-pool: traefik-public
+      spec:
+        type: LoadBalancer
+        allocateLoadBalancerNodePorts: false
+        externalTrafficPolicy: Local
 
 metrics:
   prometheus:
@@ -152,3 +227,16 @@ metrics:
     serviceMonitor:
       # -- Enable optional CR for Prometheus Operator. See EXAMPLES.md for more details.
       enabled: true
+
+experimental:
+  plugins:
+    crowdsec-bouncer:
+      moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
+      # renovate: datasource=github-tags depName=maxlerebourg/crowdsec-bouncer-traefik-plugin
+      version: v1.7.0
+
+volumes:
+  - name: crowdsec-bouncer-secret
+    mountPath: /etc/traefik/crowdsec
+    type: secret
+    secretName: crowdsec-bouncer-secret

@@ -1,0 +1,43 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: crowdsec
+spec:
+  plugin:
+    crowdsec-bouncer:
+      enabled: true
+      logLevel: INFO
+
+      # LAPI
+      crowdsecMode: stream
+      updateMaxFailure: 1
+      updateIntervalSeconds: 60
+      crowdsecLapiScheme: http
+      crowdsecLapiHost: crowdsec-service.crowdsec.svc.cluster.local:8080
+      crowdsecLapiPath: /
+      crowdsecLapiKeyFile: /etc/traefik/crowdsec/BOUNCER_KEY_traefik
+
+      # APPSEC
+      crowdsecAppsecEnabled: true
+      crowdsecAppsecHost: crowdsec-appsec-service.crowdsec.svc.cluster.local:7422
+      crowdsecAppsecPath: /
+      crowdsecAppsecFailureBlock: true
+      crowdsecAppsecUnreachableBlock: true
+      # Default true blocks HTTP/2 requests without Content-Length (e.g. gRPC
+      # streams). false = inspect headers only for those requests.
+      # crowdsecAppsecUnreadableBodyBlock: false
+
+      clientTrustedIPs:
+        - 192.168.10.0/24
+        - 10.10.0.0/24
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: allow-internal-only
+spec:
+  ipAllowList:
+    sourceRange:
+      - 10.10.0.0/24
+      - 192.168.10.0/24

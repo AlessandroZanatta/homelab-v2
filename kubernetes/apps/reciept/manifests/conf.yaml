@@ -6,6 +6,8 @@ metadata:
 data:
   config.yaml: |
     node_env: production
+    sharing:
+      base_url: https://recipes.kalexlab.xyz
     server:
       root_path: /api
       language: it_IT

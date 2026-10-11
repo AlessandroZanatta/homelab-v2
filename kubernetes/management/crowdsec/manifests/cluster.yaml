@@ -1,0 +1,80 @@
+---
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: backups
+spec:
+  configuration:
+    destinationPath: "s3://cnpg/crowdsec"
+    endpointURL: "https://backups.kalexlab.xyz"
+    s3Credentials:
+      accessKeyId:
+        name: crowdsec-s3-credentials
+        key: accessKey
+      secretAccessKey:
+        name: crowdsec-s3-credentials
+        key: secretKey
+    wal:
+      compression: bzip2
+    data:
+      compression: bzip2
+  retentionPolicy: 14d
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cluster
+spec:
+  inheritedMetadata:
+    labels:
+      kalexlab.xyz/app: crowdsec
+      kalexlab.xyz/component: cluster
+      kalexlab.xyz/monitoring: "true"
+      backups.kalexlab.xyz/use: "true"
+    annotations:
+      gatus.kalexlab.xyz/enabled: "true"
+      gatus.kalexlab.xyz/scheme: tcp
+  # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/postgresql
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.6-standard-trixie
+  instances: 2
+  # Required, otherwise primary instance is upgraded in-place (without a switchover)
+  primaryUpdateStrategy: unsupervised
+  primaryUpdateMethod: switchover
+  storage:
+    storageClass: longhorn-single-replica
+    size: 4Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 200Mi
+    limits:
+      memory: 500Mi
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: backups
+        # renovate-major: depName=ghcr.io/cloudnative-pg/postgresql
+        serverName: cluster-v18
+  affinity:
+    enablePodAntiAffinity: false
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: postgresql
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: cluster-backup
+spec:
+  cluster:
+    name: cluster
+  schedule: "0 0 0 * * *"
+  backupOwnerReference: self
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io

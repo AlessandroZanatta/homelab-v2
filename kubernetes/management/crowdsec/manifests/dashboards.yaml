@@ -1,0 +1,19 @@
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: crowdsec-metrics
+spec:
+  instanceSelector:
+    matchLabels:
+      grafana.kalexlab.xyz/instance: grafana
+  allowCrossNamespaceImport: true
+  folder: Security
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: Prometheus
+  # Vendored grafana.com 21419 rev6, patched: $instance/$appsec_engine multi-select, default All
+  # (upstream is single-instance; one pod per panel on k8s). Not tracked by Renovate.
+  configMapRef:
+    name: crowdsec-metrics-dashboard
+    key: crowdsec-metrics.json
