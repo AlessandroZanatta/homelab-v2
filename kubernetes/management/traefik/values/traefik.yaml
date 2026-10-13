@@ -119,6 +119,8 @@ ports:
       ## https://doc.traefik.io/traefik/routing/entrypoints/#tls
       tls:
         enabled: true
+      middlewares:
+        - traefik-hsts@kubernetescrd
 
   web-public:
     ## -- Enable this entrypoint as a default entrypoint. When a service doesn't explicitly set an entrypoint it will only use this entrypoint.
@@ -175,6 +177,7 @@ ports:
         enabled: true
       middlewares:
         - traefik-crowdsec@kubernetescrd
+        - traefik-hsts@kubernetescrd
 
   mqtt:
     asDefault: false
