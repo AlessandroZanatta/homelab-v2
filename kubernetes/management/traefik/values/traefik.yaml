@@ -54,6 +54,8 @@ providers:
     allowCrossNamespace: true
     # -- Allows to reference ExternalName services in IngressRoute
     allowExternalNameServices: true
+    # -- Enables collision-safe naming.
+    safeNaming: true
 
   kubernetesIngress:
     enabled: false
@@ -91,6 +93,7 @@ ports:
           to: websecure
           scheme: https
           permanent: true
+      aliasHeadersStrategy: "reject"
 
   websecure:
     ## -- Enable this entrypoint as a default entrypoint. When a service doesn't explicitly set an entrypoint it will only use this entrypoint.
@@ -120,7 +123,8 @@ ports:
       tls:
         enabled: true
       middlewares:
-        - traefik-hsts@kubernetescrd
+        - traefik_hsts@kubernetescrd
+      aliasHeadersStrategy: "reject"
 
   web-public:
     ## -- Enable this entrypoint as a default entrypoint. When a service doesn't explicitly set an entrypoint it will only use this entrypoint.
@@ -146,6 +150,7 @@ ports:
           to: websecure-public
           scheme: https
           permanent: true
+      aliasHeadersStrategy: "reject"
 
   websecure-public:
     ## -- Enable this entrypoint as a default entrypoint. When a service doesn't explicitly set an entrypoint it will only use this entrypoint.
@@ -176,8 +181,9 @@ ports:
       tls:
         enabled: true
       middlewares:
-        - traefik-crowdsec@kubernetescrd
-        - traefik-hsts@kubernetescrd
+        - traefik_crowdsec@kubernetescrd
+        - traefik_hsts@kubernetescrd
+      aliasHeadersStrategy: "reject"
 
   mqtt:
     asDefault: false
