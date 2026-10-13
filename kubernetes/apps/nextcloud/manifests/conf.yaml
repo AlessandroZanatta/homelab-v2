@@ -47,6 +47,9 @@ data:
       'installed' => true,
       'instanceid' => 'oc7ql9mxohqu',
       'overwriteprotocol' => 'https',
+      'overwrite.cli.url' => 'https://cloud.kalexlab.xyz',
+      'maintenance_window_start' => 1,
+      'upgrade.disable-web' => true,
       'loglevel' => 0
     );
   redis.config.php: |
