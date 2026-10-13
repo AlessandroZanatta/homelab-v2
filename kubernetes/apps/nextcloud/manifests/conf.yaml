@@ -4,11 +4,18 @@ kind: ConfigMap
 metadata:
   name: nextcloud-config
 data:
+  # Seed only: copied to the PVC once, then owned by Nextcloud,
+  # which persists 'version' there on upgrade
   config.php: |
     <?php
 
     $CONFIG = array (
-      'version' => '34.0.0.0',
+      'version' => '35.0.1.1',
+    );
+  gitops.config.php: |
+    <?php
+
+    $CONFIG = array (
       'htaccess.RewriteBase' => '/',
       'apps_paths' =>
          array (
@@ -26,7 +33,6 @@ data:
            ),
          ),
       'passwordsalt' => 'ThB9iKBy3lRGIbcYyNAI2pzglFhMpL',
-      'secret' => getenv('SECRET'),
       'trusted_domains' =>
         array (
           0 => 'localhost',
@@ -37,16 +43,11 @@ data:
         array (
           0 => '10.0.0.0/8',
         ),
-      'app_install_overwrite' =>
-        array (
-          0 => 'oidc_login',
-        ),
       'datadirectory' => '/var/www/html/data',
       'installed' => true,
       'instanceid' => 'oc7ql9mxohqu',
       'overwriteprotocol' => 'https',
-      'loglevel' => 0,
-      'maintenance' => false
+      'loglevel' => 0
     );
   redis.config.php: |
     <?php
@@ -70,8 +71,7 @@ data:
       'dbhost' => getenv('POSTGRES_HOST'),
       'dbport' => getenv('POSTGRES_PORT'),
       'dbtableprefix' => 'oc_',
-      'dbuser' => getenv('POSTGRES_USER'),
-      'dbpassword' => getenv('POSTGRES_PASSWORD')
+      'dbuser' => getenv('POSTGRES_USER')
     );
   oidc_provider_url.config.php: |
     <?php
@@ -86,7 +86,6 @@ data:
       'allow_user_to_change_display_name' => false,
       'lost_password_link' => 'disabled',
       'oidc_login_client_id' => 'apps-nextcloud',
-      'oidc_login_client_secret' => getenv("OIDC_CLIENT_SECRET"),
       'oidc_login_auto_redirect' => true,
       'oidc_login_end_session_redirect' => false,
       'oidc_login_button_text' => 'Log in with Authentik',

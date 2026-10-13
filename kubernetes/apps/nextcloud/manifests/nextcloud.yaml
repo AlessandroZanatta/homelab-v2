@@ -66,12 +66,22 @@ spec:
             capabilities:
               drop:
                 - ALL
-          command: ["sh", "-c", "cp -rL /config-map/* /config-dir"]
+          # config.php is only seeded (Nextcloud owns it afterwards), everything
+          # else in the config dir mirrors the ConfigMap on every boot
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              [ -s /config-dir/config.php ] || cp -L /config-map/config.php /config-dir/config.php
+              find /config-dir -mindepth 1 -maxdepth 1 ! -name config.php -exec rm -rf {} +
+              cp -L /config-map/*.config.php /config-dir/
           volumeMounts:
             - mountPath: /config-map
               name: nextcloud-configmap
             - mountPath: /config-dir
-              name: nextcloud-config
+              name: nextcloud-www-pvc
+              subPath: config
         - name: wait-deps
           image: "docker.io/library/alpine:3.24.2"
           imagePullPolicy: Always
@@ -116,12 +126,14 @@ spec:
                 secretKeyRef:
                   name: nextcloud-secrets
                   key: NEXTCLOUD_ADMIN_PASSWORD
-            - name: SECRET
+            # Secrets go through NC_* env vars: Nextcloud reads them as system
+            # config but never writes them to the persisted config.php
+            - name: NC_secret
               valueFrom:
                 secretKeyRef:
                   name: nextcloud-secrets
                   key: SECRET
-            - name: OIDC_CLIENT_SECRET
+            - name: NC_oidc_login_client_secret
               valueFrom:
                 secretKeyRef:
                   name: nextcloud-secrets
@@ -131,7 +143,7 @@ spec:
                 secretKeyRef:
                   name: cluster-app
                   key: user
-            - name: POSTGRES_PASSWORD
+            - name: NC_dbpassword
               valueFrom:
                 secretKeyRef:
                   name: cluster-app
@@ -192,8 +204,6 @@ spec:
             - mountPath: /var/www/html/data
               name: nextcloud-data-pvc
               subPath: data
-            - mountPath: /var/www/html/config
-              name: nextcloud-config
             - mountPath: /tmp
               name: tmp
             - mountPath: /var/run
@@ -209,9 +219,6 @@ spec:
         seccompProfile:
           type: RuntimeDefault
       volumes:
-        - name: nextcloud-config
-          emptyDir:
-            sizeLimit: 1Gi
         - name: nextcloud-configmap
           configMap:
             name: nextcloud-config
