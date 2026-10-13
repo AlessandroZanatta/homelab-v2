@@ -1,0 +1,49 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: nextcloud-webcron
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            kalexlab.xyz/app: nextcloud
+            kalexlab.xyz/component: webcron
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: webcron
+              image: docker.io/alpine/curl:8.22.0
+              imagePullPolicy: Always
+              args:
+                - -fsS
+                - --max-time
+                - "600"
+                - http://nextcloud.nextcloud.svc.cluster.local/cron.php
+              resources:
+                requests:
+                  memory: 10Mi
+                  cpu: 1m
+                limits:
+                  memory: 50Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+
+          enableServiceLinks: false
+          automountServiceAccountToken: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65535
+            runAsGroup: 65535
+            seccompProfile:
+              type: RuntimeDefault

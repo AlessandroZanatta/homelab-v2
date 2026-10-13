@@ -11,4 +11,5 @@ resources:
   - cache.yaml
   - collabora-online.yaml
   - nextcloud.yaml
+  - webcron.yaml
   - ingress.yaml
