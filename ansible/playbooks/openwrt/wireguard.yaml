@@ -17,6 +17,8 @@
         address: 10.10.0.20
       laetitia-phone:
         address: 10.10.0.21
+      laetitia-tablet:
+        address: 10.10.0.22
   tasks:
     - name: Create output path
       file:
@@ -70,8 +72,9 @@
 
 - name: Setup Wireguard VPN on openwrt router
   roles:
-    - openwrt
+    - community.openwrt.init
   hosts: routers
+  gather_facts: false
   vars:
     wireguard_interface: "wg0"
     configurator: "apollo"
@@ -81,7 +84,7 @@
 
   tasks:
     - name: Install packages
-      opkg:
+      community.openwrt.apk:
         name: wireguard-tools,kmod-wireguard
         state: present
 
@@ -89,42 +92,42 @@
       block:
         # Allow wireguard on the firewall
         - name: Rename lan zone
-          uci:
+          community.openwrt.uci:
             command: rename
             key: "firewall.@zone[0]"
             value: lan
 
         - name: Rename wan zone
-          uci:
+          community.openwrt.uci:
             command: rename
             key: "firewall.@zone[1]"
             value: wan
 
         - name: Remove list
-          uci:
+          community.openwrt.uci:
             command: del_list
             key: firewall.lan.network
             value: "{{ wireguard_interface }}"
 
         - name: Add list
-          uci:
+          community.openwrt.uci:
             command: add_list
             key: firewall.lan.network
             value: "{{ wireguard_interface }}"
 
         - name: Delete port forwarding
-          uci:
+          community.openwrt.uci:
             command: absent
             key: firewall.wg0
 
         - name: Create new port forwarding
-          uci:
+          community.openwrt.uci:
             command: set
             key: firewall.wg0
             value: redirect
 
         - name: Setup port forwarding
-          uci:
+          community.openwrt.uci:
             command: set
             key: firewall.wg0
             value:
@@ -138,27 +141,27 @@
               dest_port: "51830"
 
         - name: Commit changes
-          uci:
+          community.openwrt.uci:
             command: commit
 
         - name: Restart firewall
-          service:
+          community.openwrt.service:
             name: firewall
             state: restarted
 
         - name: Delete interface
-          uci:
+          community.openwrt.uci:
             command: absent
             key: "network.{{ wireguard_interface }}"
 
         - name: Create interface
-          uci:
+          community.openwrt.uci:
             command: set
             key: "network.{{ wireguard_interface }}"
             value: "interface"
 
         - name: Setup interface
-          uci:
+          community.openwrt.uci:
             command: set
             key: "network.{{ wireguard_interface }}"
             value:
@@ -167,7 +170,7 @@
               listen_port: "{{ wireguard_server_port }}"
 
         - name: Add VPN server address
-          uci:
+          community.openwrt.uci:
             command: add_list
             key: "network.{{ wireguard_interface }}.addresses"
             value: "{{ wireguard_server_address }}/24"
@@ -177,10 +180,10 @@
           with_dict: "{{ hostvars[configurator].wireguard_clients }}"
 
         - name: Commit
-          uci:
+          community.openwrt.uci:
             command: commit
 
         - name: Restart network
-          service:
+          community.openwrt.service:
             name: network
             state: restarted
