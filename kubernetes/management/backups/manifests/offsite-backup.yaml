@@ -4,7 +4,7 @@ kind: CronJob
 metadata:
   name: offsite-backup
 spec:
-  schedule: "0 6 * * *"
+  schedule: "30 5 * * *"
   timeZone: "Europe/Rome"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
