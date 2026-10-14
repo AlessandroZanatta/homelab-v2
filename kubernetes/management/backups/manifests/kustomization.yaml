@@ -4,10 +4,14 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - network-policies.yaml
+  - conf.yaml
   - secrets.sops.yaml
   - pvc.yaml
   - grants.yaml
   - object-storage.yaml
   - restic-bucket.yaml
   - restic-iam.yaml
+  - offsite-iam.yaml
+  - offsite-backup.yaml
   - ingress.yaml
+  - alerting.yaml

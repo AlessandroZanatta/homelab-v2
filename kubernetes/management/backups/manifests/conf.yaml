@@ -1,0 +1,22 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: offsite-backup-conf
+data:
+  SOURCE: seaweed
+  DEST: offsitecrypt
+  # Source
+  RCLONE_CONFIG_SEAWEED_TYPE: s3
+  RCLONE_CONFIG_SEAWEED_PROVIDER: SeaweedFS
+  RCLONE_CONFIG_SEAWEED_ENDPOINT: http://backups-s3:8333
+  RCLONE_CONFIG_SEAWEED_FORCE_PATH_STYLE: "true"
+  # Dest
+  RCLONE_CONFIG_OFFSITE_TYPE: sftp
+  RCLONE_CONFIG_OFFSITE_HOST: u691538-sub1.your-storagebox.de
+  RCLONE_CONFIG_OFFSITE_PORT: "23"
+  RCLONE_CONFIG_OFFSITE_KNOWN_HOSTS_FILE: /secrets/known_hosts
+  RCLONE_CONFIG_OFFSITECRYPT_TYPE: crypt
+  RCLONE_CONFIG_OFFSITECRYPT_REMOTE: offsite:crypt
+  # Bandwidth limitation
+  RCLONE_BWLIMIT: "07:00,10M 23:00,off"

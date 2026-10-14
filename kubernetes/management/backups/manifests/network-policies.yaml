@@ -61,6 +61,10 @@ spec:
           podSelector:
             matchLabels:
               app.kubernetes.io/name: traefik
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: offsite-backup
       ports:
         - protocol: TCP
           port: 8333
@@ -464,3 +468,52 @@ spec:
               protocol: TCP
           serverNames:
             - backups.kalexlab.xyz
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: offsite-backup
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: backups
+      kalexlab.xyz/component: offsite-backup
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: backups
+              kalexlab.xyz/component: s3
+      ports:
+        - protocol: TCP
+          port: 8333
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: offsite-backup
+spec:
+  endpointSelector:
+    matchLabels:
+      kalexlab.xyz/app: backups
+      kalexlab.xyz/component: offsite-backup
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: coredns
+            k8s-app: coredns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY # UDP + TCP
+          rules:
+            dns:
+              - matchPattern: "*"
+    - toFQDNs:
+        - matchName: u691538-sub1.your-storagebox.de
+      toPorts:
+        - ports:
+            - port: "23"
+              protocol: TCP

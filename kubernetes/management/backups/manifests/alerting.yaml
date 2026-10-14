@@ -1,0 +1,31 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: offsite-backup-alerts
+spec:
+  groups:
+    - name: offsite-backup.rules
+      rules:
+        - alert: OffsiteBackupJobFailed
+          expr: |
+            (kube_job_status_failed{namespace="backups"} > 0)
+            * on(job_name, namespace) group_left(owner_name)
+            kube_job_owner{namespace="backups", owner_kind="CronJob", owner_name="offsite-backup"}
+            and on(job_name, namespace)
+            (time() - kube_job_status_start_time{namespace="backups"} < 24 * 3600)
+          for: 0m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Offsite backup Job failed"
+            description: "The offsite-backup CronJob's Job {{ $labels.job_name }} in namespace {{ $labels.namespace }} failed."
+        - alert: OffsiteBackupNotSucceeded
+          expr: |
+            time() - kube_cronjob_status_last_successful_time{namespace="backups", cronjob="offsite-backup"} > 26 * 3600
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Offsite backup hasn't succeeded recently"
+            description: "offsite-backup in namespace {{ $labels.namespace }} hasn't completed successfully in over 26h (expected daily)."

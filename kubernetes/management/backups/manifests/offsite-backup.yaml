@@ -1,0 +1,112 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: offsite-backup
+spec:
+  schedule: "0 6 * * *"
+  timeZone: "Europe/Rome"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            kalexlab.xyz/app: backups
+            kalexlab.xyz/component: offsite-backup
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: rclone
+              image: docker.io/rclone/rclone:1.75.2
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  buckets=$(rclone lsf seaweed: --dirs-only | sed 's#/$##')
+                  [ -n "$buckets" ] || { echo "no buckets found"; exit 1; }
+                  echo Going to backup the following buckets: $buckets
+
+                  for b in $buckets; do
+                    echo "=== syncing $b"
+                    rclone sync "$SOURCE:$b" "$DEST:$b" \
+                      --transfers 4 --checkers 8 \
+                      --max-delete 50 --sftp-connections 8 \
+                      --retries 3 --low-level-retries 10 \
+                      --stats 1m --stats-one-line --log-level INFO \
+                      || { echo "!!! FAILED: $b"; rc=1; }
+                  done
+
+                  exit ${rc:-0}
+              envFrom:
+                - configMapRef:
+                    name: offsite-backup-conf
+              env:
+                - name: RCLONE_CONFIG_SEAWEED_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: offsite-s3-credentials
+                      key: accessKey
+                - name: RCLONE_CONFIG_SEAWEED_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: offsite-s3-credentials
+                      key: secretKey
+                - name: RCLONE_CONFIG_OFFSITE_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: offsite-backup
+                      key: generated_subaccount_username
+                - name: RCLONE_CONFIG_OFFSITE_PASS
+                  valueFrom:
+                    secretKeyRef:
+                      name: offsite-backup
+                      key: obscured_subaccount_password
+                - name: RCLONE_CONFIG_OFFSITECRYPT_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: offsite-backup
+                      key: obscured_encryption_password
+                - name: RCLONE_CONFIG_OFFSITECRYPT_PASSWORD2
+                  valueFrom:
+                    secretKeyRef:
+                      name: offsite-backup
+                      key: obscured_encryption_password2
+                - name: HOME
+                  value: /tmp
+              securityContext:
+                readOnlyRootFilesystem: true
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+                limits:
+                  memory: 1Gi
+              volumeMounts:
+                - name: site-backup-known-host
+                  mountPath: /secrets
+                - name: tmp
+                  mountPath: /tmp
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65535
+            runAsGroup: 65535
+            fsGroup: 65535
+            fsGroupChangePolicy: "OnRootMismatch"
+            seccompProfile:
+              type: RuntimeDefault
+          enableServiceLinks: false
+          automountServiceAccountToken: false
+          volumes:
+            - name: site-backup-known-host
+              secret:
+                secretName: offsite-backup-known-hosts
+            - name: tmp
+              emptyDir: {}
+# TODO: verification of remote backups
