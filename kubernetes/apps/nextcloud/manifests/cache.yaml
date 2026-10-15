@@ -30,7 +30,6 @@ spec:
         cpu: 1m
       limits:
         memory: 200Mi
-        cpu: 100m
   redisConfig:
     additionalRedisConfig: cache-config
   podSecurityContext:

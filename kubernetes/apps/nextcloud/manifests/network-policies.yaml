@@ -27,7 +27,7 @@ spec:
               k8s-app: coredns
       ports:
         - protocol: UDP
-          port: 53
+          port: udp-53
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -49,17 +49,17 @@ spec:
           podSelector:
             matchLabels:
               app.kubernetes.io/name: traefik
-      ports:
-        - protocol: TCP
-          port: 80
-    - from:
         - podSelector:
             matchLabels:
               kalexlab.xyz/app: nextcloud
               kalexlab.xyz/component: webcron
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: nextcloud
+              kalexlab.xyz/component: collabora-online
       ports:
         - protocol: TCP
-          port: 80
+          port: http
   egress:
     - to:
         - podSelector:
@@ -68,7 +68,7 @@ spec:
               kalexlab.xyz/component: cluster
       ports:
         - protocol: TCP
-          port: 5432
+          port: postgresql
     - to:
         - podSelector:
             matchLabels:
@@ -77,24 +77,14 @@ spec:
       ports:
         - protocol: TCP
           port: 6379
-    # Allow Nextcloud to reach Authelia for OIDC
     - to:
-        - namespaceSelector:
+        - podSelector:
             matchLabels:
-              kubernetes.io/metadata.name: traefik
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: traefik
+              kalexlab.xyz/app: nextcloud
+              kalexlab.xyz/component: collabora-online
       ports:
         - protocol: TCP
-          port: 8443
-    - to:
-        - ipBlock:
-            cidr: 0.0.0.0/0
-            except:
-              - 10.0.0.0/8
-              - 172.16.0.0/12
-              - 192.168.0.0/16
+          port: http
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -115,7 +105,7 @@ spec:
               kalexlab.xyz/component: nextcloud
       ports:
         - protocol: TCP
-          port: 5432
+          port: postgresql
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -157,7 +147,7 @@ spec:
               kalexlab.xyz/component: nextcloud
       ports:
         - protocol: TCP
-          port: 80
+          port: http
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -179,19 +169,19 @@ spec:
           podSelector:
             matchLabels:
               app.kubernetes.io/name: traefik
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: nextcloud
+              kalexlab.xyz/component: nextcloud
       ports:
         - protocol: TCP
-          port: 9980
+          port: http
   egress:
-    # Probably collabora-online -> nextcloud through Traefik (cloud.kalexlab.xyz)
-    # Could maybe avoid this by configuring it differently (aliasgroup1 or domain)
     - to:
-        - namespaceSelector:
+        - podSelector:
             matchLabels:
-              kubernetes.io/metadata.name: traefik
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: traefik
+              kalexlab.xyz/app: nextcloud
+              kalexlab.xyz/component: nextcloud
       ports:
         - protocol: TCP
-          port: 8443
+          port: http

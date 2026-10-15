@@ -17,8 +17,9 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: nextcloud
+    - name: http
       port: 80
+      targetPort: http
       protocol: TCP
   selector:
     kalexlab.xyz/app: nextcloud
@@ -45,6 +46,7 @@ spec:
         kalexlab.xyz/app: nextcloud
         kalexlab.xyz/component: nextcloud
         kalexlab.xyz/monitoring: "true"
+        sso.kalexlab.xyz/idp: authentik
     spec:
       restartPolicy: Always
       initContainers:
@@ -57,7 +59,6 @@ spec:
               cpu: 1m
             limits:
               memory: 300Mi
-              cpu: 20m
           securityContext:
             runAsUser: 33
             runAsGroup: 33
@@ -66,19 +67,25 @@ spec:
             capabilities:
               drop:
                 - ALL
-          # config.php is only seeded (Nextcloud owns it afterwards), everything
-          # else in the config dir mirrors the ConfigMap on every boot
+          # Nextcloud persists the merged config (*.config.php included) in config.php,
+          # so on every boot it is rebuilt keeping only the keys Nextcloud owns:
+          #  - version
           command:
             - sh
             - -c
             - |
               set -e
-              [ -s /config-dir/config.php ] || cp -L /config-map/config.php /config-dir/config.php
+              if [ -s /config-dir/config.php ]; then
+                owned=$(grep -E "^  '(version)' => " /config-dir/config.php)
+                printf '<?php\n$CONFIG = array (\n%s\n);\n' "$owned" > /config-dir/config.php
+              else
+                cp -L /config-map/config.php /config-dir/config.php
+              fi
               find /config-dir -mindepth 1 -maxdepth 1 ! -name config.php -exec rm -rf {} +
               cp -L /config-map/*.config.php /config-dir/
           volumeMounts:
             - mountPath: /config-map
-              name: nextcloud-configmap
+              name: nextcloud-conf
             - mountPath: /config-dir
               name: nextcloud-www-pvc
               subPath: config
@@ -91,27 +98,29 @@ spec:
               cpu: 1m
             limits:
               memory: 300Mi
-              cpu: 20m
           securityContext:
-            runAsUser: 1000
-            runAsGroup: 1000
+            runAsUser: 65535
+            runAsGroup: 65535
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
             capabilities:
               drop:
                 - ALL
           command:
-            [
-              "sh",
-              "-c",
-              "for i in $(seq 1 300); do nc -zvw1 cache 6379 && nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1",
-            ]
+            - sh
+            - -c
+            - |
+              for i in $(seq 1 300); do
+                nc -zvw1 cache 6379 && nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3;
+              done;
+              exit 1
       containers:
         - name: nextcloud
           image: "docker.io/library/nextcloud:35.0.1-apache"
           imagePullPolicy: Always
           ports:
-            - containerPort: 80
+            - name: http
+              containerPort: 80
               protocol: TCP
           env:
             # Keep NEXTCLOUD_ADMIN_* env variables here,
@@ -173,7 +182,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /status.php
-              port: 80
+              port: http
               httpHeaders:
                 - name: Host
                   value: nextcloud.nextcloud.svc.cluster.local
@@ -185,7 +194,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /status.php
-              port: 80
+              port: http
               httpHeaders:
                 - name: Host
                   value: nextcloud.nextcloud.svc.cluster.local
@@ -208,6 +217,12 @@ spec:
               name: tmp
             - mountPath: /var/run
               name: run
+            - mountPath: /etc/nextcloud-app-conf
+              name: nextcloud-app-conf
+              readOnly: true
+            - mountPath: /docker-entrypoint-hooks.d/before-starting
+              name: nextcloud-hooks
+              readOnly: true
       enableServiceLinks: false
       automountServiceAccountToken: false
       securityContext:
@@ -219,9 +234,22 @@ spec:
         seccompProfile:
           type: RuntimeDefault
       volumes:
-        - name: nextcloud-configmap
+        - name: nextcloud-conf
           configMap:
-            name: nextcloud-config
+            name: nextcloud-conf
+        - name: nextcloud-app-conf
+          configMap:
+            name: nextcloud-app-conf
+            items:
+              - key: appconfig.json
+                path: appconfig.json
+        - name: nextcloud-hooks
+          configMap:
+            name: nextcloud-app-conf
+            defaultMode: 0555
+            items:
+              - key: import-appconfig.sh
+                path: import-appconfig.sh
         - name: tmp
           emptyDir:
             sizeLimit: 1Gi

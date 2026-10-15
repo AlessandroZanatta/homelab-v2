@@ -28,7 +28,7 @@ spec:
       match: Host(`cloud.kalexlab.xyz`)
       services:
         - name: nextcloud
-          port: 80
+          port: http
   tls:
     secretName: nextcloud-ingress-certificate-secret
 ---
@@ -47,6 +47,6 @@ spec:
       match: Host(`collabora-online.kalexlab.xyz`)
       services:
         - name: collabora-online
-          port: 9980
+          port: http
   tls:
     secretName: nextcloud-ingress-certificate-secret

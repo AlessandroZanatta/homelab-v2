@@ -2,10 +2,38 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: nextcloud-config
+  name: collabora-online-conf
 data:
-  # Seed only: copied to the PVC once, then owned by Nextcloud,
-  # which persists 'version' there on upgrade
+  extra_params: "--o:ssl.enable=false --o:ssl.termination=true --o:mount_jail_tree=false --o:security.capabilities=false --o:net.frame_ancestors=cloud.kalexlab.xyz"
+  server_name: collabora-online.kalexlab.xyz
+  aliasgroup1: http://nextcloud
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nextcloud-app-conf
+data:
+  appconfig.json: |
+    {
+      "apps": {
+        "richdocuments": {
+          "wopi_url": "http://collabora-online:9980",
+          "public_wopi_url": "https://collabora-online.kalexlab.xyz",
+          "wopi_callback_url": "http://nextcloud",
+          "wopi_allowlist": "10.244.0.0/16"
+        }
+      }
+    }
+  import-appconfig.sh: |
+    #!/bin/sh
+    set -e
+    php /var/www/html/occ config:import /etc/nextcloud-app-conf/appconfig.json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nextcloud-conf
+data:
   config.php: |
     <?php
 
@@ -38,15 +66,16 @@ data:
           0 => 'localhost',
           1 => 'cloud.kalexlab.xyz',
           2 => 'nextcloud.nextcloud.svc.cluster.local',
+          3 => 'nextcloud',
         ),
       'trusted_proxies' =>
         array (
           0 => '10.0.0.0/8',
         ),
+      'allow_local_remote_servers' => true,
       'datadirectory' => '/var/www/html/data',
       'installed' => true,
       'instanceid' => 'oc7ql9mxohqu',
-      'overwriteprotocol' => 'https',
       'overwrite.cli.url' => 'https://cloud.kalexlab.xyz',
       'maintenance_window_start' => 1,
       'upgrade.disable-web' => true,
