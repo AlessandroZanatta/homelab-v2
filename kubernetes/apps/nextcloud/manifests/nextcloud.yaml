@@ -116,7 +116,7 @@ spec:
               exit 1
       containers:
         - name: nextcloud
-          image: "docker.io/library/nextcloud:35.0.1-apache"
+          image: "docker.io/library/nextcloud:35.0.2-apache"
           imagePullPolicy: Always
           ports:
             - name: http
