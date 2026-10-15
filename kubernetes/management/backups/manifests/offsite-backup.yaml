@@ -27,15 +27,14 @@ spec:
                 - |
                   buckets=$(rclone lsf seaweed: --dirs-only | sed 's#/$##')
                   [ -n "$buckets" ] || { echo "no buckets found"; exit 1; }
-                  echo Going to backup the following buckets: $buckets
+                  echo Going to sync the following buckets: $buckets
 
                   for b in $buckets; do
                     echo "=== syncing $b"
                     rclone sync "$SOURCE:$b" "$DEST:$b" \
-                      --transfers 4 --checkers 8 \
-                      --max-delete 50 --sftp-connections 8 \
-                      --retries 3 --low-level-retries 10 \
-                      --stats 1m --stats-one-line --log-level INFO \
+                      --sftp-connections 9 \
+                      --stats 1m \
+                      --log-level INFO \
                       || { echo "!!! FAILED: $b"; rc=1; }
                   done
 
@@ -47,12 +46,12 @@ spec:
                 - name: RCLONE_CONFIG_SEAWEED_ACCESS_KEY_ID
                   valueFrom:
                     secretKeyRef:
-                      name: offsite-s3-credentials
+                      name: offsite-backup-s3-credentials
                       key: accessKey
                 - name: RCLONE_CONFIG_SEAWEED_SECRET_ACCESS_KEY
                   valueFrom:
                     secretKeyRef:
-                      name: offsite-s3-credentials
+                      name: offsite-backup-s3-credentials
                       key: secretKey
                 - name: RCLONE_CONFIG_OFFSITE_USER
                   valueFrom:

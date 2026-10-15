@@ -2,7 +2,7 @@
 apiVersion: seaweed.seaweedfs.com/v1
 kind: S3Identity
 metadata:
-  name: offsite
+  name: offsite-backup
 spec:
   seaweedRef:
     name: backups
@@ -11,20 +11,20 @@ spec:
 apiVersion: seaweed.seaweedfs.com/v1
 kind: S3Credentials
 metadata:
-  name: offsite
+  name: offsite-backup
 spec:
   seaweedRef:
     name: backups
     namespace: backups
   identityRef:
-    name: offsite
+    name: offsite-backup
   secretRef:
-    name: offsite-s3-credentials
+    name: offsite-backup-s3-credentials
 ---
 apiVersion: seaweed.seaweedfs.com/v1
 kind: S3Policy
 metadata:
-  name: offsite
+  name: offsite-backup
 spec:
   seaweedRef:
     name: backups
@@ -37,7 +37,7 @@ spec:
           "Effect": "Allow",
           "Action": [
             "s3:ListBucket",
-            "s3:GetObject",
+            "s3:GetObject"
           ],
           "Resource": [
             "arn:aws:s3:::*"
@@ -49,13 +49,13 @@ spec:
 apiVersion: seaweed.seaweedfs.com/v1
 kind: S3PolicyBinding
 metadata:
-  name: offsite
+  name: offsite-backup
 spec:
   seaweedRef:
     name: backups
     namespace: backups
   policyRef:
-    name: offsite
+    name: offsite-backup
   subjects:
     - kind: S3Identity
-      name: offsite
+      name: offsite-backup
