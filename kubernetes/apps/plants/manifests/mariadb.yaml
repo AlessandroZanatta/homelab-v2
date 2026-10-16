@@ -70,10 +70,10 @@ spec:
     waitForIt: true
   storage:
     s3:
-      bucket: mariadb
       endpoint: backups.kalexlab.xyz
+      bucket: mariadb
       # renovate-major: depName=ghcr.io/mariadb/mariadb
-      prefix: plants/mariadb-13
+      prefix: plants/full/mariadb-13
       accessKeyIdSecretKeyRef:
         name: plants-s3-credentials
         key: accessKey
@@ -89,6 +89,28 @@ spec:
     onDemand: "1"
   compression: bzip2
   maxRetention: 336h # 14d
-
-# TODO: configure PITR?
-#   ref: https://github.com/mariadb-operator/mariadb-operator/blob/main/docs/pitr.md
+---
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: PointInTimeRecovery
+metadata:
+  name: mariadb-backup
+spec:
+  physicalBackupRef:
+    name: mariadb-backup
+  storage:
+    s3:
+      endpoint: backups.kalexlab.xyz
+      bucket: mariadb
+      # renovate-major: depName=ghcr.io/mariadb/mariadb
+      prefix: plants/pitr/mariadb-13
+      accessKeyIdSecretKeyRef:
+        name: plants-s3-credentials
+        key: accessKey
+      secretAccessKeySecretKeyRef:
+        name: plants-s3-credentials
+        key: secretKey
+      tls:
+        enabled: true
+  compression: bzip2
+  archiveTimeout: 1h
+  strictMode: false

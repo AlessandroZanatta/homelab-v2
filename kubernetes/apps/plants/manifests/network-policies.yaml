@@ -79,7 +79,7 @@ spec:
       toPorts:
         - ports:
             - port: "53"
-              protocol: ANY # UDP + TCP
+              protocol: ANY
           rules:
             dns:
               - matchPattern: "*"

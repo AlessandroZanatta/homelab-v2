@@ -35,11 +35,11 @@ spec:
           namespace: authentik
       services:
         - name: hortusfox
-          port: 80
+          port: http
     - kind: Rule
       match: Host(`plants.kalexlab.xyz`) && (Path(`/manifest.json`) || PathPrefix(`/logo.png`))
       services:
         - name: hortusfox
-          port: 80
+          port: http
   tls:
     secretName: plants-ingress-certificate-secret
