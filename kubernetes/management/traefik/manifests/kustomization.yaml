@@ -6,5 +6,6 @@ resources:
   - secrets.sops.yaml
   - ingress.yaml
   - alerting.yaml
+  - log-alerting.yaml
   - dashboard.yaml
   - middlewares.yaml

@@ -1,0 +1,25 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: gatus-alerts
+spec:
+  groups:
+    - name: gatus.rules
+      rules:
+        - alert: GatusDown
+          expr: kube_deployment_status_replicas_available{namespace="gatus", deployment="gatus"} < 1
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: Gatus has no available replicas, endpoint probes are not running
+            description: "Gatus deployment has no available replicas\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+        - alert: GatusSidecarScrapeDown
+          expr: absent(up{namespace="gatus", endpoint="gs-metrics"} == 1)
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: Gatus sidecar metrics are not being scraped, endpoint discovery may be broken
+            description: "No successful scrape of the gatus-sidecar metrics endpoint for 10m"

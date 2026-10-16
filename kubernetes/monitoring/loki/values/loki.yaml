@@ -47,6 +47,26 @@ loki:
     retention_delete_delay: 2h
     delete_request_store: filesystem
 
+  # -- Check https://grafana.com/docs/loki/latest/configuration/#ruler for more info on configuring ruler
+  rulerConfig:
+    # -- Storage for the ruler. If defining rules in `ruler.directories`, this must be configured to use local storage as shown below.
+    storage:
+      type: local
+      local:
+        directory: /etc/loki/rules
+    rule_path: /tmp/rules
+    alertmanager_url: http://alertmanager-operated.monitoring.svc:9093
+    enable_api: true
+
+# Rules sidecar: watches ConfigMaps labeled `loki_rule` in all namespaces, so
+# rules can live next to the app they alert on
+sidecar:
+  rules:
+    # auth_enabled: false -> single tenant "fake", local ruler reads <directory>/<tenant>/
+    folder: /etc/loki/rules/fake
+    searchNamespace: ALL
+    resource: configmap
+
 ######################################################################################################################
 #
 # Single Binary Deployment
@@ -59,6 +79,9 @@ loki:
 singleBinary:
   # -- Number of replicas for the single binary
   replicas: 1
+
+  # -- Whether to enable the rules sidecar
+  sidecar: true
 
   persistence:
     # -- What to do with the volumes when the StatefulSet is deleted.

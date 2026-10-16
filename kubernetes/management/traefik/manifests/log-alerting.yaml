@@ -1,0 +1,24 @@
+---
+# Loki ruler rules, picked up by the Loki rules sidecar via the `loki_rule` label
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: traefik-log-alerts
+  labels:
+    loki_rule: ""
+data:
+  traefik.yaml: |
+    groups:
+      - name: traefik.logs
+        rules:
+          - alert: TraefikErrorLogged
+            # General log lines are "<ts> <LVL> <msg>"; access logs (CLF) share stdout
+            expr: |
+              sum by (namespace, pod) (
+                count_over_time({namespace="traefik", container="traefik"} |~ `^\S+ (ERR|FTL|PNC) ` [5m])
+              ) > 0
+            labels:
+              severity: critical
+            annotations:
+              summary: Traefik logged {{ $value }} error line(s) in the last 5m
+              description: 'Grafana Explore → Loki: {namespace="traefik", container="traefik"} |~ `^\S+ (ERR|FTL|PNC) `'

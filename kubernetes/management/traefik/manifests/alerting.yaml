@@ -8,18 +8,22 @@ spec:
     - name: traefik.rules
       rules:
         - alert: TraefikServiceDown
-          expr: count(traefik_service_server_up) by (service) != 0
-          for: 0m
+          expr: sum by (service) (traefik_service_server_up) == 0
+          for: 2m
           labels:
             severity: critical
           annotations:
-            summary: Traefik service down (instance {{ $labels.instance }})
-            description: "All Traefik services are down\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
-        - alert: TraefikHighHttp4xx5xxErrorRateService
-          expr: sum(rate(traefik_service_requests_total{code=~"[45].*"}[3m])) by (service) / sum(rate(traefik_service_requests_total[3m])) by (service) * 100 > 10
-          for: 1m
+            summary: Traefik service {{ $labels.service }} has no healthy backends
+            description: "All backend servers of {{ $labels.service }} are down\n  LABELS = {{ $labels }}"
+        - alert: TraefikHigh5xxErrorRate
+          # Only 5xx
+          expr: |
+            sum by (service) (rate(traefik_service_requests_total{code=~"5..", service!~".*@internal"}[10m]))
+              / sum by (service) (rate(traefik_service_requests_total{service!~".*@internal"}[10m])) > 0.05
+            and sum by (service) (increase(traefik_service_requests_total{code=~"5..", service!~".*@internal"}[10m])) >= 5
+          for: 5m
           labels:
-            severity: high
+            severity: critical
           annotations:
-            summary: Traefik high HTTP 4xx/5xx error rate service (instance {{ $labels.instance }})
-            description: "Traefik service 4xx/5xx error rate is above 10%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+            summary: Traefik service {{ $labels.service }} 5xx error rate is {{ $value | humanizePercentage }}
+            description: "More than 5% of requests (and at least 5) returned 5xx in the last 10m\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
