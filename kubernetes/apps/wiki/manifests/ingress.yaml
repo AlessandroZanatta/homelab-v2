@@ -27,6 +27,6 @@ spec:
       match: Host(`wiki.kalexlab.xyz`)
       services:
         - name: outline
-          port: 3000
+          port: http
   tls:
     secretName: outline-ingress-certificate-secret

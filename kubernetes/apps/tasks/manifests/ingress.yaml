@@ -27,11 +27,11 @@ spec:
       match: Host(`tasks.kalexlab.xyz`)
       services:
         - name: kaneo-web
-          port: 5173
+          port: http
     - kind: Rule
       match: "Host(`tasks.kalexlab.xyz`) && PathPrefix(`/api`)"
       services:
         - name: kaneo-api
-          port: 1337
+          port: http
   tls:
     secretName: tasks-ingress-certificate-secret

@@ -62,8 +62,12 @@ spec:
                   name: cluster-app
                   key: uri
 
-          # TODO
-          # resources: {}
+          resources:
+            requests:
+              memory: 100Mi
+              cpu: 1m
+            limits:
+              memory: 512Mi
 
           readinessProbe:
             httpGet:

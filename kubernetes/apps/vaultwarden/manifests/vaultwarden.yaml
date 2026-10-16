@@ -9,8 +9,9 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: vaultwarden
+    - name: http
       port: 8080
+      targetPort: http
       protocol: TCP
   selector:
     kalexlab.xyz/app: vaultwarden
@@ -76,21 +77,17 @@ spec:
             - name: http
               containerPort: 8080
               protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: vaultwarden-conf
+            - secretRef:
+                name: vaultwarden-secrets
           env:
-            - name: ROCKET_PORT
-              value: "8080"
-            - name: DOMAIN
-              value: "https://vault.kalexlab.xyz"
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
                   name: cluster-app
                   key: uri
-            - name: ADMIN_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: vaultwarden-secrets
-                  key: ADMIN_TOKEN
           resources:
             requests:
               memory: 100Mi

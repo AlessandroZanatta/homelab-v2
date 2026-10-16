@@ -27,6 +27,6 @@ spec:
       match: Host(`vault.kalexlab.xyz`)
       services:
         - name: vaultwarden
-          port: 8080
+          port: http
   tls:
     secretName: vaultwarden-ingress-certificate-secret

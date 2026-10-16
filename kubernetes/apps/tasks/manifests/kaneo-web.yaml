@@ -9,8 +9,9 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: kaneo-web
+    - name: http
       port: 5173
+      targetPort: http
       protocol: TCP
   selector:
     kalexlab.xyz/app: tasks
@@ -55,7 +56,12 @@ spec:
             limits:
               memory: 200Mi
               cpu: 100m
-          command: ["sh", "-c", "cp -r /usr/share/nginx/html/* /mnt/nginx && cp -r /etc/nginx/conf.d/* /mnt/nginx-confd"]
+          command:
+            [
+              "sh",
+              "-c",
+              "cp -r /usr/share/nginx/html/* /mnt/nginx && cp -r /etc/nginx/conf.d/* /mnt/nginx-confd",
+            ]
           volumeMounts:
             - mountPath: /mnt/nginx
               name: nginx
@@ -66,24 +72,12 @@ spec:
           image: "ghcr.io/usekaneo/web:2.46.2"
           imagePullPolicy: Always
           ports:
-            - containerPort: 5173
+            - name: http
+              containerPort: 5173
               protocol: TCP
-          env:
-            - name: KANEO_API_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: kaneo-conf
-                  key: KANEO_API_URL
-            - name: KANEO_CLIENT_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: kaneo-conf
-                  key: KANEO_CLIENT_URL
-            - name: DISABLE_GUEST_ACCESS
-              valueFrom:
-                configMapKeyRef:
-                  name: kaneo-conf
-                  key: DISABLE_GUEST_ACCESS
+          envFrom:
+            - configMapRef:
+                name: kaneo-conf
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
@@ -100,12 +94,12 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: 5173
+              port: http
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /
-              port: 5173
+              port: http
             failureThreshold: 3
             periodSeconds: 30
           volumeMounts:
@@ -123,9 +117,9 @@ spec:
       automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
-        runAsUser: 10000
-        runAsGroup: 10000
-        fsGroup: 10000
+        runAsUser: 65535
+        runAsGroup: 65535
+        fsGroup: 65535
         fsGroupChangePolicy: "OnRootMismatch"
         seccompProfile:
           type: RuntimeDefault

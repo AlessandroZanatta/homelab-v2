@@ -27,9 +27,7 @@ spec:
               k8s-app: coredns
       ports:
         - protocol: UDP
-          port: 53
-        - protocol: TCP
-          port: 53
+          port: udp-53
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -52,7 +50,7 @@ spec:
               app.kubernetes.io/name: traefik
       ports:
         - protocol: TCP
-          port: 5173
+          port: http
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -76,19 +74,8 @@ spec:
               app.kubernetes.io/name: traefik
       ports:
         - protocol: TCP
-          port: 1337
+          port: http
   egress:
-    # Allow to reach Authelia for OIDC
-    - to:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: traefik
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: traefik
-      ports:
-        - protocol: TCP
-          port: 8443
     - to:
         - podSelector:
             matchLabels:
@@ -96,7 +83,7 @@ spec:
               kalexlab.xyz/component: cluster
       ports:
         - protocol: TCP
-          port: 5432
+          port: postgresql
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -117,4 +104,4 @@ spec:
               kalexlab.xyz/component: kaneo-api
       ports:
         - protocol: TCP
-          port: 5432
+          port: postgresql

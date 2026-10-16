@@ -9,9 +9,9 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: wiki
+    - name: http
       port: 3000
-      targetPort: outline
+      targetPort: http
       protocol: TCP
   selector:
     kalexlab.xyz/app: wiki
@@ -38,6 +38,7 @@ spec:
         kalexlab.xyz/app: wiki
         kalexlab.xyz/component: outline
         kalexlab.xyz/monitoring: "true"
+        sso.kalexlab.xyz/idp: authentik
     spec:
       restartPolicy: Always
       initContainers:
@@ -68,7 +69,7 @@ spec:
           image: "docker.io/outlinewiki/outline:1.11.0"
           imagePullPolicy: Always
           ports:
-            - name: outline
+            - name: http
               containerPort: 3000
               protocol: TCP
           envFrom:
@@ -91,12 +92,12 @@ spec:
           readinessProbe:
             httpGet:
               path: /_health
-              port: outline
+              port: http
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /_health
-              port: outline
+              port: http
             failureThreshold: 3
             periodSeconds: 30
           securityContext:

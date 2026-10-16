@@ -8,3 +8,4 @@ data:
   STORAGE_MODE: local
   LOCAL_BUCKET_BASE_PATH: /updates
   USE_DASHBOARD: "true"
+  DASHBOARD_ROOT_REDIRECT: "true"

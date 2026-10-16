@@ -12,8 +12,9 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: kaneo-api
+    - name: http
       port: 1337
+      targetPort: http
       protocol: TCP
   selector:
     kalexlab.xyz/app: tasks
@@ -39,6 +40,7 @@ spec:
         kalexlab.xyz/app: tasks
         kalexlab.xyz/component: kaneo-api
         kalexlab.xyz/monitoring: "true"
+        sso.kalexlab.xyz/idp: authentik
     spec:
       restartPolicy: Always
       initContainers:
@@ -69,59 +71,15 @@ spec:
           image: "ghcr.io/usekaneo/api:2.46.2"
           imagePullPolicy: Always
           ports:
-            - containerPort: 1337
+            - name: http
+              containerPort: 1337
               protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: kaneo-conf
+            - secretRef:
+                name: kaneo-secrets
           env:
-            - name: KANEO_API_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: kaneo-conf
-                  key: KANEO_API_URL
-            - name: KANEO_CLIENT_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: kaneo-conf
-                  key: KANEO_CLIENT_URL
-            - name: AUTH_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: kaneo-secrets
-                  key: AUTH_SECRET
-            - name: DISABLE_REGISTRATION
-              valueFrom:
-                configMapKeyRef:
-                  name: kaneo-conf
-                  key: DISABLE_REGISTRATION
-            - name: DISABLE_GUEST_ACCESS
-              valueFrom:
-                configMapKeyRef:
-                  name: kaneo-conf
-                  key: DISABLE_GUEST_ACCESS
-            - name: CUSTOM_OAUTH_CLIENT_ID
-              valueFrom:
-                configMapKeyRef:
-                  name: kaneo-conf
-                  key: CUSTOM_OAUTH_CLIENT_ID
-            - name: CUSTOM_OAUTH_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: kaneo-secrets
-                  key: CUSTOM_OAUTH_CLIENT_SECRET
-            - name: CUSTOM_OAUTH_DISCOVERY_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: kaneo-conf
-                  key: CUSTOM_OAUTH_DISCOVERY_URL
-            - name: CUSTOM_OAUTH_SCOPES
-              valueFrom:
-                configMapKeyRef:
-                  name: kaneo-conf
-                  key: CUSTOM_OAUTH_SCOPES
-            - name: CUSTOM_AUTH_PKCE
-              valueFrom:
-                configMapKeyRef:
-                  name: kaneo-conf
-                  key: CUSTOM_AUTH_PKCE
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
@@ -143,12 +101,12 @@ spec:
           readinessProbe:
             httpGet:
               path: /api/health
-              port: 1337
+              port: http
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /api/health
-              port: 1337
+              port: http
             failureThreshold: 3
             periodSeconds: 30
           volumeMounts:
@@ -158,9 +116,9 @@ spec:
       automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
-        runAsUser: 10000
-        runAsGroup: 10000
-        fsGroup: 10000
+        runAsUser: 65535
+        runAsGroup: 65535
+        fsGroup: 65535
         fsGroupChangePolicy: "OnRootMismatch"
         seccompProfile:
           type: RuntimeDefault

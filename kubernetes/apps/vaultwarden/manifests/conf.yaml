@@ -1,0 +1,8 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vaultwarden-conf
+data:
+  ROCKET_PORT: "8080"
+  DOMAIN: https://vault.kalexlab.xyz
