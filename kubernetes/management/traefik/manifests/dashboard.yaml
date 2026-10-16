@@ -12,5 +12,5 @@ spec:
   datasources:
     - inputName: DS_PROMETHEUS
       datasourceName: Prometheus
-  # renovate: depName="Dashboard - Traefik"
-  url: "https://grafana.com/api/dashboards/17346/revisions/9/download"
+  # renovate: depName="Dashboard - Traefik Kubernetes"
+  url: "https://grafana.com/api/dashboards/17347/revisions/9/download"

@@ -236,8 +236,11 @@ metrics:
     serviceMonitor:
       # -- Enable optional CR for Prometheus Operator. See EXAMPLES.md for more details.
       enabled: true
-      # Should allow renaming services in a more meaningful manner
-      honorLabels: true
+      # Drop the k8s service name (traefik-metrics), use Traefik's
+      # own metrics service name instead
+      relabelings:
+        - action: labeldrop
+          regex: service
 
 experimental:
   plugins:
