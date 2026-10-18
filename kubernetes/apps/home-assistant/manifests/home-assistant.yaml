@@ -9,7 +9,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: home-assistant
+    - name: http
       port: 8123
       targetPort: http
       protocol: TCP

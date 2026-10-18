@@ -9,7 +9,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: mosquitto
+    - name: mqtt
       port: 1883
       targetPort: mqtt
       protocol: TCP

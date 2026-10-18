@@ -29,12 +29,12 @@ spec:
       match: Host(`home.kalexlab.xyz`)
       services:
         - name: home-assistant
-          port: 8123
+          port: http
     - kind: Rule
       match: Host(`z2m.home.kalexlab.xyz`)
       services:
         - name: zigbee2mqtt
-          port: 8080
+          port: http
   tls:
     secretName: home-assistant-ingress-certificate-secret
 ---
@@ -61,6 +61,6 @@ spec:
       # serversTransport: default
       services:
         - name: mosquitto
-          port: 1883
+          port: mqtt
   tls:
     secretName: home-assistant-ingress-certificate-secret

@@ -9,7 +9,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: zigbee2mqtt
+    - name: http
       port: 8080
       targetPort: http
       protocol: TCP
@@ -48,6 +48,7 @@ spec:
             - name: http
               containerPort: 8080
               protocol: TCP
+          # TODO
           # securityContext:
           #   allowPrivilegeEscalation: false
           #   readOnlyRootFilesystem: true
@@ -89,6 +90,7 @@ spec:
               name: run
       enableServiceLinks: false
       automountServiceAccountToken: false
+      # TODO
       # securityContext:
       #   runAsNonRoot: true
       #   supplementalGroups:
