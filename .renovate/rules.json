@@ -45,6 +45,17 @@
       "groupName": "mariadb"
     },
     {
+      "description": "OpenWrt releases: PR only, upgrade is done manually via attended sysupgrade",
+      "matchDatasources": ["github-tags"],
+      "matchPackageNames": ["openwrt/openwrt"],
+      "extractVersion": "^v(?<version>\\d+\\.\\d+\\.\\d+)$",
+      "automerge": false,
+      "addLabels": ["renovate/openwrt"],
+      "prBodyNotes": [
+        "⚠️ Not applied automatically: run attended sysupgrade on the router (LuCI → System → Attended Sysupgrade, or `owut upgrade`), then merge."
+      ]
+    },
+    {
       "description": "Keep gatus-sidecar image and CRDs in one commit",
       "matchPackageNames": [
         "ghcr.io/alessandrozanatta/gatus-sidecar",

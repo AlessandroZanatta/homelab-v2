@@ -1,0 +1,250 @@
+
+config defaults
+	option input 'REJECT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	option synflood_protect '1'
+
+config zone 'lan'
+	option name 'lan'
+	option input 'ACCEPT'
+	option output 'ACCEPT'
+	option forward 'ACCEPT'
+	list network 'lan'
+	list network 'wg0'
+
+config zone 'wan'
+	option name 'wan'
+	option input 'DROP'
+	option output 'ACCEPT'
+	option forward 'DROP'
+	option masq '1'
+	option mtu_fix '1'
+	list network 'wan'
+	list network 'wan_6'
+
+config forwarding
+	option src 'lan'
+	option dest 'wan'
+
+config rule
+	option name 'Allow-DHCP-Renew'
+	option src 'wan'
+	option proto 'udp'
+	option dest_port '68'
+	option target 'ACCEPT'
+	option family 'ipv4'
+
+config rule
+	option name 'Allow-Ping'
+	option src 'wan'
+	option proto 'icmp'
+	option icmp_type 'echo-request'
+	option family 'ipv4'
+	option target 'ACCEPT'
+
+config rule
+	option name 'Allow-IGMP'
+	option src 'wan'
+	option proto 'igmp'
+	option family 'ipv4'
+	option target 'ACCEPT'
+
+config rule
+	option name 'Allow-DHCPv6'
+	option src 'wan'
+	option proto 'udp'
+	option dest_port '546'
+	option family 'ipv6'
+	option target 'ACCEPT'
+
+config rule
+	option name 'Allow-MLD'
+	option src 'wan'
+	option proto 'icmp'
+	option src_ip 'fe80::/10'
+	list icmp_type '130/0'
+	list icmp_type '131/0'
+	list icmp_type '132/0'
+	list icmp_type '143/0'
+	option family 'ipv6'
+	option target 'ACCEPT'
+
+config rule
+	option name 'Allow-ICMPv6-Input'
+	option src 'wan'
+	option proto 'icmp'
+	list icmp_type 'echo-request'
+	list icmp_type 'echo-reply'
+	list icmp_type 'destination-unreachable'
+	list icmp_type 'packet-too-big'
+	list icmp_type 'time-exceeded'
+	list icmp_type 'bad-header'
+	list icmp_type 'unknown-header-type'
+	list icmp_type 'router-solicitation'
+	list icmp_type 'neighbour-solicitation'
+	list icmp_type 'router-advertisement'
+	list icmp_type 'neighbour-advertisement'
+	option limit '1000/sec'
+	option family 'ipv6'
+	option target 'ACCEPT'
+
+config rule
+	option name 'Allow-ICMPv6-Forward'
+	option src 'wan'
+	option dest '*'
+	option proto 'icmp'
+	list icmp_type 'echo-request'
+	list icmp_type 'echo-reply'
+	list icmp_type 'destination-unreachable'
+	list icmp_type 'packet-too-big'
+	list icmp_type 'time-exceeded'
+	list icmp_type 'bad-header'
+	list icmp_type 'unknown-header-type'
+	option limit '1000/sec'
+	option family 'ipv6'
+	option target 'ACCEPT'
+
+config rule
+	option name 'Allow-IPSec-ESP'
+	option src 'wan'
+	option dest 'lan'
+	option proto 'esp'
+	option target 'ACCEPT'
+
+config rule
+	option name 'Allow-ISAKMP'
+	option src 'wan'
+	option dest 'lan'
+	option dest_port '500'
+	option proto 'udp'
+	option target 'ACCEPT'
+
+config zone 'segregated'
+	option name 'segregated'
+	option input 'REJECT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	list network 'segregated'
+
+config forwarding 'segregated_wan'
+	option src 'segregated'
+	option dest 'wan'
+
+config rule 'segregated_dns'
+	option name 'Allow-DNS-Segregated'
+	option src 'segregated'
+	option dest_port '53'
+	option proto 'tcp udp'
+	option target 'ACCEPT'
+
+config rule 'segregated_dhcp'
+	option name 'Allow-DHCP-Segregated'
+	option src 'segregated'
+	option dest_port '67'
+	option proto 'udp'
+	option family 'ipv4'
+	option target 'ACCEPT'
+
+config include 'pbr'
+	option fw4_compatible '1'
+	option type 'script'
+	option path '/usr/share/pbr/firewall.include'
+
+config zone 'egressvpn'
+	option name 'egressvpn'
+	option input 'ACCEPT'
+	option output 'ACCEPT'
+	option forward 'DROP'
+	option masq '1'
+	option mtu_fix '1'
+	list network 'egressvpn'
+
+config forwarding 'lan_to_egressvpn'
+	option src 'lan'
+	option dest 'egressvpn'
+
+config redirect
+	option dest 'k8s'
+	option target 'DNAT'
+	option name 'traefik-websecure-public'
+	option src 'wan'
+	option src_dport '443'
+	option dest_ip '10.20.0.21'
+	option dest_port '443'
+	option log '1'
+
+config redirect
+	option dest 'k8s'
+	option target 'DNAT'
+	option name 'traefik-web-public'
+	option src 'wan'
+	option src_dport '80'
+	option dest_ip '10.20.0.21'
+	option dest_port '80'
+	option log '1'
+
+config rule 'wg0'
+	option name 'Allow-WireGuard'
+	option src 'wan'
+	option proto 'udp'
+	option dest_port '51830'
+	option target 'ACCEPT'
+
+# k8s nodes VLAN (192.168.20.0/24)
+config zone 'k8s'
+	option name 'k8s'
+	option input 'REJECT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	list network 'k8s'
+
+config forwarding 'k8s_wan'
+	option src 'k8s'
+	option dest 'wan'
+
+# TODO: replace with explicit rules once the BGP migration is stable:
+#   lan -> 10.20.0.20 tcp 80/443/8883, lan -> 10.20.0.16 tcp/udp 53,
+#   admin hosts only (apollo LAN/WLAN, wg0 kalex devices) -> 192.168.20.0/24 tcp 50000/6443
+config forwarding 'lan_k8s'
+	option src 'lan'
+	option dest 'k8s'
+
+# Egress VPN gateway
+config forwarding 'k8s_egressvpn'
+	option src 'k8s'
+	option dest 'egressvpn'
+
+config rule 'k8s_dhcp'
+	option name 'Allow-DHCP-k8s'
+	option src 'k8s'
+	option dest_port '67'
+	option proto 'udp'
+	option family 'ipv4'
+	option target 'ACCEPT'
+
+config rule 'k8s_dns'
+	option name 'Allow-DNS-k8s'
+	option src 'k8s'
+	option dest_port '53'
+	option proto 'tcp udp'
+	option target 'ACCEPT'
+
+config rule 'k8s_bgp'
+	option name 'Allow-BGP-k8s'
+	option src 'k8s'
+	list src_ip '192.168.20.2'
+	list src_ip '192.168.20.3'
+	list src_ip '192.168.20.4'
+	option dest_port '179'
+	option proto 'tcp'
+	option family 'ipv4'
+	option target 'ACCEPT'
+
+config rule 'k8s_printer'
+	option name 'Allow-k8s-3D-Printer'
+	option src 'k8s'
+	option dest 'lan'
+	option dest_ip '192.168.10.105'
+	option proto 'tcp udp'
+	option target 'ACCEPT'

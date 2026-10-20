@@ -1,0 +1,56 @@
+
+config pbr 'config'
+	option enabled '1'
+	option verbosity '2'
+	option strict_enforcement '1'
+	option resolver_set 'dnsmasq.nftset'
+	list resolver_instance '*'
+	option ipv6_enabled '1'
+	list ignored_interface 'vpnserver'
+	option boot_timeout '30'
+	option rule_create_option 'add'
+	option procd_boot_delay '0'
+	option procd_reload_delay '1'
+	option webui_show_ignore_target '0'
+	option nft_rule_counter '0'
+	option nft_set_auto_merge '1'
+	option nft_set_counter '0'
+	option nft_set_flags_interval '1'
+	option nft_set_flags_timeout '0'
+	option nft_set_policy 'performance'
+	list webui_supported_protocol 'all'
+	list webui_supported_protocol 'tcp'
+	list webui_supported_protocol 'udp'
+	list webui_supported_protocol 'tcp udp'
+	list webui_supported_protocol 'icmp'
+
+config include
+	option path '/usr/share/pbr/pbr.user.aws'
+	option enabled '0'
+
+config include
+	option path '/usr/share/pbr/pbr.user.netflix'
+	option enabled '0'
+
+config include
+	option path '/usr/share/pbr/pbr.user.wg_server_and_client'
+	option enabled '0'
+
+# AFAIK, order of policies matters!
+config policy
+	option name 'Allow local'
+	option src_addr '192.168.20.2'
+	option dest_addr '192.168.10.0/24 192.168.20.0/24 10.20.0.16/28'
+	option interface 'wan'
+
+config policy
+	option name 'Allow known services'
+	option src_addr '192.168.20.2'
+	option dest_addr 'ghcr.io factory.talos.dev discovery.talos.dev'
+	option interface 'wan'
+
+config policy 'egressvpn'
+	option src_addr '192.168.20.2'
+	option dest_addr '0.0.0.0/0'
+	option interface 'egressvpn'
+	option name 'Catch all inside VPN'

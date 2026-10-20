@@ -5,9 +5,9 @@ metadata:
   name: adguard
   labels:
     kalexlab.xyz/app: adguard
-    kalexlab.xyz/ip-pool: adguard
     gatus.kalexlab.xyz/enabled: "true"
   annotations:
+    lbipam.cilium.io/ips: "10.20.0.16"
     gatus.kalexlab.xyz/enabled: "true"
     gatus.kalexlab.xyz/port: dns-tcp
     gatus.kalexlab.xyz/scheme: tcp

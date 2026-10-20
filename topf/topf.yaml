@@ -1,6 +1,6 @@
 ---
 clusterName: homelab
-clusterEndpoint: https://192.168.10.9:6443
+clusterEndpoint: https://192.168.20.254:6443
 
 # renovate: datasource=docker depName=ghcr.io/siderolabs/talos
 talosVersion: v1.14.4
@@ -14,11 +14,11 @@ schematicId: "@schematic.yaml.tpl"
 secretsPath: secrets.sops.yaml
 
 data:
-  controlPlaneVIP: 192.168.10.9
+  controlPlaneVIP: 192.168.20.254
 
 nodes:
   - host: athena
-    ip: 192.168.10.2
+    ip: 192.168.20.2
     role: worker
     data:
       installDiskSelector: disk.dev_path == "/dev/mmcblk0"
@@ -31,7 +31,7 @@ nodes:
           value: vpn
 
   - host: hermes
-    ip: 192.168.10.3
+    ip: 192.168.20.3
     role: worker
     data:
       installDiskSelector: disk.dev_path == "/dev/nvme0n1"
@@ -66,7 +66,7 @@ nodes:
         node.longhorn.io/default-disks-config: '[{"name":"data-nvme","path":"/var/mnt/data-nvme","allowScheduling":true,"storageReserved":1,"tags":[]},{"name":"data-sata","path":"/var/mnt/data-sata","allowScheduling":true,"storageReserved":1,"tags":[]}]'
 
   - host: zeus
-    ip: 192.168.10.4
+    ip: 192.168.20.4
     role: control-plane
     data:
       installDiskSelector: disk.dev_path == "/dev/nvme0n1"

@@ -37,7 +37,7 @@ kind: IngressRoute
 metadata:
   name: music-ingress
   annotations:
-    external-dns.kubernetes.io/target: 192.168.10.20
+    external-dns.kubernetes.io/target: 10.20.0.20
     gatus.kalexlab.xyz/enabled: "true"
     gatus.kalexlab.xyz/exclude-route: /rest/
 spec:

@@ -1,0 +1,114 @@
+
+config interface 'loopback'
+	option device 'lo'
+	option proto 'static'
+	option ipaddr '127.0.0.1'
+	option netmask '255.0.0.0'
+
+config globals 'globals'
+	option ula_prefix '${NETWORK_GLOBALS_ULA_PREFIX}'
+	option packet_steering '1'
+
+config interface 'wan'
+	option device 'wan.100'
+	option proto 'pppoe'
+	option username '${NETWORK_WAN_USERNAME}'
+	option password '${NETWORK_WAN_PASSWORD}'
+	option type 'bridge'
+
+config device
+	option name 'br-lan'
+	option type 'bridge'
+	list ports 'lan1'
+	list ports 'lan2'
+	list ports 'lan3'
+	list ports 'lan4'
+
+# VLAN 1: LAN
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '1'
+	list ports 'lan1:u*'
+	list ports 'lan2:u*'
+	list ports 'lan3:u*'
+	list ports 'lan4:u*'
+
+# VLAN 20: k8s nodes, tagged towards the switch on port 4
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '20'
+	list ports 'lan4:t'
+
+config interface 'lan'
+	option device 'br-lan.1'
+	option proto 'static'
+	option ipaddr '192.168.10.1'
+	option netmask '255.255.255.0'
+	option ip6assign '64'
+	option multipath 'off'
+
+config interface 'k8s'
+	option device 'br-lan.20'
+	option proto 'static'
+	option ipaddr '192.168.20.1'
+	option netmask '255.255.255.0'
+
+config device 'segregated_dev'
+	option type 'bridge'
+	option name 'br-segregated'
+
+config interface 'segregated'
+	option device 'br-segregated'
+	option proto 'static'
+	option ipaddr '192.168.2.1/24'
+
+config interface 'egressvpn'
+	option proto 'wireguard'
+	option private_key '${EGRESSVPN_PRIVATE_KEY}'
+	list addresses '${EGRESSVPN_ADDRESSES_V4}'
+	list addresses '${EGRESSVPN_ADDRESSES_V6}'
+	list dns '10.2.0.1'
+	list dns '2a07:b944::2:1'
+
+config wireguard_egressvpn
+	option description 'Proton'
+	option public_key '${EGRESSVPN_PUBLIC_KEY}'
+	list allowed_ips '0.0.0.0/0'
+	list allowed_ips '::/0'
+	option endpoint_host '${EGRESSVPN_ENDPOINT_HOST}'
+	option endpoint_port '51820'
+	option persistent_keepalive '25'
+
+config interface 'wan_6'
+	option proto 'dhcpv6'
+	option device 'pppoe-wan'
+	option reqaddress 'try'
+	option reqprefix 'auto'
+	option norelease '1'
+
+config interface 'wg0'
+	option proto 'wireguard'
+	option private_key '${WG0_INTERFACE_PRIVATE_KEY}'
+	option listen_port '51830'
+	list addresses '10.10.0.1/24'
+	option multipath 'off'
+
+config wireguard_wg0 'kalex_laptop'
+	option public_key '${KALEX_LAPTOP_PUBLIC_KEY}'
+	list allowed_ips '10.10.0.10/32'
+
+config wireguard_wg0 'kalex_phone'
+	option public_key '${KALEX_PHONE_PUBLIC_KEY}'
+	list allowed_ips '10.10.0.11/32'
+
+config wireguard_wg0 'laetitia_laptop'
+	option public_key '${LAETITIA_LAPTOP_PUBLIC_KEY}'
+	list allowed_ips '10.10.0.20/32'
+
+config wireguard_wg0 'laetitia_phone'
+	option public_key '${LAETITIA_PHONE_PUBLIC_KEY}'
+	list allowed_ips '10.10.0.21/32'
+
+config wireguard_wg0 'laetitia_tablet'
+	option public_key '${LAETITIA_TABLET_PUBLIC_KEY}'
+	list allowed_ips '10.10.0.22/32'

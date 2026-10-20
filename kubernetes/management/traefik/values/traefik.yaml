@@ -10,11 +10,8 @@ deployment:
   # -- Number of pods of the deployment (only applies when kind == Deployment)
   replicas: 2
 
-  # Ensure that the two replicas are scheduled one per node
-  # In particular, due to L2 Announcement requiring a pod on the leader,
-  # these two nodes must be those tagged with a given label.
-  #   ref: helm/cilium/extra/overlays/prod/traefik-ip-pool.yaml
-  #   ref: https://docs.cilium.io/en/latest/network/l2-announcements/#limitations
+# Ensure that the two replicas are scheduled one per node, on the ingress nodes.
+#   ref: kubernetes/management/cilium/manifests/bgp.yaml
 affinity:
   # Ensure that only nodes with the correct label get a Traefik pod
   nodeAffinity:
@@ -209,8 +206,8 @@ service:
   ## -- When set to false, it will create two Service, one for TCP and one for UDP.
   single: true
   type: LoadBalancer
-  labels:
-    kalexlab.xyz/ip-pool: traefik
+  annotations:
+    lbipam.cilium.io/ips: "10.20.0.20"
 
   spec:
     allocateLoadBalancerNodePorts: false
@@ -219,8 +216,8 @@ service:
 
   additionalServices:
     public:
-      labels:
-        kalexlab.xyz/ip-pool: traefik-public
+      annotations:
+        lbipam.cilium.io/ips: "10.20.0.21"
       spec:
         type: LoadBalancer
         allocateLoadBalancerNodePorts: false

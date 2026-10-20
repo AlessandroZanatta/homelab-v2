@@ -1,0 +1,6 @@
+
+config dropbear
+	option RootLogin '0'
+	option PasswordAuth 'off'
+	option Port '22'
+	option RootPasswordAuth 'off'

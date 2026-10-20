@@ -1,0 +1,15 @@
+---
+# Single pool for every LoadBalancer service, advertised via BGP (bgp.yaml).
+# Services pin their IP with the `lbipam.cilium.io/ips` annotation:
+#   10.20.0.16  adguard
+#   10.20.0.20  traefik
+#   10.20.0.21  traefik-public
+# Unannotated services get the next free IP.
+#   ref: https://docs.cilium.io/en/stable/network/lb-ipam/#requesting-ips
+apiVersion: cilium.io/v2
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: default
+spec:
+  blocks:
+    - cidr: "10.20.0.16/28"

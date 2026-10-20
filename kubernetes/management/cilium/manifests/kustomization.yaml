@@ -3,6 +3,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - namespace.yaml
-  - adguard-ip-pool.yaml
+  - lb-ip-pool.yaml
+  - bgp.yaml
   - hubble-ingress.yaml
-  - traefik-ip-pool.yaml
+  # - host-firewall.yaml

@@ -39,7 +39,7 @@ spec:
       kalexlab.xyz/app: etcd-backup
   egress:
     - toCIDR:
-        - 192.168.10.4/32
+        - 192.168.20.4/32
     - toPorts:
         - ports:
             - port: "50000"

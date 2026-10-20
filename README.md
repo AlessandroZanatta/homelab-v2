@@ -6,12 +6,13 @@ This repository keeps all the Infrastructure as Code (IaC) for my homelab, compo
 
 | Host   | Hardware                                 | IP           | Role                            |
 | ------ | ---------------------------------------- | ------------ | ------------------------------- |
-| zeus   | HP EliteDesk 800 G3M, i7-6700T, 16G DDR4 | 192.168.10.4 | Control plane (schedulable)     |
-| hermes | Dell Optiplex 3050M, i5-6600T, 16G DDR4  | 192.168.10.3 | Worker                          |
-| athena | Raspberry Pi 4B, 4G                      | 192.168.10.2 | Worker, VPN egress gateway      |
+| zeus   | HP EliteDesk 800 G3M, i7-6700T, 16G DDR4 | 192.168.20.4 | Control plane (schedulable)     |
+| hermes | Dell Optiplex 3050M, i5-6600T, 16G DDR4  | 192.168.20.3 | Worker                          |
+| athena | Raspberry Pi 4B, 4G                      | 192.168.20.2 | Worker, VPN egress gateway      |
 | -      | TP-Link Archer AX23 (OpenWRT)            | 192.168.10.1 | Router, WireGuard remote access |
 
-The Kubernetes API is exposed on the control plane VIP `192.168.10.9`.
+Nodes live on a dedicated VLAN (`192.168.20.0/24`, router `192.168.20.1`). The Kubernetes API is exposed on the control plane VIP `192.168.20.254`.
+LoadBalancer services get IPs from `10.20.0.16/28`, advertised via BGP (Cilium, ASN 64512) to the router (bird2, ASN 64513).
 
 Cluster nodes run [Talos](https://www.talos.dev/), whose configuration is managed with [topf](topf). Secrets are encrypted with [SOPS](https://github.com/getsops/sops) using an AGE key.
 

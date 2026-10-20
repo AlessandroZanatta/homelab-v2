@@ -251,10 +251,10 @@ coreDns:
     enabled: false
 
 kubeEtcd:
-  # Control plane virtual IP from talos/machine/vip.yaml and talos/talenv.prod.yaml
+  # Control plane virtual IP from topf/topf.yaml (controlPlaneVIP)
   # Only good for single-CP clusters!
   endpoints:
-    - 192.168.10.9
+    - 192.168.20.254
 
   service:
     enabled: true

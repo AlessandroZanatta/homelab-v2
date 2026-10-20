@@ -1,0 +1,4 @@
+---
+# OpenWrt release running on the router, upgraded manually via attended sysupgrade
+# renovate: datasource=github-tags depName=openwrt/openwrt
+version: "25.12.5"

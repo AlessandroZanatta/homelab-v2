@@ -17,14 +17,12 @@ kind: IngressRoute
 metadata:
   name: reciept-ingress
   annotations:
-    external-dns.kubernetes.io/target: ingress.kalexlab.xyz
+    external-dns.kubernetes.io/target: 10.20.0.20
     gatus.kalexlab.xyz/path: /
 spec:
   entryPoints:
     - web
     - websecure
-    - web-public
-    - websecure-public
   routes:
     - kind: Rule
       match: Host(`recipes.kalexlab.xyz`) && PathPrefix(`/api/public`)
