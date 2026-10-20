@@ -1,7 +1,9 @@
 config main 'config'
 	option canary_domains_icloud '1'
 	option canary_domains_mozilla '1'
-	option dnsmasq_config_update '*'
+	# Don't let https-dns-proxy rewrite dnsmasq's upstreams: they are managed in
+	# /etc/config/dhcp (AdGuard first, these DoH proxies as fallback)
+	option dnsmasq_config_update '-'
 	option force_dns '1'
 	list force_dns_port '53'
 	list force_dns_port '853'

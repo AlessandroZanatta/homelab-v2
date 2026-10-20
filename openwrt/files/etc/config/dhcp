@@ -15,8 +15,12 @@ config dnsmasq
 	list server '/mask.icloud.com/'
 	list server '/mask-h2.icloud.com/'
 	list server '/use-application-dns.net/'
+	# All LAN DNS lands here (https-dns-proxy force_dns): AdGuard first, the local
+	# DoH proxies only when AdGuard (the cluster) does not answer
+	list server '10.20.0.16'
 	list server '127.0.0.1#5053'
 	list server '127.0.0.1#5054'
+	option strictorder '1'
 	list rebind_domain 'kalexlab.xyz'
 	list addnmount '/var/run/pbr.dnsmasq'
 	option doh_backup_noresolv '-1'
@@ -38,7 +42,6 @@ config dhcp 'lan'
 	option ra 'server'
 	list ra_flags 'managed-config'
 	list ra_flags 'other-config'
-	list dhcp_option '6,10.20.0.16'
 	option ra_preference 'medium'
 
 config dhcp 'wan'

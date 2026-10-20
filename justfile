@@ -1,4 +1,4 @@
-openwrt_router := "router"
+openwrt_router := "192.168.10.1"
 
 init:
   pre-commit install
