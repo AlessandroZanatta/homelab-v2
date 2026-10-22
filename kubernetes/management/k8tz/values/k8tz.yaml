@@ -1,4 +1,15 @@
 ---
 timezone: Europe/Rome
+replicaCount: 2
 
 createNamespace: false
+
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: DoNotSchedule
+    matchLabelKeys:
+      - pod-template-hash
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: k8tz
