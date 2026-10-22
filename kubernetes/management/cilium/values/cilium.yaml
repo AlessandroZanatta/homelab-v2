@@ -22,10 +22,6 @@ hubble:
 bgpControlPlane:
   enabled: true
 
-# Enable support for L2 Announcements
-l2announcements:
-  enabled: true
-
 # -- Configure the host firewall.
 hostFirewall:
   # -- Enables the enforcement of host policies in the eBPF datapath.
