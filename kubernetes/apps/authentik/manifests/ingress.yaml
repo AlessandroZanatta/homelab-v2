@@ -17,16 +17,24 @@ kind: IngressRoute
 metadata:
   name: authentik
   annotations:
-    external-dns.kubernetes.io/target: 10.20.0.20
+    external-dns.kubernetes.io/target: ingress.kalexlab.xyz
 spec:
   entryPoints:
-    - web
-    - websecure
+    - web-public
+    - websecure-public
   routes:
     - kind: Rule
       match: Host(`auth.kalexlab.xyz`)
       services:
         - name: authentik-server
           port: http
+    - kind: Rule
+      match: Host(`auth.kalexlab.xyz`) && PathPrefix(`/if/admin`)
+      services:
+        - name: authentik-server
+          port: http
+      middlewares:
+        - name: allow-internal-only
+          namespace: traefik
   tls:
     secretName: authentik-certificate
