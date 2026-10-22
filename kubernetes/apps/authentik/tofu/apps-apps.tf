@@ -33,7 +33,7 @@ resource "authentik_application" "apps_anime" {
   slug              = "apps-anime"
   group             = var.application_groups["media"]
   meta_launch_url   = "https://anime.kalexlab.xyz/library"
-  meta_icon         = "https://anime.kalexlab.xyz/favicon.ico"
+  meta_icon         = "https://anime.kalexlab.xyz/logo.png"
   protocol_provider = authentik_provider_oauth2.apps_anime.id
 }
 
@@ -326,7 +326,7 @@ resource "authentik_application" "apps_reciept" {
   name              = "Reciept"
   slug              = "apps-reciept"
   group             = var.application_groups["apps"]
-  meta_icon         = "https://recipes.kalexlab.xyz/favicon.ico"
+  meta_icon         = "https://recipes.kalexlab.xyz/logo.png"
   protocol_provider = authentik_provider_oauth2.apps_reciept.id
 }
 

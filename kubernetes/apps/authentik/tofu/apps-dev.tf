@@ -38,7 +38,7 @@ resource "authentik_application" "dev_anime" {
   slug              = "dev-anime"
   group             = var.application_groups["dev"]
   meta_launch_url   = "http://192.168.10.51:8081"
-  meta_icon         = "https://anime.kalexlab.xyz/favicon.ico"
+  meta_icon         = "https://anime.kalexlab.xyz/logo.png"
   protocol_provider = authentik_provider_oauth2.dev_anime.id
 }
 
@@ -79,11 +79,11 @@ resource "authentik_provider_oauth2" "dev_reciept" {
 }
 
 resource "authentik_application" "dev_reciept" {
-  name            = "Reciept (DEV)"
-  slug            = "dev-reciept"
-  group           = var.application_groups["dev"]
-  meta_launch_url = "http://192.168.10.51:8081"
-  # meta_icon         = "https://reciept.kalexlab.xyz/favicon.ico"
+  name              = "Reciept (DEV)"
+  slug              = "dev-reciept"
+  group             = var.application_groups["dev"]
+  meta_launch_url   = "http://192.168.10.51:8081"
+  meta_icon         = "https://recipes.kalexlab.xyz/logo.png"
   protocol_provider = authentik_provider_oauth2.dev_reciept.id
 }
 

@@ -18,6 +18,7 @@ metadata:
   name: authentik
   annotations:
     external-dns.kubernetes.io/target: ingress.kalexlab.xyz
+    gatus.kalexlab.xyz/exclude-route: /if/admin
 spec:
   entryPoints:
     - web-public
