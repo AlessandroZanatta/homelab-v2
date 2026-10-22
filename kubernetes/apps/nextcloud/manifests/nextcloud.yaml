@@ -51,7 +51,7 @@ spec:
       restartPolicy: Always
       initContainers:
         - name: copy-conf
-          image: "docker.io/library/alpine:3.24.2"
+          image: "docker.io/library/alpine:3.24.3"
           imagePullPolicy: Always
           resources:
             requests:
@@ -90,7 +90,7 @@ spec:
               name: nextcloud-www-pvc
               subPath: config
         - name: wait-deps
-          image: "docker.io/library/alpine:3.24.2"
+          image: "docker.io/library/alpine:3.24.3"
           imagePullPolicy: Always
           resources:
             requests:

@@ -45,7 +45,7 @@ spec:
       restartPolicy: Always
       initContainers:
         - name: wait-db
-          image: "docker.io/library/alpine:3.24.2"
+          image: "docker.io/library/alpine:3.24.3"
           imagePullPolicy: Always
           resources:
             requests:
