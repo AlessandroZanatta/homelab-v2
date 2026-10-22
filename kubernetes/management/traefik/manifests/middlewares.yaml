@@ -30,6 +30,7 @@ spec:
 
       clientTrustedIPs:
         - 192.168.10.0/24
+        - 192.168.20.0/24
         - 10.10.0.0/24
 ---
 # Attached to every websecure* entrypoint.
@@ -49,4 +50,6 @@ spec:
   ipAllowList:
     sourceRange:
       - 10.10.0.0/24
+      - 100.64.0.0/10
       - 192.168.10.0/24
+      - 192.168.20.0/24
