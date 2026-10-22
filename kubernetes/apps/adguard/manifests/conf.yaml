@@ -28,8 +28,10 @@ data:
       ratelimit_subnet_len_ipv6: 56
       ratelimit_whitelist: []
       refuse_any: true
+      # Resolve via DoH directly
       upstream_dns:
-        - 192.168.10.1
+        - https://cloudflare-dns.com/dns-query
+        - https://dns.google/dns-query
       upstream_dns_file: ""
       bootstrap_dns:
         - 1.1.1.1
