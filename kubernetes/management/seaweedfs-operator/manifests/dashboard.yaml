@@ -10,4 +10,4 @@ spec:
   allowCrossNamespaceImport: true
   folder: Infrastructure
   # renovate: datasource=github-tags depName=seaweedfs/seaweedfs
-  url: "https://raw.githubusercontent.com/seaweedfs/seaweedfs/refs/tags/4.48/k8s/charts/seaweedfs/dashboards/seaweedfs-grafana-dashboard.json"
+  url: "https://raw.githubusercontent.com/seaweedfs/seaweedfs/refs/tags/4.49/k8s/charts/seaweedfs/dashboards/seaweedfs-grafana-dashboard.json"
