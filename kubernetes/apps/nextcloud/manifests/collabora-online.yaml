@@ -40,7 +40,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: collabora-online
-          image: "docker.io/collabora/code:26.04.5.1.1"
+          image: "docker.io/collabora/code:26.04.5.2.1"
           imagePullPolicy: Always
           ports:
             - name: http
