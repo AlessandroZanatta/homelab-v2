@@ -21,3 +21,8 @@ monitoring:
   dashboards:
     # -- Render the Grafana dashboard ConfigMap (for grafana-operator or the kube-prometheus-stack sidecar).
     enabled: true
+    grafanaOperator:
+      enabled: true
+      folder: Infrastructure
+      matchLabels:
+        grafana.kalexlab.xyz/instance: grafana
