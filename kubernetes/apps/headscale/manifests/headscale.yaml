@@ -69,7 +69,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: headscale
-          image: ghcr.io/juanfont/headscale:v0.29.5
+          image: ghcr.io/juanfont/headscale:v0.29.6
           command:
             - headscale
             - serve
