@@ -100,15 +100,3 @@ config wireguard_wg0 'kalex_laptop'
 config wireguard_wg0 'kalex_phone'
 	option public_key '${KALEX_PHONE_PUBLIC_KEY}'
 	list allowed_ips '10.10.0.11/32'
-
-config wireguard_wg0 'laetitia_laptop'
-	option public_key '${LAETITIA_LAPTOP_PUBLIC_KEY}'
-	list allowed_ips '10.10.0.20/32'
-
-config wireguard_wg0 'laetitia_phone'
-	option public_key '${LAETITIA_PHONE_PUBLIC_KEY}'
-	list allowed_ips '10.10.0.21/32'
-
-config wireguard_wg0 'laetitia_tablet'
-	option public_key '${LAETITIA_TABLET_PUBLIC_KEY}'
-	list allowed_ips '10.10.0.22/32'
