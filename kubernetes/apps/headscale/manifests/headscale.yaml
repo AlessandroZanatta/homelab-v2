@@ -1,0 +1,154 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: headscale
+  labels:
+    kalexlab.xyz/app: headscale
+    kalexlab.xyz/component: headscale
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: http
+    - name: metrics
+      port: 9090
+      protocol: TCP
+      targetPort: metrics
+  selector:
+    kalexlab.xyz/app: headscale
+    kalexlab.xyz/component: headscale
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: headscale-stun
+  labels:
+    kalexlab.xyz/app: headscale
+    kalexlab.xyz/component: headscale
+  annotations:
+    lbipam.cilium.io/ips: "10.20.0.24"
+spec:
+  type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  externalTrafficPolicy: Local
+  ports:
+    - name: stun
+      port: 3478
+      protocol: UDP
+      targetPort: 3478
+  selector:
+    kalexlab.xyz/app: headscale
+    kalexlab.xyz/component: headscale
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: headscale
+  labels:
+    kalexlab.xyz/app: headscale
+    kalexlab.xyz/component: headscale
+spec:
+  serviceName: headscale
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: headscale
+      kalexlab.xyz/component: headscale
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: headscale
+        kalexlab.xyz/component: headscale
+        kalexlab.xyz/monitoring: "true"
+        sso.kalexlab.xyz/idp: authentik
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: headscale
+          image: ghcr.io/juanfont/headscale:v0.29.5
+          command:
+            - headscale
+            - serve
+          imagePullPolicy: Always
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: stun
+              containerPort: 3478
+              protocol: UDP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+          resources:
+            requests:
+              memory: 30Mi
+              cpu: 20m
+            limits:
+              memory: 300Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            failureThreshold: 3
+            periodSeconds: 30
+          volumeMounts:
+            - name: headscale-data-pvc
+              mountPath: /var/lib/headscale
+            - name: headscale-conf
+              mountPath: /etc/headscale/config.yaml
+              subPath: config.yaml
+            - name: headscale-conf
+              mountPath: /etc/headscale/policy.hujson
+              subPath: policy.hujson
+            - name: headscale-secrets
+              mountPath: /var/lib/headscale/secrets
+            - name: headscale-var-run
+              mountPath: /var/run
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65535
+        runAsGroup: 65535
+        fsGroup: 65535
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: headscale-conf
+          configMap:
+            name: headscale-conf
+        - name: headscale-secrets
+          secret:
+            secretName: headscale-secrets
+        - name: headscale-var-run
+          emptyDir:
+            sizeLimit: 1Gi
+  volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: headscale-data-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 1Gi

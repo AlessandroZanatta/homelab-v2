@@ -9,6 +9,7 @@ resource "authentik_user" "kalex" {
     authentik_group.infra.id,
     authentik_group.dev.id,
     authentik_group.home.id,
+    authentik_group.vpn.id,
   ]
 
   attributes = jsonencode({
@@ -23,6 +24,7 @@ resource "authentik_user" "laetitia" {
   path     = "users/home"
 
   groups = [
-    authentik_group.home.id
+    authentik_group.home.id,
+    authentik_group.vpn.id,
   ]
 }

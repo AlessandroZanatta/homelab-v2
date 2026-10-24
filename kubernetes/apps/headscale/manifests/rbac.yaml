@@ -1,0 +1,42 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ts-router
+  labels:
+    kalexlab.xyz/app: headscale
+    kalexlab.xyz/component: ts-router
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ts-router
+  labels:
+    kalexlab.xyz/app: headscale
+    kalexlab.xyz/component: ts-router
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["ts-router-state"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch", "get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ts-router
+  labels:
+    kalexlab.xyz/app: headscale
+    kalexlab.xyz/component: ts-router
+subjects:
+  - kind: ServiceAccount
+    name: ts-router
+roleRef:
+  kind: Role
+  name: ts-router
+  apiGroup: rbac.authorization.k8s.io

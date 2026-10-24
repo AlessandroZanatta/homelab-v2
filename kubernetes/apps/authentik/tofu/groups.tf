@@ -31,3 +31,9 @@ resource "authentik_group" "dev" {
 
   parents = [authentik_group.user.id]
 }
+
+resource "authentik_group" "vpn" {
+  name = "vpn"
+
+  parents = [authentik_group.user.id]
+}

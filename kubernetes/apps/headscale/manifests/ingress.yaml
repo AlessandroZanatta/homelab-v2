@@ -1,0 +1,74 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: headscale-certificate
+spec:
+  commonName: vpn.kalexlab.xyz
+  secretName: vpn-ingress-certificate
+  dnsNames:
+    - vpn.kalexlab.xyz
+    - ui.vpn.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: headscale-ingress
+  annotations:
+    external-dns.kubernetes.io/target: ingress.kalexlab.xyz
+    gatus.kalexlab.xyz/path: /health
+spec:
+  entryPoints:
+    - websecure-public
+  routes:
+    - kind: Rule
+      match: >-
+        Host(`vpn.kalexlab.xyz`) &&
+        !PathPrefix(`/api`) && !PathPrefix(`/swagger`) && !Path(`/version`) &&
+        !Path(`/verify`) && !PathPrefix(`/apple`) && !Path(`/windows`) &&
+        !PathPrefix(`/admin`) && !Path(`/`)
+      services:
+        - name: headscale
+          port: http
+  tls:
+    secretName: vpn-ingress-certificate
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: headplane-admin-redirect
+spec:
+  redirectRegex:
+    regex: ^https?://ui\.vpn\.kalexlab\.xyz/?$
+    replacement: https://ui.vpn.kalexlab.xyz/admin
+    permanent: false
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: headplane-ingress
+  annotations:
+    external-dns.kubernetes.io/target: 10.20.0.20
+    gatus.kalexlab.xyz/path: /admin/healthz
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`ui.vpn.kalexlab.xyz`)
+      services:
+        - name: headplane
+          port: http
+      middlewares:
+        - name: headplane-admin-redirect
+    - kind: Rule
+      match: Host(`ui.vpn.kalexlab.xyz`) && PathPrefix(`/admin`)
+      services:
+        - name: headplane
+          port: http
+  tls:
+    secretName: vpn-ingress-certificate

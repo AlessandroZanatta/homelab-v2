@@ -1,0 +1,130 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: headplane
+  labels:
+    kalexlab.xyz/app: headscale
+    kalexlab.xyz/component: headplane
+  # annotations:
+  #   gatus.kalexlab.xyz/enabled: "true"
+  #   gatus.kalexlab.xyz/path: /api/health
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 3000
+      protocol: TCP
+      targetPort: http
+  selector:
+    kalexlab.xyz/app: headscale
+    kalexlab.xyz/component: headplane
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: headplane
+  labels:
+    kalexlab.xyz/app: headscale
+    kalexlab.xyz/component: headplane
+spec:
+  serviceName: headplane
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: headscale
+      kalexlab.xyz/component: headplane
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: headscale
+        kalexlab.xyz/component: headplane
+        kalexlab.xyz/monitoring: "true"
+        sso.kalexlab.xyz/idp: authentik
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: headplane
+          image: ghcr.io/tale/headplane:0.8.2
+          imagePullPolicy: Always
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          envFrom:
+            - secretRef:
+                name: headplane-secrets
+          env:
+            - name: HEADPLANE_LOAD_ENV_OVERRIDES
+              value: "true"
+            - name: HEADPLANE_INTEGRATION__KUBERNETES__POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          resources:
+            requests:
+              memory: 160Mi
+              cpu: 1m
+            limits:
+              memory: 400Mi
+          readinessProbe:
+            httpGet:
+              path: /admin/healthz
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /admin/healthz
+              port: http
+            failureThreshold: 3
+            periodSeconds: 30
+          volumeMounts:
+            - name: headplane-data-pvc
+              mountPath: /var/lib/headplane
+            - name: headplane-conf
+              mountPath: /etc/headplane/config.yaml
+              subPath: config.yaml
+            - name: headscale-conf
+              mountPath: /etc/headscale/config.yaml
+              subPath: config.yaml
+            - name: headplane-tmp
+              mountPath: /tmp
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65535
+        runAsGroup: 65535
+        fsGroup: 65535
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: headscale-conf
+          configMap:
+            name: headscale-conf
+        - name: headplane-conf
+          configMap:
+            name: headplane-conf
+        - name: headplane-tmp
+          emptyDir:
+            sizeLimit: 10Mi
+  volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: headplane-data-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 1Gi

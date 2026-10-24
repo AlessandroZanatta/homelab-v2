@@ -1,0 +1,190 @@
+# TODO: fix
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-cluster-dns
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: coredns
+          podSelector:
+            matchLabels:
+              k8s-app: coredns
+      ports:
+        - protocol: UDP
+          port: udp-53
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: headscale
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: headscale
+      kalexlab.xyz/component: headscale
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: headscale
+              kalexlab.xyz/component: headplane
+      ports:
+        - protocol: TCP
+          port: http
+    - ports:
+        - protocol: UDP
+          port: stun
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: metrics
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: headplane
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: headscale
+      kalexlab.xyz/component: headplane
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: http
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: headscale
+              kalexlab.xyz/component: headscale
+      ports:
+        - protocol: TCP
+          port: http
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: ts-router
+spec:
+  endpointSelector:
+    matchLabels:
+      kalexlab.xyz/app: headscale
+      kalexlab.xyz/component: ts-router
+  egress:
+    # State Secret (TS_KUBE_SECRET)
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
+    # DNS visibility, needed by toFQDNs
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: coredns
+            k8s-app: coredns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+          rules:
+            dns:
+              - matchPattern: "*"
+    # Control plane + DERP. toFQDNs instead of serverNames keeps relayed traffic out of Envoy
+    - toFQDNs:
+        - matchName: vpn.kalexlab.xyz
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+    # WireGuard to clients + STUN
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "1"
+              endPort: 65535
+              protocol: UDP
+    # Tailnet -> Traefik VIPs (10.20.0.20, 10.20.0.21)
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: traefik
+            app.kubernetes.io/name: traefik
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+            - port: "8443"
+              protocol: TCP
+            - port: "8001"
+              protocol: TCP
+            - port: "8444"
+              protocol: TCP
+    # Tailnet -> AdGuard VIP (10.20.0.16)
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: adguard
+            kalexlab.xyz/app: adguard
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+    # Tailnet (admins) -> LAN and k8s VLAN
+    - toCIDR:
+        - 192.168.10.0/24
+        - 192.168.20.0/24
+    - toEntities:
+        - host
+        - remote-node
+  ingress:
+    # Direct WireGuard from peers (ts-router-wg, externalTrafficPolicy: Local)
+    - fromEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "41641"
+              protocol: UDP

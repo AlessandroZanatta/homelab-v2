@@ -188,6 +188,30 @@ config redirect
 	list reflection_zone 'k8s'
 	list reflection_zone 'lan'
 
+config redirect
+	option dest 'k8s'
+	option target 'DNAT'
+	option name 'headscale-stun'
+	option src 'wan'
+	option proto 'udp'
+	option src_dport '3478'
+	option dest_ip '10.20.0.24'
+	option dest_port '3478'
+	list reflection_zone 'k8s'
+	list reflection_zone 'lan'
+
+config redirect
+	option dest 'k8s'
+	option target 'DNAT'
+	option name 'ts-router-wireguard'
+	option src 'wan'
+	option proto 'udp'
+	option src_dport '41641'
+	option dest_ip '10.20.0.25'
+	option dest_port '41641'
+	list reflection_zone 'k8s'
+	list reflection_zone 'lan'
+
 config rule 'wg0'
 	option name 'Allow-WireGuard'
 	option src 'wan'

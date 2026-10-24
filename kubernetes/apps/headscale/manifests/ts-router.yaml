@@ -1,0 +1,131 @@
+---
+# Direct WireGuard connections from peers (WAN udp 41641 -> 10.20.0.25)
+apiVersion: v1
+kind: Service
+metadata:
+  name: ts-router-wg
+  labels:
+    kalexlab.xyz/app: headscale
+    kalexlab.xyz/component: ts-router
+  annotations:
+    lbipam.cilium.io/ips: "10.20.0.25"
+spec:
+  type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  externalTrafficPolicy: Local
+  ports:
+    - name: wireguard
+      port: 41641
+      protocol: UDP
+      targetPort: wireguard
+  selector:
+    kalexlab.xyz/app: headscale
+    kalexlab.xyz/component: ts-router
+---
+# Single replica: two replicas would share one node identity (ts-router-state) and conflict.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ts-router
+  labels:
+    kalexlab.xyz/app: headscale
+    kalexlab.xyz/component: ts-router
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: headscale
+      kalexlab.xyz/component: ts-router
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: headscale
+        kalexlab.xyz/component: ts-router
+    spec:
+      serviceAccountName: ts-router
+      restartPolicy: Always
+      containers:
+        - name: tailscale
+          image: ghcr.io/tailscale/tailscale:v1.104.2
+          imagePullPolicy: Always
+          # TS_DEBUG_PRETENDPOINT only accepts a literal IP:port, resolve the WAN IP first
+          command:
+            - /bin/sh
+            - -c
+            - |
+              ip="$(getent hosts "$TS_PRETENDPOINT_HOST" | awk '{print $1; exit}')"
+              [ -n "$ip" ] || { echo "cannot resolve $TS_PRETENDPOINT_HOST" >&2; exit 1; }
+              echo "$ip" > /tmp/pretendpoint
+              export TS_DEBUG_PRETENDPOINT="$ip:41641"
+              exec /usr/local/bin/containerboot
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          envFrom:
+            - configMapRef:
+                name: ts-router-conf
+            # TS_AUTHKEY: headscale pre-auth key created with --tags tag:router
+            - secretRef:
+                name: ts-router-secrets
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_UID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+          ports:
+            - name: health
+              containerPort: 9002
+              protocol: TCP
+            - name: wireguard
+              containerPort: 41641
+              protocol: UDP
+          resources:
+            requests:
+              memory: 50Mi
+              cpu: 2m
+            limits:
+              # Very lenient limit
+              memory: 800Mi
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: health
+            periodSeconds: 10
+          # Restart when tailscaled is unhealthy, or when the WAN IP changed since start.
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  wget -qO /dev/null http://127.0.0.1:9002/healthz || exit 1
+                  ip="$(getent hosts "$TS_PRETENDPOINT_HOST" | awk '{print $1; exit}')"
+                  [ -z "$ip" ] || [ "$ip" = "$(cat /tmp/pretendpoint)" ]
+            initialDelaySeconds: 30
+            periodSeconds: 60
+            timeoutSeconds: 10
+            failureThreshold: 3
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65535
+        runAsGroup: 65535
+        fsGroup: 65535
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 100Mi

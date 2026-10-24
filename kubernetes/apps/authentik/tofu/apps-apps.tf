@@ -82,6 +82,85 @@ resource "authentik_policy_binding" "apps_shelfmark" {
   order  = 0
 }
 
+# Headscale
+resource "authentik_provider_oauth2" "apps_headscale" {
+  name               = "Headscale"
+  client_id          = "apps-headscale"
+  authorization_flow = authentik_flow.authorization_implicit.uuid
+  invalidation_flow  = authentik_flow.app_invalidation.uuid
+
+  signing_key = authentik_certificate_key_pair.jwt_signing.id
+  allowed_redirect_uris = [
+    {
+      matching_mode     = "strict",
+      url               = "https://vpn.kalexlab.xyz/oidc/callback",
+      redirect_uri_type = "authorization",
+    }
+  ]
+  property_mappings = [
+    data.authentik_property_mapping_provider_scope.oidc_scopes["openid"].id,
+    data.authentik_property_mapping_provider_scope.oidc_scopes["email"].id,
+    data.authentik_property_mapping_provider_scope.oidc_scopes["profile"].id
+  ]
+  grant_types = [
+    "authorization_code"
+  ]
+}
+
+resource "authentik_application" "apps_headscale" {
+  name              = "Headscale"
+  slug              = "apps-headscale"
+  group             = var.application_groups["apps"]
+  meta_icon         = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/headscale.svg"
+  protocol_provider = authentik_provider_oauth2.apps_headscale.id
+}
+
+resource "authentik_policy_binding" "apps_headscale" {
+  target = authentik_application.apps_headscale.uuid
+  group  = authentik_group.vpn.id
+  order  = 0
+}
+
+# Headplane
+resource "authentik_provider_oauth2" "apps_headplane" {
+  name               = "Headplane"
+  client_id          = "apps-headplane"
+  authorization_flow = authentik_flow.authorization_implicit.uuid
+  invalidation_flow  = authentik_flow.app_invalidation.uuid
+
+  signing_key = authentik_certificate_key_pair.jwt_signing.id
+  allowed_redirect_uris = [
+    {
+      matching_mode     = "strict",
+      url               = "https://ui.vpn.kalexlab.xyz/admin/oidc/callback",
+      redirect_uri_type = "authorization",
+    }
+  ]
+  property_mappings = [
+    data.authentik_property_mapping_provider_scope.oidc_scopes["openid"].id,
+    data.authentik_property_mapping_provider_scope.oidc_scopes["email"].id,
+    data.authentik_property_mapping_provider_scope.oidc_scopes["profile"].id
+  ]
+  grant_types = [
+    "authorization_code"
+  ]
+}
+
+resource "authentik_application" "apps_headplane" {
+  name              = "Headplane"
+  slug              = "apps-headplane"
+  group             = var.application_groups["apps"]
+  meta_icon         = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/headplane.svg"
+  protocol_provider = authentik_provider_oauth2.apps_headplane.id
+}
+
+resource "authentik_policy_binding" "apps_headplane" {
+  target = authentik_application.apps_headplane.uuid
+  group  = authentik_group.infra.id
+  order  = 0
+}
+
+
 # Home Assistant
 resource "authentik_provider_oauth2" "apps_homeassistant" {
   name               = "Home Assistant"

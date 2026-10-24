@@ -1,0 +1,648 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: headscale-conf
+data:
+  config.yaml: |
+    ---
+    # The url clients will connect to.
+    # Typically this will be a domain like:
+    #
+    # https://myheadscale.example.com:443
+    #
+    server_url: https://vpn.kalexlab.xyz
+
+    # Address to listen to / bind to on the server
+    #
+    # For production:
+    # listen_addr: 0.0.0.0:8080
+    listen_addr: 0.0.0.0:8080
+
+    # Address to listen to /metrics and /debug, you may want
+    # to keep this endpoint private to your internal network
+    # Use an empty value to disable the metrics listener.
+    metrics_listen_addr: 0.0.0.0:9090
+
+    # CIDR(s) of reverse proxies (e.g. 127.0.0.1/32) whose
+    # True-Client-IP, X-Real-IP and X-Forwarded-For headers should
+    # be honoured. Empty (default) ignores those headers; setting
+    # this without a proxy in front lets clients spoof their logged
+    # source IP.
+    trusted_proxies:
+      - 10.244.0.0/16
+
+    # The Noise section includes specific configuration for the
+    # TS2021 Noise protocol
+    noise:
+      # The Noise private key is used to encrypt the traffic between headscale and
+      # Tailscale clients when using the new Noise-based protocol. A missing key
+      # will be automatically generated.
+      private_key_path: /var/lib/headscale/secrets/noise_private.key
+
+    # List of IP prefixes to allocate tailaddresses from.
+    # Each prefix consists of either an IPv4 or IPv6 address,
+    # and the associated prefix length, delimited by a slash.
+    #
+    # WARNING: These prefixes MUST be subsets of the standard Tailscale ranges:
+    #   - IPv4: 100.64.0.0/10 (CGNAT range)
+    #   - IPv6: fd7a:115c:a1e0::/48 (Tailscale ULA range)
+    #
+    # Using a SUBSET of these ranges is supported and useful if you want to
+    # limit IP allocation to a smaller block (e.g., 100.64.0.0/24).
+    #
+    # Using ranges OUTSIDE of CGNAT/ULA is NOT supported and will cause
+    # undefined behaviour. The Tailscale client has hard-coded assumptions
+    # about these ranges and will break in subtle, hard-to-debug ways.
+    #
+    # See:
+    # IPv4: https://github.com/tailscale/tailscale/blob/22ebb25e833264f58d7c3f534a8b166894a89536/net/tsaddr/tsaddr.go#L33
+    # IPv6: https://github.com/tailscale/tailscale/blob/22ebb25e833264f58d7c3f534a8b166894a89536/net/tsaddr/tsaddr.go#LL81C52-L81C71
+    prefixes:
+      v4: 100.64.0.0/10
+
+      # Strategy used for allocation of IPs to nodes, available options:
+      # - sequential (default): assigns the next free IP from the previous given
+      #   IP. A best-effort approach is used and Headscale might leave holes in the
+      #   IP range or fill up existing holes in the IP range.
+      # - random: assigns the next free IP from a pseudo-random IP generator (crypto/rand).
+      allocation: random
+
+    # DERP is a relay system that Tailscale uses when a direct
+    # connection cannot be established.
+    # https://tailscale.com/blog/how-tailscale-works/#encrypted-tcp-relays-derp
+    #
+    # Headscale needs a list of DERP servers that can be presented to the clients.
+    derp:
+      server:
+        # If enabled, runs the embedded DERP server and merges it into the rest of the DERP config
+        # The Headscale server_url defined above MUST be using https, DERP requires TLS to be in place
+        enabled: true
+
+        # Region ID to use for the embedded DERP server.
+        # The local DERP prevails if the region ID collides with other region ID coming from
+        # the regular DERP config.
+        region_id: 999
+
+        # Region code and name are displayed in the Tailscale UI to identify a DERP region
+        region_code: "kalexlab"
+        region_name: "Homelab VPN Embedded DERP"
+
+        # Only allow clients associated with this server access
+        verify_clients: true
+
+        # Listens over UDP at the configured address for STUN connections - to help with NAT traversal.
+        # When the embedded DERP server is enabled stun_listen_addr MUST be defined.
+        #
+        # For more details on how this works, check this great article: https://tailscale.com/blog/how-tailscale-works/
+        stun_listen_addr: "0.0.0.0:3478"
+
+        # Private key used to encrypt the traffic between headscale DERP and
+        # Tailscale clients. A missing key will be automatically generated.
+        private_key_path: /var/lib/headscale/secrets/derp_server_private.key
+
+        # This flag can be used, so the DERP map entry for the embedded DERP server is not written automatically,
+        # it enables the creation of your very own DERP map entry using a locally available file with the parameter DERP.paths
+        # If you enable the DERP server and set this to false, it is required to add the DERP server to the DERP map using DERP.paths
+        automatically_add_embedded_derp_region: true
+
+        # For better connection stability (especially when using an Exit-Node and DNS is not working),
+        # it is possible to optionally add the public IPv4 and IPv6 address to the Derp-Map using:
+        # Unset: the WAN IP is dynamic, clients resolve vpn.kalexlab.xyz (ddns) instead.
+        # ipv4: 198.51.100.1
+        # ipv6: 2001:db8::1
+
+      # List of externally available DERP maps encoded in JSON
+      urls: []
+
+      # Locally available DERP map files. The extension picks the format: .yaml/.yml,
+      # or Tailscale JSON as .json or .hujson.
+      #
+      # This option is mostly interesting for people hosting their own DERP servers:
+      # https://tailscale.com/docs/reference/derp-servers/custom-derp-servers
+      # https://headscale.net/stable/ref/derp/
+      #
+      # paths:
+      #   - /etc/headscale/derp-example.yaml
+      paths: []
+
+      # If enabled, a worker will be set up to periodically
+      # refresh the given sources and update the derpmap
+      # will be set up.
+      auto_update_enabled: true
+
+      # How often should we check for DERP updates?
+      update_frequency: 3h
+
+    # Disables the automatic check for headscale updates on startup
+    disable_check_updates: true
+
+    # Node lifecycle configuration.
+    node:
+      # Default key expiry for non-tagged nodes, regardless of registration method
+      # (auth key, CLI, web auth). Tagged nodes are exempt and never expire.
+      #
+      # This is the base default. OIDC can override this via oidc.expiry.
+      # If a client explicitly requests a specific expiry, the client value is used.
+      #
+      # Setting the value to "0" means no default expiry (nodes never expire unless
+      # explicitly expired via `headscale nodes expire`).
+      #
+      # Tailscale SaaS uses 180d; set to a positive duration to match that behaviour.
+      #
+      # Default: 0 (no default expiry)
+      expiry: 0
+
+      ephemeral:
+        # Time before an inactive ephemeral node is deleted.
+        inactivity_timeout: 30m
+
+      # HA subnet router health probing.
+      #
+      # When HA routes exist (2+ nodes advertising the same prefix), headscale
+      # pings each HA node every probe_interval via the Noise channel. If a node
+      # fails to respond within probe_timeout it is marked unhealthy and the
+      # primary role moves to the next healthy node. A node that later responds
+      # is marked healthy again but does NOT reclaim primary (avoids flapping).
+      #
+      # Worst-case detection time is probe_interval + probe_timeout (15s default).
+      # No-op when no HA routes exist. Set probe_interval to 0 to disable.
+      routes:
+        ha:
+          # How often to ping HA subnet routers. Set to 0 to disable probing.
+          # Must be >= 2s when enabled.
+          probe_interval: 10s
+
+          # How long to wait for a ping response before marking a node unhealthy.
+          # Must be >= 1s and less than probe_interval.
+          probe_timeout: 5s
+
+    database:
+      # Database type. Available options: sqlite, postgres
+      # Please note that using Postgres is highly discouraged as it is only supported for legacy reasons.
+      # All new development, testing and optimisations are done with SQLite in mind.
+      type: sqlite
+
+      # Enable debug mode. This setting requires the log.level to be set to "debug" or "trace".
+      debug: false
+
+      # GORM configuration settings.
+      gorm:
+        # Enable prepared statements.
+        prepare_stmt: true
+
+        # Enable parameterized queries.
+        parameterized_queries: true
+
+        # Skip logging "record not found" errors.
+        skip_err_record_not_found: true
+
+        # Threshold for slow queries in milliseconds.
+        slow_threshold: 1000
+
+      # SQLite config
+      sqlite:
+        path: /var/lib/headscale/db.sqlite
+
+        # Enable WAL mode for SQLite. This is recommended for production environments.
+        # https://www.sqlite.org/wal.html
+        write_ahead_log: true
+
+        # Maximum number of WAL file frames before the WAL file is automatically checkpointed.
+        # https://www.sqlite.org/c3ref/wal_autocheckpoint.html
+        # Set to 0 to disable automatic checkpointing.
+        wal_autocheckpoint: 1000
+
+    log:
+      # Valid log levels: panic, fatal, error, warn, info, debug, trace
+      level: info
+
+      # Output formatting for logs: text or json
+      format: json
+
+    ## Policy
+    # Headscale supports a wide range of Tailscale policy features such as ACLs and
+    # Grants. Please have a look at their docs to better understand the concepts:
+    # ACLs: https://tailscale.com/docs/features/access-control/acls
+    # Grants: https://tailscale.com/docs/features/access-control/grants
+    policy:
+      # The mode can be "file" or "database" that defines
+      # where the policies are stored and read from.
+      mode: file
+
+      # If the mode is set to "file", the path to a HuJSON file containing policies.
+      path: /etc/headscale/policy.hujson
+
+    ## DNS
+    #
+    # headscale supports Tailscale's DNS configuration and MagicDNS.
+    # Please have a look to their docs to better understand the concepts:
+    #
+    # - https://tailscale.com/docs/features/magicdns
+    # - https://tailscale.com/blog/2021-09-private-dns-with-magicdns
+    #
+    # Please note that for the DNS configuration to have any effect,
+    # clients must have the `--accept-dns=true` option enabled. This is the
+    # default for the Tailscale client. This option is enabled by default
+    # in the Tailscale client.
+    #
+    # Setting _any_ of the configuration and `--accept-dns=true` on the
+    # clients will integrate with the DNS manager on the client or
+    # overwrite /etc/resolv.conf.
+    # https://tailscale.com/docs/reference/faq/dns-resolv-conf
+    #
+    # If you want stop Headscale from managing the DNS configuration
+    # all the fields under `dns` should be set to empty values.
+    dns:
+      # Whether to use MagicDNS
+      magic_dns: false
+
+      # Defines the base domain to create the hostnames for MagicDNS.
+      # This domain _must_ be different from the server_url domain.
+      # `base_domain` must be a FQDN, without the trailing dot.
+      # The FQDN of the hosts will be
+      # `hostname.base_domain` (e.g., _myhost.example.com_).
+      base_domain: example.com
+
+      # Whether to use the local DNS settings of a node or override the local DNS
+      # settings (default) and force the use of Headscale's DNS configuration.
+      override_local_dns: false
+
+      # List of DNS servers to expose to clients.
+      nameservers:
+        global: []
+
+          # NextDNS (see https://tailscale.com/docs/integrations/nextdns).
+          # "abc123" is example NextDNS ID, replace with yours.
+          # - https://dns.nextdns.io/abc123
+
+        # Split DNS (see https://tailscale.com/docs/reference/dns-in-tailscale#restricted-nameservers),
+        # a map of domains and which DNS server to use for each.
+        # Resolvers with DNS-rebind protection drop *.kalexlab.xyz -> 10.20.0.20
+        split:
+          kalexlab.xyz:
+            - 10.20.0.16
+          # foo.bar.com:
+          #   - 1.1.1.1
+          # darp.headscale.net:
+          #   - 1.1.1.1
+          #   - 8.8.8.8
+
+      # Set custom DNS search domains. With MagicDNS enabled,
+      # your tailnet base_domain is always the first search domain.
+      search_domains: []
+
+      # Extra DNS records
+      # so far only A and AAAA records are supported (on the tailscale side)
+      # See: https://headscale.net/stable/ref/dns/
+      extra_records: []
+      #   - name: "grafana.myvpn.example.com"
+      #     type: "A"
+      #     value: "100.64.0.3"
+      #
+      #   # you can also put it in one line
+      #   - { name: "prometheus.myvpn.example.com", type: "A", value: "100.64.0.3" }
+      #
+      # Alternatively, extra DNS records can be loaded from a file. The extension
+      # picks the format: .json, .hujson, .yaml or .yml.
+      # Headscale processes this file on each change.
+      # extra_records_path: /var/lib/headscale/extra-records.json
+
+    # Unix socket used for the CLI to connect without authentication
+    # Note: for production you will want to set this to something like:
+    unix_socket: /var/run/headscale/headscale.sock
+    # Octal, quoted: YAML reads an unquoted 0770 as the number 504.
+    unix_socket_permission: "0770"
+
+    # OpenID Connect
+    # https://headscale.net/stable/ref/oidc/
+    oidc:
+      # Block startup until the identity provider is available and healthy.
+      only_start_if_oidc_is_available: true
+
+      # OpenID Connect Issuer URL from the identity provider
+      issuer: "https://auth.kalexlab.xyz/application/o/apps-headscale/"
+
+      # Client ID from the identity provider
+      client_id: "apps-headscale"
+
+      # Alternatively, set `client_secret_path` to read the secret from the file.
+      # It resolves environment variables, making integration to systemd's
+      # `LoadCredential` straightforward:
+      client_secret_path: "/var/lib/headscale/secrets/oidc_client_secret"
+
+      # The OIDC scopes to use, defaults to "openid", "profile" and "email".
+      # Custom scopes can be configured as needed, be sure to always include the
+      # required "openid" scope.
+      scope: ["openid", "profile", "email"]
+
+      # Only verified email addresses are synchronized to the user profile by
+      # default. Unverified emails may be allowed in case an identity provider
+      # does not send the "email_verified: true" claim or email verification is
+      # not required.
+      email_verified_required: false
+
+      # Only accept users which are members of at least one group in the
+      # allowed_groups list.
+      allowed_groups:
+        - vpn
+
+      # Optional: PKCE (Proof Key for Code Exchange) configuration
+      # PKCE adds an additional layer of security to the OAuth 2.0 authorization code flow
+      # by preventing authorization code interception attacks
+      # See https://datatracker.ietf.org/doc/html/rfc7636
+      pkce:
+        # Enable or disable PKCE support (default: false)
+        enabled: true
+
+        # PKCE method to use:
+        # - plain: Use plain code verifier
+        # - S256: Use SHA256 hashed code verifier (default, recommended)
+        method: S256
+
+    # Logtail configuration
+    # Logtail is Tailscales logging and auditing infrastructure, it allows the
+    # control panel to instruct tailscale nodes to log their activity to a remote
+    # server. To disable logging on the client side, please refer to:
+    # https://tailscale.com/docs/features/logging#opt-out-of-client-logging
+    logtail:
+      # Enable logtail for tailscale nodes of this Headscale instance.
+      # As there is currently no support for overriding the log server in Headscale, this is
+      # disabled by default. Enabling this will make your clients send logs to Tailscale Inc.
+      enabled: false
+
+    # Taildrop configuration
+    # Taildrop is the file sharing feature of Tailscale, allowing nodes to
+    # send files to each other.
+    # https://tailscale.com/docs/features/taildrop
+    taildrop:
+      # Enable or disable Taildrop tailnet-wide. When disabled, headscale
+      # withholds `https://tailscale.com/cap/file-sharing` from every
+      # node's CapMap.
+      enabled: false
+
+    # Default node auto-update behaviour. When enabled, every node's
+    # CapMap carries `default-auto-update: [true]` so clients that have
+    # not made a local opt-in / opt-out choice run auto-updates by
+    # default. Setting it back to false flips the default for future
+    # clients; clients that already stored the value locally keep their
+    # choice.
+    auto_update:
+      enabled: false
+
+    # Advanced performance tuning parameters.
+    # The defaults are carefully chosen and should rarely need adjustment.
+    # Only modify these if you have identified a specific performance issue.
+    #
+    # tuning:
+    #   # Maximum number of pending registration entries in the auth cache.
+    #   # Oldest entries are evicted when the cap is reached.
+    #   #
+    #   # register_cache_max_entries: 1024
+    #
+    #   # NodeStore write batching configuration.
+    #   # The NodeStore batches write operations before rebuilding peer relationships,
+    #   # which is computationally expensive. Batching reduces rebuild frequency.
+    #   #
+    #   # node_store_batch_size: 100
+    #   # node_store_batch_timeout: 500ms
+  policy.hujson: |
+    {
+      "groups": { "group:infra": ["kalex@"] },
+      "tagOwners": { "tag:router": ["group:infra"] },
+      "autoApprovers": {
+        "routes": {
+          "10.20.0.16/28": ["tag:router"],
+          "192.168.10.0/24": ["tag:router"],
+          "192.168.20.0/24": ["tag:router"],
+        },
+      },
+      "acls": [
+        // everyone: apps only (private Traefik)
+        {
+          "action": "accept",
+          "src": ["autogroup:member"],
+          "dst": ["10.20.0.20/32:80,443", "10.20.0.16/32:53"]
+        },
+        // admins: LAN, k8s VLAN, all VIPs
+        {
+          "action": "accept",
+          "src": ["group:infra"],
+          "dst": ["192.168.10.0/24:*", "192.168.20.0/24:*", "10.20.0.16/28:*"],
+        },
+      ],
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: headplane-conf
+data:
+  config.yaml: |
+    # Configuration for the Headplane server and web application
+    server:
+      # These are the default values, change them as needed
+      host: "0.0.0.0"
+      port: 3000
+
+      # The base URL for Headplane. Please keep in mind that this will be required
+      # for Headscale to properly function going forward AND it should not include
+      # the dashboard prefix (/admin) portion.
+      base_url: https://ui.vpn.kalexlab.xyz
+
+      # Whether cookies should be marked as Secure
+      # * Should be false if running without HTTPs
+      # * Should be true if running behind a reverse proxy with HTTPs
+      # When `tls_cert_path`/`tls_key_path` are set below this is forced
+      # to true automatically.
+      cookie_secure: true
+
+      # The maximum age of the session cookie in seconds
+      cookie_max_age: 86400 # 1 day in seconds
+
+      # This is not required, but if you want to restrict the cookie
+      # to a specific domain, set it here. Otherwise leave it commented out.
+      # This may not work as expected if not using a reverse proxy.
+      # cookie_domain: "vpn.kalexlab.xyz"
+
+      # Optional proxy authentication mode. When enabled, Headplane trusts identity
+      # headers from requests that come directly from one of `allowed_cidrs` and
+      # uses `headscale.api_key` for Headscale API access.
+      #
+      # Only enable this when a trusted reverse proxy in front of Headplane already
+      # performs authentication (for example, nginx basic auth, Authelia, Authentik,
+      # etc.). The source IP check uses the direct client address connected to
+      # Headplane by default, not X-Forwarded-For headers.
+      #
+      # If `allowed_cidrs` is omitted, only localhost is trusted.
+      # proxy_auth:
+      #   enabled: false
+      #
+      #   # Optional. If set, Headplane checks allowed_cidrs against the first IP in
+      #   # this header (for example, "X-Forwarded-For" or "X-Real-IP") instead of
+      #   # the direct client address. The direct client must still match
+      #   # trusted_proxy_cidrs before this header is used.
+      #   ip_header: "X-Forwarded-For"
+      #   trusted_proxy_cidrs:
+      #     - "127.0.0.1/32"
+      #     - "::1/128"
+      #
+      #   user_header: "Remote-User"
+      #   email_header: "Remote-Email"
+      #   name_header: "Remote-Name"
+      #   picture_header: "Remote-Picture"
+      #   allowed_cidrs:
+      #     - "127.0.0.1/32"
+      #     - "::1/128"
+
+      # The path to persist Headplane specific data. All data going forward
+      # is stored in this directory, including the internal database and
+      # any cache related files.
+      #
+      # Data formats prior to 0.6.1 will automatically be migrated.
+      # PLEASE ensure this directory is mounted if running in Docker.
+      data_path: "/var/lib/headplane"
+
+      # The info secret is optional and allows access to certain debug endpoints
+      # that may expose sensitive information about your Headplane instance.
+      #
+      # As of now, this protects the /api/info endpoint which exposes details about
+      # the Headplane and Headscale versions in use. In the future, more endpoints
+      # may be protected by this secret.
+      #
+      # If not set, these endpoints will be disabled.
+      # info_secret: "<change_me_to_something_secure!>"
+
+    # Headscale specific settings to allow Headplane to talk
+    # to Headscale and access deep integration features
+    headscale:
+      # The URL to your Headscale instance
+      # (All API requests are routed through this URL)
+      # (THIS IS NOT the gRPC endpoint, but the HTTP endpoint)
+      #
+      # IMPORTANT: If you are using TLS this MUST be set to `https://`
+      url: "http://headscale:8080"
+
+      # Optional, public URL if its different from the `headscale.url`
+      # This affects certain parts of the web UI which shows Headscale's URL
+      public_url: "https://vpn.kalexlab.xyz"
+
+      # Path to the Headscale configuration file
+      # This is optional, but HIGHLY recommended for the best experience
+      # If this is read only, Headplane will show your configuration settings
+      # in the Web UI, but they cannot be changed.
+      config_path: "/etc/headscale/config.yaml"
+
+      # The API key used by Headplane for server-side operations.
+      # This is required for OIDC authentication, proxy authentication, and the
+      # Headplane agent.
+      # Generate one with: headscale apikeys create
+      # api_key: "<your-api-key>"
+
+    # Integration configurations for Headplane to interact with Headscale
+    integration:
+      # Please refer to docs/integration/Kubernetes.md for more information
+      # on how to configure the Kubernetes integration. There are requirements in
+      # order to allow Headscale to be controlled by Headplane in a cluster.
+      # Disabled: needs headplane inside the headscale pod (shared PID namespace) + RBAC
+      kubernetes:
+        enabled: false
+        # Validates the manifest for the Pod to ensure all of the criteria
+        # are set correctly. Turn this off if you are having issues with
+        # shareProcessNamespace not being validated correctly.
+        validate_manifest: true
+
+    # OIDC Configuration for simpler authentication
+    # (This is optional, but recommended for the best experience)
+    oidc:
+      # Set to false to define OIDC config without enabling it.
+      # Useful for Helm charts or generating docs from config files.
+      enabled: true
+
+      # The OIDC issuer URL
+      issuer: "https://auth.kalexlab.xyz/application/o/apps-headplane/"
+
+      # Optional. Override the auto-discovered end_session_endpoint, or supply one
+      # if your provider does not advertise it via discovery.
+      # end_session_endpoint: ""
+
+      # Where the identity provider should redirect after RP-initiated logout.
+      # Most providers (Keycloak, Auth0, etc.) require this URL to be pre-registered
+      # in the OIDC client configuration. If unset, Headplane defaults to its own
+      # `<server.base_url>/admin/login?s=logout` page.
+      # post_logout_redirect_uri: ""
+
+      # The authentication method to use when communicating with the token endpoint.
+      # This is fully optional and Headplane will attempt to auto-detect the best
+      # method and fall back to `client_secret_basic` if unsure.
+      token_endpoint_auth_method: "client_secret_post"
+
+      # The client ID for the OIDC client
+      # For the best experience please ensure this is *identical* to the client_id
+      # you are using for Headscale.
+      client_id: "apps-headplane"
+
+      # Whether to use PKCE when authenticating users. This is recommended as it
+      # adds an extra layer of security to the authentication process. Enabling
+      # this means your OIDC provider must support PKCE and it must be enabled on
+      # the client.
+      use_pkce: true
+
+      # If you want to disable traditional login via Headscale API keys
+      disable_api_key_login: true
+
+      # By default profile pictures are pulled from the OIDC provider when
+      # we go to fetch the userinfo endpoint. Optionally, this can be set to
+      # "oidc" or "gravatar" as of 0.6.1.
+      profile_picture_source: "oidc"
+
+      # The scopes to request when authenticating users. The default is below.
+      scope: "openid email profile"
+
+      # Optional fallback claims to use when your provider does not return a standard
+      # OIDC `sub` claim. Headplane always checks `sub` first, then each claim here
+      # in order. For Feishu/Lark, `["open_id", "email"]` is a reasonable fallback.
+      subject_claims:
+        - email
+
+      # Role assigned to new OIDC users after the first owner is bootstrapped.
+      # This is useful with Headscale's OIDC allowed_domains / allowed_groups
+      # restrictions when every permitted SSO user should receive the same
+      # Headplane permissions. Valid values: admin, network_admin, it_admin,
+      # auditor, viewer, member. The owner role is only granted to the first user.
+      default_role: "member"
+
+      # Optional OIDC claim to read a Headplane role from when creating or syncing a user.
+      # This can be a string claim, or an array claim containing one of the valid
+      # roles above. If present and valid, it takes precedence over default_role.
+      # Configure your IdP to map groups or client roles into this claim. Existing
+      # non-owner users are updated on their next OIDC sign-in when this claim changes.
+      role_claim: "headplane_role"
+
+      # Allow ID token verification with legacy RSA keys smaller than 2048 bits.
+      # This is disabled by default because it lowers token verification security and
+      # should only be used as a temporary compatibility workaround.
+      allow_weak_rsa_keys: false
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ts-router-conf
+data:
+  # No /dev/net/tun, no NET_ADMIN: connections leave with the pod IP as source
+  TS_USERSPACE: "true"
+  TS_KUBE_SECRET: ts-router-state
+  TS_HOSTNAME: ts-router
+  TS_ROUTES: 10.20.0.16/28,192.168.10.0/24,192.168.20.0/24
+  TS_EXTRA_ARGS: --login-server=https://vpn.kalexlab.xyz
+  # No logs to log.tailscale.com
+  # Fixed WireGuard port, exposed via the ts-router-wg Service + WAN DNAT
+  TS_TAILSCALED_EXTRA_ARGS: --no-logs-no-support --port=41641
+  # Resolved at container start into TS_DEBUG_PRETENDPOINT and during liveness probes
+  # so that changes in the WAN IP address from ISP are mirrored
+  TS_PRETENDPOINT_HOST: vpn.kalexlab.xyz
+  TS_ACCEPT_DNS: "false"
+  TS_SOCKET: /tmp/tailscaled.sock
+  TS_ENABLE_HEALTH_CHECK: "true"
+  TS_LOCAL_ADDR_PORT: "[::]:9002"
+  HOME: /tmp

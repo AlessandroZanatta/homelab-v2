@@ -50,6 +50,9 @@ spec:
   ipAllowList:
     sourceRange:
       - 10.10.0.0/24
+      # Pod CIDR: tailnet traffic arrives with the headscale/ts-router pod IP as source
+      - 10.244.0.0/16
+      # Kept, but should be useless
       - 100.64.0.0/10
       - 192.168.10.0/24
       - 192.168.20.0/24

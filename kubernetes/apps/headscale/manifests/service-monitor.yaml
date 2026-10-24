@@ -1,0 +1,15 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: headscale
+spec:
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: headscale
+      kalexlab.xyz/component: headscale
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s

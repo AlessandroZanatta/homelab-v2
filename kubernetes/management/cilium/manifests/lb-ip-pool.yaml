@@ -4,6 +4,8 @@
 #   10.20.0.16  adguard
 #   10.20.0.20  traefik
 #   10.20.0.21  traefik-public
+#   10.20.0.24  headscale-stun
+#   10.20.0.25  ts-router-wg
 # Unannotated services get the next free IP.
 #   ref: https://docs.cilium.io/en/stable/network/lb-ipam/#requesting-ips
 apiVersion: cilium.io/v2
