@@ -25,20 +25,12 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`recipes.kalexlab.xyz`) && PathPrefix(`/api/public`)
-      services:
-        - name: api
-          port: http
-    - kind: Rule
       match: Host(`recipes.kalexlab.xyz`)
       services:
         - name: web
           port: http
     - kind: Rule
       match: Host(`recipes.kalexlab.xyz`) && PathPrefix(`/api`)
-      middlewares:
-        - name: allow-internal-only
-          namespace: traefik
       services:
         - name: api
           port: http
