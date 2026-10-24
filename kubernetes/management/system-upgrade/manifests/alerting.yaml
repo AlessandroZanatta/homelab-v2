@@ -1,0 +1,29 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: tuppr-alerts
+spec:
+  groups:
+    - name: tuppr.rules
+      rules:
+        - alert: TupprTalosUpgradeFailed
+          expr: |
+            max by (name) (tuppr_talos_upgrade_phase{phase="Failed"}) == 1
+            or
+            max by (name) (tuppr_talos_upgrade_nodes_failed) > 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Talos upgrade {{ $labels.name }} failed"
+            description: "Check `kubectl -n system-upgrade describe talosupgrade {{ $labels.name }}` and tuppr logs."
+
+        - alert: TupprKubernetesUpgradeFailed
+          expr: max by (name) (tuppr_kubernetes_upgrade_phase{phase="Failed"}) == 1
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Kubernetes upgrade {{ $labels.name }} failed"
+            description: "Check `kubectl -n system-upgrade describe kubernetesupgrade {{ $labels.name }}` and tuppr logs."
