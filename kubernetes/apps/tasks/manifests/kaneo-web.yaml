@@ -39,34 +39,6 @@ spec:
         kalexlab.xyz/monitoring: "true"
     spec:
       restartPolicy: Always
-      initContainers:
-        - name: copy-nginx
-          image: "ghcr.io/usekaneo/web:2.47.0"
-          imagePullPolicy: Always
-          securityContext:
-            readOnlyRootFilesystem: true
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
-          resources:
-            requests:
-              memory: 20Mi
-              cpu: 5m
-            limits:
-              memory: 200Mi
-              cpu: 100m
-          command:
-            [
-              "sh",
-              "-c",
-              "cp -r /usr/share/nginx/html/* /mnt/nginx && cp -r /etc/nginx/conf.d/* /mnt/nginx-confd",
-            ]
-          volumeMounts:
-            - mountPath: /mnt/nginx
-              name: nginx
-            - mountPath: /mnt/nginx-confd
-              name: nginx-confd
       containers:
         - name: app
           image: "ghcr.io/usekaneo/web:2.47.0"
@@ -105,14 +77,8 @@ spec:
           volumeMounts:
             - mountPath: /tmp
               name: tmp
-            - mountPath: /usr/share/nginx/html
-              name: nginx
-            - mountPath: /etc/nginx/conf.d
-              name: nginx-confd
-            - mountPath: /var/cache/nginx
-              name: nginx-cache
-            - mountPath: /var/run
-              name: run
+            - mountPath: /var/lib/kaneo
+              name: kaneo
       enableServiceLinks: false
       automountServiceAccountToken: false
       securityContext:
@@ -127,15 +93,6 @@ spec:
         - name: tmp
           emptyDir:
             sizeLimit: 1Gi
-        - name: nginx
-          emptyDir:
-            sizeLimit: 1Gi
-        - name: nginx-confd
-          emptyDir:
-            sizeLimit: 1Gi
-        - name: nginx-cache
-          emptyDir:
-            sizeLimit: 1Gi
-        - name: run
+        - name: kaneo
           emptyDir:
             sizeLimit: 1Gi
