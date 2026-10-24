@@ -18,6 +18,14 @@ deschedulerPolicy:
           args:
             nodeFit: true
             minReplicas: 1
+            # Avoid evicting databases for balancing, they aren't of much help
+            # and cause too much downtime (for single replica ones)
+            labelSelector:
+              matchExpressions:
+                - key: cnpg.io/podRole
+                  operator: DoesNotExist
+                - key: k8s.mariadb.com/role
+                  operator: DoesNotExist
             podProtections:
               defaultDisabled:
                 - PodsWithLocalStorage
@@ -35,13 +43,15 @@ deschedulerPolicy:
         - name: RemovePodsViolatingTopologySpreadConstraint
         - name: LowNodeUtilization
           args:
+            evictionLimits:
+              node: 5
             metricsUtilization:
               source: KubernetesMetrics
             useDeviationThresholds: true
             thresholds:
-              memory: 10
+              memory: 20
             targetThresholds:
-              memory: 10
+              memory: 20
             evictableNamespaces:
               exclude:
                 - kube-system
