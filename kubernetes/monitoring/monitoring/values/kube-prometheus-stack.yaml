@@ -271,3 +271,15 @@ defaultRules:
 customRules:
   TargetDown:
     severity: critical
+  KubePodCrashLooping:
+    severity: critical
+  KubeDeploymentRolloutStuck:
+    severity: critical
+  KubeStatefulSetReplicasMismatch:
+    severity: critical
+  KubeDaemonSetRolloutStuck:
+    severity: critical
+  KubeJobFailed:
+    severity: critical
+  PrometheusOperatorRejectedResources:
+    severity: critical
