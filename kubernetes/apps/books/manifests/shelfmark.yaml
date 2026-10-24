@@ -40,6 +40,7 @@ spec:
         kalexlab.xyz/monitoring: "true"
         sso.kalexlab.xyz/idp: authentik
         egress.kalexlab.xyz/policy: vpn
+        egress.kalexlab.xyz/use: flaresolverr
     spec:
       restartPolicy: Always
       containers:

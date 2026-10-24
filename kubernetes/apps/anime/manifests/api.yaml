@@ -42,6 +42,8 @@ spec:
         kalexlab.xyz/component: api
         kalexlab.xyz/monitoring: "true"
         sso.kalexlab.xyz/idp: authentik
+        # Provider search
+        egress.kalexlab.xyz/use: flaresolverr
     spec:
       restartPolicy: Always
       imagePullSecrets:

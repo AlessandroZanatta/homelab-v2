@@ -39,6 +39,7 @@ spec:
         kalexlab.xyz/component: prowlarr
         kalexlab.xyz/monitoring: "true"
         egress.kalexlab.xyz/policy: vpn
+        egress.kalexlab.xyz/use: flaresolverr
     spec:
       restartPolicy: Always
       containers:

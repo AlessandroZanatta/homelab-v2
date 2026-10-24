@@ -92,18 +92,6 @@ spec:
       ports:
         - protocol: TCP
           port: postgresql
-    # Provider search
-    - to:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: flaresolverr
-        - podSelector:
-            matchLabels:
-              kalexlab.xyz/app: flaresolverr
-              kalexlab.xyz/component: flaresolverr
-      ports:
-        - protocol: TCP
-          port: http
     # Metadata search
     - to:
         - ipBlock:
@@ -201,17 +189,6 @@ spec:
       ports:
         - protocol: TCP
           port: postgresql
-    - to:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: flaresolverr
-        - podSelector:
-            matchLabels:
-              kalexlab.xyz/app: flaresolverr
-              kalexlab.xyz/component: flaresolverr
-      ports:
-        - protocol: TCP
-          port: http
     - to:
         - ipBlock:
             cidr: 0.0.0.0/0

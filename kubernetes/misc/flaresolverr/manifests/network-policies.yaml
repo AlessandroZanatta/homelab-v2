@@ -39,16 +39,7 @@ spec:
       kalexlab.xyz/app: flaresolverr
       kalexlab.xyz/component: flaresolverr
   policyTypes:
-    - Ingress
     - Egress
-  ingress:
-    # Accept requests from any pod
-    - from:
-        - namespaceSelector: {}
-          podSelector: {}
-      ports:
-        - protocol: TCP
-          port: http
   egress:
     - to:
         - ipBlock:
@@ -57,3 +48,41 @@ spec:
               - 10.0.0.0/8
               - 172.16.0.0/12
               - 192.168.0.0/16
+---
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: allow-flaresolverr-users
+spec:
+  endpointSelector:
+    matchLabels:
+      io.kubernetes.pod.namespace: flaresolverr
+      kalexlab.xyz/app: flaresolverr
+      kalexlab.xyz/component: flaresolverr
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            egress.kalexlab.xyz/use: flaresolverr
+      toPorts:
+        - ports:
+            - port: http
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: flaresolverr-users-egress
+spec:
+  endpointSelector:
+    matchLabels:
+      egress.kalexlab.xyz/use: flaresolverr
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: flaresolverr
+            kalexlab.xyz/app: flaresolverr
+            kalexlab.xyz/component: flaresolverr
+      toPorts:
+        - ports:
+            - port: http
+              protocol: TCP

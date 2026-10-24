@@ -20,6 +20,7 @@ spec:
         kalexlab.xyz/component: worker
         kalexlab.xyz/monitoring: "true"
         egress.kalexlab.xyz/policy: vpn
+        egress.kalexlab.xyz/use: flaresolverr
     spec:
       restartPolicy: Always
       imagePullSecrets:
