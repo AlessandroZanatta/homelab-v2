@@ -117,6 +117,12 @@ config:
 grafana:
   # -- Enable grafana dashboard creation.
   enabled: true
+  grafanaDashboard:
+    create: true
+    folder: Security
+    matchLabels:
+      dashboards: null
+      grafana.kalexlab.xyz/instance: grafana
 
 prometheusRule:
   # -- Enable PrometheusRule resource creation.
