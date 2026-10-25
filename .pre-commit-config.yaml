@@ -21,8 +21,8 @@ repos:
         entry: commitlint --edit
         language: node
         additional_dependencies:
-          - "@commitlint/cli@21.2.3"
-          - "@commitlint/config-conventional@21.2.3"
+          - "@commitlint/cli@21.2.4"
+          - "@commitlint/config-conventional@21.2.4"
         stages: [commit-msg]
 
       - id: ensure-encrypted-secrets
