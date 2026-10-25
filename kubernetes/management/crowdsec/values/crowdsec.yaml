@@ -39,11 +39,6 @@ config:
       host: "${host}"
       port: ${port}
       sslmode: require
-      flush:
-        # Agents re-register whenever their pods restart; clean up the stale
-        # machine entries they leave behind.
-        agents_autodelete:
-          login_password: 60m
 
 # If you want to specify secrets that will be used for all your crowdsec-agents
 # secrets can be provided as env variables

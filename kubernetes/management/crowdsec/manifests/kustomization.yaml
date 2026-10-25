@@ -8,6 +8,8 @@ resources:
   - cluster.yaml
   - cluster-backup.yaml
   - pdbs.yaml
+  - rbac.yaml
+  - machines-prune.yaml
   - dashboards.yaml
 configMapGenerator:
   - name: crowdsec-metrics-dashboard

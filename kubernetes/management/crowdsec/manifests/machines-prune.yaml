@@ -1,0 +1,65 @@
+---
+# After a node reboot kubelet restarts pods with the same name, so the
+# chart's init container re-runs `cscli lapi register --machine <pod name>`
+# and fails forever with "user already exist".
+#
+# This CronJob deletes the machine of any pod with a failing init container,
+# so the next retry can register again.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: crowdsec-machines-prune
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            kalexlab.xyz/app: crowdsec
+            kalexlab.xyz/component: machines-prune
+        spec:
+          restartPolicy: Never
+          serviceAccountName: crowdsec-machines-prune
+          containers:
+            - name: prune
+              # renovate: datasource=docker depName=alpine/k8s
+              image: alpine/k8s:1.37.1
+              command:
+                - sh
+                - -c
+                - |
+                  # <pod> <ready>:<restarts> for each init container
+                  kubectl get pods -o jsonpath='{range .items[*]}{.metadata.name}{range .status.initContainerStatuses[*]} {.ready}:{.restartCount}{end}{"\n"}{end}' \
+                    | awk '/ false:[1-9]/ { print $1 }' \
+                    | while read -r pod; do
+                        echo "$pod: init keeps failing, deleting its machine"
+                        kubectl exec deploy/crowdsec-lapi -c crowdsec-lapi -- cscli machines delete "$pod"
+                      done
+
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+
+              volumeMounts:
+                # kubectl discovery cache ($HOME/.kube)
+                - mountPath: /.kube
+                  name: kube-cache
+
+          enableServiceLinks: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65535
+            runAsGroup: 65535
+            seccompProfile:
+              type: RuntimeDefault
+
+          volumes:
+            - name: kube-cache
+              emptyDir:
+                sizeLimit: 64Mi
