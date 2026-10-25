@@ -19,6 +19,11 @@ spec:
     - -logtostderr=true
     - -log_json
 
+  securityConfig:
+    jwtSigning:
+      # seaweedfs >= 4.50 requires this key for admin gRPC calls from the worker
+      filerWrite: true
+
   master:
     replicas: 1
 
