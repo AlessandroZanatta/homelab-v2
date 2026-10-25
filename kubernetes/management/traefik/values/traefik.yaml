@@ -9,6 +9,18 @@ deployment:
   kind: Deployment
   # -- Number of pods of the deployment (only applies when kind == Deployment)
   replicas: 2
+  # Traefik downloads plugins only once at startup. If the network isn't ready
+  # yet plugins are disabled, the crowdsec middleware becomes invalid and every
+  # websecure-public router is dropped, including Authentik.
+  # Block startup until the plugin registry is reachable.
+  initContainers:
+    - name: wait-plugin-registry
+      # renovate: datasource=docker depName=curlimages/curl
+      image: curlimages/curl:8.23.0
+      command:
+        - sh
+        - -c
+        - until curl -sf -o /dev/null --max-time 5 https://plugins.traefik.io/public/; do echo "waiting for plugins.traefik.io"; sleep 3; done
 
 # Ensure that the two replicas are scheduled one per node, on the ingress nodes.
 #   ref: kubernetes/management/cilium/manifests/bgp.yaml
