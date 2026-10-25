@@ -9,7 +9,7 @@ resources:
   - secrets.sops.yaml
   - cluster.yaml
   - cluster-backup.yaml
-  - github.com/AlessandroZanatta/gatus-sidecar/config/crd?ref=v0.6.5
+  - github.com/AlessandroZanatta/gatus-sidecar/config/crd?ref=v0.6.6
   - endpoint-templates.yaml
   - gatus.yaml
   - ingress.yaml
