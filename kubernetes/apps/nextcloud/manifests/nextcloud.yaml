@@ -223,6 +223,10 @@ spec:
             - mountPath: /docker-entrypoint-hooks.d/before-starting
               name: nextcloud-hooks
               readOnly: true
+            - mountPath: /etc/apache2/conf-available/remoteip.conf
+              name: nextcloud-apache-conf
+              subPath: remoteip.conf
+              readOnly: true
       enableServiceLinks: false
       automountServiceAccountToken: false
       securityContext:
@@ -250,6 +254,9 @@ spec:
             items:
               - key: import-appconfig.sh
                 path: import-appconfig.sh
+        - name: nextcloud-apache-conf
+          configMap:
+            name: nextcloud-apache-conf
         - name: tmp
           emptyDir:
             sizeLimit: 1Gi

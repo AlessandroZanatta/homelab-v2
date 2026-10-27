@@ -32,6 +32,16 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  name: nextcloud-apache-conf
+data:
+  # Mounted over the image's remoteip.conf to disable mod_remoteip
+  # and prevent incorrect redirect URIs to plain HTTP
+  remoteip.conf: |
+    # mod_remoteip disabled
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
   name: nextcloud-conf
 data:
   config.php: |
