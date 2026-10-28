@@ -16,3 +16,87 @@ data:
   PROXY_AUTO_SIGNUP: "true"
   PROXY_HIDE_LOGOUT: "true"
   PROXY_OVERWRITE_VALUES: "true"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: task-notifier-conf
+data:
+  HORTUSFOX_URL: http://hortusfox
+  PUBLIC_URL: https://plants.kalexlab.xyz
+  PYTHONDONTWRITEBYTECODE: "1"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: task-notifier-script
+data:
+  notify.py: |
+    import json
+    import os
+    import sys
+    import urllib.error
+    import urllib.parse
+    import urllib.request
+    from datetime import date
+    from html import escape
+
+    def request(url, data=None):
+        body = urllib.parse.urlencode(data).encode() if data else None
+        with urllib.request.urlopen(url, data=body, timeout=30) as resp:
+            return json.load(resp)
+
+    hortusfox_url = os.environ["HORTUSFOX_URL"]
+    public_url = os.environ["PUBLIC_URL"]
+    api_token = os.environ["HORTUSFOX_API_TOKEN"]
+    cron_pw = os.environ["HORTUSFOX_CRON_PW"]
+    bot_token = os.environ["TELEGRAM_BOT_TOKEN"]
+    chat_ids = [c.strip() for c in os.environ.get("TELEGRAM_CHAT_IDS", "").split(",") if c.strip()]
+    if not chat_ids:
+        sys.exit("TELEGRAM_CHAT_IDS is empty")
+
+    query = urllib.parse.urlencode({"token": api_token, "done": 0, "limit": 1000})
+    try:
+        resp = request(f"{hortusfox_url}/api/tasks/fetch?{query}")
+    except urllib.error.HTTPError as e:
+        sys.exit(f"HortusFox API returned HTTP {e.code}")
+    if resp.get("code") != 200:
+        sys.exit(f"HortusFox API returned code {resp.get('code')}")
+
+    today = date.today().isoformat()
+    due = sorted(
+        (t for t in resp.get("data") or [] if t.get("due_date") and t["due_date"][:10] <= today),
+        key=lambda t: t["due_date"],
+    )
+
+    failed = 0
+    if due:
+        lines = ["🌱 <b>Plant tasks due</b>", ""]
+        for t in due:
+            day = t["due_date"][:10]
+            marker = "⚠️" if day < today else "•"
+            lines.append(f"{marker} <b>{escape(t['title'])}</b> ({'today' if day == today else day})")
+        lines += ["", f'<a href="{public_url}/tasks">Open tasks</a>']
+        text = "\n".join(lines)
+
+        for chat_id in chat_ids:
+            try:
+                request(
+                    f"https://api.telegram.org/bot{bot_token}/sendMessage",
+                    {"chat_id": chat_id, "text": text, "parse_mode": "HTML", "disable_web_page_preview": "true"},
+                )
+            except urllib.error.HTTPError as e:
+                print(f"Telegram sendMessage to chat {chat_id} failed: HTTP {e.code}", file=sys.stderr)
+                failed += 1
+        print(f"Sent {len(due)} due tasks to {len(chat_ids) - failed}/{len(chat_ids)} chats")
+    else:
+        print("No tasks due")
+
+    try:
+        request(f"{hortusfox_url}/cronjob/tasks/recurring", {"cronpw": cron_pw})
+        print("Advanced overdue recurring tasks")
+    except urllib.error.HTTPError as e:
+        print(f"HortusFox recurring cronjob returned HTTP {e.code}", file=sys.stderr)
+        failed += 1
+
+    sys.exit(1 if failed else 0)

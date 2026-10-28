@@ -1,0 +1,62 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: task-notifier
+spec:
+  schedule: "0 8,18 * * *"
+  timeZone: Europe/Rome
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            kalexlab.xyz/app: plants
+            kalexlab.xyz/component: task-notifier
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: notify
+              image: docker.io/library/python:3.15.2-alpine
+              imagePullPolicy: Always
+              args:
+                - python
+                - /scripts/notify.py
+              envFrom:
+                - configMapRef:
+                    name: task-notifier-conf
+                - secretRef:
+                    name: task-notifier-secrets
+              resources:
+                requests:
+                  memory: 20Mi
+                  cpu: 1m
+                limits:
+                  memory: 100Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+              volumeMounts:
+                - mountPath: /scripts
+                  name: script
+                  readOnly: true
+          volumes:
+            - name: script
+              configMap:
+                name: task-notifier-script
+
+          enableServiceLinks: false
+          automountServiceAccountToken: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65535
+            runAsGroup: 65535
+            seccompProfile:
+              type: RuntimeDefault

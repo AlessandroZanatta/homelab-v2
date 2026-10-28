@@ -52,6 +52,14 @@ spec:
       ports:
         - protocol: TCP
           port: http
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: plants
+              kalexlab.xyz/component: task-notifier
+      ports:
+        - protocol: TCP
+          port: http
   egress:
     - to:
         - podSelector:
@@ -91,6 +99,55 @@ spec:
             - port: "443"
               protocol: TCP
             - port: "80"
+              protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: task-notifier
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: plants
+      kalexlab.xyz/component: task-notifier
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: plants
+              kalexlab.xyz/component: hortusfox
+      ports:
+        - protocol: TCP
+          port: http
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: task-notifier-egress-fqdn
+spec:
+  endpointSelector:
+    matchLabels:
+      kalexlab.xyz/app: plants
+      kalexlab.xyz/component: task-notifier
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: coredns
+            k8s-app: coredns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    - toFQDNs:
+        - matchName: api.telegram.org
+      toPorts:
+        - ports:
+            - port: "443"
               protocol: TCP
 ---
 apiVersion: networking.k8s.io/v1

@@ -9,4 +9,5 @@ resources:
   - mariadb.yaml
   - mariadb-backup.yaml
   - hortusfox.yaml
+  - task-notifier.yaml
   - ingress.yaml
