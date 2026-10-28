@@ -1,0 +1,32 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: kyverno-policy-reporter
+spec:
+  commonName: ui.kyverno.kalexlab.xyz
+  secretName: kyverno-policy-reporter-certificate
+  dnsNames:
+    - ui.kyverno.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: kyverno-policy-reporter
+  annotations:
+    external-dns.kubernetes.io/target: 10.20.0.20
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`ui.kyverno.kalexlab.xyz`)
+      services:
+        - name: policy-reporter-ui
+          port: http
+  tls:
+    secretName: kyverno-policy-reporter-certificate

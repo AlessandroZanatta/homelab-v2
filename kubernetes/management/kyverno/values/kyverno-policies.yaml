@@ -1,0 +1,29 @@
+---
+# -- Pod Security Standard profile (`baseline`, `restricted`, `privileged`, `custom`).
+# For more info https://kyverno.io/policies/pod-security.
+podSecurityStandard: restricted
+
+# -- Policy engine type (`ClusterPolicy`, `ValidatingPolicy`)
+# `ValidatingPolicy` installs CEL-based policies (policies.kyverno.io, requires Kyverno 1.17+).
+# Set to `ClusterPolicy` to keep installing the legacy kyverno.io policy types,
+# which are deprecated and will be removed in a future release
+# (see https://kyverno.io/docs/guides/migration-to-cel/).
+policyType: ValidatingPolicy
+
+# -- Pod Security Standard severity (`low`, `medium`, `high`).
+podSecuritySeverity: medium
+
+# -- API server behavior if the webhook fails to respond ('Ignore', 'Fail')
+# For more info: https://kyverno.io/docs/policy-types/cluster-policy/policy-settings/
+failurePolicy: Ignore
+
+# -- Validation failure action (`Audit`, `Enforce`).
+# For more info https://kyverno.io/docs/policy-types/cluster-policy/validate.
+validationFailureAction: Audit
+
+# -- Policies background mode
+background: true
+
+# -- Kyverno version
+# The default of "autodetect" will try to determine the currently installed version from the deployment
+kyvernoVersion: autodetect

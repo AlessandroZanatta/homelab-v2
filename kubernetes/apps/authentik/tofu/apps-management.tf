@@ -43,3 +43,42 @@ resource "authentik_policy_binding" "management_argocd" {
   group  = authentik_group.infra.id
   order  = 0
 }
+
+# Kyverno's policy reporter
+resource "authentik_provider_oauth2" "management_policyreporter" {
+  name               = "Kyverno Policy Reporter"
+  client_id          = "management-policyreporter"
+  authorization_flow = authentik_flow.authorization_implicit.uuid
+  invalidation_flow  = authentik_flow.app_invalidation.uuid
+
+  signing_key = authentik_certificate_key_pair.jwt_signing.id
+  allowed_redirect_uris = [
+    {
+      matching_mode     = "strict",
+      url               = "https://ui.kyverno.kalexlab.xyz/callback",
+      redirect_uri_type = "authorization",
+    }
+  ]
+  property_mappings = [
+    data.authentik_property_mapping_provider_scope.oidc_scopes["openid"].id,
+    data.authentik_property_mapping_provider_scope.oidc_scopes["email"].id,
+    data.authentik_property_mapping_provider_scope.oidc_scopes["profile"].id
+  ]
+  grant_types = [
+    "authorization_code"
+  ]
+}
+
+resource "authentik_application" "management_policyreporter" {
+  name              = "Kyverno Policy Reporter"
+  slug              = "management-policyreporter"
+  group             = var.application_groups["infra"]
+  meta_icon         = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/kyverno.svg"
+  protocol_provider = authentik_provider_oauth2.management_policyreporter.id
+}
+
+resource "authentik_policy_binding" "management_policyreporter" {
+  target = authentik_application.management_policyreporter.uuid
+  group  = authentik_group.infra.id
+  order  = 0
+}

@@ -1,119 +1,4 @@
 ---
-# Configuration
-config:
-  # TODO: a single entry was removed ([Node,*,*]), I would rather not keep this huge list here, find a way around this!
-
-  # -- Resource types to be skipped by the Kyverno policy engine.
-  # Make sure to surround each entry in quotes so that it doesn't get parsed as a nested YAML list.
-  # These are joined together without spaces, run through `tpl`, and the result is set in the config map.
-  # @default -- See [values.yaml](values.yaml)
-  resourceFilters:
-    - "[Event,*,*]"
-    - "[*/*,kube-system,*]"
-    - "[*/*,kube-public,*]"
-    - "[*/*,kube-node-lease,*]"
-    - "[Node/?*,*,*]"
-    - "[APIService,*,*]"
-    - "[APIService/?*,*,*]"
-    - "[TokenReview,*,*]"
-    - "[SubjectAccessReview,*,*]"
-    - "[SelfSubjectAccessReview,*,*]"
-    - "[Binding,*,*]"
-    - "[Pod/binding,*,*]"
-    - "[ReplicaSet,*,*]"
-    - "[ReplicaSet/?*,*,*]"
-    - "[EphemeralReport,*,*]"
-    - "[ClusterEphemeralReport,*,*]"
-    # exclude resources from the chart
-    - '[ClusterRole,*,{{ template "kyverno.admission-controller.roleName" . }}]'
-    - '[ClusterRole,*,{{ template "kyverno.admission-controller.roleName" . }}:core]'
-    - '[ClusterRole,*,{{ template "kyverno.admission-controller.roleName" . }}:additional]'
-    - '[ClusterRole,*,{{ template "kyverno.background-controller.roleName" . }}]'
-    - '[ClusterRole,*,{{ template "kyverno.background-controller.roleName" . }}:core]'
-    - '[ClusterRole,*,{{ template "kyverno.background-controller.roleName" . }}:additional]'
-    - '[ClusterRole,*,{{ template "kyverno.cleanup-controller.roleName" . }}]'
-    - '[ClusterRole,*,{{ template "kyverno.cleanup-controller.roleName" . }}:core]'
-    - '[ClusterRole,*,{{ template "kyverno.cleanup-controller.roleName" . }}:additional]'
-    - '[ClusterRole,*,{{ template "kyverno.reports-controller.roleName" . }}]'
-    - '[ClusterRole,*,{{ template "kyverno.reports-controller.roleName" . }}:core]'
-    - '[ClusterRole,*,{{ template "kyverno.reports-controller.roleName" . }}:additional]'
-    - '[ClusterRoleBinding,*,{{ template "kyverno.admission-controller.roleName" . }}]'
-    - '[ClusterRoleBinding,*,{{ template "kyverno.background-controller.roleName" . }}]'
-    - '[ClusterRoleBinding,*,{{ template "kyverno.cleanup-controller.roleName" . }}]'
-    - '[ClusterRoleBinding,*,{{ template "kyverno.reports-controller.roleName" . }}]'
-    - '[ServiceAccount,{{ include "kyverno.namespace" . }},{{ template "kyverno.admission-controller.serviceAccountName" . }}]'
-    - '[ServiceAccount/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.admission-controller.serviceAccountName" . }}]'
-    - '[ServiceAccount,{{ include "kyverno.namespace" . }},{{ template "kyverno.background-controller.serviceAccountName" . }}]'
-    - '[ServiceAccount/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.background-controller.serviceAccountName" . }}]'
-    - '[ServiceAccount,{{ include "kyverno.namespace" . }},{{ template "kyverno.cleanup-controller.serviceAccountName" . }}]'
-    - '[ServiceAccount/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.cleanup-controller.serviceAccountName" . }}]'
-    - '[ServiceAccount,{{ include "kyverno.namespace" . }},{{ template "kyverno.reports-controller.serviceAccountName" . }}]'
-    - '[ServiceAccount/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.reports-controller.serviceAccountName" . }}]'
-    - '[Role,{{ include "kyverno.namespace" . }},{{ template "kyverno.admission-controller.roleName" . }}]'
-    - '[Role,{{ include "kyverno.namespace" . }},{{ template "kyverno.background-controller.roleName" . }}]'
-    - '[Role,{{ include "kyverno.namespace" . }},{{ template "kyverno.cleanup-controller.roleName" . }}]'
-    - '[Role,{{ include "kyverno.namespace" . }},{{ template "kyverno.reports-controller.roleName" . }}]'
-    - '[RoleBinding,{{ include "kyverno.namespace" . }},{{ template "kyverno.admission-controller.roleName" . }}]'
-    - '[RoleBinding,{{ include "kyverno.namespace" . }},{{ template "kyverno.background-controller.roleName" . }}]'
-    - '[RoleBinding,{{ include "kyverno.namespace" . }},{{ template "kyverno.cleanup-controller.roleName" . }}]'
-    - '[RoleBinding,{{ include "kyverno.namespace" . }},{{ template "kyverno.reports-controller.roleName" . }}]'
-    - '[ConfigMap,{{ include "kyverno.namespace" . }},{{ template "kyverno.config.configMapName" . }}]'
-    - '[ConfigMap,{{ include "kyverno.namespace" . }},{{ template "kyverno.config.metricsConfigMapName" . }}]'
-    - '[Deployment,{{ include "kyverno.namespace" . }},{{ template "kyverno.admission-controller.name" . }}]'
-    - '[Deployment/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.admission-controller.name" . }}]'
-    - '[Deployment,{{ include "kyverno.namespace" . }},{{ template "kyverno.background-controller.name" . }}]'
-    - '[Deployment/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.background-controller.name" . }}]'
-    - '[Deployment,{{ include "kyverno.namespace" . }},{{ template "kyverno.cleanup-controller.name" . }}]'
-    - '[Deployment/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.cleanup-controller.name" . }}]'
-    - '[Deployment,{{ include "kyverno.namespace" . }},{{ template "kyverno.reports-controller.name" . }}]'
-    - '[Deployment/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.reports-controller.name" . }}]'
-    - '[Pod,{{ include "kyverno.namespace" . }},{{ template "kyverno.admission-controller.name" . }}-*]'
-    - '[Pod/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.admission-controller.name" . }}-*]'
-    - '[Pod,{{ include "kyverno.namespace" . }},{{ template "kyverno.background-controller.name" . }}-*]'
-    - '[Pod/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.background-controller.name" . }}-*]'
-    - '[Pod,{{ include "kyverno.namespace" . }},{{ template "kyverno.cleanup-controller.name" . }}-*]'
-    - '[Pod/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.cleanup-controller.name" . }}-*]'
-    - '[Pod,{{ include "kyverno.namespace" . }},{{ template "kyverno.reports-controller.name" . }}-*]'
-    - '[Pod/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.reports-controller.name" . }}-*]'
-    - '[Job,{{ include "kyverno.namespace" . }},{{ template "kyverno.fullname" . }}-hook-pre-delete]'
-    - '[Job/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.fullname" . }}-hook-pre-delete]'
-    - '[NetworkPolicy,{{ include "kyverno.namespace" . }},{{ template "kyverno.admission-controller.name" . }}]'
-    - '[NetworkPolicy/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.admission-controller.name" . }}]'
-    - '[NetworkPolicy,{{ include "kyverno.namespace" . }},{{ template "kyverno.background-controller.name" . }}]'
-    - '[NetworkPolicy/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.background-controller.name" . }}]'
-    - '[NetworkPolicy,{{ include "kyverno.namespace" . }},{{ template "kyverno.cleanup-controller.name" . }}]'
-    - '[NetworkPolicy/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.cleanup-controller.name" . }}]'
-    - '[NetworkPolicy,{{ include "kyverno.namespace" . }},{{ template "kyverno.reports-controller.name" . }}]'
-    - '[NetworkPolicy/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.reports-controller.name" . }}]'
-    - '[PodDisruptionBudget,{{ include "kyverno.namespace" . }},{{ template "kyverno.admission-controller.name" . }}]'
-    - '[PodDisruptionBudget/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.admission-controller.name" . }}]'
-    - '[PodDisruptionBudget,{{ include "kyverno.namespace" . }},{{ template "kyverno.background-controller.name" . }}]'
-    - '[PodDisruptionBudget/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.background-controller.name" . }}]'
-    - '[PodDisruptionBudget,{{ include "kyverno.namespace" . }},{{ template "kyverno.cleanup-controller.name" . }}]'
-    - '[PodDisruptionBudget/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.cleanup-controller.name" . }}]'
-    - '[PodDisruptionBudget,{{ include "kyverno.namespace" . }},{{ template "kyverno.reports-controller.name" . }}]'
-    - '[PodDisruptionBudget/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.reports-controller.name" . }}]'
-    - '[Service,{{ include "kyverno.namespace" . }},{{ template "kyverno.admission-controller.serviceName" . }}]'
-    - '[Service/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.admission-controller.serviceName" . }}]'
-    - '[Service,{{ include "kyverno.namespace" . }},{{ template "kyverno.admission-controller.serviceName" . }}-metrics]'
-    - '[Service/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.admission-controller.serviceName" . }}-metrics]'
-    - '[Service,{{ include "kyverno.namespace" . }},{{ template "kyverno.background-controller.name" . }}-metrics]'
-    - '[Service/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.background-controller.name" . }}-metrics]'
-    - '[Service,{{ include "kyverno.namespace" . }},{{ template "kyverno.cleanup-controller.name" . }}]'
-    - '[Service/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.cleanup-controller.name" . }}]'
-    - '[Service,{{ include "kyverno.namespace" . }},{{ template "kyverno.cleanup-controller.name" . }}-metrics]'
-    - '[Service/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.cleanup-controller.name" . }}-metrics]'
-    - '[Service,{{ include "kyverno.namespace" . }},{{ template "kyverno.reports-controller.name" . }}-metrics]'
-    - '[Service/?*,{{ include "kyverno.namespace" . }},{{ template "kyverno.reports-controller.name" . }}-metrics]'
-    - '[ServiceMonitor,{{ if .Values.admissionController.serviceMonitor.namespace }}{{ .Values.admissionController.serviceMonitor.namespace }}{{ else }}{{ template "kyverno.namespace" . }}{{ end }},{{ template "kyverno.admission-controller.name" . }}]'
-    - '[ServiceMonitor,{{ if .Values.admissionController.serviceMonitor.namespace }}{{ .Values.admissionController.serviceMonitor.namespace }}{{ else }}{{ template "kyverno.namespace" . }}{{ end }},{{ template "kyverno.background-controller.name" . }}]'
-    - '[ServiceMonitor,{{ if .Values.admissionController.serviceMonitor.namespace }}{{ .Values.admissionController.serviceMonitor.namespace }}{{ else }}{{ template "kyverno.namespace" . }}{{ end }},{{ template "kyverno.cleanup-controller.name" . }}]'
-    - '[ServiceMonitor,{{ if .Values.admissionController.serviceMonitor.namespace }}{{ .Values.admissionController.serviceMonitor.namespace }}{{ else }}{{ template "kyverno.namespace" . }}{{ end }},{{ template "kyverno.reports-controller.name" . }}]'
-    - '[Secret,{{ include "kyverno.namespace" . }},{{ template "kyverno.admission-controller.serviceName" . }}.{{ template "kyverno.namespace" . }}.svc.*]'
-    - '[Secret,{{ include "kyverno.namespace" . }},{{ template "kyverno.cleanup-controller.name" . }}.{{ template "kyverno.namespace" . }}.svc.*]'
-
-  # -- Sets the threshold for the total number of UpdateRequests generated for mutateExisitng and generate policies.
-
 grafana:
   # -- Enable grafana dashboard creation.
   enabled: true
@@ -196,6 +81,14 @@ prometheusRule:
   #             {{ $value | humanizeDuration }}.
   #           runbook_url: https://kyverno.io/docs/guides/monitoring/#policy-execution-latency-high
 
+features:
+  policyExceptions:
+    # -- Enables the feature
+    enabled: true
+    # -- Restrict policy exceptions to a single namespace
+    # Only the kyverno namespace may hold exceptions, so workloads can't exempt themselves
+    namespace: kyverno
+
 # Admission controller configuration
 admissionController: &podDefaults
   replicas: 2
@@ -220,11 +113,42 @@ admissionController: &podDefaults
     # -- Create a `ServiceMonitor` to collect Prometheus metrics.
     enabled: true
 
+  resources:
+    requests:
+      cpu: 1m
+      memory: 100Mi
+    limits:
+      memory: 400Mi
+
 # Background controller configuration
-backgroundController: *podDefaults
+backgroundController:
+  <<: *podDefaults
+
+  resources:
+    requests:
+      cpu: 1m
+      memory: 50Mi
+    limits:
+      memory: 200Mi
 
 # Cleanup controller configuration
-cleanupController: *podDefaults
+cleanupController:
+  <<: *podDefaults
+
+  resources:
+    requests:
+      cpu: 1m
+      memory: 30Mi
+    limits:
+      memory: 120Mi
 
 # Reports controller configuration
-reportsController: *podDefaults
+reportsController:
+  <<: *podDefaults
+
+  resources:
+    requests:
+      cpu: 1m
+      memory: 50Mi
+    limits:
+      memory: 200Mi

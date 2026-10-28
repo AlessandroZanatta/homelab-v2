@@ -1,0 +1,199 @@
+---
+# -- Deployment replica count
+replicaCount: 1
+
+# -- Security context for the pod
+podSecurityContext: &podSecurityContext
+  runAsNonRoot: true
+  runAsUser: 65535
+  runAsGroup: 65535
+  fsGroup: 65535
+  fsGroupChangePolicy: "OnRootMismatch"
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext: &securityContext
+  # Repeated since defaults are looser on securityContext,
+  # which would override podSecurityContext
+  runAsUser: 65535
+  runAsGroup: 65535
+  runAsNonRoot: true
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+# -- Resource constraints
+resources:
+  requests:
+    cpu: 5m
+    memory: 50Mi
+  limits:
+    memory: 150Mi
+
+# TODO
+networkPolicy:
+  # -- Create NetworkPolicy
+  enabled: false
+  # -- Egress rule to allow Kubernetes API Server access
+  egress:
+    - to:
+      ports:
+        - protocol: TCP
+          port: 6443
+  ingress: []
+
+# -- Customize source specific logic like result ID generation
+sourceConfig:
+  - selector:
+      source: KyvernoValidatingPolicy
+    # -- Show Namespace-resource results (e.g. default-deny policy) under that namespace
+    selfassignNamespaces: true
+
+ui:
+  # -- (bool) Enable Policy Reporter UI
+  enabled: true
+
+  server:
+    # -- session configuration
+    # Redis-backed so sessions survive UI pod restarts
+    sessions:
+      storage: redis
+      address: cache:6379
+      database: 0
+
+  openIDConnect:
+    # -- Enable openID Connect authentication
+    enabled: true
+    # -- OpenID Connect Callback URL
+    callbackUrl: https://ui.kyverno.kalexlab.xyz/callback
+    # -- Optional Group Claim to map user groups to the profile
+    # groups can be used to define access control for clusters, boards and custom boards.
+    groupClaim: ""
+    # -- OpenID Connect allowed Scopes
+    scopes:
+      - openid
+      - email
+      - profile
+    # -- Enable PKCE (Proof Key for Code Exchange) for OpenID Connect authentication
+    pkce: true
+    # -- Provide OpenID Connect configuration via Secret
+    # supported keys: `discoveryUrl`, `clientId`, `clientSecret`, `certificate`, `skipTLS`
+    secretRef: "policy-reporter-oidc-secrets"
+
+  # -- source specific configurations
+  sources:
+    - name: kyverno
+      type: result
+      exceptions: true
+      excludes:
+        results: [warn, error]
+    - name: KyvernoValidatingPolicy # Kyverno 1.14+ CEL policies
+      type: result
+      # kyverno-plugin 0.7.3 doesn't know CEL policies, exception generation fails (500)
+      exceptions: false
+      excludes:
+        results: [warn, error]
+
+  # -- Additional customizable dashboards
+  # Per-namespace views of CEL policy results
+  customBoards:
+    - name: Failing
+      namespaces:
+        labelSelector:
+          kubernetes.io/metadata.name: "*"
+      sources:
+        list: [KyvernoValidatingPolicy]
+      filter:
+        include:
+          results: [fail]
+    - name: All
+      namespaces:
+        labelSelector:
+          kubernetes.io/metadata.name: "*"
+      sources:
+        list: [KyvernoValidatingPolicy]
+
+  # -- Security context for the pod
+  podSecurityContext: *podSecurityContext
+
+  securityContext: *securityContext
+
+  # TODO
+  networkPolicy:
+    # -- When true, use a NetworkPolicy to allow ingress to the webhook
+    # This is useful on clusters using Calico and/or native k8s network policies in a default-deny setup.
+    enabled: false
+    # -- A list of valid from selectors according to https://kubernetes.io/docs/concepts/services-networking/network-policies.
+    # Enables Kubernetes API Server by default
+    egress:
+      - ports:
+          - protocol: TCP
+            port: 6443
+    # -- A list of valid from selectors according to https://kubernetes.io/docs/concepts/services-networking/network-policies.
+    ingress: []
+
+  # -- Resource constraints
+  resources:
+    requests:
+      cpu: 1m
+      memory: 20Mi
+    limits:
+      memory: 100Mi
+
+plugin:
+  kyverno:
+    # -- (bool) Enable Kyverno Plugin
+    enabled: true
+
+    # -- Security context for the pod
+    podSecurityContext: *podSecurityContext
+
+    securityContext: *securityContext
+
+    # TODO
+    networkPolicy:
+      # -- When true, use a NetworkPolicy to allow ingress to the webhook
+      # This is useful on clusters using Calico and/or native k8s network policies in a default-deny setup.
+      enabled: false
+      # -- A list of valid from selectors according to https://kubernetes.io/docs/concepts/services-networking/network-policies.
+      # Enables Kubernetes API Server by default
+      egress:
+        - ports:
+            - protocol: TCP
+              port: 6443
+      # -- A list of valid from selectors according to https://kubernetes.io/docs/concepts/services-networking/network-policies.
+      ingress: []
+
+    # -- Resource constraints
+    resources:
+      requests:
+        cpu: 1m
+        memory: 20Mi
+      limits:
+        memory: 100Mi
+
+  # TODO: if I ever re-add Trivy (when I'll have more resources)
+  # trivy:
+
+monitoring:
+  # -- Enables the Prometheus Operator integration
+  enabled: true
+
+  serviceMonitor:
+    enabled: true
+
+  grafana:
+    grafanaDashboard:
+      # -- Create GrafanaDashboard custom resource referencing to the configMap.
+      # according to https://grafana-operator.github.io/grafana-operator/docs/examples/dashboard_from_configmap/readme/
+      enabled: true
+      # -- Dashboard folder
+      folder: Security
+      # -- Allow cross Namespace import
+      allowCrossNamespaceImport: true
+      # -- Label match selector
+      matchLabels:
+        dashboards: null
+        grafana.kalexlab.xyz/instance: grafana
