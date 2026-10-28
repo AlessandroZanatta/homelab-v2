@@ -44,7 +44,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: prowlarr
-          image: "ghcr.io/home-operations/prowlarr:2.6.6"
+          image: "ghcr.io/home-operations/prowlarr:2.7.0"
           imagePullPolicy: Always
           ports:
             - name: http
