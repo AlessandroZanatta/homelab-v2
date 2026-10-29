@@ -48,7 +48,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: tailscale
-          image: ghcr.io/tailscale/tailscale:v1.104.2
+          image: ghcr.io/tailscale/tailscale:v1.104.4
           imagePullPolicy: Always
           # TS_DEBUG_PRETENDPOINT only accepts a literal IP:port, resolve the WAN IP first
           command:
