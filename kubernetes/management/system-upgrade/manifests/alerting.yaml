@@ -19,6 +19,16 @@ spec:
             summary: "Talos upgrade {{ $labels.name }} failed"
             description: "Check `kubectl -n system-upgrade describe talosupgrade {{ $labels.name }}` and tuppr logs."
 
+        # Catches upgrades that never reach Failed, e.g. endless PrePullFailed retries
+        - alert: TupprTalosUpgradeStuck
+          expr: max by (name) (tuppr_talos_upgrade_phase{phase!="Completed"}) == 1
+          for: 6h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Talos upgrade {{ $labels.name }} not completing"
+            description: "Phase has not been Completed for 3h (e.g. PrePullFailed). Check `kubectl -n system-upgrade describe talosupgrade {{ $labels.name }}` and tuppr logs."
+
         - alert: TupprKubernetesUpgradeFailed
           expr: max by (name) (tuppr_kubernetes_upgrade_phase{phase="Failed"}) == 1
           for: 1m
@@ -27,3 +37,13 @@ spec:
           annotations:
             summary: "Kubernetes upgrade {{ $labels.name }} failed"
             description: "Check `kubectl -n system-upgrade describe kubernetesupgrade {{ $labels.name }}` and tuppr logs."
+
+        # Longer window: it legitimately waits behind a running Talos upgrade
+        - alert: TupprKubernetesUpgradeStuck
+          expr: max by (name) (tuppr_kubernetes_upgrade_phase{phase!="Completed"}) == 1
+          for: 9h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Kubernetes upgrade {{ $labels.name }} not completing"
+            description: "Phase has not been Completed for 6h. Check `kubectl -n system-upgrade describe kubernetesupgrade {{ $labels.name }}` and tuppr logs."
