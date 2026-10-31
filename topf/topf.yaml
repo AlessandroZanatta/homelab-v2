@@ -23,6 +23,9 @@ nodes:
     data:
       installDiskSelector: disk.dev_path == "/dev/mmcblk0"
       rpi: true
+      # Secondary IP used as the Cilium egress gateway SNAT address, routed through the VPN
+      # by the router (openwrt/files/etc/config/pbr). Node traffic keeps the primary IP.
+      vpnEgressIP: 192.168.20.12
       nodeLabels:
         egress.kalexlab.xyz/gateway: vpn
       taints:

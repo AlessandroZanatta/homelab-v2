@@ -30,9 +30,62 @@ data:
     ui:
       default-sort-by: group
 
+    external-endpoints:
+      # Pushed by the vpn-probe CronJob (vpn-probe.yaml) every 30m
+      - name: vpn-egress
+        group: network
+        token: "${VPN_PROBE_TOKEN}"
+        heartbeat:
+          interval: 90m
+        alerts:
+          - type: telegram
+
     connectivity:
       checker:
         target: 1.1.1.1:53
         interval: 1m
 
     announcements: []
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vpn-probe-conf
+data:
+  EXIT_IP_URL: https://am.i.mullvad.net
+  HOME_DOMAIN: kalexlab.xyz
+  GATUS_URL: http://gatus:8080/api/v1/endpoints/network_vpn-egress/external
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vpn-probe-script
+data:
+  probe.sh: |
+    #!/bin/sh
+    set -u
+
+    push() {
+      curl -fsS -m 15 -X POST -H "Authorization: Bearer ${VPN_PROBE_TOKEN}" \
+        "${GATUS_URL}?success=$1&error=$(printf '%s' "$2" | sed 's/ /%20/g')"
+    }
+
+    if ! EXIT_IP=$(curl -fsS -m 15 "${EXIT_IP_URL}"); then
+      push false "exit IP check unreachable through VPN"
+      exit 1
+    fi
+
+    # CoreDNS forwards straight to public DNS, so this is the public (home WAN) address
+    HOME_IP=$(nslookup -type=A "${HOME_DOMAIN}" | awk '/^Name:/ { f = 1 } f && /^Address/ { print $2; exit }')
+    if [ -z "${HOME_IP}" ]; then
+      push false "could not resolve ${HOME_DOMAIN}"
+      exit 1
+    fi
+
+    if [ "${EXIT_IP}" = "${HOME_IP}" ]; then
+      push false "leak: VPN exit IP ${EXIT_IP} is the home IP"
+      exit 1
+    fi
+
+    echo "VPN exit IP: ${EXIT_IP} (home: ${HOME_IP})"
+    push true ""

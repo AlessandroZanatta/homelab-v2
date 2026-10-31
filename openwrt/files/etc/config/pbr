@@ -36,21 +36,10 @@ config include
 	option path '/usr/share/pbr/pbr.user.wg_server_and_client'
 	option enabled '0'
 
-# AFAIK, order of policies matters!
-config policy
-	option name 'Allow local'
-	option src_addr '192.168.20.2'
-	option dest_addr '192.168.10.0/24 192.168.20.0/24 10.20.0.16/28'
-	option interface 'wan'
-
-config policy
-	option name 'Allow known services'
-	option src_addr '192.168.20.2'
-	option dest_addr 'ghcr.io factory.talos.dev discovery.talos.dev'
-	option interface 'wan'
-
+# Only the Cilium egress gateway IP (athena's secondary address) goes through the VPN.
+# Local destinations are already excluded by the CiliumEgressGatewayPolicy.
 config policy 'egressvpn'
-	option src_addr '192.168.20.2'
+	option name 'VPN egress IP (Cilium egress gateway)'
+	option src_addr '192.168.20.12'
 	option dest_addr '0.0.0.0/0'
 	option interface 'egressvpn'
-	option name 'Catch all inside VPN'

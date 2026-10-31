@@ -19,10 +19,11 @@ spec:
     - "10.0.0.0/8"
 
   # Egress is through a node with the egress.kalexlab.xyz/gateway: vpn label
-  # and through the 192.168.20.2 IP address
+  # and through its dedicated 192.168.20.12 secondary IP (vpnEgressIP in topf/topf.yaml),
+  # the only address the router routes through the VPN
   egressGateway:
     nodeSelector:
       matchLabels:
         egress.kalexlab.xyz/gateway: vpn
 
-    egressIP: 192.168.20.2
+    egressIP: 192.168.20.12

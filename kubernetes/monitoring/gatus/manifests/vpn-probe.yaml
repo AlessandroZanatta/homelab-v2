@@ -1,0 +1,63 @@
+---
+# Checks that the VPN egress (see kubernetes/misc/egress-vpn) actually reaches the
+# internet and does not exit with the home IP, and pushes the result to the Gatus
+# "network/vpn-egress" external endpoint (conf.yaml)
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vpn-probe
+spec:
+  schedule: "*/30 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            kalexlab.xyz/app: gatus
+            kalexlab.xyz/component: vpn-probe
+            egress.kalexlab.xyz/policy: vpn
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: probe
+              image: docker.io/curlimages/curl:8.23.0
+              imagePullPolicy: IfNotPresent
+              command: ["sh", "/scripts/probe.sh"]
+              envFrom:
+                - configMapRef:
+                    name: vpn-probe-conf
+                - secretRef:
+                    name: gatus-secrets
+              resources:
+                requests:
+                  memory: 10Mi
+                  cpu: 1m
+                limits:
+                  memory: 50Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+              volumeMounts:
+                - mountPath: /scripts
+                  name: script
+                  readOnly: true
+          volumes:
+            - name: script
+              configMap:
+                name: vpn-probe-script
+
+          enableServiceLinks: false
+          automountServiceAccountToken: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65535
+            runAsGroup: 65535
+            seccompProfile:
+              type: RuntimeDefault

@@ -6,7 +6,4 @@ hostDNS:
   # CoreDNS is self-managed, keep it on its own upstreams
   forwardKubeDNSToHost: false
 nameservers:
-  - address: 1.1.1.1
-    protocol: DoH
-    tlsServerName: cloudflare-dns.com
-  - address: 1.1.1.1
+  - address: 192.168.20.1

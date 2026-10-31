@@ -66,9 +66,7 @@ config interface 'egressvpn'
 	option proto 'wireguard'
 	option private_key '${EGRESSVPN_PRIVATE_KEY}'
 	list addresses '${EGRESSVPN_ADDRESSES_V4}'
-	list addresses '${EGRESSVPN_ADDRESSES_V6}'
 	list dns '10.2.0.1'
-	list dns '2a07:b944::2:1'
 
 config wireguard_egressvpn
 	option description 'Proton'

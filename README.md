@@ -97,6 +97,7 @@ In order for a pod to be routed through the VPN, it needs to have the following 
 
 The VPN is implemented as following:
 
-- Cilium's [EgressGateway](https://docs.cilium.io/en/stable/network/egress-gateway/egress-gateway/), configured in [egress-gateway.yaml](kubernetes/misc/egress-vpn/manifests/egress-gateway.yaml), redirects the egress traffic from pods with the above label through the node labeled `egress.kalexlab.xyz/gateway: vpn` (`athena`, see [topf.yaml](topf/topf.yaml)). The node is also tainted with `kalexlab.xyz/taint=vpn:NoSchedule`, so that regular workloads are not scheduled on it
+- Cilium's [EgressGateway](https://docs.cilium.io/en/stable/network/egress-gateway/egress-gateway/), configured in [egress-gateway.yaml](kubernetes/misc/egress-vpn/manifests/egress-gateway.yaml), redirects the egress traffic from pods with the above label through the node labeled `egress.kalexlab.xyz/gateway: vpn` (`athena`, see [topf.yaml](topf/topf.yaml)), SNATed to its dedicated secondary IP `192.168.20.12` (`vpnEgressIP`). The node is also tainted with `kalexlab.xyz/taint=vpn:NoSchedule`, so that regular workloads are not scheduled on it
 - On the router, an WireGuard interface is configured
-- Finally, still on the router, Policy-based Routing is applied to the `athena` node's IP. The rule routes all the non-local traffic through the VPN interface
+- Finally, still on the router, [Policy-based Routing](openwrt/files/etc/config/pbr) routes all traffic from `192.168.20.12` through the VPN interface. The node's own traffic (`192.168.20.2`: DNS, NTP, image pulls, upgrades) goes through the regular uplink, so a broken VPN only affects VPN pods
+- A [probe](kubernetes/monitoring/gatus/manifests/vpn-probe.yaml) checks every 30 minutes that the VPN egress works and doesn't exit with the home IP, reporting to Gatus

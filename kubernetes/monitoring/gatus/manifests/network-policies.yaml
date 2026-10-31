@@ -64,6 +64,14 @@ spec:
       ports:
         - protocol: TCP
           port: 8081
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: gatus
+              kalexlab.xyz/component: vpn-probe
+      ports:
+        - protocol: TCP
+          port: 8080
   egress:
     - to:
         - podSelector:
@@ -123,6 +131,42 @@ spec:
   egress:
     - toEntities:
         - kube-apiserver
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: vpn-probe-egress
+spec:
+  endpointSelector:
+    matchLabels:
+      kalexlab.xyz/app: gatus
+      kalexlab.xyz/component: vpn-probe
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: coredns
+            k8s-app: coredns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    - toFQDNs:
+        - matchName: am.i.mullvad.net
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            kalexlab.xyz/app: gatus
+            kalexlab.xyz/component: gatus
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
