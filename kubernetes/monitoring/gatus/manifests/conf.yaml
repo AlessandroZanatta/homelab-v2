@@ -31,9 +31,8 @@ data:
       default-sort-by: group
 
     external-endpoints:
-      # Pushed by the vpn-probe CronJob (vpn-probe.yaml) every 30m
-      - name: vpn-egress
-        group: network
+      - name: Egress VPN
+        group: Network
         token: "${VPN_PROBE_TOKEN}"
         heartbeat:
           interval: 90m
