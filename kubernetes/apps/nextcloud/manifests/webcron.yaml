@@ -19,7 +19,7 @@ spec:
           restartPolicy: Never
           containers:
             - name: webcron
-              image: docker.io/alpine/curl:8.22.0
+              image: docker.io/alpine/curl:8.23.0
               imagePullPolicy: Always
               args:
                 - -fsS
