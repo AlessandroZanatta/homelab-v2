@@ -37,6 +37,7 @@ spec:
         kalexlab.xyz/app: glitchtip
         kalexlab.xyz/component: web
         kalexlab.xyz/monitoring: "true"
+        sso.kalexlab.xyz/idp: authentik
     spec:
       restartPolicy: Always
       initContainers:
