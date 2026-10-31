@@ -5,7 +5,13 @@ defaultSettings:
   # -- Maximum number of engines that are allowed to concurrently upgrade on each node after Longhorn Manager is upgraded. When the value is "0", Longhorn does not automatically upgrade volume engines to the new default engine image version.
   concurrentAutomaticEngineUpgradePerNodeLimit: "2"
   # -- Policy that defines the action Longhorn takes when a node with the last healthy replica of a volume is drained.
-  nodeDrainPolicy: allow-if-replica-is-stopped
+  nodeDrainPolicy: block-for-eviction-if-contains-last-replica
+
+networkPolicies:
+  # -- Setting that allows you to enable network policies that control access to Longhorn pods.
+  enabled: true
+  # -- Setting that allows you to enable network policies for internal Longhorn components. When enabled, only authorized Longhorn components are allowed to communicate with each other.
+  restrictInternalTraffic: true
 
 preUpgradeChecker:
   # -- Setting that allows Longhorn to perform pre-upgrade checks. Disable this setting when installing Longhorn using Argo CD or other GitOps solutions.
@@ -34,7 +40,21 @@ csi:
 
 longhornUI:
   # -- Replica count for Longhorn UI.
-  replicas: 1
+  replicas: 2
+
+  # -- Topology spread constraints for Longhorn UI pods. Unlike `longhornUI.affinity`, these can guarantee that replicas stay spread across a topology domain during a rolling update or a mass reschedule.
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app: longhorn-ui
+
+  # -- Pod Disruption Budget for Longhorn UI. Keeps a minimum number of UI pods available during voluntary disruptions such as node drains. Effective only when `longhornUI.replicas` is greater than 1.
+  podDisruptionBudget:
+    # -- Setting that allows you to enable the Pod Disruption Budget for Longhorn UI.
+    enabled: true
 
 # -- Setting that allows you to update the default backupstore.
 defaultBackupStore:
