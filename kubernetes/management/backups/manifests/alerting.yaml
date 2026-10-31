@@ -29,3 +29,48 @@ spec:
           annotations:
             summary: "Offsite backup hasn't succeeded recently"
             description: "offsite-backup in namespace {{ $labels.namespace }} hasn't completed successfully in over 26h (expected daily)."
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: seaweedfs-alerts
+spec:
+  groups:
+    - name: seaweedfs.rules
+      rules:
+        - alert: SeaweedFSVolumeGrowthFrozen
+          expr: max(SeaweedFS_master_volume_growth_frozen{namespace="backups"}) == 1
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "SeaweedFS volume growth frozen"
+            description: "The master froze volume growth after it detected state loss. New volumes can't be allocated, so writes will fail once a collection runs out of writable volumes. Verify the inventory (cluster.status), then run volume.growth.resume in weed shell."
+        - alert: SeaweedFSS3ServerErrors
+          expr: sum by (bucket) (increase(SeaweedFS_s3_request_total{namespace="backups", code=~"5.."}[15m])) > 5
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: "SeaweedFS S3 returning 5xx"
+            description: "Bucket {{ $labels.bucket }} has had {{ $value | humanize }} S3 5xx responses in the last 15m."
+        - alert: SeaweedFSVolumeSlotsRunningOut
+          expr: |
+            sum(SeaweedFS_volumeServer_volumes{namespace="backups"})
+            / sum(SeaweedFS_volumeServer_max_volumes{namespace="backups"}) > 0.8
+          for: 1h
+          labels:
+            severity: critical
+          annotations:
+            summary: "SeaweedFS volume slots almost exhausted"
+            description: "{{ $value | humanizePercentage }} of volume slots are in use. When full, new volumes can't be allocated and writes fail. Raise the volume server's max volumes or clean up."
+        - alert: SeaweedFSDiskErrors
+          expr: |
+            max(SeaweedFS_volumeServer_disk_error_status{namespace="backups"}) > 0
+            or sum(increase(SeaweedFS_volumeServer_storage_io_error_total{namespace="backups"}[1h])) > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "SeaweedFS volume server disk errors"
+            description: "The volume server reports disk or storage I/O errors on the backup disk. Check the USB disk on the node."

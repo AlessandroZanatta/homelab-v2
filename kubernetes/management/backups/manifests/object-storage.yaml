@@ -29,6 +29,10 @@ spec:
 
     metricsPort: 8191
 
+    extraArgs:
+      # persist raft state on the PVC, default is /tmp (emptyDir)
+      - -mdir=/data
+
     initContainers:
       - name: fix-perms
         image: docker.io/library/alpine:3.24.3
