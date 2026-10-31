@@ -5,7 +5,7 @@ clusterEndpoint: https://192.168.20.254:6443
 # renovate: datasource=docker depName=ghcr.io/siderolabs/talos
 talosVersion: v1.14.4
 # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
-kubernetesVersion: v1.37.1
+kubernetesVersion: v1.37.2
 
 platform: metal
 secureboot: false
