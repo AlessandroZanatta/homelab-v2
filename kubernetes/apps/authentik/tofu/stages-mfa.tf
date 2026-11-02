@@ -50,7 +50,7 @@ resource "authentik_stage_prompt" "static_explanation_stage" {
 resource "authentik_stage_authenticator_validate" "mfa_validate_stage" {
   name = "mfa-validate-stage"
 
-  device_classes        = ["totp", "webauthn"]
+  device_classes        = ["static", "totp", "webauthn"]
   not_configured_action = "configure"
 
   configuration_stages = [
@@ -59,5 +59,17 @@ resource "authentik_stage_authenticator_validate" "mfa_validate_stage" {
   ]
 
   last_auth_threshold        = "seconds=0"
+  webauthn_user_verification = "preferred"
+}
+
+# Re-authentication gate for the self-service security flows (password change,
+# authenticator and backup code setup).
+resource "authentik_stage_authenticator_validate" "mfa_reauth_stage" {
+  name = "mfa-reauth-stage"
+
+  device_classes        = ["static", "totp", "webauthn"]
+  not_configured_action = "deny"
+
+  last_auth_threshold        = "minutes=5"
   webauthn_user_verification = "preferred"
 }

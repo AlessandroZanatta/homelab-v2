@@ -7,6 +7,7 @@
 # be safe without a flow of its own, and why applications need no per-app 2FA
 # gate.
 #
+#   -    bad reputation           flow-level: IPs with too many failed logins
 #   0    identification           username and password, on one screen
 #   10   deny inactive            disabled accounts
 #   11   deny non-users           accounts outside the `user` group tree
@@ -20,6 +21,17 @@ resource "authentik_flow" "authentication" {
   title          = "Welcome to KalexLab IdP"
   designation    = "authentication"
   authentication = "none"
+}
+
+# Brute-force throttle: the flow refuses to start for an IP with a bad
+# reputation.
+resource "authentik_policy_binding" "auth_bad_reputation" {
+  target = authentik_flow.authentication.uuid
+  policy = authentik_policy_reputation.bad_reputation.id
+  order  = 0
+
+  negate         = true
+  failure_result = false
 }
 
 resource "authentik_flow_stage_binding" "auth_0_identification" {

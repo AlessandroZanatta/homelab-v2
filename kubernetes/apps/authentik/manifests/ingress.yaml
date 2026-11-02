@@ -18,7 +18,6 @@ metadata:
   name: authentik
   annotations:
     external-dns.kubernetes.io/target: ingress.kalexlab.xyz
-    gatus.kalexlab.xyz/exclude-route: /if/admin
 spec:
   entryPoints:
     - web-public
@@ -29,13 +28,5 @@ spec:
       services:
         - name: authentik-server
           port: http
-    - kind: Rule
-      match: Host(`auth.kalexlab.xyz`) && PathPrefix(`/if/admin`)
-      services:
-        - name: authentik-server
-          port: http
-      middlewares:
-        - name: allow-internal-only
-          namespace: traefik
   tls:
     secretName: authentik-certificate

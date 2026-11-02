@@ -41,6 +41,9 @@ resource "authentik_stage_prompt" "set_password_prompt" {
     authentik_stage_prompt_field.password.id,
     authentik_stage_prompt_field.password_repeat.id,
   ]
+  validation_policies = [
+    authentik_policy_password.password_strength.id,
+  ]
 }
 
 resource "authentik_stage_user_write" "password_write" {
