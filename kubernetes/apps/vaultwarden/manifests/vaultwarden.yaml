@@ -65,7 +65,7 @@ spec:
             ]
       containers:
         - name: app
-          image: "docker.io/vaultwarden/server:1.37.4-alpine"
+          image: "docker.io/vaultwarden/server:1.37.5-alpine"
           imagePullPolicy: Always
           securityContext:
             readOnlyRootFilesystem: true
