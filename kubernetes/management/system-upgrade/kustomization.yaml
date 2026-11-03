@@ -10,7 +10,7 @@ helmGlobals:
 helmCharts:
   - name: tuppr
     repo: oci://ghcr.io/home-operations/charts
-    version: 0.5.11
+    version: 0.5.12
     releaseName: tuppr
     namespace: system-upgrade
     valuesFile: values/tuppr.yaml
