@@ -1,18 +1,40 @@
 ---
+# -- API group the webhook serves. Issuers reference it in
+# `webhook.groupName`. Must be unique in the cluster, so use a domain you own,
+# e.g. `acme.example.com`. Required.
 groupName: "acme.kalexlab.xyz"
 
 certManager:
+  # -- Namespace cert-manager runs in.
   namespace: cert-manager
+  # -- ServiceAccount cert-manager runs as; it is allowed to call the webhook.
   serviceAccountName: cert-manager
 
-service:
-  type: ClusterIP
-  port: 443
+# -- Secrets holding Porkbun credentials the webhook may read. Credentials of
+# a ClusterIssuer are read from cert-manager's cluster resource namespace
+# (by default `certManager.namespace`), those of an Issuer from the Issuer's
+# namespace. An empty `namespace` means `certManager.namespace`.
+secretAccess:
+  - names:
+      - porkbun-key
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
 
 resources:
   requests:
     cpu: 10m
-    memory: 20Mi
+    memory: 32Mi
   limits:
-    cpu: 100m
-    memory: 100Mi
+    memory: 128Mi

@@ -14,6 +14,12 @@ helmCharts:
     releaseName: cert-manager
     namespace: cert-manager
     valuesFile: values/cert-manager.yaml
+  - name: cert-manager-porkbun-webhook
+    repo: oci://ghcr.io/alessandrozanatta/charts
+    version: 1.0.0
+    releaseName: porkbun-webhook
+    namespace: cert-manager
+    valuesFile: values/porkbun-webhook.yaml
 
 resources:
   - manifests
