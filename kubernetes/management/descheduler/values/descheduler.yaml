@@ -26,6 +26,9 @@ deschedulerPolicy:
                   operator: DoesNotExist
                 - key: k8s.mariadb.com/role
                   operator: DoesNotExist
+                # Evicting a Job pod fails the Job, it isn't rescheduled
+                - key: batch.kubernetes.io/job-name
+                  operator: DoesNotExist
             podProtections:
               defaultDisabled:
                 - PodsWithLocalStorage
@@ -39,6 +42,13 @@ deschedulerPolicy:
             nodeAffinityType:
               - requiredDuringSchedulingIgnoredDuringExecution
         - name: RemovePodsViolatingNodeTaints
+          args:
+            # Transient and handled by the kubelet: draining a whole node over
+            # a short pressure blip causes an outage
+            excludedTaints:
+              - node.kubernetes.io/disk-pressure
+              - node.kubernetes.io/memory-pressure
+              - node.kubernetes.io/pid-pressure
         - name: RemovePodsViolatingInterPodAntiAffinity
         - name: RemovePodsViolatingTopologySpreadConstraint
         - name: LowNodeUtilization

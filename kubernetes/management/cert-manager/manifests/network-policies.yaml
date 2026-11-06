@@ -133,7 +133,7 @@ metadata:
 spec:
   endpointSelector:
     matchLabels:
-      app: porkbun-webhook
+      app.kubernetes.io/name: cert-manager-porkbun-webhook
   ingress:
     - fromEntities:
         - kube-apiserver

@@ -12,13 +12,14 @@ data:
       - name: traefik.logs
         rules:
           - alert: TraefikErrorLogged
-            # General log lines are "<ts> <LVL> <msg>"; access logs (CLF) share stdout
+            # General log lines are "<ts> <LVL> <msg>"; access logs (CLF) share stdout.
+            # Client disconnects are logged as ERR but aren't actionable.
             expr: |
               sum by (namespace, pod) (
-                count_over_time({namespace="traefik", container="traefik"} |~ `^\S+ (ERR|FTL|PNC) ` [5m])
+                count_over_time({namespace="traefik", container="traefik"} |~ `^\S+ (ERR|FTL|PNC) ` !~ `context canceled|use of closed network connection` [5m])
               ) > 0
             labels:
               severity: critical
             annotations:
               summary: Traefik logged {{ $value }} error line(s) in the last 5m
-              description: 'Grafana Explore → Loki: {namespace="traefik", container="traefik"} |~ `^\S+ (ERR|FTL|PNC) `'
+              description: 'Grafana Explore → Loki: {namespace="traefik", container="traefik"} |~ `^\S+ (ERR|FTL|PNC) ` !~ `context canceled|use of closed network connection`'
