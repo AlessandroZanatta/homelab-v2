@@ -21,7 +21,7 @@ spec:
           restartPolicy: Never
           containers:
             - name: rclone
-              image: docker.io/rclone/rclone:1.75.2
+              image: docker.io/rclone/rclone:1.76.0
               command: ["/bin/sh", "-c"]
               args:
                 - |
