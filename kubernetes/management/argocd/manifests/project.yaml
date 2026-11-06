@@ -58,6 +58,9 @@ spec:
         name: kyverno-cleanup-controller.kyverno.svc.kyverno-tls-*
       - kind: Secret
         name: kyverno-svc.kyverno.svc.kyverno-tls-*
+      - group: reports.kyverno.io
+        kind: EphemeralReport
+        name: "*"
 
       # Longhorn
       - kind: Secret
