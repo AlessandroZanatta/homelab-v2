@@ -7,9 +7,6 @@ spec:
   sourceRepos:
     - https://github.com/AlessandroZanatta/homelab-v2.git
 
-    # TODO: remove when a better solution for webhook is found (see cert-manager app)
-    - https://github.com/mdonoughe/porkbun-webhook
-
   destinations:
     - namespace: "*"
       name: in-cluster
@@ -21,6 +18,10 @@ spec:
   orphanedResources:
     warn: true
     ignore:
+      # Headscale
+      - kind: Secret
+        name: ts-router-state
+
       # Argo CD
       - kind: Secret
         name: argocd-redis
@@ -52,6 +53,12 @@ spec:
       # Ignore default CNPG configmaps
       - kind: ConfigMap
         name: cnpg-default-monitoring
+
+      # Crowdsec
+      - kind: Secret
+        name: crowdsec-capi-credentials
+      - kind: Secret
+        name: crowdsec-lapi-cscli-credentials
 
       # Kyverno
       - kind: Secret
