@@ -48,7 +48,7 @@ spec:
         - name: registry-credentials
       initContainers:
         - name: wait-deps
-          image: "docker.io/library/alpine:3.24.3"
+          image: "docker.io/library/alpine:3.24.4"
           imagePullPolicy: Always
           resources:
             requests:

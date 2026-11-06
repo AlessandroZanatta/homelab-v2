@@ -35,7 +35,7 @@ spec:
 
     initContainers:
       - name: fix-perms
-        image: docker.io/library/alpine:3.24.3
+        image: docker.io/library/alpine:3.24.4
         command: &fixPermsCommand
           - sh
           - -c
@@ -104,7 +104,7 @@ spec:
 
     initContainers:
       - name: fix-perms
-        image: docker.io/library/alpine:3.24.3
+        image: docker.io/library/alpine:3.24.4
         command: *fixPermsCommand
         securityContext: *fixPermsSecurityContext
         volumeMounts:
@@ -141,7 +141,7 @@ spec:
 
     initContainers:
       - name: fix-perms
-        image: docker.io/library/alpine:3.24.3
+        image: docker.io/library/alpine:3.24.4
         command: *fixPermsCommand
         securityContext: *fixPermsSecurityContext
         volumeMounts:
