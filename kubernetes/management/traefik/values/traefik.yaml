@@ -217,11 +217,11 @@ service:
   ## -- Single service is using `MixedProtocolLBService` feature gate.
   ## -- When set to false, it will create two Service, one for TCP and one for UDP.
   single: true
-  type: LoadBalancer
   annotations:
     lbipam.cilium.io/ips: "10.20.0.20"
 
   spec:
+    type: LoadBalancer
     allocateLoadBalancerNodePorts: false
     # Preserve client IP address
     externalTrafficPolicy: Local
