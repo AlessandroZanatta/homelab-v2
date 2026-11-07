@@ -88,6 +88,12 @@ features:
     # -- Restrict policy exceptions to a single namespace
     # Only the kyverno namespace may hold exceptions, so workloads can't exempt themselves
     namespace: kyverno
+  backgroundScan:
+    # Unchanged resources only need rescanning for policies reading other objects
+    # (require-namespace-default-deny lists NetworkPolicies)
+    backgroundScanInterval: 6h
+    # Apply resourceFilters to scans: stops scanning ReplicaSets (mostly dead revisions)
+    skipResourceFilters: false
 
 # Admission controller configuration
 admissionController: &podDefaults
