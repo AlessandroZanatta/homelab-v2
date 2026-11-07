@@ -14,7 +14,12 @@ helmCharts:
     releaseName: cloudnative-pg
     namespace: cnpg-system
     valuesFile: values/cloudnative-pg.yaml
+  - name: plugin-barman-cloud
+    repo: https://cloudnative-pg.github.io/charts
+    version: 0.8.1
+    releaseName: plugin-barman-cloud
+    namespace: cnpg-system
+    valuesFile: values/plugin-barman-cloud.yaml
 
 resources:
   - manifests
-  - https://github.com/cloudnative-pg/plugin-barman-cloud//kubernetes?ref=v0.15.1

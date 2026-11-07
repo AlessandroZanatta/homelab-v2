@@ -5,6 +5,24 @@ monitoring:
   # -- Specifies whether the monitoring should be enabled. Requires Prometheus Operator CRDs.
   podMonitorEnabled: true
 
+# -- Container Security Context.
+containerSecurityContext:
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+# -- Security Context for the whole pod.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65535
+  runAsGroup: 65535
+  fsGroup: 65535
+  fsGroupChangePolicy: "OnRootMismatch"
+  seccompProfile:
+    type: RuntimeDefault
+
 # Ensure operators are on different nodes
 topologySpreadConstraints:
   - maxSkew: 1
@@ -19,3 +37,10 @@ updateStrategy:
   rollingUpdate:
     maxUnavailable: 1
     maxSurge: 0
+
+resources:
+  requests:
+    cpu: 1m
+    memory: 80Mi
+  limits:
+    memory: 200Mi

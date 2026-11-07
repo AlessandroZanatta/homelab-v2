@@ -1,0 +1,27 @@
+---
+replicaCount: 1
+
+# -- Container Security Context.
+containerSecurityContext:
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+# -- Security Context for the whole pod.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65535
+  runAsGroup: 65535
+  fsGroup: 65535
+  fsGroupChangePolicy: "OnRootMismatch"
+  seccompProfile:
+    type: RuntimeDefault
+
+resources:
+  requests:
+    cpu: 1m
+    memory: 30Mi
+  limits:
+    memory: 100Mi
