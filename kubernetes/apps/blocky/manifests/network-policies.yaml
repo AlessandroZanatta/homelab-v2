@@ -1,0 +1,201 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-cluster-dns
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: coredns
+          podSelector:
+            matchLabels:
+              k8s-app: coredns
+      ports:
+        - protocol: UDP
+          port: udp-53
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: blocky
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: blocky
+      kalexlab.xyz/component: blocky
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # DNS clients
+    - ports:
+        - protocol: UDP
+          port: udp-dns
+        - protocol: TCP
+          port: tcp-dns
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: metrics
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: blocky
+              kalexlab.xyz/component: cache
+      ports:
+        - protocol: TCP
+          port: 6379
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: blocky
+              kalexlab.xyz/component: cache-sentinel
+      ports:
+        - protocol: TCP
+          port: 26379
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: blocky-upstreams
+spec:
+  endpointSelector:
+    matchLabels:
+      kalexlab.xyz/app: blocky
+      kalexlab.xyz/component: blocky
+  egress:
+    # Bootstrap DNS
+    - toCIDR:
+        - 9.9.9.9/32
+        - 149.112.112.112/32
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+          rules:
+            dns:
+              - matchPattern: "*"
+    # dns.quad9.net: DoH and DoT
+    - toCIDR:
+        - 9.9.9.9/32
+        - 149.112.112.112/32
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "853"
+              protocol: TCP
+    # Blocklists
+    - toFQDNs:
+        - matchName: raw.githubusercontent.com
+        - matchName: big.oisd.nl
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cache
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: blocky
+      kalexlab.xyz/component: cache
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: blocky
+              kalexlab.xyz/component: blocky
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: blocky
+              kalexlab.xyz/component: cache
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: blocky
+              kalexlab.xyz/component: cache-sentinel
+      ports:
+        - protocol: TCP
+          port: 6379
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: blocky
+              kalexlab.xyz/component: cache
+      ports:
+        - protocol: TCP
+          port: 6379
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cache-sentinel
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: blocky
+      kalexlab.xyz/component: cache-sentinel
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: blocky
+              kalexlab.xyz/component: blocky
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: blocky
+              kalexlab.xyz/component: cache-sentinel
+      ports:
+        - protocol: TCP
+          port: 26379
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: blocky
+              kalexlab.xyz/component: cache
+      ports:
+        - protocol: TCP
+          port: 6379
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: blocky
+              kalexlab.xyz/component: cache-sentinel
+      ports:
+        - protocol: TCP
+          port: 26379

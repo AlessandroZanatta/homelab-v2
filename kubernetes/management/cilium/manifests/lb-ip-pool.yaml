@@ -1,7 +1,7 @@
 ---
 # Single pool for every LoadBalancer service, advertised via BGP (bgp.yaml).
 # Services pin their IP with the `lbipam.cilium.io/ips` annotation:
-#   10.20.0.16  adguard
+#   10.20.0.16  blocky
 #   10.20.0.20  traefik
 #   10.20.0.21  traefik-public
 #   10.20.0.24  headscale-stun

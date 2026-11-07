@@ -1,0 +1,158 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: blocky-conf
+data:
+  config.yaml: |
+    # ref: https://0xerr0r.github.io/blocky/latest/configuration/
+    # http serves /metrics and the REST API
+    ports:
+      dns: 53
+      http: 4000
+
+    upstreams:
+      init:
+        # Configure startup behavior.
+        # accepted: blocking, failOnError, fast
+        # default: blocking
+        strategy: blocking
+      groups:
+        # these external DNS resolvers will be used. Blocky picks 2 random resolvers from the list for each query
+        # format for resolver: [net:]host[:port][/path][#commonname]. net could be empty (default, shortcut for tcp+udp), tcp+udp, tcp-tls, https (DoH) or quic (DoQ). If port is empty, default port will be used (53 for tcp+udp, 853 for tcp-tls and quic, 443 for https (DoH))
+        # alternative format: DNS Stamp (sdns://...) - compact format that encodes all parameters including optional certificate hashes for automatic certificate pinning
+        # this configuration is mandatory, please define at least one external DNS resolver
+        default:
+          - https://dns.quad9.net/dns-query
+          - tcp-tls:dns.quad9.net
+
+    # optional: Determines how blocky will create outgoing connections. This impacts both upstreams, and lists.
+    # accepted: dual, v4, v6
+    # default: dual
+    connectIPVersion: v4
+
+    # optional: custom IP address(es) for domain name (with all sub-domains). Multiple addresses must be separated by a comma
+    # example: query "printer.lan" or "my.printer.lan" will return 192.168.178.3
+    customDNS:
+      mapping:
+        router.kalexlab.xyz: 192.168.10.1
+        switch.kalexlab.xyz: 192.168.10.10
+
+    # optional: use allow/denylists to block queries (for example ads, trackers, adult pages etc.)
+    blocking:
+      # definition of denylist groups. Can be external link (http/https) or local file
+      denylists:
+        ads:
+          # Wildcard format: plain entries would match the exact domain only
+          - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/pro.txt
+          - https://big.oisd.nl/domainswild
+          - https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+          - |
+            # Block .zip domains
+            /^.*\.zip$/
+            # Server identification queries
+            version.bind
+            id.server
+            hostname.bind
+      # definition of allowlist groups.
+      # Note: if the same group has both allow/denylists, allowlists take precedence. Meaning if a domain is both blocked and allowed, it will be allowed.
+      # If every group assigned to a client has only allowlist entries, that client is in exclusive
+      # allow mode: only domains from those lists are allowed, and all others are blocked.
+      allowlists:
+        ads:
+          - |
+            *.s.youtube.com
+            *.video-stats.l.google.com
+            *.gstaticadssl.l.google.com
+            *.sls.update.microsoft.com.akadns.net
+            *.fe3.delivery.dsp.mp.microsoft.com.nsatc.net
+            *.tlu.dl.delivery.mp.microsoft.com
+            *.connectivitycheck.android.com
+            *.android.clients.google.com
+            *.clients3.google.com
+            *.connectivitycheck.gstatic.com
+            *.dl.dropboxusercontent.com
+            *.ns1.dropbox.com
+            *.ns2.dropbox.com
+      # definition: which groups should be applied for which client
+      clientGroupsBlock:
+        # default will be used, if no special definition for a client name exists
+        default:
+          - ads
+      # which response will be sent, if query is blocked:
+      # zeroIp: 0.0.0.0 will be returned (default)
+      # nxDomain: return NXDOMAIN as return code
+      # refused: return REFUSED as return code, for every query type. Note that stub resolvers commonly treat REFUSED
+      #   as a server failure and fall back to another configured DNS server, which bypasses blocking.
+      # comma separated list of destination IP addresses (for example: 192.100.100.15, 2001:0db8:85a3:08d3:1319:8a2e:0370:7344). Should contain ipv4 and ipv6 to cover all query types. Useful with running web server on this address to display the "blocked" page.
+      blockType: zeroIp
+      # optional: TTL for answers to blocked domains
+      # default: 6h
+      blockTTL: 1m
+      # optional: Configure how lists, AKA sources, are loaded
+      loading:
+        # optional: list refresh period in duration format.
+        # Set to a value <= 0 to disable.
+        # default: 4h
+        refreshPeriod: 24h
+        downloads:
+          # The default 5s is too short for the bigger lists
+          timeout: 1m
+
+    # optional: configuration for prometheus metrics endpoint
+    prometheus:
+      # enabled if true
+      enable: true
+      # url path, optional (default '/metrics')
+      path: /metrics
+
+    # optional: write query information (question, answer, client, duration etc.) to daily csv file
+    queryLog:
+      # optional one of: mysql, postgresql, timescale, sqlite, csv, csv-client. If empty, log to console
+      type: console
+
+    # optional: Blocky can synchronize its cache and blocking state between multiple instances through redis.
+    redis:
+      # Server address and port, a unix socket path (starting with /), or master name if sentinel is used
+      address: master
+      # List with address and port of sentinel hosts(sentinel is activated if at least one sentinel address is configured)
+      sentinelAddresses:
+        - cache-sentinel:26379
+
+    # optional: use these DNS servers to resolve denylist urls and upstream DNS servers. It is useful if no system DNS resolver is configured, and/or to encrypt the bootstrap queries.
+    # If not set, the operating system resolver (/etc/resolv.conf on Linux) is used.
+    bootstrapDns:
+      - tcp+udp:9.9.9.9
+      - tcp+udp:149.112.112.112
+
+    # optional: DNS rebinding protection. When enabled, answers from the general
+    # upstreams containing private, loopback, link-local or unspecified IPs are
+    # dropped. allowedDomains exempts split-horizon domains (incl. subdomains).
+    rebindingProtection:
+      enable: true
+      allowedDomains:
+        - kalexlab.xyz
+
+    # optional: logging configuration
+    log:
+      # optional: Log level (one from trace, debug, info, warn, error). Default: info
+      level: info
+      # optional: Log format (text or json). Default: text
+      format: json
+
+    # TODO
+    # optional: DNSSEC validation configuration
+    # DNSSEC (Domain Name System Security Extensions) provides cryptographic authentication
+    # of DNS data to protect against cache poisoning and man-in-the-middle attacks
+    dnssec:
+      # Enable DNSSEC validation. When enabled, Blocky will:
+      # - Set the DNSSEC OK (DO) bit on upstream queries
+      # - Validate cryptographic signatures (RRSIG) in DNS responses
+      # - Verify the chain of trust from root to queried domain
+      # - Validate authenticated denial of existence (NSEC/NSEC3 for NXDOMAIN/NODATA)
+      # - Validate wildcard expansions per RFC 4035 §5.3.4
+      # - Return SERVFAIL for responses with invalid DNSSEC signatures (Bogus)
+      # - Set the Authenticated Data (AD) flag only after successful validation
+      #
+      # default: false
+      validate: false

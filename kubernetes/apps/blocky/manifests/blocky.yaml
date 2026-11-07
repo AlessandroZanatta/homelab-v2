@@ -1,0 +1,131 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blocky
+  labels:
+    kalexlab.xyz/app: blocky
+    kalexlab.xyz/component: blocky
+  annotations:
+    lbipam.cilium.io/ips: "10.20.0.16"
+spec:
+  type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  externalTrafficPolicy: Local
+  ports:
+    - name: udp-dns
+      port: 53
+      protocol: UDP
+      targetPort: udp-dns
+    - name: tcp-dns
+      port: 53
+      protocol: TCP
+      targetPort: tcp-dns
+  selector:
+    kalexlab.xyz/app: blocky
+    kalexlab.xyz/component: blocky
+---
+# Kept apart from the LoadBalancer so metrics and the API are not exposed on the LAN
+apiVersion: v1
+kind: Service
+metadata:
+  name: blocky-metrics
+  labels:
+    kalexlab.xyz/app: blocky
+    kalexlab.xyz/component: blocky-metrics
+spec:
+  type: ClusterIP
+  ports:
+    - name: metrics
+      port: 4000
+      protocol: TCP
+      targetPort: metrics
+  selector:
+    kalexlab.xyz/app: blocky
+    kalexlab.xyz/component: blocky
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blocky
+  labels:
+    kalexlab.xyz/app: blocky
+    kalexlab.xyz/component: blocky
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: blocky
+      kalexlab.xyz/component: blocky
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: blocky
+        kalexlab.xyz/component: blocky
+        kalexlab.xyz/monitoring: "true"
+    spec:
+      restartPolicy: Always
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          nodeTaintsPolicy: Honor
+          labelSelector:
+            matchLabels:
+              kalexlab.xyz/app: blocky
+              kalexlab.xyz/component: blocky
+      containers:
+        - name: blocky
+          image: docker.io/spx01/blocky:v0.35.0
+          imagePullPolicy: Always
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              add:
+                - NET_BIND_SERVICE
+              drop:
+                - ALL
+          ports:
+            - name: udp-dns
+              containerPort: 53
+              protocol: UDP
+            - name: tcp-dns
+              containerPort: 53
+              protocol: TCP
+            - name: metrics
+              containerPort: 4000
+              protocol: TCP
+          # TODO
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 10m
+            limits:
+              memory: 512Mi
+          readinessProbe:
+            tcpSocket:
+              port: tcp-dns
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: tcp-dns
+            periodSeconds: 30
+          volumeMounts:
+            - mountPath: /app/config.yml
+              name: blocky-conf
+              subPath: config.yaml
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65535
+        runAsGroup: 65535
+        fsGroup: 65535
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+      volumes:
+        - name: blocky-conf
+          configMap:
+            name: blocky-conf

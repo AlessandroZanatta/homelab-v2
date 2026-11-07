@@ -47,7 +47,57 @@ spec:
   ingress:
     - fromEntities:
         - kube-apiserver
+        - remote-node
       toPorts:
         - ports:
             - port: "8081"
+              protocol: TCP
+---
+# Replication and sentinel setups are configured over direct Redis connections
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: redis-operator-to-redis
+spec:
+  endpointSelector:
+    matchLabels:
+      io.kubernetes.pod.namespace: redis-operator
+      name: redis-operator
+  egress:
+    - toEndpoints:
+        - matchExpressions:
+            - key: redis_setup_type
+              operator: In
+              values:
+                - replication
+                - sentinel
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: TCP
+            - port: "26379"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: redis-allow-operator
+spec:
+  endpointSelector:
+    matchExpressions:
+      - key: redis_setup_type
+        operator: In
+        values:
+          - replication
+          - sentinel
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: redis-operator
+            name: redis-operator
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: TCP
+            - port: "26379"
               protocol: TCP

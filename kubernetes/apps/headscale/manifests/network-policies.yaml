@@ -162,11 +162,12 @@ spec:
               protocol: TCP
             - port: "8444"
               protocol: TCP
-    # Tailnet -> AdGuard VIP (10.20.0.16)
+    # Tailnet -> Blocky VIP (10.20.0.16)
     - toEndpoints:
         - matchLabels:
-            io.kubernetes.pod.namespace: adguard
-            kalexlab.xyz/app: adguard
+            io.kubernetes.pod.namespace: blocky
+            kalexlab.xyz/app: blocky
+            kalexlab.xyz/component: blocky
       toPorts:
         - ports:
             - port: "53"

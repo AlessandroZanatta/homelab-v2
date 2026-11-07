@@ -1,0 +1,31 @@
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: blocky
+spec:
+  instanceSelector:
+    matchLabels:
+      grafana.kalexlab.xyz/instance: grafana
+  allowCrossNamespaceImport: true
+  folder: DNS
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: Prometheus
+  # renovate: depName="Dashboard - Blocky"
+  url: "https://grafana.com/api/dashboards/13768/revisions/8/download"
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: blocky-queries
+spec:
+  instanceSelector:
+    matchLabels:
+      grafana.kalexlab.xyz/instance: grafana
+  allowCrossNamespaceImport: true
+  folder: DNS
+  # Query log from Loki, replaces the upstream dashboard that needs a SQL database
+  configMapRef:
+    name: blocky-queries-dashboard
+    key: blocky-queries.json

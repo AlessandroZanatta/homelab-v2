@@ -1,0 +1,190 @@
+{
+  "uid": "blocky-queries",
+  "title": "Blocky Queries",
+  "tags": ["dns", "blocky", "loki"],
+  "schemaVersion": 39,
+  "editable": true,
+  "refresh": "1m",
+  "time": { "from": "now-24h", "to": "now" },
+  "timezone": "browser",
+  "templating": {
+    "list": [
+      {
+        "name": "domain",
+        "label": "Domain contains",
+        "type": "textbox",
+        "query": "",
+        "current": { "text": "", "value": "" },
+        "options": [{ "selected": true, "text": "", "value": "" }]
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Queries",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 0, "w": 4, "h": 5 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "none", "graphMode": "none" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "queryType": "instant",
+          "expr": "sum(count_over_time({namespace=\"blocky\",container=\"blocky\"} |= \"query resolved\" |= \"$domain\" [$__range]))"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Blocked",
+      "type": "stat",
+      "gridPos": { "x": 4, "y": 0, "w": 4, "h": 5 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "unit": "percent", "decimals": 1 }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "none", "graphMode": "none" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "queryType": "instant",
+          "expr": "100 * sum(count_over_time({namespace=\"blocky\",container=\"blocky\"} |= \"query resolved\" |= \"$domain\" | json | response_type=\"BLOCKED\" [$__range])) / sum(count_over_time({namespace=\"blocky\",container=\"blocky\"} |= \"query resolved\" |= \"$domain\" [$__range]))"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Queries by response type",
+      "type": "piechart",
+      "gridPos": { "x": 8, "y": 0, "w": 6, "h": 10 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "options": {
+        "pieType": "donut",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": true },
+        "legend": { "displayMode": "table", "placement": "right", "values": ["value", "percent"] }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "queryType": "instant",
+          "legendFormat": "{{response_type}}",
+          "expr": "sum by (response_type) (count_over_time({namespace=\"blocky\",container=\"blocky\"} |= \"query resolved\" |= \"$domain\" | json [$__range]))"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Queries over time",
+      "type": "timeseries",
+      "gridPos": { "x": 14, "y": 0, "w": 10, "h": 10 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": { "drawStyle": "bars", "fillOpacity": 60, "stacking": { "mode": "normal", "group": "A" } }
+        },
+        "overrides": []
+      },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "queryType": "range",
+          "legendFormat": "{{response_type}}",
+          "expr": "sum by (response_type) (count_over_time({namespace=\"blocky\",container=\"blocky\"} |= \"query resolved\" |= \"$domain\" | json [$__auto]))"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Unique domains",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 5, "w": 8, "h": 5 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "none", "graphMode": "none" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "queryType": "instant",
+          "expr": "count(sum by (question_name) (count_over_time({namespace=\"blocky\",container=\"blocky\"} |= \"query resolved\" |= \"$domain\" | json [$__range])))"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Top blocked domains",
+      "type": "table",
+      "gridPos": { "x": 0, "y": 10, "w": 12, "h": 12 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "options": { "showHeader": true, "cellHeight": "sm" },
+      "transformations": [
+        { "id": "labelsToFields", "options": { "mode": "columns", "keepLabels": ["question_name"] } },
+        { "id": "merge", "options": {} },
+        { "id": "organize", "options": { "excludeByName": { "Time": true } } }
+      ],
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "queryType": "instant",
+          "expr": "sort_desc(topk(20, sum by (question_name) (count_over_time({namespace=\"blocky\",container=\"blocky\"} |= \"query resolved\" |= \"$domain\" | json | response_type=\"BLOCKED\" [$__range]))))"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Top allowed domains",
+      "type": "table",
+      "gridPos": { "x": 12, "y": 10, "w": 12, "h": 12 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "options": { "showHeader": true, "cellHeight": "sm" },
+      "transformations": [
+        { "id": "labelsToFields", "options": { "mode": "columns", "keepLabels": ["question_name"] } },
+        { "id": "merge", "options": {} },
+        { "id": "organize", "options": { "excludeByName": { "Time": true } } }
+      ],
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "queryType": "instant",
+          "expr": "sort_desc(topk(20, sum by (question_name) (count_over_time({namespace=\"blocky\",container=\"blocky\"} |= \"query resolved\" |= \"$domain\" | json | response_type!=\"BLOCKED\" [$__range]))))"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Last queries",
+      "type": "logs",
+      "gridPos": { "x": 0, "y": 22, "w": 24, "h": 14 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "options": { "showTime": true, "wrapLogMessage": true, "sortOrder": "Descending", "dedupStrategy": "none", "enableLogDetails": true },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "queryType": "range",
+          "maxLines": 500,
+          "expr": "{namespace=\"blocky\",container=\"blocky\"} |= \"query resolved\" |= \"$domain\" | json | line_format \"{{.response_type}} {{.question_type}} {{.question_name}} -> {{.answer}} [{{.response_reason}}]\""
+        }
+      ]
+    }
+  ]
+}

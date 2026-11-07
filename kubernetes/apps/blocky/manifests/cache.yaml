@@ -1,0 +1,129 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cache-config
+data:
+  redis-additional.conf: |
+    save ""
+    repl-diskless-load swapdb
+---
+apiVersion: redis.redis.opstreelabs.in/v1beta2
+kind: RedisReplication
+metadata:
+  name: cache
+  labels:
+    kalexlab.xyz/app: blocky
+    kalexlab.xyz/component: cache
+    kalexlab.xyz/monitoring: "true"
+  annotations:
+    gatus.kalexlab.xyz/enabled: "true"
+    gatus.kalexlab.xyz/scheme: tcp
+spec:
+  clusterSize: 2
+  # exec probes cost far more CPU than an idle Valkey
+  livenessProbe:
+    periodSeconds: 30
+  readinessProbe:
+    periodSeconds: 30
+  kubernetesConfig:
+    # renovate: datasource=docker depName=valkey/valkey
+    image: docker.io/valkey/valkey:9.1.3-alpine
+    imagePullPolicy: Always
+    resources:
+      requests:
+        memory: 5Mi
+        cpu: 1m
+      limits:
+        memory: 50Mi
+  redisConfig:
+    additionalRedisConfig: cache-config
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          kalexlab.xyz/app: blocky
+          kalexlab.xyz/component: cache
+          role: replication
+  pdb:
+    enabled: true
+    minAvailable: 1
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 65535
+    runAsGroup: 65535
+    fsGroup: 65535
+    fsGroupChangePolicy: "OnRootMismatch"
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+---
+apiVersion: redis.redis.opstreelabs.in/v1beta2
+kind: RedisSentinel
+metadata:
+  name: cache
+  labels:
+    kalexlab.xyz/app: blocky
+    kalexlab.xyz/component: cache-sentinel
+    kalexlab.xyz/monitoring: "true"
+  annotations:
+    gatus.kalexlab.xyz/enabled: "true"
+    gatus.kalexlab.xyz/scheme: tcp
+spec:
+  clusterSize: 3
+  # exec probes cost far more CPU than an idle Valkey
+  livenessProbe:
+    periodSeconds: 30
+  readinessProbe:
+    periodSeconds: 30
+  kubernetesConfig:
+    # renovate: datasource=docker depName=valkey/valkey
+    image: docker.io/valkey/valkey:9.1.3-alpine
+    imagePullPolicy: Always
+    resources:
+      requests:
+        memory: 5Mi
+        cpu: 1m
+      limits:
+        memory: 50Mi
+  redisSentinelConfig:
+    redisReplicationName: cache
+    quorum: "2"
+    masterGroupName: master
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          kalexlab.xyz/app: blocky
+          kalexlab.xyz/component: cache-sentinel
+  pdb:
+    enabled: true
+    minAvailable: 2 # Requires quorum
+  tolerations:
+    - key: kalexlab.xyz/taint
+      operator: Equal
+      value: vpn
+      effect: NoSchedule
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 65535
+    runAsGroup: 65535
+    fsGroup: 65535
+    fsGroupChangePolicy: "OnRootMismatch"
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
