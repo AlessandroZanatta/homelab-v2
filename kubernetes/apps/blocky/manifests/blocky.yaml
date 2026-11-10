@@ -76,7 +76,7 @@ spec:
               kalexlab.xyz/component: blocky
       containers:
         - name: blocky
-          image: docker.io/spx01/blocky:v0.35.0
+          image: docker.io/spx01/blocky:v0.36.0
           imagePullPolicy: Always
           securityContext:
             readOnlyRootFilesystem: true
