@@ -91,7 +91,7 @@ features:
   backgroundScan:
     # Unchanged resources only need rescanning for policies reading other objects
     # (require-namespace-default-deny lists NetworkPolicies)
-    backgroundScanInterval: 6h
+    backgroundScanInterval: 24h
     # Apply resourceFilters to scans: stops scanning ReplicaSets (mostly dead revisions)
     skipResourceFilters: false
 
