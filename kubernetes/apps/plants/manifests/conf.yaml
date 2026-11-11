@@ -38,38 +38,75 @@ data:
     import urllib.error
     import urllib.parse
     import urllib.request
-    from datetime import date
+    from datetime import date, datetime, time, timedelta
     from html import escape
+
+    # Must match TasksModel::$scope_quantities in HortusFox
+    SCOPE_HOURS = {"hours": 1, "days": 24, "weeks": 168, "months": 672, "years": 8760}
 
     def request(url, data=None):
         body = urllib.parse.urlencode(data).encode() if data else None
         with urllib.request.urlopen(url, data=body, timeout=30) as resp:
             return json.load(resp)
 
+    def api(path, **params):
+        query = urllib.parse.urlencode({"token": api_token, **params})
+        resp = request(f"{hortusfox_url}/api/{path}?{query}")
+        if resp.get("code") != 200:
+            raise RuntimeError(f"HortusFox API {path} returned code {resp.get('code')}")
+        return resp
+
     hortusfox_url = os.environ["HORTUSFOX_URL"]
     public_url = os.environ["PUBLIC_URL"]
     api_token = os.environ["HORTUSFOX_API_TOKEN"]
-    cron_pw = os.environ["HORTUSFOX_CRON_PW"]
     bot_token = os.environ["TELEGRAM_BOT_TOKEN"]
     chat_ids = [c.strip() for c in os.environ.get("TELEGRAM_CHAT_IDS", "").split(",") if c.strip()]
     if not chat_ids:
         sys.exit("TELEGRAM_CHAT_IDS is empty")
 
-    query = urllib.parse.urlencode({"token": api_token, "done": 0, "limit": 1000})
+    failed = 0
+
+    # HortusFox only reschedules recurring tasks regardless of completion and
+    # never reopens done ones, so reopen them here once someone completes them.
+    # It stores no completion time: morning runs assume the task was done after
+    # the previous evening's run.
     try:
-        resp = request(f"{hortusfox_url}/api/tasks/fetch?{query}")
-    except urllib.error.HTTPError as e:
-        sys.exit(f"HortusFox API returned HTTP {e.code}")
-    if resp.get("code") != 200:
-        sys.exit(f"HortusFox API returned code {resp.get('code')}")
+        done_tasks = api("tasks/fetch", done=1, limit=1000).get("data") or []
+        open_tasks = api("tasks/fetch", done=0, limit=1000).get("data") or []
+    except (urllib.error.URLError, RuntimeError) as e:
+        sys.exit(f"Fetching tasks failed: {e}")
+
+    now = datetime.now()
+    completed_on = datetime.combine(now.date() - timedelta(days=1 if now.hour < 12 else 0), time())
+    for t in done_tasks:
+        if not t.get("recurring_time"):
+            continue
+        hours = int(t["recurring_time"])
+        scope = t.get("recurring_scope")
+        if scope not in SCOPE_HOURS or hours % SCOPE_HOURS[scope]:
+            scope = "hours"
+        due_date = (completed_on + timedelta(hours=hours)).date().isoformat()
+        try:
+            # editTask converts recurring_time from scope units to hours again
+            api(
+                "tasks/edit",
+                task=t["id"],
+                done=0,
+                due_date=due_date,
+                recurring_time=hours // SCOPE_HOURS[scope],
+                recurring_scope=scope,
+            )
+            print(f"Reopened recurring task {t['id']}, next due {due_date}")
+        except (urllib.error.URLError, RuntimeError) as e:
+            print(f"Reopening task {t['id']} failed: {e}", file=sys.stderr)
+            failed += 1
 
     today = date.today().isoformat()
     due = sorted(
-        (t for t in resp.get("data") or [] if t.get("due_date") and t["due_date"][:10] <= today),
+        (t for t in open_tasks if t.get("due_date") and t["due_date"][:10] <= today),
         key=lambda t: t["due_date"],
     )
 
-    failed = 0
     if due:
         lines = ["🌱 <b>Plant tasks due</b>", ""]
         for t in due:
@@ -91,12 +128,5 @@ data:
         print(f"Sent {len(due)} due tasks to {len(chat_ids) - failed}/{len(chat_ids)} chats")
     else:
         print("No tasks due")
-
-    try:
-        request(f"{hortusfox_url}/cronjob/tasks/recurring", {"cronpw": cron_pw})
-        print("Advanced overdue recurring tasks")
-    except urllib.error.HTTPError as e:
-        print(f"HortusFox recurring cronjob returned HTTP {e.code}", file=sys.stderr)
-        failed += 1
 
     sys.exit(1 if failed else 0)
