@@ -17,7 +17,10 @@ spec:
     automated:
       prune: true
       selfHeal: true
-      enabled: true
+      # Wait for:
+      #  - https://github.com/longhorn/longhorn/issues/8753
+      #  - https://github.com/longhorn/longhorn-manager/pull/5172
+      enabled: false
     syncOptions:
       - CreateNamespace=true
       - SkipDryRunOnMissingResource=true

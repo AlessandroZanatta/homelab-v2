@@ -1,4 +1,14 @@
 ---
+image:
+  longhorn:
+    manager:
+      # -- Registry for the Longhorn Manager image.
+      registry: ghcr.io
+      # -- Repository for the Longhorn Manager image.
+      repository: alessandrozanatta/longhorn-manager
+      # -- Tag for the Longhorn Manager image.
+      tag: v1.13.0-strict-local.1
+
 defaultSettings:
   # -- Percentage of disk space that is not allocated to the default disk on each new Longhorn node.
   storageReservedPercentageForDefaultDisk: "15"
