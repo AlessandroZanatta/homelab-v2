@@ -19,6 +19,7 @@
         "ghcr.io/siderolabs/kubelet"
       ],
       "schedule": ["at any time"],
+      "rebaseWhen": "conflicted",
       "automerge": true,
       "automergeType": "pr",
       "automergeSchedule": ["after 1am on saturday", "after 1am on sunday"]
@@ -52,7 +53,7 @@
       "automerge": false,
       "addLabels": ["renovate/openwrt"],
       "prBodyNotes": [
-        "⚠️ Not applied automatically: run attended sysupgrade on the router (LuCI → System → Attended Sysupgrade, or `owut upgrade`), then merge."
+        "! Not applied automatically: run attended sysupgrade on the router (LuCI → System → Attended Sysupgrade, or `owut upgrade`), then merge."
       ]
     },
     {
