@@ -10,7 +10,7 @@ helmGlobals:
 helmCharts:
   - name: grafana-operator
     repo: oci://ghcr.io/grafana/helm-charts
-    version: 5.25.0
+    version: 5.26.0
     releaseName: grafana-operator
     namespace: grafana-operator
     valuesFile: values/grafana-operator.yaml
