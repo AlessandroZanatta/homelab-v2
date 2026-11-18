@@ -1,0 +1,93 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: collabora-online
+  labels:
+    kalexlab.xyz/app: opencloud
+    kalexlab.xyz/component: collabora-online
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 9980
+      targetPort: http
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: opencloud
+    kalexlab.xyz/component: collabora-online
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: collabora-online
+  labels:
+    kalexlab.xyz/app: opencloud
+    kalexlab.xyz/component: collabora-online
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: opencloud
+      kalexlab.xyz/component: collabora-online
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: opencloud
+        kalexlab.xyz/component: collabora-online
+        kalexlab.xyz/monitoring: "true"
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: collabora-online
+          image: "docker.io/collabora/code:26.04.6.1.1"
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 9980
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: collabora-online-conf
+            - secretRef:
+                name: collabora-online-secrets
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 1m
+            limits:
+              memory: 1Gi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 10
+            failureThreshold: 4
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: opt-cool-child-roots
+              mountPath: /opt/cool/child-roots
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: opt-cool-child-roots
+          emptyDir:
+            sizeLimit: 1Gi

@@ -376,6 +376,83 @@ resource "authentik_policy_binding" "apps_nextcloud" {
   order  = 0
 }
 
+# OpenCloud
+resource "authentik_provider_oauth2" "apps_opencloud" {
+  name               = "OpenCloud"
+  client_id          = "apps-opencloud"
+  client_type        = "public"
+  authorization_flow = authentik_flow.authorization_implicit.uuid
+  invalidation_flow  = authentik_flow.app_invalidation.uuid
+
+  signing_key = authentik_certificate_key_pair.jwt_signing.id
+  allowed_redirect_uris = [
+    # Web
+    {
+      matching_mode     = "strict",
+      url               = "https://drive.kalexlab.xyz/",
+      redirect_uri_type = "authorization",
+    },
+    {
+      matching_mode     = "strict",
+      url               = "https://drive.kalexlab.xyz/oidc-callback.html",
+      redirect_uri_type = "authorization",
+    },
+    {
+      matching_mode     = "strict",
+      url               = "https://drive.kalexlab.xyz/oidc-silent-redirect.html",
+      redirect_uri_type = "authorization",
+    },
+    # Desktop (loopback redirect on a random port)
+    {
+      matching_mode     = "regex",
+      url               = "http://127\\.0\\.0\\.1(:\\d+)?(/.*)?",
+      redirect_uri_type = "authorization",
+    },
+    {
+      matching_mode     = "regex",
+      url               = "http://localhost(:\\d+)?(/.*)?",
+      redirect_uri_type = "authorization",
+    },
+    # Mobile
+    {
+      matching_mode     = "strict",
+      url               = "oc://android.opencloud.eu",
+      redirect_uri_type = "authorization",
+    },
+    {
+      matching_mode     = "strict",
+      url               = "oc://ios.opencloud.eu",
+      redirect_uri_type = "authorization",
+    }
+  ]
+  # profile includes the `groups` claim used for group sync and role mapping
+  property_mappings = [
+    data.authentik_property_mapping_provider_scope.oidc_scopes["openid"].id,
+    data.authentik_property_mapping_provider_scope.oidc_scopes["email"].id,
+    data.authentik_property_mapping_provider_scope.oidc_scopes["profile"].id,
+    data.authentik_property_mapping_provider_scope.oidc_scopes["offline_access"].id
+  ]
+  grant_types = [
+    "authorization_code",
+    "refresh_token"
+  ]
+}
+
+resource "authentik_application" "apps_opencloud" {
+  name              = "OpenCloud"
+  slug              = "apps-opencloud"
+  group             = var.application_groups["apps"]
+  meta_launch_url   = "https://drive.kalexlab.xyz"
+  meta_icon         = "https://cdn.jsdelivr.net/gh/selfhst/icons/svg/opencloud.svg"
+  protocol_provider = authentik_provider_oauth2.apps_opencloud.id
+}
+
+resource "authentik_policy_binding" "apps_opencloud" {
+  target = authentik_application.apps_opencloud.uuid
+  group  = authentik_group.home.id
+  order  = 0
+}
+
 # Reciept
 resource "authentik_provider_oauth2" "apps_reciept" {
   name               = "Reciept"

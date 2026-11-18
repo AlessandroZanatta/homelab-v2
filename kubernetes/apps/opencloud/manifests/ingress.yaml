@@ -1,0 +1,52 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: opencloud-certificate
+spec:
+  commonName: drive.kalexlab.xyz
+  secretName: opencloud-ingress-certificate-secret
+  dnsNames:
+    - drive.kalexlab.xyz
+    - docs.kalexlab.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: opencloud-ingress
+  annotations:
+    external-dns.kubernetes.io/target: 10.20.0.20
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`drive.kalexlab.xyz`)
+      services:
+        - name: opencloud
+          port: http
+  tls:
+    secretName: opencloud-ingress-certificate-secret
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: collabora-online-ingress
+  annotations:
+    external-dns.kubernetes.io/target: 10.20.0.20
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`docs.kalexlab.xyz`)
+      services:
+        - name: collabora-online
+          port: http
+  tls:
+    secretName: opencloud-ingress-certificate-secret

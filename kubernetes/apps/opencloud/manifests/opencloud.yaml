@@ -1,0 +1,141 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opencloud
+  labels:
+    kalexlab.xyz/app: opencloud
+    kalexlab.xyz/component: opencloud
+  annotations:
+    gatus.kalexlab.xyz/enabled: "true"
+    gatus.kalexlab.xyz/scheme: http
+    gatus.kalexlab.xyz/path: /status.php
+    gatus.kalexlab.xyz/endpoint: |
+      conditions:
+        - "[STATUS] == 200"
+        - "[BODY].maintenance == false"
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 9200
+      targetPort: http
+      protocol: TCP
+  selector:
+    kalexlab.xyz/app: opencloud
+    kalexlab.xyz/component: opencloud
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: opencloud
+  labels:
+    kalexlab.xyz/app: opencloud
+    kalexlab.xyz/component: opencloud
+spec:
+  serviceName: opencloud
+  replicas: 1
+  selector:
+    matchLabels:
+      kalexlab.xyz/app: opencloud
+      kalexlab.xyz/component: opencloud
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        kalexlab.xyz/app: opencloud
+        kalexlab.xyz/component: opencloud
+        sso.kalexlab.xyz/idp: authentik
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: opencloud
+          image: "docker.io/opencloudeu/opencloud:9.1.1"
+          imagePullPolicy: Always
+          command:
+            - opencloud
+            - server
+          ports:
+            - name: http
+              containerPort: 9200
+              protocol: TCP
+            - name: debug
+              containerPort: 9205
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: opencloud-conf
+          resources:
+            requests:
+              memory: 300Mi
+              cpu: 10m
+            limits:
+              memory: 2Gi
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: debug
+            timeoutSeconds: 5
+            periodSeconds: 30
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: debug
+            timeoutSeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - mountPath: /etc/opencloud
+              name: config
+            - mountPath: /var/lib/opencloud
+              name: opencloud-data-pvc
+            - mountPath: /tmp
+              name: tmp
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65535
+        runAsGroup: 65535
+        fsGroup: 65535
+        fsGroupChangePolicy: "OnRootMismatch"
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: config
+          projected:
+            sources:
+              - secret:
+                  name: opencloud-secrets
+                  items:
+                    - key: opencloud.yaml
+                      path: opencloud.yaml
+              - configMap:
+                  name: opencloud-files
+                  items:
+                    - key: proxy.yaml
+                      path: proxy.yaml
+                    - key: csp.yaml
+                      path: csp.yaml
+                    - key: app-registry.yaml
+                      path: app-registry.yaml
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
+  volumeClaimTemplates:
+    - metadata:
+        name: opencloud-data-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 100Gi
