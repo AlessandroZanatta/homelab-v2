@@ -39,7 +39,6 @@ spec:
       kalexlab.xyz/app: music
       kalexlab.xyz/component: navidrome
   policyTypes:
-    - Egress
     - Ingress
   ingress:
     - from:
@@ -56,15 +55,36 @@ spec:
       ports:
         - protocol: TCP
           port: http
-  # Allow scrobbling and cover retrieval
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: navidrome-external
+spec:
+  endpointSelector:
+    matchLabels:
+      kalexlab.xyz/app: music
+      kalexlab.xyz/component: navidrome
   egress:
-    - to:
-        - ipBlock:
-            cidr: 0.0.0.0/0
-            except:
-              - 10.0.0.0/8
-              - 172.16.0.0/12
-              - 192.168.0.0/16
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: coredns
+            k8s-app: coredns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+          rules:
+            dns:
+              - matchPattern: "*"
+    # Deezer: artist images, external cover art fallback
+    - toFQDNs:
+        - matchName: api.deezer.com
+        - matchPattern: "*.dzcdn.net"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

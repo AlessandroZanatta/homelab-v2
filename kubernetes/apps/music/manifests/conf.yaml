@@ -13,6 +13,14 @@ data:
 
     EnableUserEditing = false
     EnableInsightsCollector = false
+    # Deezer only: artist images, external cover art fallback
+    Agents = 'deezer'
+
+    [LastFM]
+    Enabled = false
+
+    [ListenBrainz]
+    Enabled = false
 
     [ExtAuth]
     TrustedSources = '10.244.0.0/16'

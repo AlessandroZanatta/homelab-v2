@@ -51,16 +51,6 @@ spec:
           env:
             - name: ND_CONFIGFILE
               value: /navidrome.toml
-            - name: ND_LASTFM_APIKEY
-              valueFrom:
-                secretKeyRef:
-                  name: navidrome-secrets
-                  key: ND_LASTFM_APIKEY
-            - name: ND_LASTFM_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: navidrome-secrets
-                  key: ND_LASTFM_SECRET
           resources:
             requests:
               memory: 30Mi
