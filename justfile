@@ -15,6 +15,11 @@ topf *ARGS:
 topf-talosconfig:
   topf talosconfig > talosconfig
 
+# Admin client certs can't be revoked, keep the validity bounded
+[working-directory('topf')]
+kubeconfig VALIDITY="168h":
+  umask 077 && topf kubeconfig --validity {{ VALIDITY }} > ~/.kube/config
+
 _check_secret_file SECRET_FILE:
   #!/bin/bash
 
