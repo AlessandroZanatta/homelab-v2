@@ -45,6 +45,7 @@ spec:
       labels:
         kalexlab.xyz/app: opencloud
         kalexlab.xyz/component: opencloud
+        kalexlab.xyz/monitoring: "true"
         sso.kalexlab.xyz/idp: authentik
     spec:
       restartPolicy: Always
