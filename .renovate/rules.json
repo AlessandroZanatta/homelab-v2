@@ -7,6 +7,11 @@
       "minimumReleaseAge": "7 days"
     },
     {
+      "description": "grafana.com datasource has no release timestamps; delay would block it forever",
+      "matchDatasources": ["custom.grafana-dashboards"],
+      "minimumReleaseAge": null
+    },
+    {
       "description": "Ignore images from registry.kalexlab.xyz since it is not exposed",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["registry.kalexlab.xyz{/,}**"],

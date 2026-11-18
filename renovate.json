@@ -19,6 +19,8 @@
     "github>alessandrozanatta/homelab-v2//.renovate/managers.json",
     "github>alessandrozanatta/homelab-v2//.renovate/rules.json"
   ],
+  "minimumReleaseAge": "3 days",
+  "internalChecksFilter": "strict",
   "argocd": {
     "managerFilePatterns": ["apps/**/*.yaml"]
   },
