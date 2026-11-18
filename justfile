@@ -156,13 +156,23 @@ openwrt-diff:
   OUT=$(mktemp -d)
   trap 'rm -rf "$OUT"' EXIT
   just _openwrt-render "$OUT"
+  just _openwrt-diff "$OUT" || true
 
-  cd "$OUT"
+# Diff rendered files in OUT against the router; exits 1 if anything differs
+[no-exit-message]
+_openwrt-diff OUT:
+  #!/bin/bash
+
+  set -euo pipefail
+
+  cd "{{ OUT }}"
+  CHANGED=0
   for FILE in $(find . -type f | sed 's|^\./||' | sort); do
     ssh {{ openwrt_router }} "sudo cat /$FILE 2>/dev/null || true" \
       | diff -u --label "router:/$FILE" --label "repo:/$FILE" - "$FILE" --color \
-    || true
+    || CHANGED=1
   done
+  exit "$CHANGED"
 
 # Push rendered openwrt/files to the router; rolls back unless confirmed within TIMEOUT seconds
 openwrt-apply TIMEOUT="90":
@@ -182,6 +192,17 @@ openwrt-apply TIMEOUT="90":
   if [ -z "$(find "$OUT" -type f)" ]; then
     echo "Nothing to apply"
     exit 0
+  fi
+
+  if just _openwrt-diff "$OUT"; then
+    echo "Router already up to date"
+    exit 0
+  fi
+
+  read -rp "Apply these changes? [y/N] " ANSWER
+  if [[ "$ANSWER" != [yY] ]]; then
+    echo "Aborted"
+    exit 1
   fi
 
   # dropbear has no sftp-server, stream a tarball instead of using scp
