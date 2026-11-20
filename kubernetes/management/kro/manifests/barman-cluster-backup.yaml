@@ -20,6 +20,11 @@ spec:
         kind: S3Identity
         metadata:
           name: ${schema.spec.name}
+          ownerReferences:
+            - apiVersion: kro.run/v1alpha1
+              kind: BarmanClusterBackup
+              name: ${schema.metadata.name}
+              uid: ${schema.metadata.uid}
         spec:
           seaweedRef:
             name: backups
@@ -30,6 +35,11 @@ spec:
         kind: S3Credentials
         metadata:
           name: ${schema.spec.name}
+          ownerReferences:
+            - apiVersion: kro.run/v1alpha1
+              kind: BarmanClusterBackup
+              name: ${schema.metadata.name}
+              uid: ${schema.metadata.uid}
         spec:
           seaweedRef:
             name: backups
@@ -44,6 +54,11 @@ spec:
         kind: S3Policy
         metadata:
           name: ${schema.spec.name}
+          ownerReferences:
+            - apiVersion: kro.run/v1alpha1
+              kind: BarmanClusterBackup
+              name: ${schema.metadata.name}
+              uid: ${schema.metadata.uid}
         spec:
           seaweedRef:
             name: backups
@@ -81,6 +96,11 @@ spec:
         kind: S3PolicyBinding
         metadata:
           name: ${schema.spec.name}
+          ownerReferences:
+            - apiVersion: kro.run/v1alpha1
+              kind: BarmanClusterBackup
+              name: ${schema.metadata.name}
+              uid: ${schema.metadata.uid}
         spec:
           seaweedRef:
             name: backups
@@ -96,6 +116,11 @@ spec:
         kind: ObjectStore
         metadata:
           name: ${schema.spec.name}
+          ownerReferences:
+            - apiVersion: kro.run/v1alpha1
+              kind: BarmanClusterBackup
+              name: ${schema.metadata.name}
+              uid: ${schema.metadata.uid}
         spec:
           configuration:
             destinationPath: "s3://cnpg/${schema.spec.destinationFolder}"
@@ -118,6 +143,11 @@ spec:
         kind: ScheduledBackup
         metadata:
           name: ${schema.spec.name}
+          ownerReferences:
+            - apiVersion: kro.run/v1alpha1
+              kind: BarmanClusterBackup
+              name: ${schema.metadata.name}
+              uid: ${schema.metadata.uid}
         spec:
           cluster:
             name: ${schema.spec.clusterName}
