@@ -8,7 +8,6 @@ resources:
   - secrets.sops.yaml
   - uploads-pvc.yaml
   - cluster.yaml
-  - cluster-backup.yaml
   - cache.yaml
   - web.yaml
   - worker.yaml

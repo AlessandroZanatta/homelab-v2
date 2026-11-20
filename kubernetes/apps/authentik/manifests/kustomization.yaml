@@ -7,7 +7,6 @@ resources:
   - network-policies.yaml
   - pvc.yaml
   - cluster.yaml
-  - cluster-backup.yaml
   - secrets.sops.yaml
   - middlewares.yaml
   - ingress.yaml

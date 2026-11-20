@@ -7,6 +7,5 @@ resources:
   - conf.yaml
   - secrets.sops.yaml
   - cluster.yaml
-  - cluster-backup.yaml
   - vaultwarden.yaml
   - ingress.yaml

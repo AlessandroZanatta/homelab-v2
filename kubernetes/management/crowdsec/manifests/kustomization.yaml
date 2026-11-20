@@ -6,7 +6,6 @@ resources:
   - network-policies.yaml
   - secrets.sops.yaml
   - cluster.yaml
-  - cluster-backup.yaml
   - pdbs.yaml
   - rbac.yaml
   - machines-prune.yaml

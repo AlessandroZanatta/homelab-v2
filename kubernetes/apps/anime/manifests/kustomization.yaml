@@ -9,7 +9,6 @@ resources:
   - pvc.yaml
   - queue.yaml
   - cluster.yaml
-  - cluster-backup.yaml
   - api.yaml
   - web.yaml
   - worker.yaml

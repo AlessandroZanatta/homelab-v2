@@ -6,6 +6,5 @@ resources:
   - network-policies.yaml
   - conf.yaml
   - cluster.yaml
-  - cluster-backup.yaml
   - spliit.yaml
   - ingress.yaml

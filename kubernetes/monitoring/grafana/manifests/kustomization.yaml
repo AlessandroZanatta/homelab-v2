@@ -6,7 +6,6 @@ resources:
   - network-policies.yaml
   - secrets.sops.yaml
   - cluster.yaml
-  - cluster-backup.yaml
   - grafana.yaml
   - ingress.yaml
   - datasources.yaml

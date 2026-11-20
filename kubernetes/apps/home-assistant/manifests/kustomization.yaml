@@ -9,6 +9,5 @@ resources:
   - mosquitto.yaml
   - zigbee2mqtt.yaml
   - cluster.yaml
-  - cluster-backup.yaml
   - home-assistant.yaml
   - ingress.yaml

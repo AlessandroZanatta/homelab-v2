@@ -1,24 +1,12 @@
 ---
-apiVersion: barmancloud.cnpg.io/v1
-kind: ObjectStore
+apiVersion: kro.run/v1alpha1
+kind: BarmanClusterBackup
 metadata:
-  name: backups
+  name: cluster-backup
 spec:
-  configuration:
-    destinationPath: "s3://cnpg/crowdsec"
-    endpointURL: "https://backups.kalexlab.xyz"
-    s3Credentials:
-      accessKeyId:
-        name: crowdsec-s3-credentials
-        key: accessKey
-      secretAccessKey:
-        name: crowdsec-s3-credentials
-        key: secretKey
-    wal:
-      compression: bzip2
-    data:
-      compression: bzip2
-  retentionPolicy: 14d
+  name: crowdsec
+  clusterName: cluster
+  destinationFolder: crowdsec
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
@@ -53,7 +41,7 @@ spec:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
       parameters:
-        barmanObjectName: backups
+        barmanObjectName: crowdsec
         # renovate-major: depName=ghcr.io/cloudnative-pg/postgresql
         serverName: cluster-v18
   affinity:
@@ -65,16 +53,3 @@ spec:
       labelSelector:
         matchLabels:
           app.kubernetes.io/name: postgresql
----
-apiVersion: postgresql.cnpg.io/v1
-kind: ScheduledBackup
-metadata:
-  name: cluster-backup
-spec:
-  cluster:
-    name: cluster
-  schedule: "0 0 0 * * *"
-  backupOwnerReference: self
-  method: plugin
-  pluginConfiguration:
-    name: barman-cloud.cloudnative-pg.io

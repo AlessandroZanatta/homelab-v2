@@ -8,7 +8,6 @@ resources:
   - secrets.sops.yaml
   - pvc.yaml
   - cluster.yaml
-  - cluster-backup.yaml
   - api.yaml
   - web.yaml
   - ingress.yaml
