@@ -1,0 +1,56 @@
+---
+deployment:
+  # Number of replicas for the Pods to run
+  replicaCount: 2
+  # Security context settings at the Pod level
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 65535
+    runAsGroup: 65535
+    fsGroup: 65535
+    fsGroupChangePolicy: "OnRootMismatch"
+    seccompProfile:
+      type: RuntimeDefault
+  # Security context settings at the container level
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+  # Resource requests and limits settings
+  resources:
+    limits:
+      memory: 100Mi
+    requests:
+      cpu: 1m
+      memory: 20Mi
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: kro
+
+# Application configuration settings
+config:
+  # Allow kro to delete CRDs
+  allowCRDDeletion: true
+  # Log level verbosity: 'debug', 'info', 'error', 'panic', or integer > 0
+  logLevel: "info"
+  # Log encoder format: 'json' or 'console'
+  logEncoder: "json"
+
+# TODO: enable metrics?
+metrics:
+  service:
+    # Set to true to automatically create a Kubernetes Service resource for the
+    # Prometheus metrics server endpoint in controller
+    create: false
+    type: "ClusterIP"
+    # Port for the metrics service
+    port: 8078
+  serviceMonitor:
+    # -- Whether to create a ServiceMonitor
+    enabled: false

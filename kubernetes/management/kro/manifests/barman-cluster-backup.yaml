@@ -1,0 +1,128 @@
+---
+apiVersion: kro.run/v1alpha1
+kind: ResourceGraphDefinition
+metadata:
+  name: barman-cluster-backup
+spec:
+  schema:
+    apiVersion: v1alpha1
+    kind: BarmanClusterBackup
+    spec:
+      name: string
+      clusterName: string
+      destinationFolder: string
+      schedule: string | default="0 0 0 * * *"
+      retentionPolicy: string | default="14d"
+  resources:
+    - id: s3Identity
+      template:
+        apiVersion: seaweed.seaweedfs.com/v1
+        kind: S3Identity
+        metadata:
+          name: ${schema.spec.name}
+        spec:
+          seaweedRef:
+            name: backups
+            namespace: backups
+    - id: s3Credentials
+      template:
+        apiVersion: seaweed.seaweedfs.com/v1
+        kind: S3Credentials
+        metadata:
+          name: ${schema.spec.name}
+        spec:
+          seaweedRef:
+            name: backups
+            namespace: backups
+          identityRef:
+            name: ${schema.spec.name}
+          secretRef:
+            name: ${schema.spec.name}-s3-credentials
+    - id: s3Policy
+      template:
+        apiVersion: seaweed.seaweedfs.com/v1
+        kind: S3Policy
+        metadata:
+          name: ${schema.spec.name}
+        spec:
+          seaweedRef:
+            name: backups
+            namespace: backups
+          policyDocument: |
+            {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:ListBucket"
+                  ],
+                  "Resource": [
+                    "arn:aws:s3:::cnpg"
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:GetObject",
+                    "s3:PutObject",
+                    "s3:AbortMultipartUpload",
+                    "s3:DeleteObject"
+                  ],
+                  "Resource": [
+                    "arn:aws:s3:::cnpg/${schema.spec.destinationFolder}/*"
+                  ]
+                }
+              ]
+            }
+    - id: s3PolicyBinding
+      template:
+        apiVersion: seaweed.seaweedfs.com/v1
+        kind: S3PolicyBinding
+        metadata:
+          name: ${schema.spec.name}
+        spec:
+          seaweedRef:
+            name: backups
+            namespace: backups
+          policyRef:
+            name: ${schema.spec.name}
+          subjects:
+            - kind: S3Identity
+              name: ${schema.spec.name}
+    - id: objectStore
+      template:
+        apiVersion: barmancloud.cnpg.io/v1
+        kind: ObjectStore
+        metadata:
+          name: ${schema.spec.name}
+        spec:
+          configuration:
+            destinationPath: "s3://cnpg/${schema.spec.destinationFolder}"
+            endpointURL: "https://backups.kalexlab.xyz"
+            s3Credentials:
+              accessKeyId:
+                name: ${s3Credentials.status.secretName}
+                key: accessKey
+              secretAccessKey:
+                name: ${s3Credentials.status.secretName}
+                key: secretKey
+            wal:
+              compression: bzip2
+            data:
+              compression: bzip2
+          retentionPolicy: ${schema.spec.retentionPolicy}
+    - id: scheduledBackup
+      template:
+        apiVersion: postgresql.cnpg.io/v1
+        kind: ScheduledBackup
+        metadata:
+          name: ${schema.spec.name}
+        spec:
+          cluster:
+            name: ${schema.spec.clusterName}
+          schedule: ${schema.spec.schedule}
+          backupOwnerReference: self
+          method: plugin
+          pluginConfiguration:
+            name: barman-cloud.cloudnative-pg.io

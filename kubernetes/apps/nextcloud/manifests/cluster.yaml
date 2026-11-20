@@ -1,24 +1,12 @@
 ---
-apiVersion: barmancloud.cnpg.io/v1
-kind: ObjectStore
+apiVersion: kro.run/v1alpha1
+kind: BarmanClusterBackup
 metadata:
-  name: backups
+  name: cluster-backup
 spec:
-  configuration:
-    destinationPath: "s3://cnpg/nextcloud"
-    endpointURL: "https://backups.kalexlab.xyz"
-    s3Credentials:
-      accessKeyId:
-        name: nextcloud-s3-credentials
-        key: accessKey
-      secretAccessKey:
-        name: nextcloud-s3-credentials
-        key: secretKey
-    wal:
-      compression: bzip2
-    data:
-      compression: bzip2
-  retentionPolicy: 14d
+  name: nextcloud
+  clusterName: cluster
+  destinationFolder: nextcloud
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
@@ -45,20 +33,7 @@ spec:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
       parameters:
-        barmanObjectName: backups
+        barmanObjectName: nextcloud
         # renovate-major: depName=ghcr.io/cloudnative-pg/postgresql
         serverName: cluster-v18
   enablePDB: false
----
-apiVersion: postgresql.cnpg.io/v1
-kind: ScheduledBackup
-metadata:
-  name: cluster-backup
-spec:
-  cluster:
-    name: cluster
-  schedule: "0 0 0 * * *"
-  backupOwnerReference: self
-  method: plugin
-  pluginConfiguration:
-    name: barman-cloud.cloudnative-pg.io
