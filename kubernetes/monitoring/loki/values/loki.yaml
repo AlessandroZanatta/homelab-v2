@@ -40,6 +40,7 @@ loki:
 
   limits_config:
     retention_period: 336h # 14 days
+    max_query_series: 10000
 
   compactor:
     working_directory: /var/loki/compactor
