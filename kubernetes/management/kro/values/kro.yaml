@@ -21,6 +21,7 @@ deployment:
   # Resource requests and limits settings
   resources:
     limits:
+      cpu: null
       memory: 100Mi
     requests:
       cpu: 1m
@@ -29,6 +30,7 @@ deployment:
     - maxSkew: 1
       topologyKey: kubernetes.io/hostname
       whenUnsatisfiable: DoNotSchedule
+      nodeTaintsPolicy: Honor
       labelSelector:
         matchLabels:
           app.kubernetes.io/name: kro
@@ -41,6 +43,13 @@ config:
   logLevel: "info"
   # Log encoder format: 'json' or 'console'
   logEncoder: "json"
+  # Feature gates for alpha/experimental features.
+  # Each key is a feature gate name, each value is a boolean.
+  # Example:
+  #   featureGates:
+  #     CELOmitFunction: true
+  featureGates:
+    CELOmitFunction: true
 
 # TODO: enable metrics?
 metrics:

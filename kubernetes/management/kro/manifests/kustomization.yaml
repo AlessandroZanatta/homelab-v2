@@ -5,3 +5,4 @@ resources:
   - namespace.yaml
   - network-policies.yaml
   - barman-cluster-backup.yaml
+  - valkey-standalone.yaml

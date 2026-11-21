@@ -1,0 +1,77 @@
+---
+apiVersion: kro.run/v1alpha1
+kind: ResourceGraphDefinition
+metadata:
+  name: valkey-standalone
+spec:
+  schema:
+    apiVersion: v1alpha1
+    kind: ValkeyStandalone
+    spec:
+      image: string
+      labels: "map[string]string"
+      annotations: "map[string]string | default={}"
+      limits: "map[string]string"
+      persistence:
+        enabled: boolean | default=false
+        size: string
+  resources:
+    - id: config
+      template:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: ${schema.metadata.name}-config
+          ownerReferences:
+            - apiVersion: kro.run/v1alpha1
+              kind: ValkeyStandalone
+              name: ${schema.metadata.name}
+              uid: ${schema.metadata.uid}
+        data:
+          redis-additional.conf: '${schema.spec.persistence.enabled ? "" : "save \"\""}'
+    - id: redis
+      template:
+        apiVersion: redis.redis.opstreelabs.in/v1beta2
+        kind: Redis
+        metadata:
+          name: ${schema.metadata.name}
+          labels: ${schema.spec.labels}
+          annotations: ${schema.spec.annotations}
+          ownerReferences:
+            - apiVersion: kro.run/v1alpha1
+              kind: ValkeyStandalone
+              name: ${schema.metadata.name}
+              uid: ${schema.metadata.uid}
+        spec:
+          kubernetesConfig:
+            image: ${schema.spec.image}
+            imagePullPolicy: Always
+            resources:
+              requests:
+                memory: 10Mi
+                cpu: 1m
+              limits: '${schema.spec.?limits.orValue({"memory": "100Mi"})}'
+          redisConfig:
+            additionalRedisConfig: ${config.metadata.name}
+          podSecurityContext:
+            runAsNonRoot: true
+            runAsUser: 65535
+            runAsGroup: 65535
+            fsGroup: 65535
+            fsGroupChangePolicy: "OnRootMismatch"
+            seccompProfile:
+              type: RuntimeDefault
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          storage: '${schema.spec.persistence.enabled ? {"volumeClaimTemplate": {"spec": {"accessModes": ["ReadWriteOnce"], "storageClassName": "longhorn", "resources": {"requests": {"storage": schema.spec.persistence.size}}}}} : omit()}'
+          livenessProbe:
+            periodSeconds: 15
+            failureThreshold: 6
+          readinessProbe:
+            initialDelaySeconds: "${schema.spec.persistence.enabled ? 10 : 0}"
+            periodSeconds: 10
+            failureThreshold: 6
