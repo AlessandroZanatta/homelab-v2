@@ -20,18 +20,11 @@ global:
       # -- Default node affinity rules. Either `none`, `soft` or `hard`
       type: none
 
-  # -- Deployment strategy for all deployed Deployments
-  # maxSurge=25%, maxUnavailable=75% to recreate one by one
-  deploymentStrategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 75%
-
   topologySpreadConstraints:
     - maxSkew: 1
       topologyKey: kubernetes.io/hostname
       whenUnsatisfiable: DoNotSchedule
+      nodeTaintsPolicy: Honor
 
   # -- Additional volumeMounts to all deployed Deployments. Does not apply to GeoIP
   # @default -- `[]` (See [values.yaml])

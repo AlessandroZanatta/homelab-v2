@@ -25,6 +25,7 @@ topologySpreadConstraints:
   - maxSkew: 1
     topologyKey: kubernetes.io/hostname
     whenUnsatisfiable: DoNotSchedule
+    nodeTaintsPolicy: Honor
     labelSelector:
       matchLabels:
         app.kubernetes.io/name: coredns

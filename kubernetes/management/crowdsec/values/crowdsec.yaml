@@ -80,12 +80,8 @@ lapi:
     kalexlab.xyz/app: crowdsec
     kalexlab.xyz/component: lapi
 
-  ## @param lapi.strategy.type [string] Deployment strategy for the LAPI deployment
   strategy: &strategy
     type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 75%
 
   # -- Pod securityContext
   ## @param lapi.podSecurityContext [object] Security context for LAPI pods
@@ -128,6 +124,7 @@ lapi:
     - maxSkew: 1
       topologyKey: kubernetes.io/hostname
       whenUnsatisfiable: DoNotSchedule
+      nodeTaintsPolicy: Honor
       labelSelector:
         matchLabels:
           kalexlab.xyz/app: crowdsec
@@ -233,8 +230,6 @@ appsec:
   # -- replicas for Appsec
   ## @param appsec.replicas Number of replicas for the AppSec Deployment
   replicas: 2
-  # -- strategy for appsec deployment
-  ## @param appsec.strategy [object] Deployment strategy for AppSec
   strategy: *strategy
 
   # -- Additional acquisitions for AppSec
