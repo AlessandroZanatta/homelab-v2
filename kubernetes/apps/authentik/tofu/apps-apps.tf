@@ -249,8 +249,9 @@ resource "authentik_property_mapping_provider_scope" "immich_quota" {
   name       = "immich-quota"
   scope_name = "immich_quota"
   expression = <<-EOT
-    # 0 = unlimited in Immich
-    return {"immich_quota": 0}
+    if ak_is_group_member(user, name="${authentik_group.home.name}"):
+      return {"immich_quota": 0}
+    return {"immich_quota": 50}
   EOT
 }
 
@@ -266,6 +267,12 @@ resource "authentik_policy_binding" "apps_immich" {
   target = authentik_application.apps_immich.uuid
   group  = authentik_group.home.id
   order  = 0
+}
+
+resource "authentik_policy_binding" "apps_immich_family" {
+  target = authentik_application.apps_immich.uuid
+  group  = authentik_group.family.id
+  order  = 1
 }
 
 # Jellyfin
@@ -451,6 +458,12 @@ resource "authentik_policy_binding" "apps_opencloud" {
   target = authentik_application.apps_opencloud.uuid
   group  = authentik_group.home.id
   order  = 0
+}
+
+resource "authentik_policy_binding" "apps_opencloud_family" {
+  target = authentik_application.apps_opencloud.uuid
+  group  = authentik_group.family.id
+  order  = 1
 }
 
 # Reciept

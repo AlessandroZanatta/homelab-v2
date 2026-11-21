@@ -28,3 +28,15 @@ resource "authentik_user" "laetitia" {
     authentik_group.vpn.id,
   ]
 }
+
+resource "authentik_user" "zaza" {
+  username = "zaza"
+  name     = "Lorenzo Zanatta"
+  email    = "zanatta.lorenzo404@gmail.com"
+  path     = "users/home"
+
+  groups = [
+    authentik_group.family.id,
+    authentik_group.vpn.id,
+  ]
+}

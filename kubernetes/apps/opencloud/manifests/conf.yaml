@@ -60,6 +60,8 @@ data:
             claim_value: infra
           - role_name: user
             claim_value: home
+          - role_name: user
+            claim_value: family
   # Replaces the built-in mimetype list
   app-registry.yaml: |
     app_registry:
