@@ -98,6 +98,9 @@ data:
         downloads:
           # The default 5s is too short for the bigger lists
           timeout: 1m
+          # On-disk cache: serves a source from disk when its host is unreachable,
+          # otherwise a failed refresh drops the list. Also enables conditional requests.
+          cachePath: /app/cache
 
     # optional: configuration for prometheus metrics endpoint
     prometheus:

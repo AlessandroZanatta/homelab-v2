@@ -115,6 +115,8 @@ spec:
             - mountPath: /app/config.yml
               name: blocky-conf
               subPath: config.yaml
+            - mountPath: /app/cache
+              name: lists-cache
       securityContext:
         runAsNonRoot: true
         runAsUser: 65535
@@ -129,3 +131,6 @@ spec:
         - name: blocky-conf
           configMap:
             name: blocky-conf
+        - name: lists-cache
+          emptyDir:
+            sizeLimit: 1Gi
