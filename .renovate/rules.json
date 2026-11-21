@@ -62,6 +62,15 @@
       ]
     },
     {
+      "description": "Longhorn chart PR only, manager runs a custom image that must be rebuilt for each release",
+      "matchDatasources": ["helm"],
+      "matchPackageNames": ["longhorn"],
+      "automerge": false,
+      "prBodyNotes": [
+        "! Not applied automatically: rebuild `ghcr.io/alessandrozanatta/longhorn-manager` for the new version and bump `image.longhorn.manager.tag` in `kubernetes/management/longhorn/values/longhorn.yaml`, then merge."
+      ]
+    },
+    {
       "description": "Keep gatus-sidecar image and CRDs in one commit",
       "matchPackageNames": [
         "ghcr.io/alessandrozanatta/gatus-sidecar",
