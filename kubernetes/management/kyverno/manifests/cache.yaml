@@ -6,7 +6,7 @@ metadata:
   name: cache
 spec:
   # renovate: datasource=docker depName=valkey/valkey
-  image: docker.io/valkey/valkey:9.1.4-alpine
+  image: docker.io/valkey/valkey:9.2.0-alpine
   labels:
     kalexlab.xyz/app: policy-reporter
     kalexlab.xyz/component: cache
