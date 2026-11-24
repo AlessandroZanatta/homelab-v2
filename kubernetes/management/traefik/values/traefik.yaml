@@ -9,6 +9,9 @@ deployment:
   kind: Deployment
   # -- Number of pods of the deployment (only applies when kind == Deployment)
   replicas: 2
+  # -- Additional deployment labels (e.g. for filtering deployment by custom labels)
+  labels:
+    security.kalexlab.xyz/exposure: internet
   # Traefik downloads plugins only once at startup. If the network isn't ready
   # yet plugins are disabled, the crowdsec middleware becomes invalid and every
   # websecure-public router is dropped, including Authentik.

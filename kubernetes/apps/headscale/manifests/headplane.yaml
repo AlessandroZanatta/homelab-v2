@@ -6,9 +6,6 @@ metadata:
   labels:
     kalexlab.xyz/app: headscale
     kalexlab.xyz/component: headplane
-  # annotations:
-  #   gatus.kalexlab.xyz/enabled: "true"
-  #   gatus.kalexlab.xyz/path: /api/health
 spec:
   type: ClusterIP
   ports:

@@ -65,6 +65,7 @@ spec:
         kalexlab.xyz/component: headscale
         kalexlab.xyz/monitoring: "true"
         sso.kalexlab.xyz/idp: authentik
+        security.kalexlab.xyz/exposure: internet
     spec:
       restartPolicy: Always
       containers:

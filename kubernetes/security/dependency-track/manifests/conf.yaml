@@ -1,0 +1,23 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dependency-track-apiserver-conf
+data:
+  DT_OIDC_ENABLED: "true"
+  DT_OIDC_ISSUER: https://auth.kalexlab.xyz/application/o/security-dependencytrack/
+  DT_OIDC_CLIENT_ID: security-dependencytrack
+  DT_OIDC_USERNAME_CLAIM: preferred_username
+  DT_OIDC_USER_PROVISIONING: "true"
+  DT_OIDC_TEAM_SYNCHRONIZATION: "true"
+  DT_OIDC_TEAMS_CLAIM: "dt_roles"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dependency-track-frontend-conf
+data:
+  OIDC_ISSUER: https://auth.kalexlab.xyz/application/o/security-dependencytrack/
+  OIDC_CLIENT_ID: security-dependencytrack
+  OIDC_SCOPE: openid profile email dependencytrack_role
+  OIDC_LOGIN_BUTTON_TEXT: Login with Authentik

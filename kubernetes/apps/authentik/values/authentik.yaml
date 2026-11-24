@@ -96,6 +96,7 @@ server:
     kalexlab.xyz/app: authentik
     kalexlab.xyz/component: server
     kalexlab.xyz/monitoring: "true"
+    security.kalexlab.xyz/exposure: internet
 
   ## authentik server Pod Disruption Budget
   ## Ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
@@ -150,6 +151,7 @@ worker:
     kalexlab.xyz/app: authentik
     kalexlab.xyz/component: worker
     kalexlab.xyz/monitoring: "true"
+    security.kalexlab.xyz/exposure: internet
 
   ## authentik worker Pod Disruption Budget
   ## Ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/

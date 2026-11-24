@@ -1,0 +1,189 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-cluster-dns
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: coredns
+          podSelector:
+            matchLabels:
+              k8s-app: coredns
+      ports:
+        - protocol: UDP
+          port: udp-53
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-server
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: dependency-track
+      kalexlab.xyz/component: api-server
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: web
+    # SBOM upload
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: sbom-operator
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: sbom-operator
+      ports:
+        - protocol: TCP
+          port: web
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: management
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: dependency-track
+              kalexlab.xyz/component: cluster
+      ports:
+        - protocol: TCP
+          port: postgresql
+---
+# Vulnerability intelligence feeds + repository metadata analyzers.
+# Trim/extend after checking `hubble observe -n dependency-track --verdict DROPPED`.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: api-server-egress-fqdn
+spec:
+  endpointSelector:
+    matchLabels:
+      kalexlab.xyz/app: dependency-track
+      kalexlab.xyz/component: api-server
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: coredns
+            k8s-app: coredns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    # Vulnerability sources
+    - toFQDNs:
+        # NVD (JSON 2.0 feeds)
+        - matchName: nvd.nist.gov
+        # CISA KEV
+        - matchName: www.cisa.gov
+        # ENISA EU KEV
+        - matchName: raw.githubusercontent.com
+        # VulnCheck KEV (API returns a backup link on serve.vulncheck.com)
+        - matchName: api.vulncheck.com
+        - matchName: serve.vulncheck.com
+        # EPSS
+        - matchName: epss.empiricalsecurity.com
+        # GitHub Advisories (GraphQL)
+        - matchName: api.github.com
+        # OSV data dumps (storage.googleapis.com/osv-vulnerabilities)
+        - matchName: storage.googleapis.com
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+    # Repository metadata analyzers (latest version checks)
+    - toFQDNs:
+        - matchName: registry.npmjs.org
+        - matchName: repo1.maven.org
+        - matchName: pypi.org
+        - matchName: proxy.golang.org
+        - matchName: crates.io
+        - matchName: api.nuget.org
+        - matchName: rubygems.org
+        - matchName: repo.packagist.org
+        - matchName: registry-1.docker.io
+        - matchName: ghcr.io
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: dependency-track
+      kalexlab.xyz/component: frontend
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: web
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cluster
+spec:
+  podSelector:
+    matchLabels:
+      kalexlab.xyz/app: dependency-track
+      kalexlab.xyz/component: cluster
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              kalexlab.xyz/app: dependency-track
+              kalexlab.xyz/component: api-server
+      ports:
+        - protocol: TCP
+          port: postgresql

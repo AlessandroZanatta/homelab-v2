@@ -1,0 +1,161 @@
+---
+database:
+  # -- JDBC URL for the PostgreSQL database. Supports templating.
+  jdbcUrl: "jdbc:postgresql://cluster-rw:5432/app?reWriteBatchedInserts=true"
+  # -- Reference to an existing Secret. Credentials are mounted as files under `/etc/dt/secrets/db/`.
+  existingSecret:
+    # -- Name of the existing secret.
+    name: cluster-app
+    # -- Key in the secret that's holding the username.
+    usernameKey: username
+    # -- Key in the secret that's holding the password.
+    passwordKey: password
+
+fileStorage:
+  # -- Name of the file storage provider to use.
+  # Supported options are `local` (backed by a PVC) or `s3`.
+  # For multi-replica api-server use `s3`, or configure an RWX-capable `StorageClass`
+  # (e.g. EFS, Azure Files, CephFS) and set `accessModes: [ReadWriteMany]`.
+  # Note that most cloud-default block storage is RWO-only.
+  provider: local
+  local:
+    # -- Storage capacity of the created PVC.
+    # Ignored when `existingClaim` is provided.
+    size: 10Gi
+    # -- Name of the `StorageClass` for the created PVC.
+    # Ignored when `existingClaim` is provided.
+    storageClassName: longhorn
+    # -- Access modes for the created PVC.
+    # MUST use `ReadWriteMany` in order to support multiple api-server replicas!
+    # Ignored when `existingClaim` is provided.
+    accessModes:
+      - ReadWriteOnce
+
+secretManagement:
+  # -- Name of the secret management provider to use.
+  # Supported options are `database` (encrypted in Postgres, KEK on disk)
+  # and `env` (read-only lookup against DT_SECRET_* env vars).
+  #
+  # With `provider: env` the chart wires nothing beyond `DT_SECRET_MANAGEMENT_PROVIDER`.
+  # Supply each secret yourself as a `DT_SECRET_*` variable via `apiServer.extraEnv`
+  # (or `extraEnvFrom`), e.g. from an externally-managed Secret.
+  provider: env
+
+apiServer:
+  # -- The topology to deploy.
+  # Possible choices are `monolith` (single `Deployment`),
+  # or `split` (separate `web` and `worker` `Deployment`s, individually scalable).
+  # In the `monolith` topology, `web` values configure the single `Deployment`.
+  topology: monolith
+
+  # -- `fsGroup: 1000` matches the DT container UID so chart-mounted PVCs are writable.
+  # On OpenShift (and any cluster that assigns UIDs/GIDs via SCC or PSA), set
+  # `podSecurityContext: ~` so the namespace picks the effective fsGroup.
+  podSecurityContext: &podSecurityContext
+    runAsNonRoot: true
+    runAsUser: 65535
+    runAsGroup: 65535
+    fsGroup: 65535
+    fsGroupChangePolicy: "OnRootMismatch"
+    seccompProfile:
+      type: RuntimeDefault
+  # -- Container security context. Defaults target the restricted Pod Security Standard.
+  securityContext: &securityContext
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+
+  serviceMonitor:
+    # -- Whether to create a Prometheus Operator ServiceMonitor scraping the management port.
+    enabled: true
+    # -- Namespace for the ServiceMonitor. Set it where your Prometheus selects ServiceMonitors.
+    namespace: dependency-track
+
+  # -- Extra env applied to web, worker and initializer. Don't set chart-managed
+  # variables (DT_DATASOURCE_*, DT_CONFIG_PROFILE, DT_METRICS_*, DT_MANAGEMENT_*,
+  # DT_FILE_STORAGE_*, DT_SECRET_MANAGEMENT_*, DT_INIT_TASKS_*).
+  extraEnvFrom:
+    - configMapRef:
+        name: dependency-track-apiserver-conf
+    - secretRef:
+        name: dependency-track-providers-secret
+
+  podLabels:
+    kalexlab.xyz/app: dependency-track
+    kalexlab.xyz/component: api-server
+    kalexlab.xyz/monitoring: "true"
+    sso.kalexlab.xyz/idp: authentik
+
+  # -- Web role (API + UI). In `monolith` topology this configures the single Deployment.
+  web:
+    # -- Number of web replicas. Default 1. Bump only after switching
+    # `fileStorage.provider` to `s3` (or wiring an RWX-capable StorageClass).
+    # A multi-replica `local` PVC will not bind on cloud-default block storage.
+    replicaCount: 1
+    resources: {}
+    # TODO
+    # requests:
+    #   cpu: "500m"
+    #   memory: 2Gi
+    # limits:
+    #   memory: 2Gi
+    # -- 120s allows in-flight BOM uploads to finish.
+
+frontend:
+  # -- Whether to deploy the frontend UI. When disabled, the api-server serves the API only.
+  enabled: true
+  replicaCount: 1
+  resources: {}
+  # TODO
+  # requests:
+  #   cpu: 150m
+  #   memory: 64Mi
+  # limits:
+  #   memory: 128Mi
+  # -- On OpenShift (and any cluster that assigns UIDs/GIDs via SCC or PSA), set
+  # `podSecurityContext: ~` so the namespace picks the effective fsGroup.
+  podSecurityContext: *podSecurityContext
+  securityContext: *securityContext
+
+  initContainers:
+    - name: seed-static
+      image: '{{ include "dependencytrack.frontend.image" . }}'
+      command:
+        [
+          "cp",
+          "-r",
+          "/opt/owasp/dependency-track-frontend/static/.",
+          "/mnt/static/",
+        ]
+      securityContext: *securityContext
+      volumeMounts:
+        - name: static
+          mountPath: /mnt/static
+  additionalVolumes:
+    - name: static
+      emptyDir: {}
+    - name: nginx-conf
+      emptyDir: {}
+  additionalVolumeMounts:
+    - name: static
+      mountPath: /opt/owasp/dependency-track-frontend/static
+    - name: nginx-conf
+      mountPath: /etc/nginx/conf.d
+
+  extraEnvFrom:
+    - configMapRef:
+        name: dependency-track-frontend-conf
+
+  podLabels:
+    kalexlab.xyz/app: dependency-track
+    kalexlab.xyz/component: frontend
+    kalexlab.xyz/monitoring: "true"
+
+  # -- Base URL the UI calls for the API. Leave empty when the chart's
+  # Ingress/HTTPRoute serves UI + API from the same host (relative URLs).
+  # Set to the external API base URL when the UI is served from a different host.
+  # The UI is a static SPA whose browser calls the api-server directly, so this address
+  # must be reachable from the browser, not just from within the cluster.
+  apiBaseUrl: ""

@@ -1,0 +1,39 @@
+---
+apiVersion: kro.run/v1alpha1
+kind: BarmanClusterBackup
+metadata:
+  name: cluster-backup
+spec:
+  name: dependency-track
+  clusterName: cluster
+  destinationFolder: dependency-track
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cluster
+spec:
+  inheritedMetadata:
+    labels:
+      kalexlab.xyz/app: dependency-track
+      kalexlab.xyz/component: cluster
+      kalexlab.xyz/monitoring: "true"
+      backups.kalexlab.xyz/use: "true"
+    annotations:
+      gatus.kalexlab.xyz/enabled: "true"
+      gatus.kalexlab.xyz/scheme: tcp
+      gatus.kalexlab.xyz/exclude: cluster-ro
+  # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/postgresql
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.7-standard-trixie
+  instances: 1
+  storage:
+    storageClass: longhorn
+    size: 10Gi
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: dependency-track
+        # renovate-major: depName=ghcr.io/cloudnative-pg/postgresql
+        serverName: cluster-v18
+  enablePDB: false
