@@ -1,0 +1,45 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: management
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: https://github.com/AlessandroZanatta/homelab-v2.git
+        revision: master
+        directories:
+          - path: kubernetes/management/*
+  syncPolicy:
+    preserveResourcesOnDeletion: true
+  template:
+    metadata:
+      name: "{{ .path.basename }}"
+      labels:
+        category: "{{ index .path.segments 1 }}"
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/AlessandroZanatta/homelab-v2.git
+        path: "{{ .path.path }}"
+      destination:
+        name: in-cluster
+        namespace: "{{ .path.basename }}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - SkipDryRunOnMissingResource=true
+          - ServerSideApply=true
+  # Per-app exceptions, tracked in Git
+  # templatePatch: |
+  #   {{- if has .path.basename (list "<appname>") }}
+  #   spec:
+  #     syncPolicy:
+  #       automated:
+  #         enabled: false
+  #   {{- end }}
