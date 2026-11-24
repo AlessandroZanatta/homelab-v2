@@ -60,7 +60,7 @@ spec:
           command: ["sh", "-c", "for i in $(seq 1 300); do nc -zvw1 cache 6379 && nc -zvw1 cluster-rw 5432 && exit 0 || sleep 3; done; exit 1"]
       containers:
         - name: web
-          image: "docker.io/glitchtip/glitchtip:6.2"
+          image: "docker.io/glitchtip/glitchtip:7.0"
           imagePullPolicy: Always
           command: ["/bin/sh", "-c", "./bin/run-migrate.sh && ./bin/start.sh"]
           ports:
