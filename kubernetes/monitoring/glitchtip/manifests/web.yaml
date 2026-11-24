@@ -62,7 +62,6 @@ spec:
         - name: web
           image: "docker.io/glitchtip/glitchtip:7.0"
           imagePullPolicy: Always
-          command: ["/bin/sh", "-c", "./bin/run-migrate.sh && ./bin/start.sh"]
           ports:
             - name: web
               containerPort: 8000
@@ -80,16 +79,6 @@ spec:
                 configMapKeyRef:
                   name: glitchtip-config
                   key: GLITCHTIP_DOMAIN
-            - name: CELERY_WORKER_AUTOSCALE
-              valueFrom:
-                configMapKeyRef:
-                  name: glitchtip-config
-                  key: CELERY_WORKER_AUTOSCALE
-            - name: CELERY_WORKER_MAX_TASKS_PER_CHILD
-              valueFrom:
-                configMapKeyRef:
-                  name: glitchtip-config
-                  key: CELERY_WORKER_MAX_TASKS_PER_CHILD
             - name: REDIS_URL
               valueFrom:
                 configMapKeyRef:

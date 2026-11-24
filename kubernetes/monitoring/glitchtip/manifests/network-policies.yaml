@@ -83,35 +83,6 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: worker
-spec:
-  podSelector:
-    matchLabels:
-      kalexlab.xyz/app: glitchtip
-      kalexlab.xyz/component: worker
-  policyTypes:
-    - Egress
-  egress:
-    - to:
-        - podSelector:
-            matchLabels:
-              kalexlab.xyz/app: glitchtip
-              kalexlab.xyz/component: cluster
-      ports:
-        - protocol: TCP
-          port: 5432
-    - to:
-        - podSelector:
-            matchLabels:
-              kalexlab.xyz/app: glitchtip
-              kalexlab.xyz/component: cache
-      ports:
-        - protocol: TCP
-          port: 6379
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
   name: cache
 spec:
   podSelector:
@@ -126,10 +97,6 @@ spec:
             matchLabels:
               kalexlab.xyz/app: glitchtip
               kalexlab.xyz/component: web
-        - podSelector:
-            matchLabels:
-              kalexlab.xyz/app: glitchtip
-              kalexlab.xyz/component: worker
       ports:
         - protocol: TCP
           port: 6379
@@ -151,10 +118,6 @@ spec:
             matchLabels:
               kalexlab.xyz/app: glitchtip
               kalexlab.xyz/component: web
-        - podSelector:
-            matchLabels:
-              kalexlab.xyz/app: glitchtip
-              kalexlab.xyz/component: worker
       ports:
         - protocol: TCP
           port: 5432
