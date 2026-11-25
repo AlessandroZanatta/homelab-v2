@@ -12,6 +12,12 @@
       "minimumReleaseAge": null
     },
     {
+      "description": "ghcr.io gives no release timestamps; timestamp-required would block updates forever",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/**"],
+      "minimumReleaseAgeBehaviour": "timestamp-optional"
+    },
+    {
       "description": "Ignore images from registry.kalexlab.xyz since it is not exposed",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["registry.kalexlab.xyz{/,}**"],
@@ -20,8 +26,8 @@
     {
       "description": "Automerge Talos and Kubernetes updates only early on weekends",
       "matchPackageNames": [
-        "ghcr.io/siderolabs/talos",
-        "ghcr.io/siderolabs/kubelet"
+        "siderolabs/talos",
+        "kubernetes/kubernetes"
       ],
       "schedule": ["at any time"],
       "rebaseWhen": "conflicted",
@@ -77,6 +83,19 @@
         "AlessandroZanatta/gatus-sidecar"
       ],
       "groupName": "gatus-sidecar"
+    },
+    {
+      "description": "Keep seaweedfs image and dashboard in one PR",
+      "matchPackageNames": [
+        "docker.io/chrislusf/seaweedfs",
+        "seaweedfs/seaweedfs"
+      ],
+      "groupName": "seaweedfs"
+    },
+    {
+      "description": "Keep kaneo api and web in one PR",
+      "matchPackageNames": ["ghcr.io/usekaneo/**"],
+      "groupName": "kaneo"
     }
   ]
 }

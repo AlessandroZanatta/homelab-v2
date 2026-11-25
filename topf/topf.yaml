@@ -2,9 +2,9 @@
 clusterName: homelab
 clusterEndpoint: https://192.168.20.254:6443
 
-# renovate: datasource=docker depName=ghcr.io/siderolabs/talos
+# renovate: datasource=github-releases depName=siderolabs/talos
 talosVersion: v1.14.6
-# renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
+# renovate: datasource=github-releases depName=kubernetes/kubernetes
 kubernetesVersion: v1.37.2
 
 platform: metal
