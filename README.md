@@ -6,8 +6,9 @@ This repository keeps all the Infrastructure as Code (IaC) for my homelab, compo
 
 | Host   | Hardware                                 | IP           | Role                            |
 | ------ | ---------------------------------------- | ------------ | ------------------------------- |
+| gaia   | HP ProDesk 400 G6M, i5-10500T, 32G DDR4  | 192.168.20.5 | Control plane (schedulable)     |
 | zeus   | HP EliteDesk 800 G3M, i7-6700T, 16G DDR4 | 192.168.20.4 | Control plane (schedulable)     |
-| hermes | Dell Optiplex 3050M, i5-6600T, 16G DDR4  | 192.168.20.3 | Worker                          |
+| hermes | Dell Optiplex 3050M, i5-6600T, 16G DDR4  | 192.168.20.3 | Control plane (schedulable)     |
 | athena | Raspberry Pi 4B, 4G                      | 192.168.20.2 | Worker, VPN egress gateway      |
 | -      | TP-Link Archer AX23 (OpenWRT)            | 192.168.10.1 | Router, WireGuard remote access |
 

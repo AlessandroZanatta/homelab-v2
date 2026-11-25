@@ -4,15 +4,6 @@ config:
     - /dev/nvme0n1
     - /dev/sda
 
-extraInstances:
-  - config:
-      devices:
-        - /dev/nvme0n1
-        - /dev/sda
-        - /dev/sdb
-    nodeSelector:
-      kubernetes.io/hostname: hermes
-
 serviceMonitor:
   enabled: true
 
@@ -25,6 +16,3 @@ affinity:
               operator: NotIn
               values:
                 - athena
-                # Manually deployed as the extra instance to
-                # include backup (external) disk
-                - hermes

@@ -251,10 +251,11 @@ coreDns:
     enabled: false
 
 kubeEtcd:
-  # Control plane virtual IP from topf/topf.yaml (controlPlaneVIP)
-  # Only good for single-CP clusters!
+  # Control plane node IPs from topf/topf.yaml
   endpoints:
-    - 192.168.20.254
+    - 192.168.20.3
+    - 192.168.20.4
+    - 192.168.20.5
 
   service:
     enabled: true

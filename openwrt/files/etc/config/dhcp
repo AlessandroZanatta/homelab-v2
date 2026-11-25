@@ -82,6 +82,12 @@ config host 'zeus'
 	option ip '192.168.20.4'
 	option leasetime 'infinite'
 
+config host 'gaia'
+	option name 'gaia-pd400g6m'
+	option mac 'A8:B1:3B:76:B6:C9'
+	option ip '192.168.20.5'
+	option leasetime 'infinite'
+
 config host 'tplink'
 	option name 'tplink-switch'
 	option mac 'E4:FA:C4:C5:6E:95'

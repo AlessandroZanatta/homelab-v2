@@ -6,9 +6,7 @@ image:
 deployment:
   enabled: true
   # -- Deployment or DaemonSet
-  kind: Deployment
-  # -- Number of pods of the deployment (only applies when kind == Deployment)
-  replicas: 2
+  kind: DaemonSet
   # -- Additional deployment labels (e.g. for filtering deployment by custom labels)
   labels:
     security.kalexlab.xyz/exposure: internet
@@ -37,17 +35,6 @@ affinity:
               operator: In
               values:
                 - traefik
-  # Ensure that the replicas are not scheduled on the same node
-  podAntiAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchLabels:
-            app.kubernetes.io/name: traefik
-        topologyKey: kubernetes.io/hostname
-
-podDisruptionBudget:
-  enabled: true
-  maxUnavailable: 1
 
 updateStrategy:
   type: RollingUpdate
