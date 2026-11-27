@@ -98,6 +98,8 @@ spec:
     redisReplicationName: cache
     quorum: "2"
     masterGroupName: master
+    resolveHostnames: "yes"
+    announceHostnames: "yes"
   topologySpreadConstraints:
     - maxSkew: 1
       topologyKey: kubernetes.io/hostname
