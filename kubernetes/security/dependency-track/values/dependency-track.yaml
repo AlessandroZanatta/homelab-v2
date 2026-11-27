@@ -67,6 +67,11 @@ apiServer:
       drop:
         - ALL
 
+  service:
+    annotations:
+      gatus.kalexlab.xyz/enabled: "true"
+      gatus.kalexlab.xyz/path: /api/version
+
   serviceMonitor:
     # -- Whether to create a Prometheus Operator ServiceMonitor scraping the management port.
     enabled: true
@@ -107,6 +112,9 @@ frontend:
   # -- Whether to deploy the frontend UI. When disabled, the api-server serves the API only.
   enabled: true
   replicaCount: 1
+  service:
+    annotations:
+      gatus.kalexlab.xyz/enabled: "true"
   resources: {}
   # TODO
   # requests:

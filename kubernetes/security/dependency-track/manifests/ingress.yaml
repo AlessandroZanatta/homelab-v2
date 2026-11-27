@@ -18,6 +18,11 @@ metadata:
   name: dependency-track-ingress
   annotations:
     external-dns.kubernetes.io/target: 10.20.0.20
+    gatus.kalexlab.xyz/endpoints: |
+      - name: Dependency track ingress (external)
+        url: https://dtrack.kalexlab.xyz
+      - name: Dependency track ingress /api (external)
+        url: https://dtrack.kalexlab.xyz/api/version
 spec:
   entryPoints:
     - web
