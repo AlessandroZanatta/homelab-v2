@@ -59,8 +59,10 @@ deschedulerPolicy:
               source: KubernetesMetrics
             useDeviationThresholds: true
             thresholds:
+              cpu: 15
               memory: 10
             targetThresholds:
+              cpu: 15
               memory: 10
             evictableNamespaces:
               exclude:
