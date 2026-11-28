@@ -16,11 +16,6 @@ data:
     script: !include scripts.yaml
     scene: !include scenes.yaml
 
-    http:
-      use_x_forwarded_for: true
-      trusted_proxies:
-        - 10.244.0.0/16
-
     recorder:
       db_url: !env_var recorder__db_url
 
