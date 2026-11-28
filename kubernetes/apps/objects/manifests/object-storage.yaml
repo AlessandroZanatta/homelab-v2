@@ -1,0 +1,204 @@
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: Seaweed
+metadata:
+  name: objects
+spec:
+  image: docker.io/chrislusf/seaweedfs:4.54
+
+  # TODO: add limits to all pods
+
+  volumeServerDiskCount: 1
+  imagePullPolicy: Always
+
+  loggingArgs:
+    - -logtostderr=true
+    - -log_json
+
+  securityConfig:
+    jwtSigning:
+      # seaweedfs >= 4.50 requires this key for admin gRPC calls from the worker
+      filerWrite: true
+
+  master:
+    replicas: 1
+
+    metricsPort: 8191
+
+    labels:
+      kalexlab.xyz/app: objects
+      kalexlab.xyz/component: master
+      kalexlab.xyz/monitoring: "true"
+
+    service:
+      annotations:
+        gatus.kalexlab.xyz/enabled: "true"
+        gatus.kalexlab.xyz/port: master-http
+
+    volumeSizeLimitMB: 1024
+
+    podSecurityContext: &podSecurityContext
+      runAsNonRoot: true
+      runAsUser: 65535
+      runAsGroup: 65535
+      fsGroup: 65535
+      fsGroupChangePolicy: "OnRootMismatch"
+      seccompProfile:
+        type: RuntimeDefault
+
+    containerSecurityContext: &containerSecurityContext
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
+
+    volumes:
+      - name: tmp
+        emptyDir:
+          sizeLimit: 1Gi
+    volumeMounts:
+      - name: tmp
+        mountPath: /tmp
+
+  volume:
+    replicas: 1
+
+    metricsPort: 8191
+
+    labels:
+      kalexlab.xyz/app: objects
+      kalexlab.xyz/component: volume
+      kalexlab.xyz/monitoring: "true"
+
+    service:
+      annotations:
+        gatus.kalexlab.xyz/enabled: "true"
+        gatus.kalexlab.xyz/port: volume-http
+        gatus.kalexlab.xyz/path: /healthz
+
+    requests:
+      storage: 5Gi
+
+    storageClassName: "longhorn"
+
+    podSecurityContext: *podSecurityContext
+    containerSecurityContext: *containerSecurityContext
+
+  filer:
+    replicas: 1
+
+    metricsPort: 8191
+
+    labels:
+      kalexlab.xyz/app: objects
+      kalexlab.xyz/component: filer
+      kalexlab.xyz/monitoring: "true"
+
+    service:
+      annotations:
+        gatus.kalexlab.xyz/enabled: "true"
+        gatus.kalexlab.xyz/port: filer-http
+
+    persistence:
+      enabled: true
+      storageClassName: longhorn
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
+
+    volumes:
+      - name: tmp
+        emptyDir:
+          sizeLimit: 1Gi
+    volumeMounts:
+      - name: tmp
+        mountPath: /tmp
+
+    podSecurityContext: *podSecurityContext
+    containerSecurityContext: *containerSecurityContext
+
+  s3:
+    replicas: 1
+
+    metricsPort: 8191
+
+    labels:
+      kalexlab.xyz/app: objects
+      kalexlab.xyz/component: s3
+      kalexlab.xyz/monitoring: "true"
+
+    service:
+      annotations:
+        gatus.kalexlab.xyz/enabled: "true"
+        gatus.kalexlab.xyz/port: s3-http
+        # S3 returns 403 on a call without credentials
+        gatus.kalexlab.xyz/endpoint: |
+          conditions:
+            - "[STATUS] == any(200,401,403)"
+
+    domainName: obj.kalexlab.xyz
+    iam: true
+
+    volumes:
+      - name: tmp
+        emptyDir:
+          sizeLimit: 1Gi
+    volumeMounts:
+      - name: tmp
+        mountPath: /tmp
+
+    podSecurityContext: *podSecurityContext
+    containerSecurityContext: *containerSecurityContext
+
+  worker:
+    replicas: 1
+
+    metricsPort: 8191
+
+    labels:
+      kalexlab.xyz/app: objects
+      kalexlab.xyz/component: worker
+      kalexlab.xyz/monitoring: "true"
+
+    # TODO: service not supported by operator currently,
+    # need to open a PR for that
+    annotations:
+      gatus.kalexlab.xyz/enabled: "true"
+      gatus.kalexlab.xyz/ports: worker-metrics
+      gatus.kalexlab.xyz/path: /health
+
+    jobType: all
+
+    volumes:
+      - name: data
+        emptyDir:
+          sizeLimit: 1Gi
+    volumeMounts:
+      - name: data
+        mountPath: /data
+
+    podSecurityContext: *podSecurityContext
+    containerSecurityContext: *containerSecurityContext
+
+  admin:
+    metricsPort: 8191
+
+    extraArgs:
+      - -ip=0.0.0.0
+      - -allowInsecureBind
+
+    labels:
+      kalexlab.xyz/app: objects
+      kalexlab.xyz/component: admin
+      kalexlab.xyz/monitoring: "true"
+
+    service:
+      annotations:
+        gatus.kalexlab.xyz/enabled: "true"
+        gatus.kalexlab.xyz/port: admin-http
+
+    podSecurityContext: *podSecurityContext
+    containerSecurityContext: *containerSecurityContext

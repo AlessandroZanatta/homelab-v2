@@ -1,3 +1,4 @@
+# TODO: move generic alerts to seaweed-operator and fix them to work for multiple S3 storages
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule

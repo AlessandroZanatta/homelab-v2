@@ -42,6 +42,12 @@ locals {
           group = "media"
           icon  = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/youtube-music.svg"
         }
+        "apps-objects" = {
+          name  = "Objects"
+          host  = "https://ui.obj.kalexlab.xyz"
+          group = "infra"
+          icon  = "https://cdn.jsdelivr.net/gh/selfhst/icons/svg/seaweedfs.svg"
+        }
         "apps-plants" = {
           name  = "Plants"
           host  = "https://plants.kalexlab.xyz"
