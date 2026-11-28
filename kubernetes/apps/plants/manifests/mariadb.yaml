@@ -15,7 +15,7 @@ spec:
       gatus.kalexlab.xyz/scheme: tcp
 
   # renovate: datasource=docker depName=ghcr.io/mariadb/mariadb
-  image: ghcr.io/mariadb/mariadb:13.0.2
+  image: ghcr.io/mariadb/mariadb:13.1.2
   imagePullPolicy: Always
   replicas: 1
 
