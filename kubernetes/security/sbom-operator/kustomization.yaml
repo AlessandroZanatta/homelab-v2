@@ -10,7 +10,7 @@ helmGlobals:
 helmCharts:
   - name: sbom-operator
     repo: https://ckotzbauer.github.io/helm-charts
-    version: 0.51.1
+    version: 0.51.2
     releaseName: sbom-operator
     namespace: sbom-operator
     valuesFile: values/sbom-operator.yaml
